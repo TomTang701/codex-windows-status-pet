@@ -171,6 +171,36 @@
       "owner": "maintainer",
       "review_cycle_days": 90,
       "required_for_release": true
+    },
+    {
+      "id": "ADR-0001", "class": "normative", "status": "active",
+      "canonical": "docs/architecture/adr/0001-local-app-server-provider.md",
+      "translations": {"zh-CN": "docs/architecture/adr/0001-local-app-server-provider.zh-CN.md"},
+      "owner": "maintainer", "review_cycle_days": 180, "required_for_release": true
+    },
+    {
+      "id": "ADR-0002", "class": "normative", "status": "active",
+      "canonical": "docs/architecture/adr/0002-tkinter-ui-framework.md",
+      "translations": {"zh-CN": "docs/architecture/adr/0002-tkinter-ui-framework.zh-CN.md"},
+      "owner": "maintainer", "review_cycle_days": 180, "required_for_release": true
+    },
+    {
+      "id": "ADR-0003", "class": "normative", "status": "active",
+      "canonical": "docs/architecture/adr/0003-local-only-security-boundary.md",
+      "translations": {"zh-CN": "docs/architecture/adr/0003-local-only-security-boundary.zh-CN.md"},
+      "owner": "maintainer", "review_cycle_days": 180, "required_for_release": true
+    },
+    {
+      "id": "ADR-0004", "class": "normative", "status": "active",
+      "canonical": "docs/architecture/adr/0004-independent-activity-and-quota-refresh.md",
+      "translations": {"zh-CN": "docs/architecture/adr/0004-independent-activity-and-quota-refresh.zh-CN.md"},
+      "owner": "maintainer", "review_cycle_days": 180, "required_for_release": true
+    },
+    {
+      "id": "ADR-0005", "class": "normative", "status": "active",
+      "canonical": "docs/architecture/adr/0005-schema-versioned-settings.md",
+      "translations": {"zh-CN": "docs/architecture/adr/0005-schema-versioned-settings.zh-CN.md"},
+      "owner": "maintainer", "review_cycle_days": 180, "required_for_release": true
     }
   ]
 }

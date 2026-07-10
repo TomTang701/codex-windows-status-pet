@@ -34,3 +34,15 @@ The runtime dependency policy uses minimum compatible bounds in `requirements.tx
 Use Semantic Versioning. Keep application, manifest, changelog, package, artifact, and diagnostic versions aligned. Record the previous stable version, configuration compatibility, reinstall path, downgrade limits, and backup/restore path.
 
 Substantial changes use focused commits and are pushed only after `scripts/run_quality_checks.py` and `git diff --check` pass. Formal candidates must also pass `scripts/run_release_candidate_checks.py`. The remote owner must remain `TomTang701`.
+
+## Candidate and tag procedure
+
+1. Choose the canonical version and update runtime, plugin manifest, changelog, diagnostics, and package sources together.
+2. Run Quality, complete every blocking physical record, then run the strict Release Candidate suite.
+3. Inspect the ZIP contents, checksum, dependency list, unsigned status, clean-machine evidence, known issues, and configuration downgrade limits.
+4. Create tag `v<version>` only from the verified commit; the tag workflow must reproduce the same artifact checks.
+5. Publish artifact and `.sha256` together with supported Windows/runtime scope and rollback instructions.
+
+## Rollback procedure
+
+Stop the tray process, retain the current settings file and `.bak`, reinstall the previous known-good artifact, and restart through the root launcher. If the current configuration schema is newer than the previous application supports, do not launch the old version against it; preserve the file and restore a compatible backup or explicitly reset after user confirmation. Record the withdrawn commit/tag, artifact checksum, reason, user-visible impact, and replacement version. Never rewrite old evidence or silently move a release tag.
