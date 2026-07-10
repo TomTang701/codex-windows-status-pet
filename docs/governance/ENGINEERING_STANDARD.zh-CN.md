@@ -1,11 +1,11 @@
 # Codex Windows Status Pet 工程开发总规范
 
 > **Document-Version:** 1.0.0  
-> **Status:** 建议采用的中文翻译副本  
+> **Status:** 当前生效的中文翻译副本
 > **Canonical-Language:** English  
 > **Translation-Source:** `ENGINEERING_STANDARD.md`  
 > **Applies-To:** `TomTang701/codex-windows-status-pet`  
-> **Baseline:** `main` 分支提交 `76c5dd85620a59a305f7b46b05b094c96ba89d09`  
+> **Baseline:** `main` 分支文档框架采用基线
 > **Owner:** 项目维护者  
 > **Review-Cadence:** 每个次版本至少检查一次，并且至少每90天检查一次  
 > **Last-Reviewed:** 2026-07-10
@@ -18,10 +18,10 @@
 
 本文档刻意与以下文件分离：
 
-- `DEVELOPMENT_PLAN.md`：描述路线优先级；
-- `API_SPEC.md`：记录具体API契约和不变量；
-- `FILE_SPEC.md`：记录仓库布局和持久化格式；
-- `COMPATIBILITY_MATRIX.md`：记录测试证据；
+- `docs/product/ROADMAP.md`：描述路线优先级；
+- `docs/architecture/API_SPEC.md`：记录具体API契约和不变量；
+- `docs/architecture/REPOSITORY_STRUCTURE.md`和`docs/architecture/CONFIGURATION.md`：记录仓库布局和持久化格式；
+- `docs/quality/COMPATIBILITY_MATRIX.md`：记录测试证据；
 - `CHANGELOG.md`：记录已发布和未发布变更。
 
 文件发生冲突时，优先级如下：
@@ -29,9 +29,9 @@
 1. 本规范中的安全和隐私要求；
 2. 本规范中的运行时不变量；
 3. 已批准的架构决策记录；
-4. `API_SPEC.md`；
-5. `FILE_SPEC.md`；
-6. `DEVELOPMENT_PLAN.md`；
+4. `docs/architecture/API_SPEC.md`；
+5. `docs/architecture/CONFIGURATION.md`；
+6. `docs/product/ROADMAP.md`；
 7. README和示例。
 
 ---
@@ -105,14 +105,14 @@
 |---|---|---|
 | `ENGINEERING_STANDARD.md` | 稳定的全项目工程规则 | 政策或治理变化 |
 | `ARCHITECTURE.md` | 组件、依赖方向、生命周期、并发 | 架构变化 |
-| `API_SPEC.md` | API契约、类型、不变量、错误行为 | API行为变化 |
-| `FILE_SPEC.md` | 仓库布局、配置schema、文件归属 | 文件或schema变化 |
+| `docs/architecture/API_SPEC.md` | API契约、类型、不变量、错误行为 | API行为变化 |
+| `docs/architecture/REPOSITORY_STRUCTURE.md`和`docs/architecture/CONFIGURATION.md` | 仓库布局、配置schema、文件归属 | 文件或schema变化 |
 | `SECURITY.md` | 威胁模型、隐私边界、漏洞流程 | 安全边界变化 |
 | `TESTING.md` | 测试分层、fixture、命令、证据规则 | 测试策略变化 |
 | `RELEASE.md` | 版本、门禁、打包、回滚 | 发布流程变化 |
 | `CONTRIBUTING.md` | 分支、提交、PR、审查流程 | 协作流程变化 |
-| `DEVELOPMENT_PLAN.md` | 当前路线和优先级 | 计划变化 |
-| `COMPATIBILITY_MATRIX.md` | Windows实体和自动证据 | 兼容性结果变化 |
+| `docs/product/ROADMAP.md` | 当前路线和优先级 | 计划变化 |
+| `docs/quality/COMPATIBILITY_MATRIX.md` | Windows实体和自动证据 | 兼容性结果变化 |
 | `CHANGELOG.md` | 发布历史 | 用户可见变化 |
 | `README.md` | 用户介绍和安装 | 用户流程变化 |
 
@@ -1280,7 +1280,7 @@ Tracking issue:
 - `RELEASE.md`；
 - `CONTRIBUTING.md`。
 
-在不改变运行时行为的前提下，将详细内容从 `API_SPEC.md` 和 `DEVELOPMENT_PLAN.md` 移出。
+在不改变运行时行为的前提下，将详细内容从 `docs/architecture/API_SPEC.md` 和 `docs/product/ROADMAP.md` 移出。
 
 ### Phase 3 — 自动化门禁
 

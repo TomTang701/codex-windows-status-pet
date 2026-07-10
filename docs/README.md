@@ -7,7 +7,7 @@ This directory is the development documentation home. English is canonical; a `.
 | Reader | First document |
 |---|---|
 | User | [Root README](../README.md) |
-| Contributor | [Engineering Standard](../Goal/ENGINEERING_STANDARD.md), [Roadmap](product/ROADMAP.md) |
+| Contributor | [Engineering Standard](governance/ENGINEERING_STANDARD.md), [Roadmap](product/ROADMAP.md) |
 | API or UI developer | [API Specification](architecture/API_SPEC.md), [Repository Structure](architecture/REPOSITORY_STRUCTURE.md), [Configuration](architecture/CONFIGURATION.md) |
 | Tester or release maintainer | [Compatibility Matrix](quality/COMPATIBILITY_MATRIX.md), [Test Error Report](archive/audits/2026-07-09-test-error-report.md) |
 
@@ -18,7 +18,7 @@ This directory is the development documentation home. English is canonical; a `.
 - **Evidence:** records automated or physical test results.
 - **Historical:** preserves a completed audit or superseded plan.
 
-The repository is migrating from a flat root-level layout to the layered structure described in [the documentation structure plan](../Goal/codex-status-pet-documentation-structure-plan-zh.md). Until each migration step is completed, the manifest records the active source path and links remain compatible with the current layout.
+The repository is migrating from a flat root-level layout to the layered structure described in [the documentation structure plan](../Goal/codex-status-pet-documentation-structure-plan-zh.md). The manifest records the active source path and links remain compatible with the current layout.
 
 ## Source of truth
 

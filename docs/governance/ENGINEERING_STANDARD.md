@@ -1,11 +1,11 @@
 # Codex Windows Status Pet Engineering Standard
 
 > **Document-Version:** 1.0.0  
-> **Status:** Proposed canonical standard  
+> **Status:** Active canonical standard
 > **Canonical-Language:** English  
 > **Translation-Pair:** `ENGINEERING_STANDARD.zh-CN.md`  
 > **Applies-To:** `TomTang701/codex-windows-status-pet`  
-> **Baseline:** `main` at commit `76c5dd85620a59a305f7b46b05b094c96ba89d09`  
+> **Baseline:** `main` at the documentation-framework adoption baseline
 > **Owner:** Project maintainer  
 > **Review-Cadence:** At least once per minor release and every 90 days  
 > **Last-Reviewed:** 2026-07-10
@@ -18,10 +18,10 @@ This document is the highest-level engineering standard for Codex Windows Status
 
 It is intentionally separate from:
 
-- `DEVELOPMENT_PLAN.md`, which describes roadmap priorities;
-- `API_SPEC.md`, which catalogs concrete API contracts and invariants;
-- `FILE_SPEC.md`, which documents repository layout and persisted formats;
-- `COMPATIBILITY_MATRIX.md`, which records test evidence;
+- `docs/product/ROADMAP.md`, which describes roadmap priorities;
+- `docs/architecture/API_SPEC.md`, which catalogs concrete API contracts and invariants;
+- `docs/architecture/REPOSITORY_STRUCTURE.md` and `docs/architecture/CONFIGURATION.md`, which document repository layout and persisted formats;
+- `docs/quality/COMPATIBILITY_MATRIX.md`, which records test evidence;
 - `CHANGELOG.md`, which records released and unreleased changes.
 
 When documents conflict, the precedence order is:
@@ -29,9 +29,9 @@ When documents conflict, the precedence order is:
 1. Security and privacy requirements in this standard;
 2. Runtime invariants in this standard;
 3. Approved Architecture Decision Records;
-4. `API_SPEC.md`;
-5. `FILE_SPEC.md`;
-6. `DEVELOPMENT_PLAN.md`;
+4. `docs/architecture/API_SPEC.md`;
+5. `docs/architecture/CONFIGURATION.md`;
+6. `docs/product/ROADMAP.md`;
 7. README and examples.
 
 ---
@@ -105,14 +105,14 @@ The repository SHOULD maintain the following document set:
 |---|---|---|
 | `ENGINEERING_STANDARD.md` | Stable project-wide engineering rules | Policy or governance change |
 | `ARCHITECTURE.md` | Components, dependency direction, lifecycle, concurrency | Architectural change |
-| `API_SPEC.md` | API contracts, types, invariants, error behavior | API behavior change |
-| `FILE_SPEC.md` | Repository layout, config schema, file ownership | File/schema change |
+| `docs/architecture/API_SPEC.md` | API contracts, types, invariants, error behavior | API behavior change |
+| `docs/architecture/REPOSITORY_STRUCTURE.md` and `docs/architecture/CONFIGURATION.md` | Repository layout, config schema, file ownership | File/schema change |
 | `SECURITY.md` | Threat model, privacy boundary, vulnerability process | Security boundary change |
 | `TESTING.md` | Test levels, fixtures, commands, evidence rules | Test strategy change |
 | `RELEASE.md` | Versioning, gates, packaging, rollback | Release process change |
 | `CONTRIBUTING.md` | Branch, commit, PR, review workflow | Collaboration change |
-| `DEVELOPMENT_PLAN.md` | Current roadmap and priorities | Planning change |
-| `COMPATIBILITY_MATRIX.md` | Living physical and automated evidence | Compatibility result |
+| `docs/product/ROADMAP.md` | Current roadmap and priorities | Planning change |
+| `docs/quality/COMPATIBILITY_MATRIX.md` | Living physical and automated evidence | Compatibility result |
 | `CHANGELOG.md` | Release history | User-visible change |
 | `README.md` | User-facing introduction and installation | User workflow change |
 
@@ -1280,7 +1280,7 @@ Create paired:
 - `RELEASE.md`;
 - `CONTRIBUTING.md`.
 
-Move details out of `API_SPEC.md` and `DEVELOPMENT_PLAN.md` without changing runtime behavior.
+Move details out of `docs/architecture/API_SPEC.md` and `docs/product/ROADMAP.md` without changing runtime behavior.
 
 ### Phase 3 — Automate gates
 
