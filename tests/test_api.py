@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from api.activity_api import snapshot_activity
-from api.config_api import DEFAULT_SETTINGS, load_settings, save_settings_atomic
+from api.config_api import DEFAULT_SETTINGS, backup_settings_path, load_settings, restore_settings_backup, save_settings_atomic
 
 
 def stamp(seconds):
@@ -38,6 +38,30 @@ class ConfigApiTests(unittest.TestCase):
             self.assertEqual((settings["x"], settings["y"]), (4151, 1248))
             self.assertEqual(warnings, [])
             self.assertEqual(list(Path(directory).glob("*.tmp")), [])
+
+    def test_save_retains_previous_settings_and_restore_uses_valid_backup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            save_settings_atomic(path, {**DEFAULT_SETTINGS, "x": 100})
+            save_settings_atomic(path, {**DEFAULT_SETTINGS, "x": 200})
+            self.assertTrue(backup_settings_path(path).exists())
+            self.assertTrue(restore_settings_backup(path))
+            settings, warnings = load_settings(path)
+            self.assertEqual(settings["x"], 100)
+            self.assertEqual(warnings, [])
+
+    def test_malformed_settings_backup_is_not_restored(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            backup_settings_path(path).write_text("not-json", encoding="utf-8")
+            self.assertFalse(restore_settings_backup(path))
+
+    def test_malformed_current_settings_are_not_promoted_to_backup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text("not-json", encoding="utf-8")
+            save_settings_atomic(path, {**DEFAULT_SETTINGS, "x": 300})
+            self.assertFalse(backup_settings_path(path).exists())
 
     def test_new_numeric_settings_are_bounded(self):
         with tempfile.TemporaryDirectory() as directory:

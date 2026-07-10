@@ -4,6 +4,8 @@
 
 Settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json`. The current file predates schema-versioned migration; adding a schema version is a required follow-up before a breaking configuration change.
 
+The last valid file is retained at `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`. The context menu action **Restore Previous Settings** validates this sidecar before atomically restoring it; missing or malformed backups are ignored.
+
 ```json
 {
   "alpha": 0.35,

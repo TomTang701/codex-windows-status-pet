@@ -4,6 +4,8 @@
 
 设置保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json`。当前文件早于带schema版本的迁移机制；在引入破坏性配置变更前，必须先补充schema版本。
 
+上一个有效文件保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`。右键菜单中的“恢复上次设置”会先校验该副本，再原子恢复；缺失或损坏的备份会被忽略。
+
 ```json
 {
   "alpha": 0.35,

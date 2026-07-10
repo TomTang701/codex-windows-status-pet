@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -130,8 +131,13 @@ def load_settings(path: Path):
 
 
 def save_settings_atomic(path: Path, settings):
-    """Write settings atomically in the target directory."""
+    """Write settings atomically and retain one previous valid file as a backup."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    backup = backup_settings_path(path)
+    if path.exists():
+        _, warnings = load_settings(path)
+        if not warnings:
+            _copy_atomic(path, backup)
     payload = json.dumps(settings, ensure_ascii=False, indent=2) + "\n"
     fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
     try:
@@ -146,3 +152,48 @@ def save_settings_atomic(path: Path, settings):
         except OSError:
             pass
         raise
+
+
+def backup_settings_path(path: Path) -> Path:
+    """Return the sidecar path for the last settings file."""
+    return path.with_name(path.name + ".bak")
+
+
+def _copy_atomic(source: Path, target: Path):
+    """Copy a known file to a same-directory target without partial output."""
+    fd, temporary = tempfile.mkstemp(prefix=f".{target.name}.", suffix=".tmp", dir=target.parent)
+    os.close(fd)
+    try:
+        shutil.copyfile(source, temporary)
+        with open(temporary, "rb+") as stream:
+            os.fsync(stream.fileno())
+        os.replace(temporary, target)
+    except Exception:
+        try:
+            os.unlink(temporary)
+        except OSError:
+            pass
+        raise
+
+
+def restore_settings_backup(path: Path) -> bool:
+    """Restore the validated sidecar backup, returning False when unavailable or malformed."""
+    backup = backup_settings_path(path)
+    if not backup.exists():
+        return False
+    settings, warnings = load_settings(backup)
+    if warnings:
+        return False
+    payload = json.dumps(settings, ensure_ascii=False, indent=2) + "\n"
+    temporary = path.with_name(f".{path.name}.restore.tmp")
+    try:
+        temporary.write_text(payload, encoding="utf-8", newline="\n")
+        with temporary.open("rb+") as stream:
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        return True
+    finally:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass

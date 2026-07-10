@@ -8,7 +8,7 @@ headless tests.
 
 | API | Module | Responsibility | Test boundary |
 |---|---|---|---|
-| Configuration API | `scripts/api/config_api.py` | Validate, normalize, load, and atomically save settings. | Temporary JSON files; no Tk. |
+| Configuration API | `scripts/api/config_api.py` | Validate, normalize, load, atomically save, back up, and restore settings. | Temporary JSON files; no Tk. |
 | Activity API | `scripts/api/activity_api.py` | Read Codex session JSONL and derive active/recent status with unchanged-file caching. | Synthetic JSONL directory; injectable clock and cache. |
 | Runtime API | `scripts/api/runtime_api.py` | Own the named Windows single-instance mutex. | Windows mutex acquisition/release. |
 | Diagnostics API | `scripts/api/diagnostics_api.py` | Capture uncaught main-thread and worker exceptions when `pythonw.exe` hides the console. | Temporary log path and synthetic exception. |
@@ -46,6 +46,7 @@ headless tests.
 - Configuration API never raises for malformed user JSON; it returns defaults plus warnings.
 - Configuration API accepts UTF-8 and UTF-8-BOM JSON produced by common Windows editors.
 - Configuration writes use a same-directory temporary file and atomic replacement.
+- A successful save keeps one previous valid settings file in the `.bak` sidecar; malformed current or backup files are never promoted or restored.
 - Activity API uses the latest session event as the inactivity clock, not only task start time.
 - Runtime initialization requests per-monitor DPI awareness before creating Tk windows.
 - Runtime API never kills an unrelated process to obtain the mutex.

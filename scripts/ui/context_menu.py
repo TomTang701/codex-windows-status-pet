@@ -55,6 +55,7 @@ def show_context_menu(owner, event):
     for label, command in (("立即刷新", owner.refresh), ("显示设置", owner.show_settings)):
         tk.Button(body, text=label, command=lambda c=command: run_and_close(c), **button_options).pack(fill="x", padx=2, pady=1)
     tk.Button(body, text="复制诊断摘要", command=lambda: run_and_close(owner.copy_diagnostics), **button_options).pack(fill="x", padx=2, pady=1)
+    tk.Button(body, text="恢复上次设置", command=lambda: run_and_close(owner.restore_settings_backup), **button_options).pack(fill="x", padx=2, pady=1)
     tk.Checkbutton(body, text="置顶", variable=owner.topmost_var, command=lambda: run_and_close(owner.toggle_topmost), **button_options).pack(fill="x", padx=2, pady=1)
     tk.Checkbutton(body, text="锁定位置", variable=owner.locked_var, command=lambda: run_and_close(owner.toggle_locked), **button_options).pack(fill="x", padx=2, pady=1)
     tk.Frame(body, height=1, bg="#d1d5db").pack(fill="x", padx=2, pady=3)
