@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def assess(matrix_path=ROOT / "COMPATIBILITY_MATRIX.md"):
+def assess(matrix_path=ROOT / "docs" / "quality" / "COMPATIBILITY_MATRIX.md"):
     blockers = []
     for line in Path(matrix_path).read_text(encoding="utf-8").splitlines():
         if not line.startswith("|") or line.startswith("|---"):

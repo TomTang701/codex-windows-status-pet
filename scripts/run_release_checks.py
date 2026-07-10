@@ -1,7 +1,7 @@
 """Run the reproducible automated release gate.
 
 Physical monitor, tray, and clean-machine checks remain separate gates in
-COMPATIBILITY_MATRIX.md and are intentionally not inferred here.
+docs/quality/COMPATIBILITY_MATRIX.md and are intentionally not inferred here.
 """
 
 from __future__ import annotations
