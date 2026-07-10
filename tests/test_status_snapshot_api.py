@@ -35,6 +35,8 @@ class StatusSnapshotTests(unittest.TestCase):
             {"rateLimits": {}, "rateLimitResetCredits": {"availableCount": 2, "resetsAt": [expiry]}},
         )
         self.assertRegex(result["text"].splitlines()[-1], r"^重置 2 次 / 18:40 7/12$")
+        self.assertRegex(result["rows"]["reset_credit"], r"^重置 2 次 / 18:40 7/12$")
+        self.assertEqual(tuple(result["rows"]), ("activity", "progress", "primary_5h", "weekly", "reset_credit"))
 
     def test_snapshot_primary_5h_line_contains_time_only(self):
         reset = datetime(2030, 7, 12, 18, 40).astimezone().timestamp()

@@ -40,6 +40,8 @@ tray thread -> action queue -> Tk action dispatcher
 
 Dependencies point inward: UI and transport adapters may call API policies, but pure API modules never import Tk, pystray, or concrete window objects. Queue payloads are small normalized dictionaries containing a channel, generation, and approved activity/quota result or a sanitized error; raw provider objects never cross into presentation.
 
+The expanded overlay renders five stable labels (`activity`, `progress`, `primary_5h`, `weekly`, and `reset_credit`). Compact mode may hide the group, but expansion restores every row without reconstructing or truncating presentation text.
+
 ## Startup and shutdown sequence
 
 Startup configures logging and DPI awareness, acquires the named mutex, loads and classifies settings, creates Tk state, starts the tray adapter, then schedules independent Activity and Quota refreshes. Quota starts the local app-server only from a background worker.

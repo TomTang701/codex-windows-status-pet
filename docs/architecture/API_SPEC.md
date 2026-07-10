@@ -44,10 +44,12 @@ headless tests.
 | UI/tray adapter | `Pet` in `scripts/ui/main_window.py` and `TrayIcon3` in `scripts/ui/tray_adapter.py` | Translate API results into Tk and tray actions. | Windows UI/manual interaction tests only. |
 | Context Menu UI | `scripts/ui/context_menu.py` | Own first-click-safe popup construction, placement, command dispatch, and close behavior. | Existing first-click/settings popup integration test and physical corner checks. |
 | Settings Dialog UI | `scripts/ui/settings_dialog.py` | Own settings controls, validation binding, transaction actions, and reachable-dialog placement. | Settings session tests and Windows secondary-monitor interaction checks. |
+| Status Rows UI | `scripts/ui/status_rows.py` | Render five independent labels while retaining the main-window adapter surface. | Tk adapter smoke plus pure row-contract tests. |
 | Tray UI | `scripts/ui/tray_adapter.py` | Own icon construction, pystray callbacks, tray thread, and stop handling; actions return through a queue. | Tray failure, action allowlist, repeated launch, and physical show/hide checks. |
 | Codex Transport API | `scripts/api/codex_transport_api.py` | Discover the local Codex CLI and perform app-server stdio JSON-RPC without UI ownership. | Configured-path discovery, stopped-process rejection, and mocked transport boundaries. |
 | Diagnostic Summary API | `scripts/api/diagnostic_summary_api.py` | Produce copyable operational diagnostics while excluding credentials, prompts, responses, session contents, and raw quota. | State/path formatting and sensitive-data exclusion tests. |
 | Status Snapshot API | `scripts/api/status_snapshot_api.py` | Convert approved activity/quota state into display text, color, and active-count values without Tk. | Truthful formatting, stale color, and raw-field exclusion tests. |
+| Status Rows API | `scripts/api/status_rows_api.py` | Preserve stable activity, progress, primary 5h, weekly, and Reset Credit row identities independently from Tk. | Exact row order, missing-line padding, and Reset Credit full-format assertions. |
 | Startup Audit | `scripts/startup_audit.py` | Read-only detection of known legacy Codex Status Pet entries in the Startup folder and Run/RunOnce registry keys. | Known legacy name/path, unrelated entry, and no-modification tests. |
 | Taskbar API | `scripts/api/taskbar_api.py` | Read the current primary taskbar edge and rectangle for physical compatibility evidence. | Stable edge mapping and Windows probe output. |
 

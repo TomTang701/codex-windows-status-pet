@@ -5,9 +5,11 @@ from __future__ import annotations
 try:
     from api.quota_format_api import earliest_future_expiry, local_time_only, quota_line, reset_credit_line
     from api.quota_status_api import HEALTH_COLORS, health_tier
+    from api.status_rows_api import StatusRowsSnapshot
 except ModuleNotFoundError:
     from scripts.api.quota_format_api import earliest_future_expiry, local_time_only, quota_line, reset_credit_line
     from scripts.api.quota_status_api import HEALTH_COLORS, health_tier
+    from scripts.api.status_rows_api import StatusRowsSnapshot
 
 
 def _percent_left(window):
@@ -36,14 +38,19 @@ def build_status_snapshot(activity, quota, quota_state="loading", font_color="#e
     color = "#9ca3af" if quota_state == "stale" else (font_color if tier == "healthy" else HEALTH_COLORS.get(tier, font_color))
     state_label = "（额度过期）" if quota_state == "stale" else ""
     active_count = int(activity.get("active", 0) or 0)
-    return {
-        "text": (
-            f"Codex {activity.get('detail', '空闲')}{state_label}\n"
-            f"{activity.get('progress', '')}\n"
-            f"5h {_percent_left(primary)} / {local_time_only(primary.get('resetsAt'))}\n"
-            f"{quota_line('周', _percent_left(secondary), secondary.get('resetsAt'))}\n"
-            f"{reset_credit_line(credits.get('availableCount', '--') if isinstance(credits, dict) else '--', earliest_future_expiry(credit_items))}"
+    rows = StatusRowsSnapshot(
+        activity=f"Codex {activity.get('detail', '空闲')}{state_label}",
+        progress=activity.get("progress", ""),
+        primary_5h=f"5h {_percent_left(primary)} / {local_time_only(primary.get('resetsAt'))}",
+        weekly=quota_line("周", _percent_left(secondary), secondary.get("resetsAt")),
+        reset_credit=reset_credit_line(
+            credits.get("availableCount", "--") if isinstance(credits, dict) else "--",
+            earliest_future_expiry(credit_items),
         ),
+    )
+    return {
+        "text": rows.as_text(),
+        "rows": rows.as_dict(),
         "color": color,
         "active_count": active_count,
         "quota_tier": tier,

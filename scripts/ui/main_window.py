@@ -31,6 +31,7 @@ try:
     from ui.context_menu import show_context_menu
     from ui.settings_dialog import show_settings_dialog
     from ui.tray_adapter import TrayIcon3
+    from ui.status_rows import StatusRows
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
     from scripts.api.codex_transport_api import AppServer
@@ -51,6 +52,7 @@ except ModuleNotFoundError:
     from scripts.ui.context_menu import show_context_menu
     from scripts.ui.settings_dialog import show_settings_dialog
     from scripts.ui.tray_adapter import TrayIcon3
+    from scripts.ui.status_rows import StatusRows
 
 
 def ensure_single_instance():
@@ -108,12 +110,12 @@ class Pet(tk.Tk):
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", 28), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.face.pack(side="left", padx=(12, 5), pady=10)
-        self.text = tk.Label(self, text="Codex\n\u8fde\u63a5\u4e2d...", justify="left", anchor="w", wraplength=max(1, self.settings["window_width"] - 82), font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=max(1, self.settings["window_width"] - 82), font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.text.pack(side="left", fill="both", expand=True, pady=10)
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
         self.bind("<Leave>", self._pointer_leave)
-        for widget in (self.face, self.text):
+        for widget in (self.face, *self.text.event_widgets):
             widget.bind("<Button-3>", self.menu)
             widget.bind("<Enter>", self._pointer_enter)
             widget.bind("<Leave>", self._pointer_leave)

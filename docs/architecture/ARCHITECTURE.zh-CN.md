@@ -40,6 +40,8 @@ Tk主窗口 -> UI适配器 -> 纯API策略
 
 依赖向内：UI和transport适配器可以调用API策略，但纯API模块不得导入Tk、pystray或具体窗口对象。Queue payload只包含channel、generation、批准的活动/额度结果或脱敏错误；原始provider对象不得进入展示层。
 
+展开悬浮窗渲染五个稳定Label（`activity`、`progress`、`primary_5h`、`weekly`和`reset_credit`）。Compact模式可以隐藏整组，但展开会恢复每一行，不重建或截断展示文本。
+
 ## 启动和关闭顺序
 
 启动依次配置日志和DPI awareness、申请命名mutex、加载并分类设置、创建Tk状态、启动托盘适配器，然后调度独立Activity和Quota刷新。Quota只能从后台worker启动本地app-server。
