@@ -38,6 +38,7 @@ try:
     from api.resize_session_api import ResizeSession
     from api.settings_session_api import SettingsSession
     from api.quota_provider_api import normalize_snapshot
+    from api.quota_state_api import QuotaState
     from api.runtime_api import SingleInstance, enable_dpi_awareness
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
@@ -55,6 +56,7 @@ except ModuleNotFoundError:
     from scripts.api.resize_session_api import ResizeSession
     from scripts.api.settings_session_api import SettingsSession
     from scripts.api.quota_provider_api import normalize_snapshot
+    from scripts.api.quota_state_api import QuotaState
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
 
 
@@ -267,6 +269,7 @@ class Pet(tk.Tk):
         self.refresh_controller = RefreshController(("activity", "quota"))
         self.latest_activity = {"active": 0, "detail": "空闲", "progress": ""}
         self.latest_quota = {"rateLimits": {}, "rateLimitResetCredits": {}}
+        self.quota_state = QuotaState()
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", 28), fg=self.settings["font_color"], bg=self.settings["background_color"])
@@ -790,9 +793,13 @@ class Pet(tk.Tk):
         credit_items = credits if isinstance(credits, (list, dict)) else []
         earliest_credit_expiry = earliest_future_expiry(credit_items)
         tier = health_tier(primary)
-        text_color = self.settings["font_color"] if tier == "healthy" else HEALTH_COLORS.get(tier, self.settings["font_color"])
+        if self.quota_state.state == "stale":
+            text_color = "#9ca3af"
+        else:
+            text_color = self.settings["font_color"] if tier == "healthy" else HEALTH_COLORS.get(tier, self.settings["font_color"])
+        quota_state_label = "（额度过期）" if self.quota_state.state == "stale" else ""
         self.text.config(text=(
-            f"Codex {activity.get('detail', '空闲')}\n"
+            f"Codex {activity.get('detail', '空闲')}{quota_state_label}\n"
             f"{activity.get('progress', '')}\n"
             f"5h {percent_left(primary)} / {short_time(primary.get('resetsAt'))}\n"
             f"{quota_line('周', percent_left(secondary), secondary.get('resetsAt'))}\n"
@@ -822,9 +829,16 @@ class Pet(tk.Tk):
                     self.latest_activity = payload.get("_activity", self.latest_activity)
                 elif channel == "quota":
                     if "error" in payload:
+                        self.quota_state.fail("transport_error")
+                        if self.quota_state.last_good is not None:
+                            self.latest_quota = self.quota_state.last_good
                         self.text.config(text="Codex\n" + payload["error"][:30], fg="#fca5a5")
                         continue
-                    self.latest_quota = payload
+                    if payload.get("status") == "available":
+                        self.quota_state.update(payload)
+                        self.latest_quota = payload
+                    else:
+                        self.quota_state.fail("unavailable")
                 self.render_status()
         except queue.Empty:
             pass

@@ -5,7 +5,7 @@
 
 ## Current progress
 
-- **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, automated release gate, transactional settings, strict integer input validation, and reversible resize sessions.
+- **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, automated release gate, transactional settings, strict integer input validation, reversible resize sessions, independent refresh channels, strict quota parsing, and last-good state handling.
 - **Verified:** 33 automated tests, seven bilingual document pairs, Windows 11 launcher smoke test, secondary-monitor menu/settings path, and keyboard-driven tray hide/show recovery.
 - **Pending physical evidence:** mixed-DPI monitors, alternate taskbar edges, clean-machine dependency installation, and an idle desktop run that visibly exercises compact hover expansion.
 - **Explicitly out of scope:** access-token readers, third-party quota endpoints, telemetry, and modifying Codex core or built-in pet files.
@@ -64,6 +64,9 @@ English files are canonical; Chinese files are synchronized translation copies i
 | `RefreshSchedulerAPI` | Run one quota refresh at a time with a bounded user interval. |
 | `RefreshControllerAPI` | Keep Activity and Quota refresh channels independent and generation-safe. |
 | `QuotaProviderAPI` | Adapt local or future providers to one normalized snapshot schema. |
+| `QuotaParseAPI` | Accept only approved quota fields and explicit naming aliases. |
+| `QuotaStateAPI` | Track loading, last-good, stale, signed-out, and unavailable quota states. |
+| `ModelsAPI` | Hold typed quota-domain values outside the UI. |
 | `DiagnosticsAPI` | Persist startup, worker, UI, and tray failures. |
 
 No performance feature may be added directly to UI code without its own API boundary and compatibility test.

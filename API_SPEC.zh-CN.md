@@ -20,6 +20,9 @@
 | 窗口尺寸 API | `scripts/api/window_size_api.py` | 在边界内计算自由或等比例的宽高变化。 | 自由、等比例、边界和非法因子场景。 |
 | 缩放会话 API | `scripts/api/resize_session_api.py` | 基于打开时尺寸应用可逆的百分比缩放。 | 加减精确对称和边界尺寸测试。 |
 | 额度数据源 API | `scripts/api/quota_provider_api.py` | 规范化已获取的本地 app-server 数据，不读取认证信息，也不发起网络请求。 | 有效、损坏和带凭据字段的响应测试。 |
+| 额度解析 API | `scripts/api/quota_parse_api.py` | 只规范化批准的额度字段及明确的 camelCase/snake_case 别名。 | 未知字段、非法数字、别名和缺失字段测试。 |
+| 额度状态 API | `scripts/api/quota_state_api.py` | 保留最近成功数据，并分类 loading、ok、stale 和明确错误。 | 成功恢复、短暂失败、过期超时和无数据失败测试。 |
+| 领域模型 API | `scripts/api/models_api.py` | 定义类型化的额度窗口、重置额度和额度快照值。 | 数据类构造和类型边界测试。 |
 | 托盘生命周期 API | `scripts/api/tray_lifecycle_api.py` | 校验托盘动作，并保证只请求一次恢复重建。 | 动作白名单、可见性策略、重复故障和关闭场景。 |
 | 刷新调度 API | `scripts/api/refresh_scheduler_api.py` | 使用已校验的间隔，并保证同时只有一个刷新工作线程。 | 重复刷新调用和间隔限制测试。 |
 | 刷新控制器 API | `scripts/api/refresh_controller_api.py` | 使用 generation、取消和关闭保护，让 Activity 与 Quota 通道彼此独立。 | 独立 single-flight 通道、过期 generation 和关闭回调测试。 |
