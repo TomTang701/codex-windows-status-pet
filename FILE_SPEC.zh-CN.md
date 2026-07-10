@@ -31,6 +31,14 @@
 | `scripts/api/refresh_scheduler_api.py` | 与 UI 无关的单实例刷新调度 API。 |
 | `scripts/check_doc_parity.py` | 英文/中文文档副本结构一致性检查器。 |
 | `scripts/run_release_checks.py` | 可重复的自动化发布门禁；实体测试保持独立。 |
+| `scripts/package_smoke_test.py` | 校验打包元数据并创建非正式发布 smoke ZIP。 |
+| `.github/workflows/ci.yml` | Windows GitHub Actions 质量门禁和 smoke 制品工作流。 |
+| `scripts/api/compact_state_api.py` | 与 UI 无关的定时收缩/展开状态和边缘几何 API。 |
+| `scripts/api/window_recovery_api.py` | 与 UI 无关的离屏恢复和最近工作区选择 API。 |
+| `scripts/api/refresh_controller_api.py` | Activity/Quota 独立刷新通道生命周期 API。 |
+| `scripts/api/quota_parse_api.py` | 严格批准字段的额度响应解析 API。 |
+| `scripts/api/quota_state_api.py` | 最近成功、过期和明确额度错误状态 API。 |
+| `scripts/api/models_api.py` | 类型化额度领域数据类。 |
 
 ## 运行时配置
 

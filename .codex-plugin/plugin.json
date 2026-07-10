@@ -3,14 +3,14 @@
   "version": "0.2.0+codex.20260710053137",
   "description": "Codex Windows Status Pet plugin",
   "author": {
-    "name": "Local developer"
+    "name": "Zixuan Tang"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Windows Status Pet",
     "shortDescription": "Use Codex Windows Status Pet in Codex.",
     "longDescription": "Codex Windows Status Pet adds a local Codex plugin scaffold.",
-    "developerName": "Local developer",
+    "developerName": "Zixuan Tang",
     "category": "Productivity",
     "capabilities": [],
     "defaultPrompt": "Help me use Codex Windows Status Pet."

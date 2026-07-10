@@ -40,6 +40,7 @@ python -m py_compile .\scripts\codex_status_pet.py
 ```
 
 可重复的自动化门禁命令是 `python scripts/run_release_checks.py`，不能替代 `COMPATIBILITY_MATRIX.md` 中列出的实体 Windows 测试。
+打包 smoke 门禁命令是 `python scripts/package_smoke_test.py`；GitHub Actions 会在 Windows 上运行两组门禁。
 
 发布前必须在本地仓库中明确批准目标 GitHub 所有者。受跟踪的 `.githooks/pre-push` 会在未设置时拒绝推送，也会拒绝所有者不匹配的远程仓库：
 

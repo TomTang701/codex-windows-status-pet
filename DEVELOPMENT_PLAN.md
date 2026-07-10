@@ -7,6 +7,7 @@
 
 - **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, automated release gate, transactional settings, strict integer input validation, reversible resize sessions, independent refresh channels, strict quota parsing, and last-good state handling.
 - **Verified:** 33 automated tests, seven bilingual document pairs, Windows 11 launcher smoke test, secondary-monitor menu/settings path, and keyboard-driven tray hide/show recovery.
+- **Automated release:** GitHub Actions runs on Windows, installs declared dependencies, executes the release gate, validates package metadata, and uploads a smoke-package artifact.
 - **Pending physical evidence:** mixed-DPI monitors, alternate taskbar edges, clean-machine dependency installation, and a full idle desktop run that visibly exercises compact hover expansion.
 - **Explicitly out of scope:** access-token readers, third-party quota endpoints, telemetry, and modifying Codex core or built-in pet files.
 
