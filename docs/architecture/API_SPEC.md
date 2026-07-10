@@ -55,6 +55,7 @@ headless tests.
 - Coordinate fields accept a temporary `-` while typing but reject malformed signed integers on submit.
 - Resize buttons apply the same percentage to width and height and remain reversible around the session base size.
 - UI callbacks must not perform blocking app-server or filesystem work on the Tk thread.
+- Tray and application shutdown operations are idempotent; repeated stop calls do not invoke a stopped backend again.
 - The overlay displays only the active conversation count; plan-step text is not part of the UI contract.
 - Status text uses a bounded label width so long diagnostics wrap instead of expanding past the overlay.
 - Popup rectangles must be completely contained by the selected monitor work area.

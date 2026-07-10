@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from api.tray_lifecycle_api import is_known_action, requires_visible_overlay, should_schedule_restart
+from ui.tray_adapter import TrayIcon3
 
 
 class TrayLifecycleTests(unittest.TestCase):
@@ -19,3 +20,19 @@ class TrayLifecycleTests(unittest.TestCase):
         self.assertFalse(should_schedule_restart("tray_error", already_scheduled=True))
         self.assertFalse(should_schedule_restart("tray_error", closing=True))
         self.assertFalse(should_schedule_restart("show"))
+
+    def test_tray_stop_is_idempotent(self):
+        tray = TrayIcon3.__new__(TrayIcon3)
+        tray._stopped = False
+
+        class FakeIcon:
+            def __init__(self):
+                self.calls = 0
+
+            def stop(self):
+                self.calls += 1
+
+        tray.icon = FakeIcon()
+        tray.stop()
+        tray.stop()
+        self.assertEqual(tray.icon.calls, 1)

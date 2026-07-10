@@ -27,6 +27,7 @@ class TrayIcon3:
             pystray.MenuItem("退出", lambda icon, item: actions.put("exit")),
         )
         self.icon = pystray.Icon("codex-windows-status-pet", image, "Codex Status Pet", menu)
+        self._stopped = False
         self.thread = threading.Thread(target=self._run, name="codex-tray", daemon=True)
         self.thread.start()
 
@@ -38,6 +39,9 @@ class TrayIcon3:
             self.actions.put("tray_error")
 
     def stop(self):
+        if self._stopped:
+            return
+        self._stopped = True
         try:
             self.icon.stop()
         except Exception:
