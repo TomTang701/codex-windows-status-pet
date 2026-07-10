@@ -33,7 +33,7 @@ Provide a reliable Windows companion that remains reachable on any monitor, repo
 1. Add persisted width and height.
 2. Add free resize and proportional plus/minus controls.
 3. Add a digit-only refresh interval setting, clamped to 1–10 seconds.
-4. Display weekly quota and the earliest future reset-credit expiry as local `HH:MM M/D`, with no leading zero.
+4. Keep primary 5h reset at local `HH:MM`; display weekly quota and the earliest future Reset Credit expiry as local `HH:MM M/D`, with no leading zero. Bounded parser aliases and nested expiry fixtures protect this contract.
 5. Keep Save, Apply, Restore Defaults, and Close semantics distinct.
 
 **Exit criteria:** settings survive restart; Apply does not close; Save closes after persistence; Close discards the draft; date formatting has deterministic tests.

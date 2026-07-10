@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed Reset Credit expiry display so valid future expirations retain local `HH:MM M/D`, while the primary 5h reset remains time-only; added bounded provider-shape parsing and presentation regressions.
 - Reorganized documentation into governance, architecture, product, quality, operations, and archive layers with a manifest-driven bilingual gate.
 - Added repository, configuration, architecture, testing, release, security, installation, troubleshooting, and contribution guides.
 - Added a manifest validator to the automated release checks; the suite now passes 88 tests and 17 registered bilingual pairs.

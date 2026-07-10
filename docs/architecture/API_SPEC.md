@@ -16,7 +16,7 @@ headless tests.
 | Input Validation API | `scripts/api/input_validation_api.py` | Validate signed and unsigned integer candidates and submitted values for settings fields. | Empty, partial negative, malformed, pasted, and bounded integer fixtures. |
 | Settings Session API | `scripts/api/settings_session_api.py` | Keep persisted, runtime, draft, and opening settings distinct across Apply, Save, Close, and Defaults. | Apply/Save/Close transaction tests without Tk. |
 | Popup Geometry API | `scripts/api/display_api.py` | Select a monitor work area and place a popup fully inside it. | Four corners, secondary monitor, negative coordinates, and taskbar work areas. |
-| Quota Format API | `scripts/api/quota_format_api.py` | Select the earliest future credit expiry and format local `HH:MM M/D` text. | Invalid/past expiry values, missing dates, and no-leading-zero formatting. |
+| Quota Format API | `scripts/api/quota_format_api.py` | Select the earliest future credit expiry and format primary resets as local `HH:MM` or weekly/Reset Credit expiry as `HH:MM M/D`. | Epoch/ISO input, invalid/past expiry values, missing dates, and no-leading-zero formatting. |
 | Quota Status API | `scripts/api/quota_status_api.py` | Classify valid quota windows as healthy, caution, critical, or unavailable. | Boundary percentages and malformed windows. |
 | Display Mode API | `scripts/api/display_mode_api.py` | Decide opt-in idle compaction and calculate compact geometry. | Opt-in, active, hovered, and malformed-size cases. |
 | Compact State API | `scripts/api/compact_state_api.py` | Delay idle compaction, expand on activity/hover, and preserve edge anchors. | Idle delay, activity, hover, blockers, and edge geometry. |
@@ -24,7 +24,7 @@ headless tests.
 | Window Size API | `scripts/api/window_size_api.py` | Transform free or proportional width/height changes with bounds. | Free, proportional, bounded, and invalid-factor cases. |
 | Resize Session API | `scripts/api/resize_session_api.py` | Apply reversible percentage steps from an opening base size. | Exact plus/minus symmetry and bounded dimensions. |
 | Quota Provider API | `scripts/api/quota_provider_api.py` | Normalize already-fetched local app-server data without reading auth or making network calls. | Valid, malformed, and credential-bearing payload fixtures. |
-| Quota Parse API | `scripts/api/quota_parse_api.py` | Normalize only approved quota fields and explicit camelCase/snake_case aliases. | Unknown fields, invalid numbers, aliases, and missing fields. |
+| Quota Parse API | `scripts/api/quota_parse_api.py` | Normalize only approved quota fields and bounded Reset Credit containers with explicit camelCase/snake_case aliases. | Scalar/list/nested expiry shapes, unknown or credential fields, invalid numbers, aliases, and missing fields. |
 | Quota State API | `scripts/api/quota_state_api.py` | Retain last-good data and classify loading, ok, stale, and explicit failures. | Success recovery, recent failure, stale timeout, and no-data failures. |
 | Domain Models API | `scripts/api/models_api.py` | Define typed usage-window, reset-credit, and quota-snapshot values. | Dataclass construction and type-boundary tests. |
 | Tray Lifecycle API | `scripts/api/tray_lifecycle_api.py` | Validate tray actions and guarantee one recovery restart request. | Action allowlist, visibility policy, duplicate failure, and shutdown cases. |
@@ -62,7 +62,7 @@ headless tests.
 - Popup rectangles must be completely contained by the selected monitor work area.
 - Window placement is re-evaluated during the running session so monitor disconnects and taskbar work-area changes can recover the overlay.
 - Coordinates may be negative; dimensions are clamped to 180–1200 by 80–800; refresh interval is clamped to 1–10 seconds.
-- Quota dates use the local timezone and `M/D` without leading zeroes; missing provider data is not invented.
+- The primary 5h reset uses local `HH:MM` only. Weekly and Reset Credit expiry use local `HH:MM M/D` without leading zeroes. Missing provider dates are not invented.
 - The default quota provider accepts local app-server results only; it never reads auth files, sends tokens, or persists credentials.
 - A major behavior or performance change requires a changelog entry, specification update, and regression test.
 - The context-menu implementation has one reachable popup path; obsolete native-menu code must not remain after an unconditional return.

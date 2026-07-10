@@ -14,7 +14,7 @@
 | 输入校验 API | `scripts/api/input_validation_api.py` | 校验设置字段中的带符号/无符号整数候选值和提交值。 | 空值、负号中间态、非法粘贴、损坏和范围限制整数固件。 |
 | 设置会话 API | `scripts/api/settings_session_api.py` | 在应用、保存、关闭和恢复默认值之间区分已保存、运行时、草稿和打开时快照。 | 不启动 Tk 的应用/保存/关闭事务测试。 |
 | 弹出菜单几何 API | `scripts/api/display_api.py` | 选择显示器工作区并将弹出菜单完整放入其中。 | 四个角、副屏幕、负坐标和任务栏工作区。 |
-| 额度格式化 API | `scripts/api/quota_format_api.py` | 选择未来最近的额度到期时间，并格式化本地 `HH:MM M/D` 文本。 | 非法/过去的到期值、缺失日期和不补前导零。 |
+| 额度格式化 API | `scripts/api/quota_format_api.py` | 选择未来最近的额度到期时间，将主要重置格式化为本地 `HH:MM`，并将周额度/Reset Credit 到期格式化为 `HH:MM M/D`。 | epoch/ISO 输入、非法/过去的到期值、缺失日期和不补前导零。 |
 | 额度状态 API | `scripts/api/quota_status_api.py` | 将有效额度窗口分类为健康、警告、危险或不可用。 | 百分比边界和损坏窗口。 |
 | 显示模式 API | `scripts/api/display_mode_api.py` | 决定是否启用空闲收缩并计算收缩尺寸。 | 启用、活动、悬停和非法尺寸场景。 |
 | 收缩状态 API | `scripts/api/compact_state_api.py` | 延迟空闲收缩，在活动/悬停时展开，并保持边缘锚点。 | 空闲延迟、活动、悬停、阻塞和边缘几何测试。 |
@@ -22,7 +22,7 @@
 | 窗口尺寸 API | `scripts/api/window_size_api.py` | 在边界内计算自由或等比例的宽高变化。 | 自由、等比例、边界和非法因子场景。 |
 | 缩放会话 API | `scripts/api/resize_session_api.py` | 基于打开时尺寸应用可逆的百分比缩放。 | 加减精确对称和边界尺寸测试。 |
 | 额度数据源 API | `scripts/api/quota_provider_api.py` | 规范化已获取的本地 app-server 数据，不读取认证信息，也不发起网络请求。 | 有效、损坏和带凭据字段的响应测试。 |
-| 额度解析 API | `scripts/api/quota_parse_api.py` | 只规范化批准的额度字段及明确的 camelCase/snake_case 别名。 | 未知字段、非法数字、别名和缺失字段测试。 |
+| 额度解析 API | `scripts/api/quota_parse_api.py` | 只规范化批准的额度字段、限定深度的 Reset Credit 容器及明确的 camelCase/snake_case 别名。 | 单值/list/嵌套到期结构、未知或凭据字段、非法数字、别名和缺失字段测试。 |
 | 额度状态 API | `scripts/api/quota_state_api.py` | 保留最近成功数据，并分类 loading、ok、stale 和明确错误。 | 成功恢复、短暂失败、过期超时和无数据失败测试。 |
 | 领域模型 API | `scripts/api/models_api.py` | 定义类型化的额度窗口、重置额度和额度快照值。 | 数据类构造和类型边界测试。 |
 | 托盘生命周期 API | `scripts/api/tray_lifecycle_api.py` | 校验托盘动作，并保证只请求一次恢复重建。 | 动作白名单、可见性策略、重复故障和关闭场景。 |
@@ -58,7 +58,7 @@
 - 弹出菜单矩形必须完全位于所选显示器工作区内。
 - 程序运行期间必须重新评估窗口位置，以便在显示器断开或任务栏工作区变化时恢复悬浮窗。
 - 坐标允许为负数；窗口尺寸限制为宽 180–1200、高 80–800；刷新间隔限制为 1–10 秒。
-- 额度日期使用本地时区和不补前导零的 `M/D`；数据源缺失时不得臆造。
+- 主要 5h 重置只使用本地 `HH:MM`。周额度和 Reset Credit 到期使用本地 `HH:MM M/D`，月/日不补前导零。数据源缺失日期时不得臆造。
 - 默认额度数据源只接受本地 app-server 结果；不得读取认证文件、发送令牌或持久化凭据。
 - 重大行为或性能变化必须同时更新更新日志、规范和回归测试。
 - 右键菜单只能保留一条可到达的弹出路径；无条件 return 后不得保留废弃的原生菜单代码。

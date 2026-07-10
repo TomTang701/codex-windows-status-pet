@@ -16,6 +16,7 @@
 | Settings | Width/height and proportional resize | Automated | `Window Size API` tests cover free, proportional, bounded, and invalid-factor cases. |
 | Settings | Digit-only entries and interval 1–10 | Automated | Configuration and scheduler tests cover malformed and bounded values; manual paste test remains pending. |
 | Settings | UTF-8 BOM JSON from Windows editors | Automated pass | Configuration API accepts UTF-8 and UTF-8-BOM fixtures without losing coordinates. |
+| Quota display | Primary, weekly, and Reset Credit expiry contract | Automated pass | Formatting/parser/snapshot tests verify primary `HH:MM`, weekly and Reset Credit `HH:MM M/D`, local timezone, no leading zeroes, bounded aliases, malformed fallback, and raw-field exclusion; expanded-mode physical visibility remains pending. |
 | Lifecycle | Hidden overlay remains running | Physical pass | Hide action removed the overlay while `pythonw.exe` remained alive. |
 | Lifecycle | Tray show after hide | Physical pass | Windows keyboard notification-area path (`Win+B` → Apps) opened the tray menu; Hide then Show restored the overlay to secondary coordinate `(4150,1248)`. |
 | DPI | 100% / 125% / 150% / 200% | Automated partial | Current physical probe observed 96 DPI on both monitors; simulated 96/120/144/192 DPI paths pass; physical mixed-DPI monitor run remains pending. |

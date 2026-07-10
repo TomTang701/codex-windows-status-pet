@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
-from api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
+from api.quota_format_api import earliest_future_expiry, local_time_date, local_time_only, quota_line, reset_credit_line
 
 
 class QuotaFormatTests(unittest.TestCase):
@@ -32,6 +32,29 @@ class QuotaFormatTests(unittest.TestCase):
 
     def test_missing_reset_time_is_not_invented(self):
         self.assertEqual(reset_credit_line(5, None), "重置 5 次")
+
+    def test_reset_credit_line_includes_local_time_and_date(self):
+        timestamp = datetime(2030, 7, 12, 18, 40).astimezone().timestamp()
+        self.assertRegex(reset_credit_line(2, timestamp), r"^重置 2 次 / 18:40 7/12$")
+
+    def test_reset_credit_line_without_expiry_omits_separator(self):
+        self.assertEqual(reset_credit_line(2, "damaged"), "重置 2 次")
+
+    def test_local_time_date_has_no_leading_zero(self):
+        timestamp = datetime(2030, 1, 2, 3, 4).astimezone().timestamp()
+        self.assertEqual(local_time_date(timestamp), "03:04 1/2")
+
+    def test_local_time_date_accepts_iso_timestamp(self):
+        value = datetime(2030, 7, 12, 18, 40).astimezone().isoformat()
+        self.assertEqual(local_time_date(value), "18:40 7/12")
+
+    def test_primary_time_omits_date(self):
+        timestamp = datetime(2030, 7, 12, 18, 40).astimezone().timestamp()
+        self.assertEqual(local_time_only(timestamp), "18:40")
+
+    def test_invalid_and_overflowing_dates_use_safe_fallback(self):
+        self.assertEqual(local_time_date("damaged"), "--")
+        self.assertEqual(local_time_date(10**100), "--")
 
 
 if __name__ == "__main__":
