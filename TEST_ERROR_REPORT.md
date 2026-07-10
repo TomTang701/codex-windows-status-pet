@@ -4,6 +4,10 @@
 **Scope:** Windows launcher, overlay, tray icon, settings, activity detection, Codex app-server boundary, packaging, and documentation.  
 **Rule for this audit:** findings only. No production fix was applied during this audit.
 
+> Historical baseline: this report records the defects as observed on 2026-07-09. The original
+> findings table is intentionally preserved for traceability; the remediation status below is the
+> authoritative current-state summary and reflects subsequent implementation and testing.
+
 ## Executive summary
 
 The product is not ready for a high-confidence release. The most visible defect remains the main
@@ -92,6 +96,13 @@ were implemented and are now covered by the API/test boundary specification:
 This status section records progress only; it does not claim the product is fully release-ready.
 
 ## Follow-up implementation status (2026-07-10)
+
+### Current remediation summary (latest)
+
+- The repository now has 63 automated tests, seven bilingual document-pair checks, a Windows GitHub Actions gate, and a package smoke check.
+- The first-click menu, settings transactions, input validation, single-instance lifecycle, tray recovery policy, off-screen recovery, strict quota parsing, independent refresh channels, diagnostics summary, and UI/API module boundaries are implemented and tested.
+- Windows 11 dual-monitor evidence is current; Windows 10, mixed-DPI, taskbar-edge, clean-machine physical evidence, and a full idle Compact run remain release-gate items.
+- The repository is not marked release-ready or versioned as v0.3.0 until those remaining evidence gates are closed or explicitly approved by the maintainer.
 
 - **Implemented and headlessly tested:** popup work-area placement, secondary-monitor work-area selection, bounded window dimensions, scale mode persistence, digit-only settings entries, 1–10 second refresh interval normalization, weekly `M/D` display, and earliest future reset-credit expiry formatting.
 - **Regression suite:** 33 tests pass; Python compilation passes.

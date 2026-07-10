@@ -27,6 +27,7 @@ def main():
         "document_parity": [python, str(ROOT / "scripts" / "check_doc_parity.py")],
         "compile": [python, "-m", "py_compile", str(ROOT / "scripts" / "codex_status_pet.py"), *api_files],
         "tests": [python, "-m", "unittest", "discover", "-s", "tests", "-q"],
+        "release_readiness_report": [python, str(ROOT / "scripts" / "check_release_readiness.py")],
     }
     results = {}
     for name, command in checks.items():

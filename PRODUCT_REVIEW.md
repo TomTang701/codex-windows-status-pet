@@ -24,17 +24,16 @@ modifying Codex core files or injecting text into the built-in pet.
 
 ## Current risks
 
-- Windows Tk and notification-area behavior still require physical multi-monitor and DPI testing.
-- The tray needs failure-injection tests and automatic recreation before it can be treated as a
-  guaranteed recovery path.
+- Windows Tk and notification-area behavior still require Windows 10, mixed-DPI, taskbar-edge, and clean-machine evidence.
+- Tray failure-injection and single-recovery policy are now covered by deterministic tests; direct tray interaction remains partly environment-limited.
 - The fixed-size overlay can clip long diagnostics or localized text.
-- A clean virtual environment now passes dependency import and regression tests; physical mixed-DPI coverage remains.
+- A clean virtual environment and Windows CI runner pass dependency installation and regression tests; physical mixed-DPI coverage remains.
 - The quota-float visual model is useful inspiration, but its token-based external quota boundary is not copied.
 
 ## Recommended product priorities
 
-1. Make the tray and off-screen recovery observable and self-healing.
-2. Finish DPI/mixed-scale and multi-monitor test coverage.
-3. Add a diagnostics view or a clear “open log” action.
+1. Finish Windows 10, DPI/mixed-scale, taskbar-edge, and clean-machine evidence.
+2. Run a full idle desktop test for compact/hover behavior and publish the v0.3.0 reliability release.
+3. Keep the diagnostic-summary action safe and add accessibility/keyboard interaction coverage.
 4. Keep the default overlay compact and status-focused; avoid bringing plan-step detail back into
    the primary line unless it is explicitly user-configurable.

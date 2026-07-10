@@ -75,6 +75,7 @@ $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
 # Reproducible automated release gate (does not replace physical checks)
 & $py .\scripts\run_release_checks.py
 & $py .\scripts\package_smoke_test.py
+& $py .\scripts\check_release_readiness.py
 ```
 
 The live probe must be rerun after connecting a monitor with a different Windows scaling setting.
@@ -82,6 +83,8 @@ Save its JSON output with the test record; a mixed-DPI result is not inferred fr
 
 The package smoke test checks manifest/app version consistency, verified author metadata, required
 launcher/docs, and creates a non-release ZIP. GitHub Actions runs these checks on Windows.
+`check_release_readiness.py` is intentionally non-blocking by default and reports the physical
+compatibility rows that still prevent a v0.3.0 release; use `--strict` only in a release decision.
 
 ## Live Windows display evidence (run with the companion visible)
 

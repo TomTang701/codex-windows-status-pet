@@ -35,6 +35,7 @@
 | `scripts/check_doc_parity.py` | Structural parity checker for English/Chinese document pairs. |
 | `scripts/run_release_checks.py` | Reproducible automated release gate; physical checks remain separate. |
 | `scripts/package_smoke_test.py` | Validate package metadata and create a non-release smoke ZIP. |
+| `scripts/check_release_readiness.py` | Report physical compatibility blockers for the v0.3.0 release gate. |
 | `.github/workflows/ci.yml` | Windows GitHub Actions quality gate and smoke artifact workflow. |
 | `scripts/api/compact_state_api.py` | UI-independent timed compact/expanded state and edge geometry. |
 | `scripts/api/window_recovery_api.py` | UI-independent off-screen recovery and nearest work-area selection. |
