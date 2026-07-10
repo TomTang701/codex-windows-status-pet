@@ -93,6 +93,76 @@
       "required_for_release": true
     },
     {
+      "id": "ARCHITECTURE",
+      "class": "descriptive",
+      "status": "active",
+      "canonical": "docs/architecture/ARCHITECTURE.md",
+      "translations": {"zh-CN": "docs/architecture/ARCHITECTURE.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "TESTING",
+      "class": "normative",
+      "status": "active",
+      "canonical": "docs/quality/TESTING.md",
+      "translations": {"zh-CN": "docs/quality/TESTING.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "RELEASE",
+      "class": "normative",
+      "status": "active",
+      "canonical": "docs/governance/RELEASE.md",
+      "translations": {"zh-CN": "docs/governance/RELEASE.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "INSTALLATION",
+      "class": "descriptive",
+      "status": "active",
+      "canonical": "docs/operations/INSTALLATION.md",
+      "translations": {"zh-CN": "docs/operations/INSTALLATION.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "TROUBLESHOOTING",
+      "class": "descriptive",
+      "status": "active",
+      "canonical": "docs/operations/TROUBLESHOOTING.md",
+      "translations": {"zh-CN": "docs/operations/TROUBLESHOOTING.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "SECURITY",
+      "class": "normative",
+      "status": "active",
+      "canonical": "SECURITY.md",
+      "translations": {"zh-CN": "SECURITY.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "CONTRIBUTING",
+      "class": "normative",
+      "status": "active",
+      "canonical": "CONTRIBUTING.md",
+      "translations": {"zh-CN": "CONTRIBUTING.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": false
+    },
+    {
       "id": "ENGINEERING-STANDARD",
       "class": "normative",
       "status": "proposed",

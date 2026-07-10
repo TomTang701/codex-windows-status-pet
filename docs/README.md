@@ -11,6 +11,8 @@ This directory is the development documentation home. English is canonical; a `.
 | API or UI developer | [API Specification](architecture/API_SPEC.md), [Repository Structure](architecture/REPOSITORY_STRUCTURE.md), [Configuration](architecture/CONFIGURATION.md) |
 | Tester or release maintainer | [Compatibility Matrix](quality/COMPATIBILITY_MATRIX.md), [Test Error Report](archive/audits/2026-07-09-test-error-report.md) |
 
+Architecture, testing, release, security, installation, troubleshooting, and contribution rules are indexed in [`document_manifest.json`](document_manifest.json) and linked by their category directory.
+
 ## Document classes
 
 - **Normative:** defines required behavior or process.

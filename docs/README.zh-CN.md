@@ -11,6 +11,8 @@
 | API或UI开发者 | [API规范](architecture/API_SPEC.zh-CN.md)、[仓库结构](architecture/REPOSITORY_STRUCTURE.zh-CN.md)、[配置](architecture/CONFIGURATION.zh-CN.md) |
 | 测试或发布维护者 | [兼容性矩阵](quality/COMPATIBILITY_MATRIX.zh-CN.md)、[测试错误报告](archive/audits/2026-07-09-test-error-report.md) |
 
+架构、测试、发布、安全、安装、故障排除和贡献规则已登记在 [`document_manifest.json`](document_manifest.json) 中，并按类别目录提供入口。
+
 ## 文档分类
 
 - **规范类：** 定义必须遵守的行为或流程。
