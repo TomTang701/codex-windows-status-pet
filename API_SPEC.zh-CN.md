@@ -30,6 +30,7 @@
 | 刷新控制器 API | `scripts/api/refresh_controller_api.py` | 使用 generation、取消和关闭保护，让 Activity 与 Quota 通道彼此独立。 | 独立 single-flight 通道、过期 generation 和关闭回调测试。 |
 | Codex 通信 API | `AppServer` | 启动本机 app-server、执行 JSON-RPC 并报告协议错误。 | 模拟子进程和响应矩阵。 |
 | UI/托盘适配层 | `Pet` 与 `TrayIcon3` | 将 API 结果转换为 Tk 和托盘动作。 | Windows 界面和人工交互测试。 |
+| 右键菜单 UI | `scripts/ui/context_menu.py` | 管理首次点击安全的弹出菜单构造、定位、命令分发和关闭。 | 现有首次点击/设置弹窗集成测试和实体角落检查。 |
 
 ## 不变量
 

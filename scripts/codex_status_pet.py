@@ -41,6 +41,7 @@ try:
     from api.quota_provider_api import normalize_snapshot
     from api.quota_state_api import QuotaState
     from api.runtime_api import SingleInstance, enable_dpi_awareness
+    from ui.context_menu import show_context_menu
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
     from scripts.api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
@@ -60,6 +61,7 @@ except ModuleNotFoundError:
     from scripts.api.quota_provider_api import normalize_snapshot
     from scripts.api.quota_state_api import QuotaState
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
+    from scripts.ui.context_menu import show_context_menu
 
 
 def ensure_single_instance():
@@ -439,67 +441,7 @@ class Pet(tk.Tk):
 
     def menu(self, event):
         """Show a native-looking Tk popup whose controls receive first-click events."""
-        if self.compact:
-            self.set_compact(False)
-        old_menu = getattr(self, "context_menu", None)
-        if old_menu is not None:
-            try:
-                old_menu.grab_release()
-                old_menu.destroy()
-            except tk.TclError:
-                pass
-
-        popup = tk.Toplevel(self)
-        self.context_menu = popup
-        popup.overrideredirect(True)
-        popup.attributes("-topmost", True)
-        popup.configure(bg="#e5e7eb")
-        popup.geometry(f"+{event.x_root}+{event.y_root}")
-
-        def close_popup():
-            if getattr(self, "context_menu", None) is popup:
-                self.context_menu = None
-            try:
-                popup.grab_release()
-                popup.destroy()
-            except tk.TclError:
-                pass
-
-        def run_and_close(command):
-            close_popup()
-            try:
-                command()
-            except Exception:
-                logging.getLogger("codex-status-pet").exception("context-menu command failed")
-
-        body = tk.Frame(popup, bg="#f3f4f6", bd=1, relief="solid")
-        body.pack(padx=1, pady=1)
-        button_options = {"anchor": "w", "width": 18, "bd": 0, "relief": "flat", "bg": "#f3f4f6", "activebackground": "#dbeafe"}
-        for label, command in (
-            ("立即刷新", self.refresh),
-            ("显示设置", self.show_settings),
-        ):
-            tk.Button(body, text=label, command=lambda c=command: run_and_close(c), **button_options).pack(fill="x", padx=2, pady=1)
-        tk.Checkbutton(body, text="置顶", variable=self.topmost_var, command=lambda: run_and_close(self.toggle_topmost), **button_options).pack(fill="x", padx=2, pady=1)
-        tk.Checkbutton(body, text="锁定位置", variable=self.locked_var, command=lambda: run_and_close(self.toggle_locked), **button_options).pack(fill="x", padx=2, pady=1)
-        tk.Frame(body, height=1, bg="#d1d5db").pack(fill="x", padx=2, pady=3)
-        tk.Button(body, text="隐藏窗口", command=lambda: run_and_close(self.hide_window), **button_options).pack(fill="x", padx=2, pady=1)
-        tk.Button(body, text="退出", command=lambda: run_and_close(self.close), **button_options).pack(fill="x", padx=2, pady=1)
-        popup.bind("<Escape>", lambda _event: (close_popup(), "break")[1])
-        popup.bind("<Button-3>", lambda _event: close_popup())
-        popup.bind("<FocusOut>", lambda _event: popup.after_idle(close_popup))
-        popup.update_idletasks()
-        work_area = work_area_for_point(event.x_root, event.y_root)
-        popup_x, popup_y = place_popup(
-            event.x_root,
-            event.y_root,
-            popup.winfo_reqwidth(),
-            popup.winfo_reqheight(),
-            work_area,
-        )
-        popup.geometry(f"+{popup_x}+{popup_y}")
-        popup.grab_set()
-        popup.focus_force()
+        show_context_menu(self, event)
 
     def toggle_topmost(self):
         self.settings["topmost"] = bool(self.topmost_var.get())

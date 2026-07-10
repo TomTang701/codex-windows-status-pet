@@ -32,6 +32,7 @@ headless tests.
 | Refresh Controller API | `scripts/api/refresh_controller_api.py` | Keep Activity and Quota channels independent with generation, cancellation, and shutdown guards. | Independent single-flight channels, stale generations, and shutdown callbacks. |
 | Codex transport API | `AppServer` in `scripts/codex_status_pet.py` | Start local app-server, perform JSON-RPC requests, and report protocol failures. | Mock subprocess/stdout response matrix. |
 | UI/tray adapter | `Pet` and `TrayIcon3` in `scripts/codex_status_pet.py` | Translate API results into Tk and tray actions. | Windows UI/manual interaction tests only. |
+| Context Menu UI | `scripts/ui/context_menu.py` | Own first-click-safe popup construction, placement, command dispatch, and close behavior. | Existing first-click/settings popup integration test and physical corner checks. |
 
 ## Invariants
 
