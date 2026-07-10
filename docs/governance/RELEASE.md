@@ -1,5 +1,7 @@
 # Release
 
+The active [Engineering Standard](ENGINEERING_STANDARD.md) is the highest-level authority for this release process.
+
 ## Gates
 
 `scripts/run_quality_checks.py` is the daily push/PR gate. It runs manifest and link checks, version/sensitive/dependency/bilingual checks, recursive compilation of every Python file under `scripts`, tests, startup audit, a non-strict readiness report, and package smoke. The legacy `run_release_checks.py` name remains a compatibility alias.

@@ -2,6 +2,8 @@
 
 An unofficial Windows companion for Codex. It provides a small desktop overlay and a notification-area icon for live Codex activity, rate limits, and reset credits.
 
+The active [Engineering Standard](docs/governance/ENGINEERING_STANDARD.md) is the repository's highest-level development and release authority.
+
 ## Features
 
 - Reads rate limits from the local `codex app-server --stdio` JSON-RPC interface.

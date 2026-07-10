@@ -2,6 +2,8 @@
 
 This directory is the development documentation home. English is canonical; a `.zh-CN.md` file beside an English document is its Chinese translation.
 
+The active [Engineering Standard](governance/ENGINEERING_STANDARD.md) has highest precedence for repository engineering and release decisions.
+
 ## Start here
 
 | Reader | First document |

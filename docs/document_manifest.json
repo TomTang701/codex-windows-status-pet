@@ -165,12 +165,12 @@
     {
       "id": "ENGINEERING-STANDARD",
       "class": "normative",
-      "status": "proposed",
+      "status": "active",
       "canonical": "docs/governance/ENGINEERING_STANDARD.md",
       "translations": {"zh-CN": "docs/governance/ENGINEERING_STANDARD.zh-CN.md"},
       "owner": "maintainer",
       "review_cycle_days": 90,
-      "required_for_release": false
+      "required_for_release": true
     }
   ]
 }

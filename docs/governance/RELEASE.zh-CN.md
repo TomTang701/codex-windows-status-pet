@@ -1,5 +1,7 @@
 # 发布
 
+当前生效的[工程开发总规范](ENGINEERING_STANDARD.zh-CN.md)是本发布流程的最高层级依据。
+
 ## 门禁
 
 `scripts/run_quality_checks.py` 是日常 push/PR 门禁，执行manifest和链接、版本/敏感文件/依赖/双语检查、递归编译 `scripts` 下全部Python文件、测试、启动项审计、非严格就绪报告和package smoke。旧名称 `run_release_checks.py` 保留为兼容入口。

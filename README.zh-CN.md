@@ -2,6 +2,8 @@
 
 这是一个非官方 Windows Codex 外部伴侣工具，提供桌面悬浮窗和任务栏通知区域图标，用于显示 Codex 活动状态、额度和重置次数。
 
+当前生效的[工程开发总规范](docs/governance/ENGINEERING_STANDARD.zh-CN.md)是本仓库开发和发布的最高层级依据。
+
 ## 功能
 
 - 通过本机 `codex app-server --stdio` 的 JSON-RPC 接口读取额度。
