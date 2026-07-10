@@ -1,7 +1,7 @@
 # Codex Windows Status Pet Development Plan
 
 **Status:** Active roadmap  
-**Baseline:** `API_SPEC.md`, `TEST_ERROR_REPORT.md`, and the Windows portion of [quota-float](https://github.com/change-42-yhmm/quota-float)
+**Baseline:** `docs/architecture/API_SPEC.md`, `docs/archive/audits/2026-07-09-test-error-report.md`, and the Windows portion of [quota-float](https://github.com/change-42-yhmm/quota-float)
 
 ## Current progress
 
@@ -48,7 +48,7 @@ The current local app-server provider remains the default. Token-reading or exte
 
 ### P3 — documentation and release quality
 
-English files are canonical; Chinese files are synchronized translation copies in the same commit. Every major or performance change requires an API specification update, focused regression tests, a changelog entry, and a compatibility result. `scripts/check_doc_parity.py` checks the six document pairs for structural drift.
+English files are canonical; Chinese files are synchronized translation copies in the same commit. Every major or performance change requires an API specification update, focused regression tests, a changelog entry, and a compatibility result. `scripts/check_doc_parity.py` reads `docs/document_manifest.json` and checks registered document pairs for structural drift.
 
 ## API boundaries
 
@@ -78,7 +78,7 @@ No performance feature may be added directly to UI code without its own API boun
 
 ## Compatibility matrix
 
-Test Windows 10/11, one and two monitors, negative and large virtual coordinates, 100/125/150/200% DPI, each taskbar edge, hidden/shown, locked/unlocked, topmost/not-topmost, malformed settings, refresh values 1/10/0/11/empty/non-digit, network timeout, stale responses, missing reset dates, and repeated launches. Maintain results in `COMPATIBILITY_MATRIX.md`.
+Test Windows 10/11, one and two monitors, negative and large virtual coordinates, 100/125/150/200% DPI, each taskbar edge, hidden/shown, locked/unlocked, topmost/not-topmost, malformed settings, refresh values 1/10/0/11/empty/non-digit, network timeout, stale responses, missing reset dates, and repeated launches. Maintain results in `docs/quality/COMPATIBILITY_MATRIX.md`.
 
 ## Documentation rule
 

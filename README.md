@@ -31,8 +31,9 @@ The companion starts only the local Codex app-server and reads local Codex sessi
 
 Local settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json`.
 
-See [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) for the phased roadmap and [API_SPEC.md](API_SPEC.md) for test boundaries.
-See [COMPATIBILITY_MATRIX.md](COMPATIBILITY_MATRIX.md) for current Windows evidence and release gates.
+See [ROADMAP](docs/product/ROADMAP.md) for the phased roadmap and [API_SPEC](docs/architecture/API_SPEC.md) for test boundaries.
+See [COMPATIBILITY_MATRIX](docs/quality/COMPATIBILITY_MATRIX.md) for current Windows evidence and release gates.
+See [development documentation](docs/README.md) for the document map and migration status.
 
 ## Development checks
 
@@ -42,7 +43,7 @@ $py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies
 & $py -m unittest discover -s .\tests -v
 ```
 
-The reproducible automated gate is `python scripts/run_release_checks.py`. It does not replace the physical Windows checks listed in `COMPATIBILITY_MATRIX.md`.
+The reproducible automated gate is `python scripts/run_release_checks.py`. It does not replace the physical Windows checks listed in `docs/quality/COMPATIBILITY_MATRIX.md`.
 The package smoke gate is `python scripts/package_smoke_test.py`; GitHub Actions runs both gates on Windows.
 Use `python scripts/check_release_readiness.py` to see whether physical compatibility evidence still blocks v0.3.0. The current repository does not install a Startup-folder entry automatically.
 Use `python scripts/startup_audit.py` to report known legacy startup entries; it is read-only unless a maintainer explicitly removes a confirmed old entry.

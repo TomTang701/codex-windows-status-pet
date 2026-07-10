@@ -1,7 +1,7 @@
 # Codex Windows 状态宠物开发计划
 
 **状态：** 正在执行的路线图  
-**依据：** `API_SPEC.md`、`TEST_ERROR_REPORT.md`，以及 [quota-float](https://github.com/change-42-yhmm/quota-float) 的 Windows 部分
+**依据：** `docs/architecture/API_SPEC.md`、`docs/archive/audits/2026-07-09-test-error-report.md`，以及 [quota-float](https://github.com/change-42-yhmm/quota-float) 的 Windows 部分
 
 ## 当前进度
 
@@ -48,7 +48,7 @@
 
 ### P3——文档与发布质量
 
-英文文件是主版本；中文文件必须在同一提交中同步更新为翻译副本。每次重大或性能变更都必须更新 API 规范、增加针对性回归测试、更新变更日志并记录兼容性结果。`scripts/check_doc_parity.py` 会检查六组文档是否发生结构漂移。
+英文文件是主版本；中文文件必须在同一提交中同步更新为翻译副本。每次重大或性能变更都必须更新 API 规范、增加针对性回归测试、更新变更日志并记录兼容性结果。`scripts/check_doc_parity.py` 会读取 `docs/document_manifest.json` 并检查登记文档对是否发生结构漂移。
 
 ## API 边界
 
@@ -78,7 +78,7 @@
 
 ## 兼容性矩阵
 
-测试 Windows 10/11、单屏和双屏、负坐标和大坐标、100/125/150/200% DPI、任务栏四个方向、隐藏/显示、锁定/解锁、置顶/不置顶、损坏设置、刷新值 1/10/0/11/空值/非数字、网络超时、过期响应、缺失重置日期和重复启动。结果维护在 `COMPATIBILITY_MATRIX.md`。
+测试 Windows 10/11、单屏和双屏、负坐标和大坐标、100/125/150/200% DPI、任务栏四个方向、隐藏/显示、锁定/解锁、置顶/不置顶、损坏设置、刷新值 1/10/0/11/空值/非数字、网络超时、过期响应、缺失重置日期和重复启动。结果维护在 `docs/quality/COMPATIBILITY_MATRIX.zh-CN.md`。
 
 ## 文档规则
 

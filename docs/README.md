@@ -7,9 +7,9 @@ This directory is the development documentation home. English is canonical; a `.
 | Reader | First document |
 |---|---|
 | User | [Root README](../README.md) |
-| Contributor | [Engineering Standard](../Goal/ENGINEERING_STANDARD.md), [Development Plan](../DEVELOPMENT_PLAN.md) |
-| API or UI developer | [API Specification](../API_SPEC.md), [File Specification](../FILE_SPEC.md) |
-| Tester or release maintainer | [Compatibility Matrix](../COMPATIBILITY_MATRIX.md), [Test Error Report](../TEST_ERROR_REPORT.md) |
+| Contributor | [Engineering Standard](../Goal/ENGINEERING_STANDARD.md), [Roadmap](product/ROADMAP.md) |
+| API or UI developer | [API Specification](architecture/API_SPEC.md), [File Specification](../FILE_SPEC.md) |
+| Tester or release maintainer | [Compatibility Matrix](quality/COMPATIBILITY_MATRIX.md), [Test Error Report](archive/audits/2026-07-09-test-error-report.md) |
 
 ## Document classes
 

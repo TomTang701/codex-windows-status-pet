@@ -18,18 +18,18 @@
 | `FILE_SPEC.zh-CN.md` | Chinese file specification. |
 | `CHANGELOG.md` | Primary English release history. |
 | `CHANGELOG.zh-CN.md` | Chinese release history. |
-| `API_SPEC.md` / `API_SPEC.zh-CN.md` | API boundaries, test contracts, and change classification. |
-| `PRODUCT_REVIEW.md` / `PRODUCT_REVIEW.zh-CN.md` | Product review and synchronized Chinese translation. |
+| `docs/architecture/API_SPEC.md` / `docs/architecture/API_SPEC.zh-CN.md` | API boundaries, test contracts, and change classification. |
+| `docs/product/PRODUCT_OVERVIEW.md` / `docs/product/PRODUCT_OVERVIEW.zh-CN.md` | Product review and synchronized Chinese translation. |
 | `requirements.txt` | Runtime dependency floor for fallback Python environments. |
 | `tests/` | Headless API and UI-adapter regression tests. |
-| `DEVELOPMENT_PLAN.md` | Canonical phased development plan. |
-| `DEVELOPMENT_PLAN.zh-CN.md` | Synchronized Chinese translation copy of the development plan. |
+| `docs/product/ROADMAP.md` | Canonical phased development plan. |
+| `docs/product/ROADMAP.zh-CN.md` | Synchronized Chinese translation copy of the development plan. |
 | `scripts/api/quota_format_api.py` | UI-independent quota/date formatting API. |
 | `scripts/api/quota_status_api.py` | UI-independent quota health classification API. |
 | `scripts/api/display_mode_api.py` | UI-independent compact/expanded display-mode API. |
 | `scripts/api/window_size_api.py` | UI-independent free/proportional window-size API. |
 | `scripts/api/quota_provider_api.py` | Local-only provider response normalization API; no auth or network ownership. |
-| `COMPATIBILITY_MATRIX.md` / `COMPATIBILITY_MATRIX.zh-CN.md` | Living Windows compatibility and release-gate record. |
+| `docs/quality/COMPATIBILITY_MATRIX.md` / `docs/quality/COMPATIBILITY_MATRIX.zh-CN.md` | Living Windows compatibility and release-gate record. |
 | `scripts/api/tray_lifecycle_api.py` | UI-independent tray action and recovery policy API. |
 | `scripts/api/refresh_scheduler_api.py` | UI-independent single-flight refresh scheduling API. |
 | `scripts/check_doc_parity.py` | Structural parity checker for English/Chinese document pairs. |
@@ -78,7 +78,7 @@ Diagnostics are written to `%USERPROFILE%\.codex\codex-windows-status-pet.log`; 
 ## Runtime invariants
 
 - Only one companion instance may run at a time.
-- API boundaries and regression-test contracts are defined in `API_SPEC.md`; major behavior and performance changes require specification and changelog updates.
+- API boundaries and regression-test contracts are defined in `docs/architecture/API_SPEC.md`; major behavior and performance changes require specification and changelog updates.
 - Startup claims the named Windows mutex before creating the UI. If another instance owns it, the new instance exits without killing the existing process.
 - Hiding changes opacity to zero and does not overwrite the saved position.
 - Opening or closing settings restores the main overlay to visible state.

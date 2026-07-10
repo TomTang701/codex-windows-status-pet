@@ -16,8 +16,8 @@
       "id": "API-SPEC",
       "class": "normative",
       "status": "active",
-      "canonical": "API_SPEC.md",
-      "translations": {"zh-CN": "API_SPEC.zh-CN.md"},
+      "canonical": "docs/architecture/API_SPEC.md",
+      "translations": {"zh-CN": "docs/architecture/API_SPEC.zh-CN.md"},
       "owner": "maintainer",
       "review_cycle_days": 90,
       "required_for_release": true
@@ -46,8 +46,8 @@
       "id": "PRODUCT-REVIEW",
       "class": "descriptive",
       "status": "active",
-      "canonical": "PRODUCT_REVIEW.md",
-      "translations": {"zh-CN": "PRODUCT_REVIEW.zh-CN.md"},
+      "canonical": "docs/product/PRODUCT_OVERVIEW.md",
+      "translations": {"zh-CN": "docs/product/PRODUCT_OVERVIEW.zh-CN.md"},
       "owner": "maintainer",
       "review_cycle_days": 90,
       "required_for_release": false
@@ -56,8 +56,8 @@
       "id": "DEVELOPMENT-PLAN",
       "class": "descriptive",
       "status": "active",
-      "canonical": "DEVELOPMENT_PLAN.md",
-      "translations": {"zh-CN": "DEVELOPMENT_PLAN.zh-CN.md"},
+      "canonical": "docs/product/ROADMAP.md",
+      "translations": {"zh-CN": "docs/product/ROADMAP.zh-CN.md"},
       "owner": "maintainer",
       "review_cycle_days": 30,
       "required_for_release": true
@@ -66,8 +66,8 @@
       "id": "COMPATIBILITY-MATRIX",
       "class": "evidence",
       "status": "active",
-      "canonical": "COMPATIBILITY_MATRIX.md",
-      "translations": {"zh-CN": "COMPATIBILITY_MATRIX.zh-CN.md"},
+      "canonical": "docs/quality/COMPATIBILITY_MATRIX.md",
+      "translations": {"zh-CN": "docs/quality/COMPATIBILITY_MATRIX.zh-CN.md"},
       "owner": "maintainer",
       "review_cycle_days": 30,
       "required_for_release": true

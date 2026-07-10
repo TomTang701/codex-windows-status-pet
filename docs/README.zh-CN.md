@@ -7,9 +7,9 @@
 | 读者 | 首先阅读 |
 |---|---|
 | 用户 | [根目录 README](../README.zh-CN.md) |
-| 贡献者 | [工程开发总规范](../Goal/ENGINEERING_STANDARD.zh-CN.md)、[开发计划](../DEVELOPMENT_PLAN.zh-CN.md) |
-| API或UI开发者 | [API规范](../API_SPEC.zh-CN.md)、[文件规范](../FILE_SPEC.zh-CN.md) |
-| 测试或发布维护者 | [兼容性矩阵](../COMPATIBILITY_MATRIX.zh-CN.md)、[测试错误报告](../TEST_ERROR_REPORT.md) |
+| 贡献者 | [工程开发总规范](../Goal/ENGINEERING_STANDARD.zh-CN.md)、[路线图](product/ROADMAP.zh-CN.md) |
+| API或UI开发者 | [API规范](architecture/API_SPEC.zh-CN.md)、[文件规范](../FILE_SPEC.zh-CN.md) |
+| 测试或发布维护者 | [兼容性矩阵](quality/COMPATIBILITY_MATRIX.zh-CN.md)、[测试错误报告](archive/audits/2026-07-09-test-error-report.md) |
 
 ## 文档分类
 

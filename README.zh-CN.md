@@ -30,8 +30,9 @@
 
 本地设置保存于 `%USERPROFILE%\.codex\codex-windows-status-pet.json`。
 
-参见 [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) 了解分阶段路线，并参见 [API_SPEC.md](API_SPEC.md) 了解测试边界。
-参见 [COMPATIBILITY_MATRIX.md](COMPATIBILITY_MATRIX.md) 了解当前 Windows 证据和发布门槛。
+参见 [ROADMAP](docs/product/ROADMAP.zh-CN.md) 了解分阶段路线，并参见 [API_SPEC](docs/architecture/API_SPEC.zh-CN.md) 了解测试边界。
+参见 [COMPATIBILITY_MATRIX](docs/quality/COMPATIBILITY_MATRIX.zh-CN.md) 了解当前 Windows 证据和发布门槛。
+参见[开发文档首页](docs/README.zh-CN.md)了解文档地图和迁移状态。
 
 ## 开发检查
 
@@ -39,7 +40,7 @@
 python -m py_compile .\scripts\codex_status_pet.py
 ```
 
-可重复的自动化门禁命令是 `python scripts/run_release_checks.py`，不能替代 `COMPATIBILITY_MATRIX.md` 中列出的实体 Windows 测试。
+可重复的自动化门禁命令是 `python scripts/run_release_checks.py`，不能替代 `docs/quality/COMPATIBILITY_MATRIX.zh-CN.md` 中列出的实体 Windows 测试。
 打包 smoke 门禁命令是 `python scripts/package_smoke_test.py`；GitHub Actions 会在 Windows 上运行两组门禁。
 使用 `python scripts/check_release_readiness.py` 查看实体兼容性证据是否仍阻止 v0.3.0 发布。当前仓库不会自动安装启动文件夹项目。
 使用 `python scripts/startup_audit.py` 报告已知旧版启动项；该命令只读，只有维护者明确确认后才删除旧项目。

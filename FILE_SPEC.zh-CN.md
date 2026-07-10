@@ -18,10 +18,10 @@
 | `FILE_SPEC.zh-CN.md` | 中文文件规范。 |
 | `CHANGELOG.md` | 主更新日志，英文版。 |
 | `CHANGELOG.zh-CN.md` | 中文更新日志。 |
-| `API_SPEC.md` / `API_SPEC.zh-CN.md` | API 边界、测试契约和变更分类。 |
-| `PRODUCT_REVIEW.md` / `PRODUCT_REVIEW.zh-CN.md` | 英文产品评审及中文翻译副本。 |
-| `DEVELOPMENT_PLAN.md` | 英文主开发路线图。 |
-| `DEVELOPMENT_PLAN.zh-CN.md` | 开发路线图的中文翻译副本。 |
+| `docs/architecture/API_SPEC.md` / `docs/architecture/API_SPEC.zh-CN.md` | API 边界、测试契约和变更分类。 |
+| `docs/product/PRODUCT_OVERVIEW.md` / `docs/product/PRODUCT_OVERVIEW.zh-CN.md` | 英文产品评审及中文翻译副本。 |
+| `docs/product/ROADMAP.md` | 英文主开发路线图。 |
+| `docs/product/ROADMAP.zh-CN.md` | 开发路线图的中文翻译副本。 |
 | `requirements.txt` | 回退 Python 环境的运行时依赖下限。 |
 | `tests/` | 无界面 API 和 UI 适配层回归测试。 |
 | `scripts/api/quota_format_api.py` | 与 UI 无关的额度/日期格式化 API。 |
@@ -29,7 +29,7 @@
 | `scripts/api/display_mode_api.py` | 与 UI 无关的收缩/展开显示模式 API。 |
 | `scripts/api/window_size_api.py` | 与 UI 无关的自由/等比例窗口尺寸 API。 |
 | `scripts/api/quota_provider_api.py` | 仅限本地的数据源响应规范化 API，不负责认证或网络。 |
-| `COMPATIBILITY_MATRIX.md` / `COMPATIBILITY_MATRIX.zh-CN.md` | 持续维护的 Windows 兼容性和发布门槛记录。 |
+| `docs/quality/COMPATIBILITY_MATRIX.md` / `docs/quality/COMPATIBILITY_MATRIX.zh-CN.md` | 持续维护的 Windows 兼容性和发布门槛记录。 |
 | `scripts/api/tray_lifecycle_api.py` | 与 UI 无关的托盘动作和恢复策略 API。 |
 | `scripts/api/refresh_scheduler_api.py` | 与 UI 无关的单实例刷新调度 API。 |
 | `scripts/check_doc_parity.py` | 英文/中文文档副本结构一致性检查器。 |
