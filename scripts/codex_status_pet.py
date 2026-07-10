@@ -13,6 +13,7 @@ except ModuleNotFoundError:
 AppServer = _main_window.AppServer
 TrayIcon3 = _main_window.TrayIcon3
 ActivityMonitor = _main_window.ActivityMonitor
+APP_VERSION = _main_window.APP_VERSION
 ensure_single_instance = _main_window.ensure_single_instance
 enable_dpi_awareness = _main_window.enable_dpi_awareness
 configure_logging = _main_window.configure_logging

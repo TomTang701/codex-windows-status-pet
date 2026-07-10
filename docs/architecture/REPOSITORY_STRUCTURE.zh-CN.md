@@ -7,7 +7,7 @@
 | 路径 | 用途 |
 |---|---|
 | `.codex-plugin/plugin.json` | Codex插件清单和缓存破坏版本号。 |
-| `scripts/codex_status_pet.py` | Windows悬浮窗、托盘、app-server客户端、活动监视和设置界面。 |
+| `scripts/codex_status_pet.py` | Windows伴侣工具的稳定启动器/导入外观层。 |
 | `scripts/ui/main_window.py` | Tk主窗口生命周期、渲染、恢复、刷新编排和UI组装。 |
 | `scripts/api/` | 与UI无关的领域、传输、校验、刷新、额度、几何和诊断API。 |
 | `scripts/ui/` | Tk和通知区域适配层。 |

@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     manifest = json.loads((ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
-    app_source = (ROOT / "scripts" / "codex_status_pet.py").read_text(encoding="utf-8")
+    app_source = (ROOT / "scripts" / "ui" / "main_window.py").read_text(encoding="utf-8")
     app_version = re.search(r'^APP_VERSION\s*=\s*"([^"]+)"', app_source, re.MULTILINE).group(1)
     manifest_base = manifest["version"].split("+", 1)[0]
     assert manifest_base == app_version, (manifest_base, app_version)
