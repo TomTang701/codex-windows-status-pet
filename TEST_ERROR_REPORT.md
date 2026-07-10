@@ -64,6 +64,7 @@ to disappear because it runs through `pythonw.exe` without a console.
 | Clean-machine dependency/startup validation | NOT COMPLETED | Current machine already has the bundled dependencies installed. |
 | Isolated virtual-environment dependency validation | PASS | A temporary venv installed `requirements.txt`; imports and all eight tests passed. This is not a separate Windows installation. |
 | Current DPI/virtual-desktop probe | PARTIAL | `enable_dpi_awareness()` returned true; running window reported 96 DPI and virtual bounds `0,0,4480,1434`. No physically mixed-DPI monitor was available for the matrix. |
+| Live display probe | PASS for current desktop | `scripts/probe_display.py` reported DISPLAY1 `(0,0)-(2048,1152)` and DISPLAY2 `(2560,354)-(4480,1434)`; both reported 96 DPI. The output is reusable evidence for a future mixed-DPI run. |
 
 ## Highest-priority release blockers
 

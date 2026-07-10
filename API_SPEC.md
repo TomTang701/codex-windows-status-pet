@@ -35,7 +35,12 @@ $py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies
 & $py -m unittest discover -s .\tests -v
 $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
 & $py -m py_compile .\scripts\codex_status_pet.py $api
+# Live Windows display evidence (run with the companion visible)
+& $py .\scripts\probe_display.py
 ```
+
+The live probe must be rerun after connecting a monitor with a different Windows scaling setting.
+Save its JSON output with the test record; a mixed-DPI result is not inferred from simulated values.
 
 ## Change classification
 
