@@ -5,7 +5,7 @@
 
 ## Current progress
 
-- **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, automated release gate, transactional settings, strict integer input validation, reversible resize sessions, independent refresh channels, strict quota parsing, and last-good state handling.
+- **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, automated release gate, transactional settings, strict integer input validation, reversible resize sessions, independent refresh channels, strict quota parsing, last-good state handling, and validated settings backup/restore.
 - **Verified:** 75 automated tests, 17 manifest-registered bilingual document pairs, Windows 11 launcher smoke test, secondary-monitor menu/settings path, and keyboard-driven tray hide/show recovery.
 - **Automated release:** GitHub Actions runs on Windows, installs declared dependencies, executes the release gate, validates package metadata, and uploads a smoke-package artifact.
 - **Application modularization:** Context menu, settings dialog, and tray adapter now live in `scripts/ui/`; Codex discovery/transport, safe diagnostics, and status presentation now live in `scripts/api/`; main-window extraction remains staged work.
@@ -42,7 +42,7 @@ Provide a reliable Windows companion that remains reachable on any monitor, repo
 
 1. Add explicit loading, stale, unavailable, signed-out, and healthy/caution/critical states.
 2. Consider compact-orb and hover-expand modes after P0/P1 stability.
-3. Add preference backup/rollback and stronger window-state recovery.
+3. Strengthen window-state recovery for monitor disconnect/reconnect and taskbar topology changes.
 
 The current local app-server provider remains the default. Token-reading or external quota endpoints are out of scope until a separate security review and provider contract are approved.
 
@@ -54,7 +54,7 @@ English files are canonical; Chinese files are synchronized translation copies i
 
 | API | Responsibility |
 |---|---|
-| `ConfigAPI` | Normalize, load, atomically save, and restore preferences. |
+| `ConfigAPI` | Normalize, load, atomically save, back up, and restore preferences. |
 | `InputValidationAPI` | Enforce digit-only fields and typed ranges. |
 | `SettingsSessionAPI` | Separate persisted, runtime, draft, and opening settings snapshots. |
 | `DisplayGeometryAPI` | Enumerate work areas and place/clamp popup rectangles. |
