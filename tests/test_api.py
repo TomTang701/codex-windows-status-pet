@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import queue
 import sys
@@ -97,7 +98,12 @@ class DiagnosticsAndTrayTests(unittest.TestCase):
                 raise RuntimeError("injected tray failure")
 
         tray.icon = FailedIcon()
-        tray._run()
+        previous_level = logging.root.manager.disable
+        logging.disable(logging.CRITICAL)
+        try:
+            tray._run()
+        finally:
+            logging.disable(previous_level)
         self.assertEqual(tray.actions.get_nowait(), "tray_error")
 
 
