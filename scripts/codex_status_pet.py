@@ -6,6 +6,7 @@ import logging
 import queue
 import sys
 import threading
+import time
 import tkinter as tk
 from pathlib import Path
 
@@ -89,6 +90,7 @@ class Pet(tk.Tk):
         self.expanded_position = (self.settings["x"], self.settings["y"])
         self.compact = False
         self.compact_state = CompactState()
+        self._next_window_recovery = 0.0
         self.hovered = False
         self.protocol("WM_DELETE_WINDOW", self.close)
         self.queue = queue.Queue()
@@ -251,6 +253,23 @@ class Pet(tk.Tk):
         """Restore the overlay after any settings-dialog focus/state transition."""
         if not self.closing:
             self.show_window()
+
+    def recover_window_if_needed(self):
+        """Re-evaluate placement after display or taskbar topology changes."""
+        if self.closing or self.hidden or self.compact:
+            return
+        now = time.monotonic()
+        if now < self._next_window_recovery:
+            return
+        self._next_window_recovery = now + 2.0
+        x, y = self.safe_position(self.settings["x"], self.settings["y"])
+        if (x, y) == (self.settings["x"], self.settings["y"]):
+            return
+        self.settings["x"], self.settings["y"] = x, y
+        self.hidden_position = (x, y)
+        self.expanded_position = (x, y)
+        self.geometry(f"+{x}+{y}")
+        self.save_settings()
 
     def hide_window(self):
         if not self.hidden:
@@ -459,6 +478,7 @@ class Pet(tk.Tk):
             pass
         except Exception:
             logging.getLogger("codex-status-pet").exception("UI refresh payload failed")
+        self.recover_window_if_needed()
         if not self.closing:
             self.after(250, self.poll)
 

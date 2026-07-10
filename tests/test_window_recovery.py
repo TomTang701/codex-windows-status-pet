@@ -22,3 +22,13 @@ class WindowRecoveryTests(unittest.TestCase):
         x, y, recovered = recover_position(2200, 900, 330, 138, self.monitors)
         self.assertTrue(recovered)
         self.assertEqual((x, y), (1590, 900))
+
+    def test_partially_taskbar_covered_window_is_repositioned(self):
+        monitors = [{"work": [0, 0, 1920, 1000]}]
+        x, y, recovered = recover_position(100, 950, 330, 138, monitors)
+        self.assertTrue(recovered)
+        self.assertEqual((x, y), (100, 862))
+
+    def test_fully_contained_window_is_not_moved(self):
+        x, y, recovered = recover_position(4151, 100, 330, 138, self.monitors)
+        self.assertEqual((x, y, recovered), (4151, 100, False))

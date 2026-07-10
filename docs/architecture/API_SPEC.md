@@ -20,7 +20,7 @@ headless tests.
 | Quota Status API | `scripts/api/quota_status_api.py` | Classify valid quota windows as healthy, caution, critical, or unavailable. | Boundary percentages and malformed windows. |
 | Display Mode API | `scripts/api/display_mode_api.py` | Decide opt-in idle compaction and calculate compact geometry. | Opt-in, active, hovered, and malformed-size cases. |
 | Compact State API | `scripts/api/compact_state_api.py` | Delay idle compaction, expand on activity/hover, and preserve edge anchors. | Idle delay, activity, hover, blockers, and edge geometry. |
-| Window Recovery API | `scripts/api/window_recovery_api.py` | Preserve legal monitor coordinates and recover off-screen windows to the nearest work area. | Negative/secondary coordinates, disconnected displays, and clamping. |
+| Window Recovery API | `scripts/api/window_recovery_api.py` | Preserve legal monitor coordinates, correct taskbar-partial windows, and recover off-screen windows to the nearest work area. | Negative/secondary coordinates, DPI rounding tolerance, taskbar coverage, disconnected displays, and clamping. |
 | Window Size API | `scripts/api/window_size_api.py` | Transform free or proportional width/height changes with bounds. | Free, proportional, bounded, and invalid-factor cases. |
 | Resize Session API | `scripts/api/resize_session_api.py` | Apply reversible percentage steps from an opening base size. | Exact plus/minus symmetry and bounded dimensions. |
 | Quota Provider API | `scripts/api/quota_provider_api.py` | Normalize already-fetched local app-server data without reading auth or making network calls. | Valid, malformed, and credential-bearing payload fixtures. |
@@ -58,6 +58,7 @@ headless tests.
 - The overlay displays only the active conversation count; plan-step text is not part of the UI contract.
 - Status text uses a bounded label width so long diagnostics wrap instead of expanding past the overlay.
 - Popup rectangles must be completely contained by the selected monitor work area.
+- Window placement is re-evaluated during the running session so monitor disconnects and taskbar work-area changes can recover the overlay.
 - Coordinates may be negative; dimensions are clamped to 180–1200 by 80–800; refresh interval is clamped to 1–10 seconds.
 - Quota dates use the local timezone and `M/D` without leading zeroes; missing provider data is not invented.
 - The default quota provider accepts local app-server results only; it never reads auth files, sends tokens, or persists credentials.
