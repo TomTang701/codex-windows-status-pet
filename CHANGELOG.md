@@ -2,6 +2,10 @@
 
 ## 0.2.0 - 2026-07-10
 
+- Added isolated configuration, activity, runtime, diagnostics, and test-boundary APIs.
+- Replaced process-killing singleton startup with named-mutex ownership and added durable diagnostics logging.
+- Hardened configuration normalization, activity timeout handling, and the PowerShell launcher path/process check.
+- Replaced the unreliable native popup path with a first-click-testable Tk popup adapter.
 - Removed plan-step text from the overlay; the second line now always shows only the active conversation count.
 - Added stale-process cleanup plus a named mutex so repeated launches leave at most one overlay and tray icon.
 - Reworked the overlay context menu to execute on the first click and close immediately.

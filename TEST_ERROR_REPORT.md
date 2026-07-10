@@ -75,3 +75,15 @@ to disappear because it runs through `pythonw.exe` without a console.
 
 No production code, launcher, settings file, or runtime behavior was changed during this audit.
 The only intended repository artifact from this audit is this report.
+
+## Follow-up remediation status (2026-07-09 continuation)
+
+The audit report above is the original baseline. In the continuation work, the following changes
+were implemented and are now covered by the API/test boundary specification:
+
+- **Addressed:** ERR-002, ERR-003, ERR-004, ERR-005, ERR-006, ERR-007, ERR-008, ERR-011, ERR-014, ERR-015, ERR-017, ERR-018, ERR-019, ERR-020, ERR-021, ERR-024, and ERR-027.
+- **Partially addressed:** ERR-010 (tray failures are logged and surfaced in the overlay, but automatic tray recreation still needs a dedicated failure-injection test); ERR-012 (fallback dependencies are declared in `requirements.txt`, but clean-machine installation remains unverified); ERR-013 (settings are placed on a visible primary-screen recovery position, but disconnected-monitor behavior still needs a multi-monitor matrix); ERR-016 (Escape and command failure paths are handled, but outside-click dismissal still needs a physical UI test).
+- **Test coverage added:** six tests in `tests/`, including first-click command invocation through the popup control, malformed settings fallback, atomic settings round-trip, long-running activity detection, stale activity rejection, and malformed JSONL tolerance.
+- **Still open:** ERR-001 physical mouse-path confirmation, ERR-009 activity scan caching/benchmarking, ERR-010 automatic tray recreation, ERR-012 clean-machine dependency installation, ERR-013 disconnected-monitor matrix, ERR-016 outside-click dismissal, ERR-022 DPI/mixed-scale behavior, ERR-023 adaptive layout, ERR-025 product-review documentation drift, and ERR-026 legacy tray implementation removal.
+
+This status section records progress only; it does not claim the product is fully release-ready.

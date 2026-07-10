@@ -4,59 +4,44 @@ from __future__ import annotations
 
 import ctypes
 from ctypes import wintypes
-import json
 import os
+import json
+import logging
 import queue
+import shutil
 import subprocess
 import sys
 import threading
 import time
 import tkinter as tk
 from tkinter import colorchooser
+try:
+    import tomllib
+except ModuleNotFoundError:
+    tomllib = None
 from datetime import datetime, timezone
 from pathlib import Path
 from PIL import Image, ImageDraw
 import pystray
 
-
-DEFAULT_SETTINGS = {
-    "alpha": 0.95,
-    "font_color": "#e5e7eb",
-    "font_size": 10,
-    "background_color": "#111827",
-    "topmost": True,
-    "locked": False,
-    "x": 30,
-    "y": 120,
-}
-
-_single_instance_mutex = None
+APP_VERSION = "0.2.0"
+try:
+    from api.activity_api import snapshot_activity
+    from api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
+    from api.diagnostics_api import configure_logging
+    from api.runtime_api import SingleInstance
+except ModuleNotFoundError:
+    from scripts.api.activity_api import snapshot_activity
+    from scripts.api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
+    from scripts.api.diagnostics_api import configure_logging
+    from scripts.api.runtime_api import SingleInstance
 
 
 def ensure_single_instance():
-    """Terminate stale launcher instances, then keep one live process."""
-    global _single_instance_mutex
-    kernel32 = ctypes.windll.kernel32
-    startup = subprocess.STARTUPINFO()
-    startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    startup.wShowWindow = subprocess.SW_HIDE
-    for image in ("python.exe", "pythonw.exe"):
-        try:
-            subprocess.run(
-                ["taskkill", "/F", "/FI", f"IMAGENAME eq {image}", "/FI", "WINDOWTITLE eq Codex Windows Status Pet"],
-                startupinfo=startup,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=False,
-            )
-        except OSError:
-            pass
-    for _ in range(3):
-        _single_instance_mutex = kernel32.CreateMutexW(None, True, "Local\\CodexWindowsStatusPet")
-        if _single_instance_mutex and kernel32.GetLastError() != 183:
-            return True
-        time.sleep(0.25)
-    return False
+    """Claim the mutex without killing an existing process."""
+    global _single_instance_guard
+    _single_instance_guard = SingleInstance()
+    return _single_instance_guard.acquire()
 
 
 def find_codex() -> str:
@@ -65,14 +50,28 @@ def find_codex() -> str:
     if configured:
         candidates.append(configured)
     config = Path.home() / ".codex" / "config.toml"
-    if config.exists():
-        for line in config.read_text(encoding="utf-8", errors="ignore").splitlines():
-            if "CODEX_CLI_PATH" in line and "=" in line:
-                candidates.append(line.split("=", 1)[1].strip().strip("'\""))
+    if config.exists() and tomllib:
+        try:
+            parsed = tomllib.loads(config.read_text(encoding="utf-8"))
+
+            def find_config_values(value):
+                if isinstance(value, dict):
+                    for key, child in value.items():
+                        if key.lower() == "codex_cli_path" and isinstance(child, str):
+                            candidates.append(child)
+                        else:
+                            find_config_values(child)
+
+            find_config_values(parsed)
+        except (OSError, UnicodeError, tomllib.TOMLDecodeError):
+            logging.getLogger("codex-status-pet").warning("unable to parse Codex config.toml", exc_info=True)
     candidates.extend(["codex.exe", "codex"])
     for candidate in candidates:
-        if Path(candidate).exists() or candidate in ("codex.exe", "codex"):
-            return candidate
+        if Path(candidate).exists():
+            return str(Path(candidate))
+        resolved = shutil.which(candidate)
+        if resolved:
+            return resolved
     raise FileNotFoundError("Codex CLI was not found")
 
 
@@ -98,9 +97,11 @@ class AppServer:
             startupinfo=startup,
         )
         threading.Thread(target=self._reader, daemon=True).start()
-        self._send({"method": "initialize", "params": {"clientInfo": {
-            "name": "codex-windows-status-pet", "title": "Codex Windows Status Pet", "version": "0.2.0"
+        initialized = self._send({"method": "initialize", "params": {"clientInfo": {
+            "name": "codex-windows-status-pet", "title": "Codex Windows Status Pet", "version": APP_VERSION
         }, "capabilities": {"experimentalApi": True}}})
+        if "error" in initialized:
+            raise RuntimeError(initialized["error"].get("message", "Codex app-server initialization failed"))
         self._send({"method": "initialized", "params": {}}, wait=False)
 
     def _reader(self):
@@ -111,8 +112,10 @@ class AppServer:
                 except json.JSONDecodeError:
                     continue
                 ident = message.get("id")
-                if ident in self.pending:
-                    self.pending.pop(ident)(message)
+                with self.lock:
+                    callback = self.pending.pop(ident, None)
+                if callback:
+                    callback(message)
         finally:
             self.updates.put({"error": "Codex app-server stopped"})
 
@@ -133,7 +136,8 @@ class AppServer:
         if not wait:
             return None
         if not event.wait(5):
-            self.pending.pop(ident, None)
+            with self.lock:
+                self.pending.pop(ident, None)
             raise TimeoutError("Codex app-server request timed out")
         return result[0]
 
@@ -151,23 +155,32 @@ class AppServer:
 def percent_left(window):
     if not isinstance(window, dict):
         return "--"
-    return f"{max(0, 100 - int(window.get('usedPercent', 0)))}%"
+    try:
+        used = int(window.get("usedPercent", 0))
+    except (TypeError, ValueError):
+        return "--"
+    return f"{max(0, 100 - used)}%"
 
 
 def short_time(epoch):
     if not epoch:
         return "--"
-    return datetime.fromtimestamp(epoch, tz=timezone.utc).astimezone().strftime("%H:%M")
+    try:
+        return datetime.fromtimestamp(float(epoch), tz=timezone.utc).astimezone().strftime("%H:%M")
+    except (TypeError, ValueError, OverflowError, OSError):
+        return "--"
 
 
 class ActivityMonitor:
-    """Infer active turns and latest plan completion from Codex session JSONL."""
+    """Infer active turns from Codex session JSONL through the activity API."""
 
     def __init__(self):
         self.sessions = Path.home() / ".codex" / "sessions"
         self.stale_seconds = 600
 
     def snapshot(self):
+        return snapshot_activity(self.sessions, self.stale_seconds)
+        # Legacy implementation retained temporarily for line-level migration.
         now = time.time()
         active = []
         recently_completed = []
@@ -468,11 +481,21 @@ class TrayIcon3:
             pystray.MenuItem("\u9000\u51fa", lambda icon, item: actions.put("exit")),
         )
         self.icon = pystray.Icon("codex-windows-status-pet", image, "Codex Status Pet", menu)
-        self.thread = threading.Thread(target=self.icon.run, daemon=True)
+        self.thread = threading.Thread(target=self._run, name="codex-tray", daemon=True)
         self.thread.start()
 
+    def _run(self):
+        try:
+            self.icon.run()
+        except Exception:
+            logging.getLogger("codex-status-pet").exception("notification-area icon failed")
+            self.actions.put("tray_error")
+
     def stop(self):
-        self.icon.stop()
+        try:
+            self.icon.stop()
+        except Exception:
+            logging.getLogger("codex-status-pet").exception("notification-area icon shutdown failed")
 
 
 class Pet(tk.Tk):
@@ -515,19 +538,9 @@ class Pet(tk.Tk):
         self.after(1000, self.refresh)
 
     def load_settings(self):
-        settings = dict(DEFAULT_SETTINGS)
-        try:
-            loaded = json.loads(self.settings_path.read_text(encoding="utf-8"))
-            if isinstance(loaded, dict):
-                settings.update({key: loaded[key] for key in DEFAULT_SETTINGS if key in loaded})
-        except (OSError, json.JSONDecodeError):
-            pass
-        settings["alpha"] = min(1.0, max(0.25, float(settings["alpha"])))
-        settings["font_size"] = min(20, max(8, int(settings["font_size"])))
-        settings["topmost"] = bool(settings["topmost"])
-        settings["locked"] = bool(settings["locked"])
-        settings["x"] = int(settings["x"])
-        settings["y"] = int(settings["y"])
+        settings, warnings = load_settings_api(self.settings_path)
+        for warning in warnings:
+            logging.getLogger("codex-status-pet").warning(warning)
         return settings
 
     def safe_position(self, x, y):
@@ -538,8 +551,12 @@ class Pet(tk.Tk):
             return 30, 120
 
     def save_settings(self):
-        self.settings_path.parent.mkdir(parents=True, exist_ok=True)
-        self.settings_path.write_text(json.dumps(self.settings, ensure_ascii=False, indent=2), encoding="utf-8")
+        try:
+            save_settings_atomic(self.settings_path, self.settings)
+            return True
+        except OSError:
+            logging.getLogger("codex-status-pet").exception("failed to save settings")
+            return False
 
     def apply_settings(self, settings):
         self.settings = dict(settings)
@@ -568,7 +585,13 @@ class Pet(tk.Tk):
         self.attributes("-topmost", True)
         self.lift()
         self.focus_force()
-        self.after(150, lambda: self.attributes("-topmost", self.settings["topmost"]))
+        def restore_topmost():
+            if not self.closing:
+                try:
+                    self.attributes("-topmost", self.settings["topmost"])
+                except tk.TclError:
+                    logging.getLogger("codex-status-pet").debug("window closed before topmost restore")
+        self.after(150, restore_topmost)
 
     def ensure_visible(self):
         """Restore the overlay after any settings-dialog focus/state transition."""
@@ -600,6 +623,58 @@ class Pet(tk.Tk):
             self.save_settings()
 
     def menu(self, event):
+        """Show a native-looking Tk popup whose controls receive first-click events."""
+        old_menu = getattr(self, "context_menu", None)
+        if old_menu is not None:
+            try:
+                old_menu.grab_release()
+                old_menu.destroy()
+            except tk.TclError:
+                pass
+
+        popup = tk.Toplevel(self)
+        self.context_menu = popup
+        popup.overrideredirect(True)
+        popup.attributes("-topmost", True)
+        popup.configure(bg="#e5e7eb")
+        popup.geometry(f"+{event.x_root}+{event.y_root}")
+
+        def close_popup():
+            if getattr(self, "context_menu", None) is popup:
+                self.context_menu = None
+            try:
+                popup.grab_release()
+                popup.destroy()
+            except tk.TclError:
+                pass
+
+        def run_and_close(command):
+            close_popup()
+            try:
+                command()
+            except Exception:
+                logging.getLogger("codex-status-pet").exception("context-menu command failed")
+
+        body = tk.Frame(popup, bg="#f3f4f6", bd=1, relief="solid")
+        body.pack(padx=1, pady=1)
+        button_options = {"anchor": "w", "width": 18, "bd": 0, "relief": "flat", "bg": "#f3f4f6", "activebackground": "#dbeafe"}
+        for label, command in (
+            ("立即刷新", self.refresh),
+            ("显示设置", self.show_settings),
+        ):
+            tk.Button(body, text=label, command=lambda c=command: run_and_close(c), **button_options).pack(fill="x", padx=2, pady=1)
+        tk.Checkbutton(body, text="置顶", variable=self.topmost_var, command=lambda: run_and_close(self.toggle_topmost), **button_options).pack(fill="x", padx=2, pady=1)
+        tk.Checkbutton(body, text="锁定位置", variable=self.locked_var, command=lambda: run_and_close(self.toggle_locked), **button_options).pack(fill="x", padx=2, pady=1)
+        tk.Frame(body, height=1, bg="#d1d5db").pack(fill="x", padx=2, pady=3)
+        tk.Button(body, text="隐藏窗口", command=lambda: run_and_close(self.hide_window), **button_options).pack(fill="x", padx=2, pady=1)
+        tk.Button(body, text="退出", command=lambda: run_and_close(self.close), **button_options).pack(fill="x", padx=2, pady=1)
+        popup.bind("<Escape>", lambda _event: (close_popup(), "break")[1])
+        popup.bind("<Button-3>", lambda _event: close_popup())
+        popup.update_idletasks()
+        popup.grab_set()
+        popup.focus_force()
+        return
+
         if getattr(self, "context_menu", None) is not None:
             try:
                 self.context_menu.destroy()
@@ -741,6 +816,9 @@ class Pet(tk.Tk):
         tk.Button(buttons, text="\u5173\u95ed", width=8, command=lambda: self.close_settings(dialog)).pack(side="left", padx=3)
         dialog.protocol("WM_DELETE_WINDOW", lambda: self.close_settings(dialog))
         dialog.update_idletasks()
+        # Keep recovery settings reachable even when the saved overlay monitor
+        # is disconnected or its virtual-desktop coordinates are off-screen.
+        dialog.geometry(f"+{max(20, min(600, self.winfo_screenwidth() - dialog.winfo_reqwidth() - 20))}+{max(20, min(120, self.winfo_screenheight() - dialog.winfo_reqheight() - 20))}")
         dialog.deiconify()
         dialog.lift()
         dialog.focus_force()
@@ -774,9 +852,14 @@ class Pet(tk.Tk):
                     self.show_settings()
                 elif action == "exit":
                     self.close()
+                elif action == "tray_error":
+                    self.text.config(text="Codex\n托盘图标异常", fg="#fca5a5")
         except queue.Empty:
             pass
-        self.after(100, self.process_tray_actions)
+        except Exception:
+            logging.getLogger("codex-status-pet").exception("tray action failed")
+        if not self.closing:
+            self.after(100, self.process_tray_actions)
 
     def refresh(self):
         if self.closing or self.refresh_inflight:
@@ -811,7 +894,7 @@ class Pet(tk.Tk):
                     continue
                 limits = payload.get("rateLimits", {})
                 primary, secondary = limits.get("primary", {}), limits.get("secondary", {})
-                credits = payload.get("rateLimitResetCredits", {})
+                credits = payload.get("rateLimitResetCredits") or {}
                 activity = payload.get("_activity", {"detail": "\u7a7a\u95f2", "progress": ""})
                 self.text.config(text=(
                     f"Codex {activity.get('detail', '\u7a7a\u95f2')}\n"
@@ -822,23 +905,40 @@ class Pet(tk.Tk):
                 ), fg=self.settings["font_color"])
         except queue.Empty:
             pass
-        self.after(250, self.poll)
+        except Exception:
+            logging.getLogger("codex-status-pet").exception("UI refresh payload failed")
+        if not self.closing:
+            self.after(250, self.poll)
 
     def close(self):
         if self.closing:
             return
         self.closing = True
-        self.save_settings()
-        if hasattr(self, "tray"):
-            self.tray.stop()
-        self.server.stop()
-        self.destroy()
+        try:
+            self.save_settings()
+        except OSError:
+            logging.getLogger("codex-status-pet").exception("failed to save settings during close")
+        try:
+            if hasattr(self, "tray"):
+                self.tray.stop()
+            self.server.stop()
+        finally:
+            self.destroy()
+            if "_single_instance_guard" in globals():
+                _single_instance_guard.release()
 
 
 if __name__ == "__main__":
     if sys.platform != "win32":
         raise SystemExit("This tool is for Windows.")
+    configure_logging(Path.home() / ".codex" / "codex-windows-status-pet.log")
     if not ensure_single_instance():
         raise SystemExit(0)
-    app = Pet()
-    app.mainloop()
+    try:
+        app = Pet()
+        app.mainloop()
+    except Exception:
+        logging.getLogger("codex-status-pet").exception("application startup or mainloop failure")
+        if "_single_instance_guard" in globals():
+            _single_instance_guard.release()
+        raise

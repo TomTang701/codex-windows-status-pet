@@ -19,6 +19,7 @@ An unofficial Windows companion for Codex. It provides a small desktop overlay a
 Double-click `start_codex_status_pet.cmd` in this repository, or use the workspace launcher `启动Codex状态宠物.cmd`.
 
 The bundled Python runtime is preferred. If it is unavailable, the launcher falls back to `pythonw.exe` on `PATH`.
+The fallback environment must install the packages listed in `requirements.txt`.
 
 ## Data and security boundary
 
@@ -30,6 +31,8 @@ Local settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json
 
 ```powershell
 python -m py_compile .\scripts\codex_status_pet.py
+$py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+& $py -m unittest discover -s .\tests -v
 ```
 
 Before publishing, approve the intended GitHub owner in the local repository. The tracked

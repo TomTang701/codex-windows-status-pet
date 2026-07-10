@@ -15,6 +15,9 @@
 | `FILE_SPEC.zh-CN.md` | Chinese file specification. |
 | `CHANGELOG.md` | Primary English release history. |
 | `CHANGELOG.zh-CN.md` | Chinese release history. |
+| `API_SPEC.md` / `API_SPEC.zh-CN.md` | API boundaries, test contracts, and change classification. |
+| `requirements.txt` | Runtime dependency floor for fallback Python environments. |
+| `tests/` | Headless API and UI-adapter regression tests. |
 
 ## Runtime configuration
 
@@ -35,10 +38,13 @@
 
 `x` and `y` are virtual-desktop coordinates and may refer to any connected monitor, including negative coordinates or coordinates beyond the primary display.
 
+Diagnostics are written to `%USERPROFILE%\.codex\codex-windows-status-pet.log`; the log must never contain auth tokens, project files, or full session text.
+
 ## Runtime invariants
 
 - Only one companion instance may run at a time.
-- Starting the launcher first terminates stale `python.exe`/`pythonw.exe` companion processes whose window title is `Codex Windows Status Pet`, then claims the named Windows mutex. This prevents duplicate overlays and duplicate tray icons during testing or repeated launches.
+- API boundaries and regression-test contracts are defined in `API_SPEC.md`; major behavior and performance changes require specification and changelog updates.
+- Startup claims the named Windows mutex before creating the UI. If another instance owns it, the new instance exits without killing the existing process.
 - Hiding changes opacity to zero and does not overwrite the saved position.
 - Opening or closing settings restores the main overlay to visible state.
 - The second overlay line is always `Active conversations N`; plan-step details are intentionally not displayed.
