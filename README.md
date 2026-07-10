@@ -32,6 +32,18 @@ Local settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json
 python -m py_compile .\scripts\codex_status_pet.py
 ```
 
+Before publishing, approve the intended GitHub owner in the local repository. The tracked
+`.githooks/pre-push` guard rejects pushes until this is set and rejects any remote whose owner
+differs from it:
+
+```powershell
+git config --local core.hooksPath .githooks
+git config --local codex.expected-owner <your-github-username>
+```
+
+This is deliberate: the GitHub CLI account and credential helper are machine-level state and must
+not silently determine where a project is published.
+
 The application is intentionally an external companion. Codex custom pets currently provide a static spritesheet contract, so dynamic text remains in this companion overlay rather than being injected into the built-in pet.
 
 ## License

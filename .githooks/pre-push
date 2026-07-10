@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+
+# Refuse accidental pushes when the local remote owner was never explicitly approved.
+expected_owner="$(git config --local --get codex.expected-owner)"
+remote_url="$(git remote get-url "$1" 2>/dev/null)"
+
+case "$remote_url" in
+  https://github.com/*/*|git@github.com:*/*)
+    owner_repo="${remote_url#https://github.com/}"
+    owner_repo="${owner_repo#git@github.com:}"
+    remote_owner="${owner_repo%%/*}"
+    ;;
+  *)
+    echo "Blocked: remote is not a GitHub repository URL." >&2
+    exit 1
+    ;;
+esac
+
+if [ -z "$expected_owner" ]; then
+  echo "Blocked: set the approved GitHub owner first:" >&2
+  echo "  git config --local codex.expected-owner <your-github-username>" >&2
+  exit 1
+fi
+
+if [ "$remote_owner" != "$expected_owner" ]; then
+  echo "Blocked: remote owner '$remote_owner' does not match approved owner '$expected_owner'." >&2
+  exit 1
+fi
+
+exit 0

@@ -234,11 +234,14 @@ class ActivityMonitor:
                         elif record.get("type") == "response_item":
                             payload = record.get("payload", {})
                             item_type = payload.get("type")
-                            plan = parse_plan(payload) if (
-                                payload.get("name") in ("update_plan", "plan")
-                                or item_type in ("function_call", "custom_tool_call")
-                            ) else None
-                            if plan and event_time >= latest_plan_time:
+                            plan = None
+                            if payload.get("name") in ("update_plan", "plan"):
+                                plan = parse_plan(payload)
+                            elif item_type in ("function_call", "custom_tool_call"):
+                                raw_input = payload.get("input") or payload.get("arguments") or ""
+                                if isinstance(raw_input, str) and "update_plan" in raw_input:
+                                    plan = parse_plan(payload)
+                            if plan and started and not completed and event_time >= latest_plan_time:
                                 latest_plan = plan
                                 latest_plan_time = event_time
                             if started and not completed:
