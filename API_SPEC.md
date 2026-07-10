@@ -13,12 +13,14 @@ headless tests.
 | Runtime API | `scripts/api/runtime_api.py` | Own the named Windows single-instance mutex. | Windows mutex acquisition/release. |
 | Diagnostics API | `scripts/api/diagnostics_api.py` | Capture uncaught main-thread and worker exceptions when `pythonw.exe` hides the console. | Temporary log path and synthetic exception. |
 | Display API | `scripts/api/display_api.py` | Query virtual-desktop bounds/DPI and test coordinate intersection without clamping legal monitor coordinates. | Simulated 96/144/192 DPI and virtual bounds. |
-| Input Validation API | `scripts/api/config_api.py` | Validate signed coordinates, bounded dimensions, scale mode, and the 1–10 second refresh interval. | Typed and malformed JSON fixtures; Tk key-validation callbacks. |
+| Input Validation API | `scripts/api/input_validation_api.py` | Validate signed and unsigned integer candidates and submitted values for settings fields. | Empty, partial negative, malformed, pasted, and bounded integer fixtures. |
+| Settings Session API | `scripts/api/settings_session_api.py` | Keep persisted, runtime, draft, and opening settings distinct across Apply, Save, Close, and Defaults. | Apply/Save/Close transaction tests without Tk. |
 | Popup Geometry API | `scripts/api/display_api.py` | Select a monitor work area and place a popup fully inside it. | Four corners, secondary monitor, negative coordinates, and taskbar work areas. |
 | Quota Format API | `scripts/api/quota_format_api.py` | Select the earliest future credit expiry and format local `HH:MM M/D` text. | Invalid/past expiry values, missing dates, and no-leading-zero formatting. |
 | Quota Status API | `scripts/api/quota_status_api.py` | Classify valid quota windows as healthy, caution, critical, or unavailable. | Boundary percentages and malformed windows. |
 | Display Mode API | `scripts/api/display_mode_api.py` | Decide opt-in idle compaction and calculate compact geometry. | Opt-in, active, hovered, and malformed-size cases. |
 | Window Size API | `scripts/api/window_size_api.py` | Transform free or proportional width/height changes with bounds. | Free, proportional, bounded, and invalid-factor cases. |
+| Resize Session API | `scripts/api/resize_session_api.py` | Apply reversible percentage steps from an opening base size. | Exact plus/minus symmetry and bounded dimensions. |
 | Quota Provider API | `scripts/api/quota_provider_api.py` | Normalize already-fetched local app-server data without reading auth or making network calls. | Valid, malformed, and credential-bearing payload fixtures. |
 | Tray Lifecycle API | `scripts/api/tray_lifecycle_api.py` | Validate tray actions and guarantee one recovery restart request. | Action allowlist, visibility policy, duplicate failure, and shutdown cases. |
 | Refresh Scheduler API | `scripts/api/refresh_scheduler_api.py` | Use a validated interval and one in-flight worker at a time. | Repeated refresh calls and interval clamp fixtures. |
@@ -33,6 +35,10 @@ headless tests.
 - Activity API uses the latest session event as the inactivity clock, not only task start time.
 - Runtime initialization requests per-monitor DPI awareness before creating Tk windows.
 - Runtime API never kills an unrelated process to obtain the mutex.
+- A settings Apply changes runtime preview only; only Save changes persisted settings.
+- A settings Close restores the opening snapshot, including after an Apply preview.
+- Coordinate fields accept a temporary `-` while typing but reject malformed signed integers on submit.
+- Resize buttons apply the same percentage to width and height and remain reversible around the session base size.
 - UI callbacks must not perform blocking app-server or filesystem work on the Tk thread.
 - The overlay displays only the active conversation count; plan-step text is not part of the UI contract.
 - Status text uses a bounded label width so long diagnostics wrap instead of expanding past the overlay.

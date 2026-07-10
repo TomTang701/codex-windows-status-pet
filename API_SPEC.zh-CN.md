@@ -11,12 +11,14 @@
 | 运行时 API | `scripts/api/runtime_api.py` | 管理 Windows 命名单实例互斥体。 | Windows 互斥体申请和释放。 |
 | 诊断 API | `scripts/api/diagnostics_api.py` | 在 `pythonw.exe` 隐藏控制台时记录未捕获异常。 | 临时日志和合成异常。 |
 | 显示 API | `scripts/api/display_api.py` | 查询虚拟桌面范围/DPI，并在不限制合法多屏坐标的前提下测试位置相交。 | 模拟 96/144/192 DPI 和虚拟桌面范围。 |
-| 输入校验 API | `scripts/api/config_api.py` | 校验带符号坐标、有限窗口尺寸、缩放模式和 1–10 秒刷新间隔。 | 类型化和损坏 JSON 固件；Tk 按键校验回调。 |
+| 输入校验 API | `scripts/api/input_validation_api.py` | 校验设置字段中的带符号/无符号整数候选值和提交值。 | 空值、负号中间态、非法粘贴、损坏和范围限制整数固件。 |
+| 设置会话 API | `scripts/api/settings_session_api.py` | 在应用、保存、关闭和恢复默认值之间区分已保存、运行时、草稿和打开时快照。 | 不启动 Tk 的应用/保存/关闭事务测试。 |
 | 弹出菜单几何 API | `scripts/api/display_api.py` | 选择显示器工作区并将弹出菜单完整放入其中。 | 四个角、副屏幕、负坐标和任务栏工作区。 |
 | 额度格式化 API | `scripts/api/quota_format_api.py` | 选择未来最近的额度到期时间，并格式化本地 `HH:MM M/D` 文本。 | 非法/过去的到期值、缺失日期和不补前导零。 |
 | 额度状态 API | `scripts/api/quota_status_api.py` | 将有效额度窗口分类为健康、警告、危险或不可用。 | 百分比边界和损坏窗口。 |
 | 显示模式 API | `scripts/api/display_mode_api.py` | 决定是否启用空闲收缩并计算收缩尺寸。 | 启用、活动、悬停和非法尺寸场景。 |
 | 窗口尺寸 API | `scripts/api/window_size_api.py` | 在边界内计算自由或等比例的宽高变化。 | 自由、等比例、边界和非法因子场景。 |
+| 缩放会话 API | `scripts/api/resize_session_api.py` | 基于打开时尺寸应用可逆的百分比缩放。 | 加减精确对称和边界尺寸测试。 |
 | 额度数据源 API | `scripts/api/quota_provider_api.py` | 规范化已获取的本地 app-server 数据，不读取认证信息，也不发起网络请求。 | 有效、损坏和带凭据字段的响应测试。 |
 | 托盘生命周期 API | `scripts/api/tray_lifecycle_api.py` | 校验托盘动作，并保证只请求一次恢复重建。 | 动作白名单、可见性策略、重复故障和关闭场景。 |
 | 刷新调度 API | `scripts/api/refresh_scheduler_api.py` | 使用已校验的间隔，并保证同时只有一个刷新工作线程。 | 重复刷新调用和间隔限制测试。 |
@@ -30,6 +32,10 @@
 - 配置写入必须使用同目录临时文件和原子替换。
 - 活动状态 API 使用最新会话事件作为超时依据，而不是只使用任务开始时间。
 - 运行时 API 不得为了取得互斥体而杀死无关进程。
+- 设置中的“应用”只改变运行时预览；只有“保存”改变持久化设置。
+- 设置“关闭”恢复打开时快照，包括已经应用过预览的情况。
+- 坐标输入允许逐键输入临时的 `-`，但提交时拒绝非法带符号整数。
+- 缩放按钮对宽高应用相同比例，并且围绕会话基准尺寸可逆。
 - Tk 线程不得执行阻塞的 app-server 或文件系统工作。
 - 主界面只显示活动对话数量，不显示计划步骤文本。
 - 弹出菜单矩形必须完全位于所选显示器工作区内。

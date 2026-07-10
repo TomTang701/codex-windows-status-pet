@@ -33,6 +33,9 @@ try:
     from api.display_mode_api import compact_size, should_compact
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.window_size_api import resize_dimensions
+    from api.input_validation_api import is_signed_integer_candidate, is_unsigned_integer_candidate, parse_signed_integer, parse_unsigned_integer
+    from api.resize_session_api import ResizeSession
+    from api.settings_session_api import SettingsSession
     from api.quota_provider_api import normalize_snapshot
     from api.runtime_api import SingleInstance, enable_dpi_awareness
 except ModuleNotFoundError:
@@ -46,6 +49,9 @@ except ModuleNotFoundError:
     from scripts.api.display_mode_api import compact_size, should_compact
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.window_size_api import resize_dimensions
+    from scripts.api.input_validation_api import is_signed_integer_candidate, is_unsigned_integer_candidate, parse_signed_integer, parse_unsigned_integer
+    from scripts.api.resize_session_api import ResizeSession
+    from scripts.api.settings_session_api import SettingsSession
     from scripts.api.quota_provider_api import normalize_snapshot
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
 
@@ -528,7 +534,9 @@ class Pet(tk.Tk):
         dialog.title("Codex \u5ba0\u7269\u8bbe\u7f6e")
         dialog.resizable(False, False)
         dialog.attributes("-topmost", True)
-        draft = dict(self.settings)
+        settings_session = SettingsSession(self.settings)
+        self._settings_session = settings_session
+        draft = settings_session.draft_settings
         body = tk.Frame(dialog, padx=14, pady=12)
         body.pack(fill="both", expand=True)
         alpha = tk.DoubleVar(value=draft["alpha"])
@@ -550,8 +558,8 @@ class Pet(tk.Tk):
         tk.Label(body, text="\u9ed8\u8ba4\u4f4d\u7f6e (X, Y)").grid(row=2, column=0, sticky="w")
         position = tk.Frame(body)
         position.grid(row=2, column=1, sticky="w")
-        digit_or_signed = (self.register(lambda value: value == "" or value.lstrip("+-").isdigit()), "%P")
-        digits_only = (self.register(lambda value: value == "" or value.isdigit()), "%P")
+        digit_or_signed = (self.register(is_signed_integer_candidate), "%P")
+        digits_only = (self.register(is_unsigned_integer_candidate), "%P")
         tk.Entry(position, textvariable=position_x, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
         tk.Label(position, text=", ").pack(side="left")
         tk.Entry(position, textvariable=position_y, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
@@ -561,20 +569,20 @@ class Pet(tk.Tk):
         tk.Entry(dimensions, textvariable=window_width, width=8, validate="key", validatecommand=digits_only).pack(side="left")
         tk.Label(dimensions, text=", ").pack(side="left")
         tk.Entry(dimensions, textvariable=window_height, width=8, validate="key", validatecommand=digits_only).pack(side="left")
-        def resize_by(factor):
+        resize_session = ResizeSession(draft["window_width"], draft["window_height"])
+
+        def resize_by(delta_percent):
             try:
-                width, height = resize_dimensions(
-                    window_width.get(),
-                    window_height.get(),
-                    factor,
-                    proportional=scale_mode.get() == "proportional",
-                )
-            except ValueError:
+                current = (int(window_width.get()), int(window_height.get()))
+                if current != resize_session.dimensions():
+                    resize_session.__init__(*current)
+                width, height = resize_session.step(delta_percent)
+            except (TypeError, ValueError):
                 return
             window_width.set(width)
             window_height.set(height)
-        tk.Button(dimensions, text="−", width=2, command=lambda: resize_by(0.9)).pack(side="left", padx=(6, 0))
-        tk.Button(dimensions, text="+", width=2, command=lambda: resize_by(1.1)).pack(side="left")
+        tk.Button(dimensions, text="−", width=2, command=lambda: resize_by(-10)).pack(side="left", padx=(6, 0))
+        tk.Button(dimensions, text="+", width=2, command=lambda: resize_by(10)).pack(side="left")
         tk.Checkbutton(body, text="等比例缩放", variable=scale_mode, onvalue="proportional", offvalue="free").grid(row=4, column=0, sticky="w")
         tk.Label(body, text="刷新间隔 (秒)").grid(row=4, column=1, sticky="e")
         tk.Entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only).grid(row=4, column=1, sticky="w", padx=(100, 0))
@@ -599,11 +607,11 @@ class Pet(tk.Tk):
             try:
                 draft["alpha"] = float(alpha.get())
                 draft["font_size"] = int(size.get())
-                draft["x"] = int(position_x.get())
-                draft["y"] = int(position_y.get())
-                draft["window_width"] = min(1200, max(180, int(window_width.get())))
-                draft["window_height"] = min(800, max(80, int(window_height.get())))
-                draft["refresh_interval_seconds"] = min(10, max(1, int(refresh_interval.get())))
+                draft["x"] = parse_signed_integer(position_x.get())
+                draft["y"] = parse_signed_integer(position_y.get())
+                draft["window_width"] = parse_unsigned_integer(window_width.get(), 180, 1200)
+                draft["window_height"] = parse_unsigned_integer(window_height.get(), 80, 800)
+                draft["refresh_interval_seconds"] = parse_unsigned_integer(refresh_interval.get(), 1, 10)
                 draft["scale_mode"] = scale_mode.get()
                 draft["topmost"] = bool(topmost.get())
                 draft["locked"] = bool(locked.get())
@@ -616,18 +624,21 @@ class Pet(tk.Tk):
         def apply_draft():
             if not sync_draft():
                 return False
-            self.apply_settings(draft)
+            self.apply_settings(settings_session.apply())
             return True
 
         def save_and_close():
             if not apply_draft():
                 return
+            self.settings = settings_session.save()
+            self.apply_settings(self.settings)
             self.save_settings()
             self.close_settings(dialog)
 
         def restore_defaults():
+            settings_session.restore_defaults(DEFAULT_SETTINGS)
             draft.clear()
-            draft.update(DEFAULT_SETTINGS)
+            draft.update(settings_session.draft_settings)
             alpha.set(draft["alpha"])
             size.set(draft["font_size"])
             position_x.set(draft["x"])
@@ -665,10 +676,14 @@ class Pet(tk.Tk):
         self.after_idle(self.ensure_visible)
 
     def close_settings(self, dialog):
+        if dialog is not None and dialog.winfo_exists() and getattr(self, "_settings_session", None) is not None:
+            self.apply_settings(self._settings_session.close())
         if dialog is not None and dialog.winfo_exists():
             dialog.destroy()
         if self.settings_dialog is dialog:
             self.settings_dialog = None
+        if getattr(self, "_settings_session", None) is not None:
+            self._settings_session = None
         self.after_idle(self.ensure_visible)
 
     def process_tray_actions(self):

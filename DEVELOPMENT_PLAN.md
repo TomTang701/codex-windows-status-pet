@@ -5,7 +5,7 @@
 
 ## Current progress
 
-- **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, and automated release gate.
+- **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, automated release gate, transactional settings, strict integer input validation, and reversible resize sessions.
 - **Verified:** 33 automated tests, seven bilingual document pairs, Windows 11 launcher smoke test, secondary-monitor menu/settings path, and keyboard-driven tray hide/show recovery.
 - **Pending physical evidence:** mixed-DPI monitors, alternate taskbar edges, clean-machine dependency installation, and an idle desktop run that visibly exercises compact hover expansion.
 - **Explicitly out of scope:** access-token readers, third-party quota endpoints, telemetry, and modifying Codex core or built-in pet files.
@@ -53,15 +53,16 @@ English files are canonical; Chinese files are synchronized translation copies i
 |---|---|
 | `ConfigAPI` | Normalize, load, atomically save, and restore preferences. |
 | `InputValidationAPI` | Enforce digit-only fields and typed ranges. |
+| `SettingsSessionAPI` | Separate persisted, runtime, draft, and opening settings snapshots. |
 | `DisplayGeometryAPI` | Enumerate work areas and place/clamp popup rectangles. |
 | `WindowSizeAPI` | Apply free or proportional width/height changes. |
+| `ResizeSessionAPI` | Apply reversible percentage resize steps from a base size. |
 | `QuotaFormatAPI` | Select reset dates and format truthful local text. |
 | `QuotaStatusAPI` | Classify quota health without network or UI dependencies. |
 | `DisplayModeAPI` | Decide opt-in idle compaction and calculate compact geometry. |
 | `TrayLifecycleAPI` | Validate tray actions and single-schedule recovery. |
 | `RefreshSchedulerAPI` | Run one refresh at a time, with interval, backoff, and cancellation. |
 | `QuotaProviderAPI` | Adapt local or future providers to one normalized snapshot schema. |
-| `TrayLifecycleAPI` | Own tray actions, recovery, visibility, and exit. |
 | `DiagnosticsAPI` | Persist startup, worker, UI, and tray failures. |
 
 No performance feature may be added directly to UI code without its own API boundary and compatibility test.
