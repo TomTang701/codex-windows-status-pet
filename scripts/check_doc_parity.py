@@ -4,29 +4,50 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from doc_metadata_api import read_front_matter
 
 
 MANIFEST = Path("docs") / "document_manifest.json"
 
 
 def structure(path: Path):
-    lines = path.read_text(encoding="utf-8").splitlines()
+    text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
     in_fence = False
     headings = fences = table_rows = 0
+    fence_languages = []
+    stable_table_keys = set()
     for line in lines:
         if line.strip().startswith("```"):
             fences += 1
+            if not in_fence:
+                fence_languages.append(line.strip()[3:].strip())
             in_fence = not in_fence
             continue
         if in_fence:
             continue
         headings += line.startswith("#")
         table_rows += line.strip().startswith("|")
+        if line.strip().startswith("|") and not re.match(r"^\|?\s*:?-+", line.strip()):
+            first = line.strip("|").split("|", 1)[0].strip()
+            stable_table_keys.update(re.findall(r"`([^`]+)`|\b([A-Z][A-Z0-9]+(?:-[A-Z0-9]+)+)\b", first))
+    stable_table_keys = {left or right for left, right in stable_table_keys}
+    metadata = read_front_matter(path)
     return {
         "headings": headings,
         "fences": fences,
         "table_rows": table_rows,
+        "api_names": set(re.findall(r"\b[A-Z][A-Za-z0-9]*(?:[A-Z][A-Za-z0-9]*)+API\b", text)),
+        "versions": set(re.findall(r"\b\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?\b", text)),
+        "test_ids": {key for key in stable_table_keys if re.fullmatch(r"[A-Z][A-Z0-9]+(?:-[A-Z0-9]+)+", key)},
+        "stable_table_keys": stable_table_keys,
+        "fence_languages": fence_languages,
+        "document_version": metadata.get("document_version"),
+        "schema_versions": set(re.findall(r"(?i)schema(?:_version|\s*(?:版本|v(?:ersion)?))\s*[`: ]*(\d+)", text)),
     }
 
 
@@ -80,9 +101,12 @@ def check(root: Path):
             errors.append(f"{doc_id}: missing translation: {chinese_value}")
             continue
         left, right = structure(english), structure(chinese)
-        for key in ("headings", "fences", "table_rows"):
+        for key in (
+            "headings", "fences", "table_rows", "api_names", "versions", "test_ids",
+            "stable_table_keys", "fence_languages", "document_version", "schema_versions",
+        ):
             if left[key] != right[key]:
-                errors.append(f"{doc_id}: {key} differs ({left[key]} != {right[key]})")
+                errors.append(f"{doc_id}: {key} differs ({left[key]!r} != {right[key]!r})")
     return errors
 
 
