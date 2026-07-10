@@ -7,7 +7,7 @@
 
 - **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, automated release gate, transactional settings, strict integer input validation, reversible resize sessions, independent refresh channels, strict quota parsing, and last-good state handling.
 - **Verified:** 33 automated tests, seven bilingual document pairs, Windows 11 launcher smoke test, secondary-monitor menu/settings path, and keyboard-driven tray hide/show recovery.
-- **Pending physical evidence:** mixed-DPI monitors, alternate taskbar edges, clean-machine dependency installation, and an idle desktop run that visibly exercises compact hover expansion.
+- **Pending physical evidence:** mixed-DPI monitors, alternate taskbar edges, clean-machine dependency installation, and a full idle desktop run that visibly exercises compact hover expansion.
 - **Explicitly out of scope:** access-token readers, third-party quota endpoints, telemetry, and modifying Codex core or built-in pet files.
 
 ## Product objective
@@ -60,6 +60,8 @@ English files are canonical; Chinese files are synchronized translation copies i
 | `QuotaFormatAPI` | Select reset dates and format truthful local text. |
 | `QuotaStatusAPI` | Classify quota health without network or UI dependencies. |
 | `DisplayModeAPI` | Decide opt-in idle compaction and calculate compact geometry. |
+| `CompactStateAPI` | Delay idle compaction, expand on activity/hover, and preserve edge anchors. |
+| `WindowRecoveryAPI` | Recover only genuinely off-screen windows to the nearest current work area. |
 | `TrayLifecycleAPI` | Validate tray actions and single-schedule recovery. |
 | `RefreshSchedulerAPI` | Run one quota refresh at a time with a bounded user interval. |
 | `RefreshControllerAPI` | Keep Activity and Quota refresh channels independent and generation-safe. |

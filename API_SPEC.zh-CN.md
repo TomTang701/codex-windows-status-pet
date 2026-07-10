@@ -17,6 +17,8 @@
 | 额度格式化 API | `scripts/api/quota_format_api.py` | 选择未来最近的额度到期时间，并格式化本地 `HH:MM M/D` 文本。 | 非法/过去的到期值、缺失日期和不补前导零。 |
 | 额度状态 API | `scripts/api/quota_status_api.py` | 将有效额度窗口分类为健康、警告、危险或不可用。 | 百分比边界和损坏窗口。 |
 | 显示模式 API | `scripts/api/display_mode_api.py` | 决定是否启用空闲收缩并计算收缩尺寸。 | 启用、活动、悬停和非法尺寸场景。 |
+| 收缩状态 API | `scripts/api/compact_state_api.py` | 延迟空闲收缩，在活动/悬停时展开，并保持边缘锚点。 | 空闲延迟、活动、悬停、阻塞和边缘几何测试。 |
+| 窗口恢复 API | `scripts/api/window_recovery_api.py` | 保留合法显示器坐标，并将离屏窗口恢复到最近工作区。 | 负坐标/副屏坐标、断开显示器和边界限制测试。 |
 | 窗口尺寸 API | `scripts/api/window_size_api.py` | 在边界内计算自由或等比例的宽高变化。 | 自由、等比例、边界和非法因子场景。 |
 | 缩放会话 API | `scripts/api/resize_session_api.py` | 基于打开时尺寸应用可逆的百分比缩放。 | 加减精确对称和边界尺寸测试。 |
 | 额度数据源 API | `scripts/api/quota_provider_api.py` | 规范化已获取的本地 app-server 数据，不读取认证信息，也不发起网络请求。 | 有效、损坏和带凭据字段的响应测试。 |

@@ -32,6 +32,8 @@ try:
     from api.refresh_controller_api import RefreshController
     from api.quota_status_api import HEALTH_COLORS, health_tier
     from api.display_mode_api import compact_size, should_compact
+    from api.compact_state_api import CompactState, compact_geometry
+    from api.window_recovery_api import recover_position
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.window_size_api import resize_dimensions
     from api.input_validation_api import is_signed_integer_candidate, is_unsigned_integer_candidate, parse_signed_integer, parse_unsigned_integer
@@ -50,6 +52,8 @@ except ModuleNotFoundError:
     from scripts.api.refresh_controller_api import RefreshController
     from scripts.api.quota_status_api import HEALTH_COLORS, health_tier
     from scripts.api.display_mode_api import compact_size, should_compact
+    from scripts.api.compact_state_api import CompactState, compact_geometry
+    from scripts.api.window_recovery_api import recover_position
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.window_size_api import resize_dimensions
     from scripts.api.input_validation_api import is_signed_integer_candidate, is_unsigned_integer_candidate, parse_signed_integer, parse_unsigned_integer
@@ -256,7 +260,9 @@ class Pet(tk.Tk):
         self.geometry(f"{self.settings['window_width']}x{self.settings['window_height']}+{self.settings['x']}+{self.settings['y']}")
         self.hidden = False
         self.hidden_position = (self.settings["x"], self.settings["y"])
+        self.expanded_position = (self.settings["x"], self.settings["y"])
         self.compact = False
+        self.compact_state = CompactState()
         self.hovered = False
         self.protocol("WM_DELETE_WINDOW", self.close)
         self.queue = queue.Queue()
@@ -301,11 +307,29 @@ class Pet(tk.Tk):
         return settings
 
     def safe_position(self, x, y):
-        """Preserve user-supplied virtual-desktop coordinates, including monitor 2."""
+        """Preserve legal virtual-desktop coordinates and recover disconnected displays."""
         try:
-            return int(x), int(y)
+            x, y = int(x), int(y)
         except (TypeError, ValueError):
             return 30, 120
+        fallback = virtual_desktop_bounds()
+        if fallback:
+            left, top, width, height = fallback
+            fallback_area = (left, top, left + width, top + height)
+        else:
+            fallback_area = (0, 0, 1920, 1080)
+        monitors = []
+        try:
+            from api.display_api import monitor_snapshot
+            monitors = monitor_snapshot()
+        except (ImportError, AttributeError, OSError):
+            pass
+        recovered_x, recovered_y, recovered = recover_position(
+            x, y, self.settings.get("window_width", 330), self.settings.get("window_height", 138), monitors, fallback_area
+        )
+        if recovered:
+            logging.getLogger("codex-status-pet").warning("saved window position was off-screen; recovered to (%s, %s)", recovered_x, recovered_y)
+        return recovered_x, recovered_y
 
     def save_settings(self):
         try:
@@ -354,6 +378,9 @@ class Pet(tk.Tk):
             self.text.pack(side="left", fill="both", expand=True, pady=10)
             size = None
         x, y = self.settings["x"], self.settings["y"]
+        if compact:
+            work_area = work_area_for_point(x, y)
+            x, y = compact_geometry(x, y, self.settings["window_width"], self.settings["window_height"], size, work_area)
         geometry = f"{size}x{size}+{x}+{y}" if size else f"{self.settings['window_width']}x{self.settings['window_height']}+{x}+{y}"
         self.geometry(geometry)
 
@@ -395,6 +422,8 @@ class Pet(tk.Tk):
         self.attributes("-alpha", 0.0)
 
     def start_drag(self, event):
+        if self.compact:
+            self.set_compact(False)
         if not self.settings["locked"]:
             self._drag = (event.x_root - self.winfo_rootx(), event.y_root - self.winfo_rooty())
 
@@ -412,6 +441,8 @@ class Pet(tk.Tk):
 
     def menu(self, event):
         """Show a native-looking Tk popup whose controls receive first-click events."""
+        if self.compact:
+            self.set_compact(False)
         old_menu = getattr(self, "context_menu", None)
         if old_menu is not None:
             try:
@@ -788,8 +819,12 @@ class Pet(tk.Tk):
         credits = self.latest_quota.get("rateLimitResetCredits") or {}
         activity = self.latest_activity
         active_count = activity.get("active", 0)
-        if self.settings.get("compact_when_idle"):
-            self.set_compact(should_compact(True, active_count, self.hovered))
+        blocked = bool(getattr(self, "context_menu", None)) or bool(self.settings_dialog and self.settings_dialog.winfo_exists())
+        should_be_compact = self.compact_state.update(
+            self.settings.get("compact_when_idle"), active_count, self.hovered, blocked
+        )
+        if should_be_compact != self.compact:
+            self.set_compact(should_be_compact)
         credit_items = credits if isinstance(credits, (list, dict)) else []
         earliest_credit_expiry = earliest_future_expiry(credit_items)
         tier = health_tier(primary)
@@ -851,6 +886,7 @@ class Pet(tk.Tk):
         if self.closing:
             return
         self.closing = True
+        self.compact_state.force_expanded()
         if hasattr(self, "refresh_controller"):
             self.refresh_controller.shutdown()
         try:

@@ -33,6 +33,13 @@ class DisplayApiTests(unittest.TestCase):
         ]
         self.assertEqual(work_area_for_point(4151, 1248, monitors), (2560, 300, 4480, 1434))
 
+    def test_off_gap_point_uses_nearest_monitor_work_area(self):
+        monitors = [
+            {"work": [0, 0, 1920, 1080]},
+            {"work": [2560, 0, 4480, 1080]},
+        ]
+        self.assertEqual(work_area_for_point(2200, 500, monitors), (0, 0, 1920, 1080))
+
 
 if __name__ == "__main__":
     unittest.main()

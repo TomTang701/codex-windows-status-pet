@@ -76,7 +76,12 @@ def work_area_for_point(x, y, monitors=None):
         if left <= x < right and top <= y < bottom:
             return left, top, right, bottom
     if monitors:
-        return tuple(monitors[0]["work"])
+        def distance(monitor):
+            left, top, right, bottom = monitor["work"]
+            dx = max(left - x, 0, x - right)
+            dy = max(top - y, 0, y - bottom)
+            return dx * dx + dy * dy
+        return tuple(min(monitors, key=distance)["work"])
     bounds = virtual_desktop_bounds()
     if bounds:
         left, top, width, height = bounds

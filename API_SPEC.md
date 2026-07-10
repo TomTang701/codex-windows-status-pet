@@ -19,6 +19,8 @@ headless tests.
 | Quota Format API | `scripts/api/quota_format_api.py` | Select the earliest future credit expiry and format local `HH:MM M/D` text. | Invalid/past expiry values, missing dates, and no-leading-zero formatting. |
 | Quota Status API | `scripts/api/quota_status_api.py` | Classify valid quota windows as healthy, caution, critical, or unavailable. | Boundary percentages and malformed windows. |
 | Display Mode API | `scripts/api/display_mode_api.py` | Decide opt-in idle compaction and calculate compact geometry. | Opt-in, active, hovered, and malformed-size cases. |
+| Compact State API | `scripts/api/compact_state_api.py` | Delay idle compaction, expand on activity/hover, and preserve edge anchors. | Idle delay, activity, hover, blockers, and edge geometry. |
+| Window Recovery API | `scripts/api/window_recovery_api.py` | Preserve legal monitor coordinates and recover off-screen windows to the nearest work area. | Negative/secondary coordinates, disconnected displays, and clamping. |
 | Window Size API | `scripts/api/window_size_api.py` | Transform free or proportional width/height changes with bounds. | Free, proportional, bounded, and invalid-factor cases. |
 | Resize Session API | `scripts/api/resize_session_api.py` | Apply reversible percentage steps from an opening base size. | Exact plus/minus symmetry and bounded dimensions. |
 | Quota Provider API | `scripts/api/quota_provider_api.py` | Normalize already-fetched local app-server data without reading auth or making network calls. | Valid, malformed, and credential-bearing payload fixtures. |
