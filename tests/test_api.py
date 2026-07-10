@@ -5,6 +5,7 @@ import queue
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -139,6 +140,51 @@ class ActivityApiTests(unittest.TestCase):
             second = snapshot_activity(Path(directory), now=1001, cache=cache)
             self.assertEqual(first, second)
             self.assertIs(cached_value, next(iter(cache.values())))
+
+    def test_multiple_active_sessions_are_counted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for index in (1, 2):
+                path = root / f"session-{index}.jsonl"
+                path.write_text(json.dumps({
+                    "timestamp": stamp(950),
+                    "type": "event_msg",
+                    "payload": {"type": "task_started"},
+                }), encoding="utf-8")
+                os.utime(path, (1000, 1000))
+            result = snapshot_activity(root, now=1000)
+            self.assertEqual(result["active"], 2)
+            self.assertEqual(result["progress"], "活动对话 2 个")
+
+    def test_recently_completed_session_is_reported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.write_session(Path(directory), [
+                {"timestamp": stamp(900), "type": "event_msg", "payload": {"type": "task_started"}},
+                {"timestamp": stamp(995), "type": "event_msg", "payload": {"type": "task_complete"}},
+            ])
+            result = snapshot_activity(Path(directory), now=1000)
+            self.assertEqual(result, {"active": 0, "detail": "已完成", "progress": "最近对话已完成"})
+
+    def test_file_stat_race_does_not_abort_directory_scan(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            original_rglob = Path.rglob
+
+            def race_rglob(path, pattern):
+                if path == root:
+                    class VanishingPath:
+                        def stat(self):
+                            raise OSError("file vanished during scan")
+
+                        def __str__(self):
+                            return "vanishing.jsonl"
+
+                    return iter((VanishingPath(),))
+                return original_rglob(path, pattern)
+
+            with mock.patch("api.activity_api.Path.rglob", race_rglob):
+                result = snapshot_activity(root, now=1000)
+            self.assertEqual(result["active"], 0)
 
 
 class DiagnosticsAndTrayTests(unittest.TestCase):
