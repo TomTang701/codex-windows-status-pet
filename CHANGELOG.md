@@ -18,6 +18,7 @@ review_cycle_days: 30
 - Activated the Engineering Standard as a required-for-release, highest-precedence repository standard.
 - Added enforced document front matter, manifest identity/version checks, review-age policy, required-release validation, and orphan Active-document detection.
 - Strengthened bilingual parity checks for API names, versions, stable test/table IDs, fence languages, document metadata, and configuration schema references.
+- Replaced the completion-heavy roadmap with future-only Now, Next, Later, Blocked, and Out of scope sections.
 - Reorganized documentation into governance, architecture, product, quality, operations, and archive layers with a manifest-driven bilingual gate.
 - Added repository, configuration, architecture, testing, release, security, installation, troubleshooting, and contribution guides.
 - Added a manifest validator to the automated release checks; the suite now passes 88 tests and 17 registered bilingual pairs.
