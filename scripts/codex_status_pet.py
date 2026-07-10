@@ -11,7 +11,6 @@ import subprocess
 import sys
 import threading
 import tkinter as tk
-from tkinter import colorchooser, messagebox
 try:
     import tomllib
 except ModuleNotFoundError:
@@ -24,9 +23,9 @@ import pystray
 APP_VERSION = "0.2.0"
 try:
     from api.activity_api import snapshot_activity
-    from api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
+    from api.config_api import load_settings as load_settings_api, save_settings_atomic
     from api.diagnostics_api import configure_logging
-    from api.display_api import dpi_for_window, virtual_desktop_bounds, place_popup, work_area_for_point
+    from api.display_api import dpi_for_window, virtual_desktop_bounds, work_area_for_point
     from api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
     from api.refresh_scheduler_api import RefreshScheduler
     from api.refresh_controller_api import RefreshController
@@ -35,18 +34,16 @@ try:
     from api.compact_state_api import CompactState, compact_geometry
     from api.window_recovery_api import recover_position
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
-    from api.input_validation_api import is_signed_integer_candidate, is_unsigned_integer_candidate, parse_signed_integer, parse_unsigned_integer
-    from api.resize_session_api import ResizeSession
-    from api.settings_session_api import SettingsSession
     from api.quota_provider_api import normalize_snapshot
     from api.quota_state_api import QuotaState
     from api.runtime_api import SingleInstance, enable_dpi_awareness
     from ui.context_menu import show_context_menu
+    from ui.settings_dialog import show_settings_dialog
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
-    from scripts.api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
+    from scripts.api.config_api import load_settings as load_settings_api, save_settings_atomic
     from scripts.api.diagnostics_api import configure_logging
-    from scripts.api.display_api import dpi_for_window, virtual_desktop_bounds, place_popup, work_area_for_point
+    from scripts.api.display_api import dpi_for_window, virtual_desktop_bounds, work_area_for_point
     from scripts.api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
     from scripts.api.refresh_scheduler_api import RefreshScheduler
     from scripts.api.refresh_controller_api import RefreshController
@@ -55,13 +52,11 @@ except ModuleNotFoundError:
     from scripts.api.compact_state_api import CompactState, compact_geometry
     from scripts.api.window_recovery_api import recover_position
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
-    from scripts.api.input_validation_api import is_signed_integer_candidate, is_unsigned_integer_candidate, parse_signed_integer, parse_unsigned_integer
-    from scripts.api.resize_session_api import ResizeSession
-    from scripts.api.settings_session_api import SettingsSession
     from scripts.api.quota_provider_api import normalize_snapshot
     from scripts.api.quota_state_api import QuotaState
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
     from scripts.ui.context_menu import show_context_menu
+    from scripts.ui.settings_dialog import show_settings_dialog
 
 
 def ensure_single_instance():
@@ -454,158 +449,7 @@ class Pet(tk.Tk):
         self.save_settings()
 
     def show_settings(self):
-        if self.settings_dialog is not None and self.settings_dialog.winfo_exists():
-            self.show_window()
-            self.settings_dialog.deiconify()
-            self.settings_dialog.lift()
-            self.settings_dialog.focus_force()
-            return
-        self.show_window()
-        dialog = tk.Toplevel(self)
-        self.settings_dialog = dialog
-        dialog.title("Codex \u5ba0\u7269\u8bbe\u7f6e")
-        dialog.resizable(False, False)
-        dialog.attributes("-topmost", True)
-        settings_session = SettingsSession(self.settings)
-        self._settings_session = settings_session
-        draft = settings_session.draft_settings
-        body = tk.Frame(dialog, padx=14, pady=12)
-        body.pack(fill="both", expand=True)
-        alpha = tk.DoubleVar(value=draft["alpha"])
-        size = tk.IntVar(value=draft["font_size"])
-        position_x = tk.StringVar(value=str(draft["x"]))
-        position_y = tk.StringVar(value=str(draft["y"]))
-        window_width = tk.StringVar(value=str(draft["window_width"]))
-        window_height = tk.StringVar(value=str(draft["window_height"]))
-        refresh_interval = tk.StringVar(value=str(draft["refresh_interval_seconds"]))
-        scale_mode = tk.StringVar(value=draft.get("scale_mode", "free"))
-        topmost = tk.BooleanVar(value=draft["topmost"])
-        locked = tk.BooleanVar(value=draft["locked"])
-        compact_when_idle = tk.BooleanVar(value=draft["compact_when_idle"])
-
-        tk.Label(body, text="\u900f\u660e\u5ea6").grid(row=0, column=0, sticky="w")
-        tk.Scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha).grid(row=0, column=1)
-        tk.Label(body, text="\u5b57\u4f53\u5927\u5c0f").grid(row=1, column=0, sticky="w")
-        tk.Scale(body, from_=8, to=20, resolution=1, orient="horizontal", length=230, variable=size).grid(row=1, column=1)
-        tk.Label(body, text="\u9ed8\u8ba4\u4f4d\u7f6e (X, Y)").grid(row=2, column=0, sticky="w")
-        position = tk.Frame(body)
-        position.grid(row=2, column=1, sticky="w")
-        digit_or_signed = (self.register(is_signed_integer_candidate), "%P")
-        digits_only = (self.register(is_unsigned_integer_candidate), "%P")
-        tk.Entry(position, textvariable=position_x, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
-        tk.Label(position, text=", ").pack(side="left")
-        tk.Entry(position, textvariable=position_y, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
-        tk.Label(body, text="窗口大小 (宽, 高)").grid(row=3, column=0, sticky="w")
-        dimensions = tk.Frame(body)
-        dimensions.grid(row=3, column=1, sticky="w")
-        tk.Entry(dimensions, textvariable=window_width, width=8, validate="key", validatecommand=digits_only).pack(side="left")
-        tk.Label(dimensions, text=", ").pack(side="left")
-        tk.Entry(dimensions, textvariable=window_height, width=8, validate="key", validatecommand=digits_only).pack(side="left")
-        resize_session = ResizeSession(draft["window_width"], draft["window_height"])
-
-        def resize_by(delta_percent):
-            try:
-                current = (int(window_width.get()), int(window_height.get()))
-                if current != resize_session.dimensions():
-                    resize_session.__init__(*current)
-                width, height = resize_session.step(delta_percent)
-            except (TypeError, ValueError):
-                return
-            window_width.set(width)
-            window_height.set(height)
-        tk.Button(dimensions, text="−", width=2, command=lambda: resize_by(-10)).pack(side="left", padx=(6, 0))
-        tk.Button(dimensions, text="+", width=2, command=lambda: resize_by(10)).pack(side="left")
-        tk.Checkbutton(body, text="等比例缩放", variable=scale_mode, onvalue="proportional", offvalue="free").grid(row=4, column=0, sticky="w")
-        tk.Label(body, text="刷新间隔 (秒)").grid(row=4, column=1, sticky="e")
-        tk.Entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only).grid(row=4, column=1, sticky="w", padx=(100, 0))
-        tk.Checkbutton(body, text="\u7f6e\u9876", variable=topmost).grid(row=5, column=0, sticky="w")
-        tk.Checkbutton(body, text="\u9501\u5b9a\u4f4d\u7f6e", variable=locked).grid(row=5, column=1, sticky="w")
-        tk.Checkbutton(body, text="空闲时收缩", variable=compact_when_idle).grid(row=6, column=0, sticky="w")
-
-        def choose_font():
-            chosen = colorchooser.askcolor(color=draft["font_color"], parent=dialog)[1]
-            if chosen:
-                draft["font_color"] = chosen
-
-        def choose_background():
-            chosen = colorchooser.askcolor(color=draft["background_color"], parent=dialog)[1]
-            if chosen:
-                draft["background_color"] = chosen
-
-        tk.Button(body, text="\u5b57\u4f53\u989c\u8272...", command=choose_font).grid(row=7, column=0, pady=(8, 0), sticky="w")
-        tk.Button(body, text="\u80cc\u666f\u989c\u8272...", command=choose_background).grid(row=7, column=1, pady=(8, 0), sticky="w")
-
-        def sync_draft():
-            try:
-                draft["alpha"] = float(alpha.get())
-                draft["font_size"] = int(size.get())
-                draft["x"] = parse_signed_integer(position_x.get())
-                draft["y"] = parse_signed_integer(position_y.get())
-                draft["window_width"] = parse_unsigned_integer(window_width.get(), 180, 1200)
-                draft["window_height"] = parse_unsigned_integer(window_height.get(), 80, 800)
-                draft["refresh_interval_seconds"] = parse_unsigned_integer(refresh_interval.get(), 1, 10)
-                draft["scale_mode"] = scale_mode.get()
-                draft["topmost"] = bool(topmost.get())
-                draft["locked"] = bool(locked.get())
-                draft["compact_when_idle"] = bool(compact_when_idle.get())
-            except (TypeError, ValueError):
-                messagebox.showerror("设置无效", "坐标、窗口尺寸和刷新间隔必须填写合法数字。", parent=dialog)
-                return False
-            return True
-
-        def apply_draft():
-            if not sync_draft():
-                return False
-            self.apply_settings(settings_session.apply())
-            return True
-
-        def save_and_close():
-            if not apply_draft():
-                return
-            self.settings = settings_session.save()
-            self.apply_settings(self.settings)
-            self.save_settings()
-            self.close_settings(dialog)
-
-        def restore_defaults():
-            settings_session.restore_defaults(DEFAULT_SETTINGS)
-            draft.clear()
-            draft.update(settings_session.draft_settings)
-            alpha.set(draft["alpha"])
-            size.set(draft["font_size"])
-            position_x.set(draft["x"])
-            position_y.set(draft["y"])
-            window_width.set(draft["window_width"])
-            window_height.set(draft["window_height"])
-            refresh_interval.set(draft["refresh_interval_seconds"])
-            scale_mode.set(draft["scale_mode"])
-            topmost.set(draft["topmost"])
-            locked.set(draft["locked"])
-            compact_when_idle.set(draft["compact_when_idle"])
-
-        buttons = tk.Frame(body)
-        buttons.grid(row=8, column=0, columnspan=2, pady=(14, 0))
-        tk.Button(buttons, text="\u4fdd\u5b58", width=8, command=save_and_close).pack(side="left", padx=3)
-        tk.Button(buttons, text="\u5e94\u7528", width=8, command=apply_draft).pack(side="left", padx=3)
-        tk.Button(buttons, text="\u6062\u590d\u9ed8\u8ba4\u503c", width=12, command=restore_defaults).pack(side="left", padx=3)
-        tk.Button(buttons, text="\u5173\u95ed", width=8, command=lambda: self.close_settings(dialog)).pack(side="left", padx=3)
-        dialog.protocol("WM_DELETE_WINDOW", lambda: self.close_settings(dialog))
-        dialog.update_idletasks()
-        # Keep recovery settings reachable even when the saved overlay monitor
-        # is disconnected or its virtual-desktop coordinates are off-screen.
-        dialog_work_area = work_area_for_point(self.winfo_rootx(), self.winfo_rooty())
-        dialog_x, dialog_y = place_popup(
-            self.winfo_rootx(),
-            self.winfo_rooty(),
-            dialog.winfo_reqwidth(),
-            dialog.winfo_reqheight(),
-            dialog_work_area,
-        )
-        dialog.geometry(f"+{dialog_x}+{dialog_y}")
-        dialog.deiconify()
-        dialog.lift()
-        dialog.focus_force()
-        self.after_idle(self.ensure_visible)
+        show_settings_dialog(self)
 
     def close_settings(self, dialog):
         if dialog is not None and dialog.winfo_exists() and getattr(self, "_settings_session", None) is not None:

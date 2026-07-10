@@ -12,6 +12,7 @@
 - Added Windows GitHub Actions quality gates and a package metadata/smoke ZIP check.
 - Corrected plugin metadata author/developer attribution to `Zixuan Tang`.
 - Extracted the context-menu Tk adapter from the main application module without changing its behavior contract.
+- Extracted the transactional settings-dialog Tk adapter without changing Apply/Save/Close semantics.
 - Added the active development roadmap and synchronized Chinese translation.
 - Added validated window dimensions, scale mode, and 1–10 second refresh interval settings.
 - Added popup work-area placement and pure quota date/earliest-expiry formatting APIs.
