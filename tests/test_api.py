@@ -39,6 +39,36 @@ class ConfigApiTests(unittest.TestCase):
             self.assertEqual(warnings, [])
             self.assertEqual(list(Path(directory).glob("*.tmp")), [])
 
+    def test_new_numeric_settings_are_bounded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text(json.dumps({
+                "window_width": 99999,
+                "window_height": 1,
+                "refresh_interval_seconds": 99,
+                "scale_mode": "proportional",
+            }), encoding="utf-8")
+            settings, warnings = load_settings(path)
+            self.assertEqual(settings["window_width"], 1200)
+            self.assertEqual(settings["window_height"], 80)
+            self.assertEqual(settings["refresh_interval_seconds"], 10)
+            self.assertEqual(settings["scale_mode"], "proportional")
+
+    def test_compact_setting_uses_strict_boolean_normalization(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text(json.dumps({"compact_when_idle": "true"}), encoding="utf-8")
+            settings, _warnings = load_settings(path)
+            self.assertTrue(settings["compact_when_idle"])
+
+    def test_utf8_bom_settings_file_is_accepted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text(json.dumps({"x": 4151, "y": 1248}), encoding="utf-8-sig")
+            settings, warnings = load_settings(path)
+            self.assertEqual((settings["x"], settings["y"]), (4151, 1248))
+            self.assertEqual(warnings, [])
+
 
 class ActivityApiTests(unittest.TestCase):
     def write_session(self, directory, records):

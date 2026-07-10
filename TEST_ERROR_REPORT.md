@@ -90,3 +90,24 @@ were implemented and are now covered by the API/test boundary specification:
 - **Still open:** ERR-022 mixed-scale geometry validation on physically different-DPI monitors.
 
 This status section records progress only; it does not claim the product is fully release-ready.
+
+## Follow-up implementation status (2026-07-10)
+
+- **Implemented and headlessly tested:** popup work-area placement, secondary-monitor work-area selection, bounded window dimensions, scale mode persistence, digit-only settings entries, 1–10 second refresh interval normalization, weekly `M/D` display, and earliest future reset-credit expiry formatting.
+- **Regression suite:** 33 tests pass; Python compilation passes.
+- **Still requires physical Windows validation:** mixed-DPI monitors, taskbar positions, and full manual settings interaction at the bottom-right edge. These are not inferred from headless tests.
+- **Physical Windows evidence (2026-07-10):** launched with `pythonw.exe` and no console window; on the secondary monitor near `(4150,1248)`, the context menu was fully visible above the overlay and the first click on “Open Settings” opened the settings dialog while the main overlay remained visible. The captured monitor work area was `DISPLAY2 (2560,354)-(4480,1386)`.
+- **Host evidence:** current host is Windows 11 Home `10.0.26200` (build `26200`); the live display probe reports both connected monitors at 96 DPI. This does not satisfy mixed-DPI coverage.
+- **Launcher smoke evidence:** two consecutive root CMD launches produced exactly one `pythonw.exe` overlay process and no console window; the existing instance was preserved.
+- **Physical Windows evidence (lifecycle):** selecting “Hide Window” removed the overlay from the desktop without terminating the `pythonw.exe` process. Tray-driven restoration was not claimed because the tray icon was not exposed to the UI automation window list; it remains a manual verification item.
+- **Tray follow-up:** the icon was visible in the primary taskbar notification area, but coordinate-level automated left/right clicks did not yield a reliable tray menu or restore action. This remains a human-interaction test, not a product failure classification.
+- **Tray physical pass:** the Windows notification-area keyboard path (`Win+B` then Apps) opened the tray menu; selecting Hide followed by Show restored the overlay to `(4150,1248)`.
+- **Still planned:** any external quota provider. No access-token provider was added.
+- **Implemented since this note:** the dedicated refresh scheduler, document parity checker, quota health classification, and opt-in compact/expanded display mode. Physical Windows validation remains required for those UI paths.
+- **Added in the latest iteration:** tray action allowlisting and single-scheduled recovery policy, covered by deterministic tests; direct tray-menu automation remains environment-limited.
+- **Added in the latest iteration:** free/proportional window-size transformation is now an independent tested API rather than UI-only logic.
+- **Added in the latest iteration:** local-only quota provider normalization with tests proving credential-bearing fields are not propagated.
+- **Security boundary:** no test or runtime path introduced an access-token reader or external quota client; that remains explicitly out of scope.
+- **Automated release gate:** `scripts/run_release_checks.py` passed document parity, Python compilation, and all 33 tests. It intentionally does not claim physical monitor or tray coverage.
+- **Latest regression:** UTF-8 BOM settings are now accepted; the automated release gate passes with 33 tests.
+- **Compact-mode physical attempt:** a BOM-enabled `compact_when_idle` configuration preserved the secondary coordinate `(4150,1248)`; the current activity snapshot reported one active conversation, so the idle-only shrink path could not be physically observed in this run.

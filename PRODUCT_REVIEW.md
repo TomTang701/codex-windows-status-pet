@@ -9,13 +9,15 @@ modifying Codex core files or injecting text into the built-in pet.
 ## Current product contract
 
 - The overlay shows only the active conversation count; it does not show plan-step `N/M` text.
-- Settings support opacity, colors, font size, topmost, lock, and virtual-desktop X/Y coordinates.
+- Settings support opacity, colors, font size, topmost, lock, virtual-desktop X/Y coordinates, window dimensions, proportional scaling, and a 1–10 second refresh interval.
 - The tray is the recovery path when the overlay is hidden or off-screen.
 - API boundaries and headless regression tests are defined in `API_SPEC.md`.
+- Popup placement and quota date formatting are independent, headless-testable API boundaries.
 
 ## Strengths
 
 - Local-only data boundary and no third-party backend.
+- The quota provider boundary is local-only and rejects credential propagation.
 - External architecture limits risk to Codex core behavior.
 - Explicit configuration persistence and multi-monitor coordinate support.
 - API split makes configuration and activity behavior testable without Tk.
@@ -27,6 +29,7 @@ modifying Codex core files or injecting text into the built-in pet.
   guaranteed recovery path.
 - The fixed-size overlay can clip long diagnostics or localized text.
 - A clean virtual environment now passes dependency import and regression tests; physical mixed-DPI coverage remains.
+- The quota-float visual model is useful inspiration, but its token-based external quota boundary is not copied.
 
 ## Recommended product priorities
 

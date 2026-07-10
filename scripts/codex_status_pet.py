@@ -11,7 +11,7 @@ import subprocess
 import sys
 import threading
 import tkinter as tk
-from tkinter import colorchooser
+from tkinter import colorchooser, messagebox
 try:
     import tomllib
 except ModuleNotFoundError:
@@ -26,13 +26,27 @@ try:
     from api.activity_api import snapshot_activity
     from api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
     from api.diagnostics_api import configure_logging
-    from api.display_api import dpi_for_window, virtual_desktop_bounds
+    from api.display_api import dpi_for_window, virtual_desktop_bounds, place_popup, work_area_for_point
+    from api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
+    from api.refresh_scheduler_api import RefreshScheduler
+    from api.quota_status_api import HEALTH_COLORS, health_tier
+    from api.display_mode_api import compact_size, should_compact
+    from api.tray_lifecycle_api import is_known_action, should_schedule_restart
+    from api.window_size_api import resize_dimensions
+    from api.quota_provider_api import normalize_snapshot
     from api.runtime_api import SingleInstance, enable_dpi_awareness
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
     from scripts.api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
     from scripts.api.diagnostics_api import configure_logging
-    from scripts.api.display_api import dpi_for_window, virtual_desktop_bounds
+    from scripts.api.display_api import dpi_for_window, virtual_desktop_bounds, place_popup, work_area_for_point
+    from scripts.api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
+    from scripts.api.refresh_scheduler_api import RefreshScheduler
+    from scripts.api.quota_status_api import HEALTH_COLORS, health_tier
+    from scripts.api.display_mode_api import compact_size, should_compact
+    from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
+    from scripts.api.window_size_api import resize_dimensions
+    from scripts.api.quota_provider_api import normalize_snapshot
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
 
 
@@ -229,9 +243,11 @@ class Pet(tk.Tk):
         self.settings = self.load_settings()
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
         self.configure(bg=self.settings["background_color"])
-        self.geometry(f"330x138+{self.settings['x']}+{self.settings['y']}")
+        self.geometry(f"{self.settings['window_width']}x{self.settings['window_height']}+{self.settings['x']}+{self.settings['y']}")
         self.hidden = False
         self.hidden_position = (self.settings["x"], self.settings["y"])
+        self.compact = False
+        self.hovered = False
         self.protocol("WM_DELETE_WINDOW", self.close)
         self.queue = queue.Queue()
         self.tray_actions = queue.Queue()
@@ -239,7 +255,7 @@ class Pet(tk.Tk):
         self.tray_restart_scheduled = False
         self.server = AppServer(self.queue)
         self.activity = ActivityMonitor()
-        self.refresh_inflight = False
+        self.refresh_scheduler = RefreshScheduler(self.settings["refresh_interval_seconds"])
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", 28), fg=self.settings["font_color"], bg=self.settings["background_color"])
@@ -247,8 +263,12 @@ class Pet(tk.Tk):
         self.text = tk.Label(self, text="Codex\n\u8fde\u63a5\u4e2d...", justify="left", anchor="w", wraplength=260, font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.text.pack(side="left", fill="both", expand=True, pady=10)
         self.bind("<Button-3>", self.menu)
+        self.bind("<Enter>", self._pointer_enter)
+        self.bind("<Leave>", self._pointer_leave)
         for widget in (self.face, self.text):
             widget.bind("<Button-3>", self.menu)
+            widget.bind("<Enter>", self._pointer_enter)
+            widget.bind("<Leave>", self._pointer_leave)
             widget.bind("<B1-Motion>", self.drag)
             widget.bind("<Button-1>", self.start_drag)
             widget.bind("<ButtonRelease-1>", self.finish_drag)
@@ -282,8 +302,10 @@ class Pet(tk.Tk):
 
     def apply_settings(self, settings):
         self.settings = dict(settings)
+        if hasattr(self, "refresh_scheduler"):
+            self.refresh_scheduler.set_interval(self.settings["refresh_interval_seconds"])
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
-        self.geometry(f"+{self.settings['x']}+{self.settings['y']}")
+        self.geometry(f"{self.settings['window_width']}x{self.settings['window_height']}+{self.settings['x']}+{self.settings['y']}")
         self.attributes("-alpha", self.settings["alpha"])
         self.attributes("-topmost", self.settings["topmost"])
         bg, fg = self.settings["background_color"], self.settings["font_color"]
@@ -293,7 +315,36 @@ class Pet(tk.Tk):
         self.topmost_var.set(self.settings["topmost"])
         self.locked_var.set(self.settings["locked"])
 
+    def _pointer_enter(self, _event=None):
+        self.hovered = True
+        if self.compact:
+            self.set_compact(False)
+
+    def _pointer_leave(self, _event=None):
+        self.hovered = False
+
+    def set_compact(self, compact):
+        compact = bool(compact)
+        if compact == self.compact or self.closing:
+            return
+        self.compact = compact
+        if compact:
+            self.text.pack_forget()
+            self.face.pack_forget()
+            self.face.pack(expand=True, padx=8, pady=8)
+            size = compact_size(self.settings["window_width"], self.settings["window_height"])
+        else:
+            self.face.pack_forget()
+            self.face.pack(side="left", padx=(12, 5), pady=10)
+            self.text.pack(side="left", fill="both", expand=True, pady=10)
+            size = None
+        x, y = self.settings["x"], self.settings["y"]
+        geometry = f"{size}x{size}+{x}+{y}" if size else f"{self.settings['window_width']}x{self.settings['window_height']}+{x}+{y}"
+        self.geometry(geometry)
+
     def show_window(self):
+        if self.compact:
+            self.set_compact(False)
         x, y = self.hidden_position if self.hidden else (self.settings["x"], self.settings["y"])
         x, y = self.safe_position(x, y)
         self.settings["x"], self.settings["y"] = x, y
@@ -394,6 +445,15 @@ class Pet(tk.Tk):
         popup.bind("<Button-3>", lambda _event: close_popup())
         popup.bind("<FocusOut>", lambda _event: popup.after_idle(close_popup))
         popup.update_idletasks()
+        work_area = work_area_for_point(event.x_root, event.y_root)
+        popup_x, popup_y = place_popup(
+            event.x_root,
+            event.y_root,
+            popup.winfo_reqwidth(),
+            popup.winfo_reqheight(),
+            work_area,
+        )
+        popup.geometry(f"+{popup_x}+{popup_y}")
         popup.grab_set()
         popup.focus_force()
         return
@@ -473,10 +533,15 @@ class Pet(tk.Tk):
         body.pack(fill="both", expand=True)
         alpha = tk.DoubleVar(value=draft["alpha"])
         size = tk.IntVar(value=draft["font_size"])
-        position_x = tk.IntVar(value=draft["x"])
-        position_y = tk.IntVar(value=draft["y"])
+        position_x = tk.StringVar(value=str(draft["x"]))
+        position_y = tk.StringVar(value=str(draft["y"]))
+        window_width = tk.StringVar(value=str(draft["window_width"]))
+        window_height = tk.StringVar(value=str(draft["window_height"]))
+        refresh_interval = tk.StringVar(value=str(draft["refresh_interval_seconds"]))
+        scale_mode = tk.StringVar(value=draft.get("scale_mode", "free"))
         topmost = tk.BooleanVar(value=draft["topmost"])
         locked = tk.BooleanVar(value=draft["locked"])
+        compact_when_idle = tk.BooleanVar(value=draft["compact_when_idle"])
 
         tk.Label(body, text="\u900f\u660e\u5ea6").grid(row=0, column=0, sticky="w")
         tk.Scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha).grid(row=0, column=1)
@@ -485,11 +550,37 @@ class Pet(tk.Tk):
         tk.Label(body, text="\u9ed8\u8ba4\u4f4d\u7f6e (X, Y)").grid(row=2, column=0, sticky="w")
         position = tk.Frame(body)
         position.grid(row=2, column=1, sticky="w")
-        tk.Entry(position, textvariable=position_x, width=8).pack(side="left")
+        digit_or_signed = (self.register(lambda value: value == "" or value.lstrip("+-").isdigit()), "%P")
+        digits_only = (self.register(lambda value: value == "" or value.isdigit()), "%P")
+        tk.Entry(position, textvariable=position_x, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
         tk.Label(position, text=", ").pack(side="left")
-        tk.Entry(position, textvariable=position_y, width=8).pack(side="left")
-        tk.Checkbutton(body, text="\u7f6e\u9876", variable=topmost).grid(row=3, column=0, sticky="w")
-        tk.Checkbutton(body, text="\u9501\u5b9a\u4f4d\u7f6e", variable=locked).grid(row=3, column=1, sticky="w")
+        tk.Entry(position, textvariable=position_y, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
+        tk.Label(body, text="窗口大小 (宽, 高)").grid(row=3, column=0, sticky="w")
+        dimensions = tk.Frame(body)
+        dimensions.grid(row=3, column=1, sticky="w")
+        tk.Entry(dimensions, textvariable=window_width, width=8, validate="key", validatecommand=digits_only).pack(side="left")
+        tk.Label(dimensions, text=", ").pack(side="left")
+        tk.Entry(dimensions, textvariable=window_height, width=8, validate="key", validatecommand=digits_only).pack(side="left")
+        def resize_by(factor):
+            try:
+                width, height = resize_dimensions(
+                    window_width.get(),
+                    window_height.get(),
+                    factor,
+                    proportional=scale_mode.get() == "proportional",
+                )
+            except ValueError:
+                return
+            window_width.set(width)
+            window_height.set(height)
+        tk.Button(dimensions, text="−", width=2, command=lambda: resize_by(0.9)).pack(side="left", padx=(6, 0))
+        tk.Button(dimensions, text="+", width=2, command=lambda: resize_by(1.1)).pack(side="left")
+        tk.Checkbutton(body, text="等比例缩放", variable=scale_mode, onvalue="proportional", offvalue="free").grid(row=4, column=0, sticky="w")
+        tk.Label(body, text="刷新间隔 (秒)").grid(row=4, column=1, sticky="e")
+        tk.Entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only).grid(row=4, column=1, sticky="w", padx=(100, 0))
+        tk.Checkbutton(body, text="\u7f6e\u9876", variable=topmost).grid(row=5, column=0, sticky="w")
+        tk.Checkbutton(body, text="\u9501\u5b9a\u4f4d\u7f6e", variable=locked).grid(row=5, column=1, sticky="w")
+        tk.Checkbutton(body, text="空闲时收缩", variable=compact_when_idle).grid(row=6, column=0, sticky="w")
 
         def choose_font():
             chosen = colorchooser.askcolor(color=draft["font_color"], parent=dialog)[1]
@@ -501,23 +592,36 @@ class Pet(tk.Tk):
             if chosen:
                 draft["background_color"] = chosen
 
-        tk.Button(body, text="\u5b57\u4f53\u989c\u8272...", command=choose_font).grid(row=4, column=0, pady=(8, 0), sticky="w")
-        tk.Button(body, text="\u80cc\u666f\u989c\u8272...", command=choose_background).grid(row=4, column=1, pady=(8, 0), sticky="w")
+        tk.Button(body, text="\u5b57\u4f53\u989c\u8272...", command=choose_font).grid(row=7, column=0, pady=(8, 0), sticky="w")
+        tk.Button(body, text="\u80cc\u666f\u989c\u8272...", command=choose_background).grid(row=7, column=1, pady=(8, 0), sticky="w")
 
         def sync_draft():
-            draft["alpha"] = float(alpha.get())
-            draft["font_size"] = int(size.get())
-            draft["x"] = int(position_x.get())
-            draft["y"] = int(position_y.get())
-            draft["topmost"] = bool(topmost.get())
-            draft["locked"] = bool(locked.get())
+            try:
+                draft["alpha"] = float(alpha.get())
+                draft["font_size"] = int(size.get())
+                draft["x"] = int(position_x.get())
+                draft["y"] = int(position_y.get())
+                draft["window_width"] = min(1200, max(180, int(window_width.get())))
+                draft["window_height"] = min(800, max(80, int(window_height.get())))
+                draft["refresh_interval_seconds"] = min(10, max(1, int(refresh_interval.get())))
+                draft["scale_mode"] = scale_mode.get()
+                draft["topmost"] = bool(topmost.get())
+                draft["locked"] = bool(locked.get())
+                draft["compact_when_idle"] = bool(compact_when_idle.get())
+            except (TypeError, ValueError):
+                messagebox.showerror("设置无效", "坐标、窗口尺寸和刷新间隔必须填写合法数字。", parent=dialog)
+                return False
+            return True
 
         def apply_draft():
-            sync_draft()
+            if not sync_draft():
+                return False
             self.apply_settings(draft)
+            return True
 
         def save_and_close():
-            apply_draft()
+            if not apply_draft():
+                return
             self.save_settings()
             self.close_settings(dialog)
 
@@ -528,11 +632,16 @@ class Pet(tk.Tk):
             size.set(draft["font_size"])
             position_x.set(draft["x"])
             position_y.set(draft["y"])
+            window_width.set(draft["window_width"])
+            window_height.set(draft["window_height"])
+            refresh_interval.set(draft["refresh_interval_seconds"])
+            scale_mode.set(draft["scale_mode"])
             topmost.set(draft["topmost"])
             locked.set(draft["locked"])
+            compact_when_idle.set(draft["compact_when_idle"])
 
         buttons = tk.Frame(body)
-        buttons.grid(row=5, column=0, columnspan=2, pady=(14, 0))
+        buttons.grid(row=8, column=0, columnspan=2, pady=(14, 0))
         tk.Button(buttons, text="\u4fdd\u5b58", width=8, command=save_and_close).pack(side="left", padx=3)
         tk.Button(buttons, text="\u5e94\u7528", width=8, command=apply_draft).pack(side="left", padx=3)
         tk.Button(buttons, text="\u6062\u590d\u9ed8\u8ba4\u503c", width=12, command=restore_defaults).pack(side="left", padx=3)
@@ -541,7 +650,15 @@ class Pet(tk.Tk):
         dialog.update_idletasks()
         # Keep recovery settings reachable even when the saved overlay monitor
         # is disconnected or its virtual-desktop coordinates are off-screen.
-        dialog.geometry(f"+{max(20, min(600, self.winfo_screenwidth() - dialog.winfo_reqwidth() - 20))}+{max(20, min(120, self.winfo_screenheight() - dialog.winfo_reqheight() - 20))}")
+        dialog_work_area = work_area_for_point(self.winfo_rootx(), self.winfo_rooty())
+        dialog_x, dialog_y = place_popup(
+            self.winfo_rootx(),
+            self.winfo_rooty(),
+            dialog.winfo_reqwidth(),
+            dialog.winfo_reqheight(),
+            dialog_work_area,
+        )
+        dialog.geometry(f"+{dialog_x}+{dialog_y}")
         dialog.deiconify()
         dialog.lift()
         dialog.focus_force()
@@ -560,6 +677,9 @@ class Pet(tk.Tk):
         try:
             while True:
                 action = self.tray_actions.get_nowait()
+                if not is_known_action(action):
+                    logging.getLogger("codex-status-pet").warning("unknown tray action: %r", action)
+                    continue
                 if action == "show":
                     self.show_window()
                 elif action == "hide":
@@ -577,7 +697,7 @@ class Pet(tk.Tk):
                     self.close()
                 elif action == "tray_error":
                     self.text.config(text="Codex\n托盘图标异常", fg="#fca5a5")
-                    if not self.tray_restart_scheduled:
+                    if should_schedule_restart(action, self.tray_restart_scheduled, self.closing):
                         self.tray_restart_scheduled = True
                         self.after(2000, self.restart_tray)
         except queue.Empty:
@@ -598,14 +718,13 @@ class Pet(tk.Tk):
             self.after(5000, self.restart_tray)
 
     def refresh(self):
-        if self.closing or self.refresh_inflight:
+        if self.closing or not self.refresh_scheduler.begin():
             return
-        self.refresh_inflight = True
         def worker():
             try:
                 if not self.server.proc or self.server.proc.poll() is not None:
                     self.server.start()
-                payload = self.server.read_limits()
+                payload = normalize_snapshot(self.server.read_limits())
                 payload["_activity"] = self.activity.snapshot()
                 self.queue.put(payload)
             except Exception as exc:
@@ -621,9 +740,9 @@ class Pet(tk.Tk):
             while True:
                 payload = self.queue.get_nowait()
                 if payload.get("_refresh_done"):
-                    self.refresh_inflight = False
+                    self.refresh_scheduler.finish()
                     if not self.closing:
-                        self.after(5000, self.refresh)
+                        self.after(self.refresh_scheduler.delay_ms, self.refresh)
                     continue
                 if "error" in payload:
                     self.text.config(text="Codex\n" + payload["error"][:30], fg="#fca5a5")
@@ -632,13 +751,20 @@ class Pet(tk.Tk):
                 primary, secondary = limits.get("primary", {}), limits.get("secondary", {})
                 credits = payload.get("rateLimitResetCredits") or {}
                 activity = payload.get("_activity", {"detail": "\u7a7a\u95f2", "progress": ""})
+                active_count = activity.get("active", 0)
+                if self.settings.get("compact_when_idle"):
+                    self.set_compact(should_compact(True, active_count, self.hovered))
+                credit_items = credits if isinstance(credits, (list, dict)) else []
+                earliest_credit_expiry = earliest_future_expiry(credit_items)
+                tier = health_tier(primary)
+                text_color = self.settings["font_color"] if tier == "healthy" else HEALTH_COLORS.get(tier, self.settings["font_color"])
                 self.text.config(text=(
                     f"Codex {activity.get('detail', '\u7a7a\u95f2')}\n"
                     f"{activity.get('progress', '')}\n"
                     f"5h {percent_left(primary)} / {short_time(primary.get('resetsAt'))}\n"
-                    f"\u5468 {percent_left(secondary)} / {short_time(secondary.get('resetsAt'))}\n"
-                    f"\u91cd\u7f6e {credits.get('availableCount', '--')} \u6b21"
-                ), fg=self.settings["font_color"])
+                    f"{quota_line('\u5468', percent_left(secondary), secondary.get('resetsAt'))}\n"
+                    f"{reset_credit_line(credits.get('availableCount', '--') if isinstance(credits, dict) else '--', earliest_credit_expiry)}"
+                ), fg=text_color)
         except queue.Empty:
             pass
         except Exception:
