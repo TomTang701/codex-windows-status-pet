@@ -23,21 +23,33 @@ def _epoch(value):
     return None
 
 
-def local_time_date(value):
+def _local_datetime(value):
+    """Return a local datetime for an approved timestamp value, or None."""
     if value in (None, ""):
-        return "--"
+        return None
     timestamp = _epoch(value)
     if timestamp is None:
-        return "--"
+        return None
     try:
-        return datetime.fromtimestamp(timestamp).astimezone().strftime("%H:%M %-m/%-d")
+        return datetime.fromtimestamp(timestamp).astimezone()
     except (TypeError, ValueError, OverflowError, OSError):
-        # Windows strftime does not support %-m/%-d.
-        try:
-            current = datetime.fromtimestamp(timestamp).astimezone()
-            return f"{current.hour:02d}:{current.minute:02d} {current.month}/{current.day}"
-        except (TypeError, ValueError, OverflowError, OSError):
-            return "--"
+        return None
+
+
+def local_time_only(value) -> str:
+    """Return local ``HH:MM`` for a timestamp, or a safe placeholder."""
+    current = _local_datetime(value)
+    if current is None:
+        return "--"
+    return f"{current.hour:02d}:{current.minute:02d}"
+
+
+def local_time_date(value) -> str:
+    """Return local ``HH:MM M/D`` without platform-specific directives."""
+    current = _local_datetime(value)
+    if current is None:
+        return "--"
+    return f"{current.hour:02d}:{current.minute:02d} {current.month}/{current.day}"
 
 
 def earliest_future_expiry(expirations, now=None):
@@ -71,7 +83,8 @@ def quota_line(label, value, reset_at):
     return f"{label} {value} / {suffix}"
 
 
-def reset_credit_line(count, expiration):
-    if expiration is None:
+def reset_credit_line(count, expiration) -> str:
+    formatted = local_time_date(expiration)
+    if formatted == "--":
         return f"重置 {count} 次"
-    return f"重置 {count} 次 / {local_time_date(expiration)}"
+    return f"重置 {count} 次 / {formatted}"

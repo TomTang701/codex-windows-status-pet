@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 try:
-    from api.quota_format_api import quota_line, reset_credit_line, earliest_future_expiry
+    from api.quota_format_api import earliest_future_expiry, local_time_only, quota_line, reset_credit_line
     from api.quota_status_api import HEALTH_COLORS, health_tier
 except ModuleNotFoundError:
-    from scripts.api.quota_format_api import quota_line, reset_credit_line, earliest_future_expiry
+    from scripts.api.quota_format_api import earliest_future_expiry, local_time_only, quota_line, reset_credit_line
     from scripts.api.quota_status_api import HEALTH_COLORS, health_tier
 
 
@@ -20,15 +18,6 @@ def _percent_left(window):
     except (TypeError, ValueError):
         return "--"
     return f"{max(0, 100 - used)}%"
-
-
-def _short_time(epoch):
-    if not epoch:
-        return "--"
-    try:
-        return datetime.fromtimestamp(float(epoch), tz=timezone.utc).astimezone().strftime("%H:%M")
-    except (TypeError, ValueError, OverflowError, OSError):
-        return "--"
 
 
 def build_status_snapshot(activity, quota, quota_state="loading", font_color="#e5e7eb"):
@@ -51,7 +40,7 @@ def build_status_snapshot(activity, quota, quota_state="loading", font_color="#e
         "text": (
             f"Codex {activity.get('detail', '空闲')}{state_label}\n"
             f"{activity.get('progress', '')}\n"
-            f"5h {_percent_left(primary)} / {_short_time(primary.get('resetsAt'))}\n"
+            f"5h {_percent_left(primary)} / {local_time_only(primary.get('resetsAt'))}\n"
             f"{quota_line('周', _percent_left(secondary), secondary.get('resetsAt'))}\n"
             f"{reset_credit_line(credits.get('availableCount', '--') if isinstance(credits, dict) else '--', earliest_future_expiry(credit_items))}"
         ),

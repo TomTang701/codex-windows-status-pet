@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-
-
 def _first(mapping, *names):
     if not isinstance(mapping, dict):
         return None
@@ -27,6 +24,33 @@ def _window(value):
     return result
 
 
+_EXPIRY_NAMES = ("expiresAt", "expires_at", "resetsAt", "resets_at", "resetAt", "reset_at")
+_EXPIRY_CONTAINERS = ("expirations", "credits")
+
+
+def _approved_expirations(value, depth=0):
+    """Extract only approved Reset Credit expiry fields to a bounded depth."""
+    if depth > 3:
+        return []
+    if isinstance(value, (int, float, str)) and not isinstance(value, bool):
+        return [value]
+    if isinstance(value, (list, tuple)):
+        result = []
+        for item in value:
+            result.extend(_approved_expirations(item, depth + 1))
+        return result
+    if not isinstance(value, dict):
+        return []
+    result = []
+    for name in _EXPIRY_NAMES:
+        if name in value:
+            result.extend(_approved_expirations(value[name], depth + 1))
+    for name in _EXPIRY_CONTAINERS:
+        if name in value:
+            result.extend(_approved_expirations(value[name], depth + 1))
+    return result
+
+
 def parse_quota_payload(payload):
     if not isinstance(payload, dict):
         return {"status": "unavailable", "rateLimits": {}, "rateLimitResetCredits": {}}
@@ -44,11 +68,9 @@ def parse_quota_payload(payload):
         count = _first(credits, "availableCount", "available_count")
         if isinstance(count, int) and not isinstance(count, bool):
             parsed_credits["availableCount"] = count
-        expirations = _first(credits, "resetsAt", "resetAt", "expirations")
-        if isinstance(expirations, list):
-            parsed_credits["resetsAt"] = [item for item in expirations if isinstance(item, (int, float, str)) and not isinstance(item, bool)]
-        elif isinstance(expirations, (int, float, str)) and not isinstance(expirations, bool):
-            parsed_credits["resetsAt"] = [expirations]
+        expirations = _approved_expirations(credits)
+        if expirations:
+            parsed_credits["resetsAt"] = expirations
     return {
         "status": "available" if parsed_limits else "unavailable",
         "rateLimits": parsed_limits,

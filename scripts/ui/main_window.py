@@ -108,7 +108,7 @@ class Pet(tk.Tk):
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", 28), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.face.pack(side="left", padx=(12, 5), pady=10)
-        self.text = tk.Label(self, text="Codex\n\u8fde\u63a5\u4e2d...", justify="left", anchor="w", wraplength=260, font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self.text = tk.Label(self, text="Codex\n\u8fde\u63a5\u4e2d...", justify="left", anchor="w", wraplength=max(1, self.settings["window_width"] - 82), font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.text.pack(side="left", fill="both", expand=True, pady=10)
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
@@ -191,7 +191,12 @@ class Pet(tk.Tk):
         bg, fg = self.settings["background_color"], self.settings["font_color"]
         self.configure(bg=bg)
         self.face.configure(bg=bg, fg=fg)
-        self.text.configure(bg=bg, fg=fg, font=("Segoe UI", self.settings["font_size"]))
+        self.text.configure(
+            bg=bg,
+            fg=fg,
+            font=("Segoe UI", self.settings["font_size"]),
+            wraplength=max(1, self.settings["window_width"] - 82),
+        )
         self.topmost_var.set(self.settings["topmost"])
         self.locked_var.set(self.settings["locked"])
 
