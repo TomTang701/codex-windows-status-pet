@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "migration_phase": "framework",
+  "documents": [
+    {
+      "id": "README",
+      "class": "descriptive",
+      "status": "active",
+      "canonical": "README.md",
+      "translations": {"zh-CN": "README.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "API-SPEC",
+      "class": "normative",
+      "status": "active",
+      "canonical": "API_SPEC.md",
+      "translations": {"zh-CN": "API_SPEC.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "FILE-SPEC",
+      "class": "descriptive",
+      "status": "active",
+      "canonical": "FILE_SPEC.md",
+      "translations": {"zh-CN": "FILE_SPEC.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "CHANGELOG",
+      "class": "historical",
+      "status": "active",
+      "canonical": "CHANGELOG.md",
+      "translations": {"zh-CN": "CHANGELOG.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 30,
+      "required_for_release": true
+    },
+    {
+      "id": "PRODUCT-REVIEW",
+      "class": "descriptive",
+      "status": "active",
+      "canonical": "PRODUCT_REVIEW.md",
+      "translations": {"zh-CN": "PRODUCT_REVIEW.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": false
+    },
+    {
+      "id": "DEVELOPMENT-PLAN",
+      "class": "descriptive",
+      "status": "active",
+      "canonical": "DEVELOPMENT_PLAN.md",
+      "translations": {"zh-CN": "DEVELOPMENT_PLAN.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 30,
+      "required_for_release": true
+    },
+    {
+      "id": "COMPATIBILITY-MATRIX",
+      "class": "evidence",
+      "status": "active",
+      "canonical": "COMPATIBILITY_MATRIX.md",
+      "translations": {"zh-CN": "COMPATIBILITY_MATRIX.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 30,
+      "required_for_release": true
+    },
+    {
+      "id": "ENGINEERING-STANDARD",
+      "class": "normative",
+      "status": "proposed",
+      "canonical": "Goal/ENGINEERING_STANDARD.md",
+      "translations": {"zh-CN": "Goal/ENGINEERING_STANDARD.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": false
+    }
+  ]
+}

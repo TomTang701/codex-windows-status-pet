@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import sys
 
 
-PAIRS = ("README", "API_SPEC", "FILE_SPEC", "CHANGELOG", "PRODUCT_REVIEW", "DEVELOPMENT_PLAN", "COMPATIBILITY_MATRIX")
+MANIFEST = Path("docs") / "document_manifest.json"
 
 
 def structure(path: Path):
@@ -29,18 +30,59 @@ def structure(path: Path):
     }
 
 
-def check(root: Path):
+def load_manifest(root: Path):
+    path = root / MANIFEST
+    if not path.exists():
+        return None, [f"missing manifest: {MANIFEST.as_posix()}"]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return None, [f"invalid manifest: {exc}"]
+    if data.get("schema_version") != 1:
+        return None, ["unsupported manifest schema_version"]
+    documents = data.get("documents")
+    if not isinstance(documents, list):
+        return None, ["manifest documents must be a list"]
+    ids = [item.get("id") for item in documents if isinstance(item, dict)]
     errors = []
-    for base in PAIRS:
-        english = root / f"{base}.md"
-        chinese = root / f"{base}.zh-CN.md"
-        if not english.exists() or not chinese.exists():
-            errors.append(f"missing pair: {base}")
+    if len(ids) != len(set(ids)):
+        errors.append("manifest document IDs must be unique")
+    return documents, errors
+
+
+def check(root: Path):
+    documents, errors = load_manifest(root)
+    if documents is None:
+        return errors
+    for document in documents:
+        if not isinstance(document, dict):
+            errors.append("manifest document entries must be objects")
+            continue
+        doc_id = document.get("id", "<missing-id>")
+        canonical_value = document.get("canonical")
+        if not isinstance(canonical_value, str):
+            errors.append(f"{doc_id}: missing canonical path")
+            continue
+        english = root / canonical_value
+        if not english.exists():
+            errors.append(f"{doc_id}: missing canonical: {canonical_value}")
+            continue
+        translations = document.get("translations", {})
+        if not isinstance(translations, dict):
+            errors.append(f"{doc_id}: translations must be an object")
+            continue
+        chinese_value = translations.get("zh-CN")
+        if not isinstance(chinese_value, str):
+            errors.append(f"{doc_id}: missing zh-CN translation path")
+            continue
+        chinese = root / chinese_value
+        if not chinese.exists():
+            errors.append(f"{doc_id}: missing translation: {chinese_value}")
             continue
         left, right = structure(english), structure(chinese)
         for key in ("headings", "fences", "table_rows"):
             if left[key] != right[key]:
-                errors.append(f"{base}: {key} differs ({left[key]} != {right[key]})")
+                errors.append(f"{doc_id}: {key} differs ({left[key]} != {right[key]})")
     return errors
 
 
@@ -49,4 +91,5 @@ if __name__ == "__main__":
     if problems:
         print("\n".join(problems), file=sys.stderr)
         raise SystemExit(1)
-    print(f"document parity passed for {len(PAIRS)} pairs")
+    documents, _ = load_manifest(Path(__file__).resolve().parents[1])
+    print(f"document parity passed for {len(documents)} manifest documents")

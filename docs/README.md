@@ -1,0 +1,27 @@
+# Codex Windows Status Pet Documentation
+
+This directory is the development documentation home. English is canonical; a `.zh-CN.md` file beside an English document is its Chinese translation.
+
+## Start here
+
+| Reader | First document |
+|---|---|
+| User | [Root README](../README.md) |
+| Contributor | [Engineering Standard](../Goal/ENGINEERING_STANDARD.md), [Development Plan](../DEVELOPMENT_PLAN.md) |
+| API or UI developer | [API Specification](../API_SPEC.md), [File Specification](../FILE_SPEC.md) |
+| Tester or release maintainer | [Compatibility Matrix](../COMPATIBILITY_MATRIX.md), [Test Error Report](../TEST_ERROR_REPORT.md) |
+
+## Document classes
+
+- **Normative:** defines required behavior or process.
+- **Descriptive:** explains the current design or product.
+- **Evidence:** records automated or physical test results.
+- **Historical:** preserves a completed audit or superseded plan.
+
+The repository is migrating from a flat root-level layout to the layered structure described in [the documentation structure plan](../Goal/codex-status-pet-documentation-structure-plan-zh.md). Until each migration step is completed, the manifest records the active source path and links remain compatible with the current layout.
+
+## Source of truth
+
+The English document is authoritative. Chinese translations must preserve headings, identifiers, tables, code examples, versions, and requirements, and must be updated in the same commit as substantive English changes.
+
+The machine-readable inventory is [`document_manifest.json`](document_manifest.json). Run the repository release checks after documentation changes.
