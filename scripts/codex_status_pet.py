@@ -7,7 +7,6 @@ import queue
 import sys
 import threading
 import tkinter as tk
-from datetime import datetime, timezone
 from pathlib import Path
 
 APP_VERSION = "0.2.0"
@@ -18,10 +17,9 @@ try:
     from api.diagnostics_api import configure_logging
     from api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from api.diagnostic_summary_api import build_diagnostic_summary
-    from api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
+    from api.status_snapshot_api import build_status_snapshot
     from api.refresh_scheduler_api import RefreshScheduler
     from api.refresh_controller_api import RefreshController
-    from api.quota_status_api import HEALTH_COLORS, health_tier
     from api.display_mode_api import compact_size
     from api.compact_state_api import CompactState, compact_geometry
     from api.window_recovery_api import recover_position
@@ -39,10 +37,9 @@ except ModuleNotFoundError:
     from scripts.api.diagnostics_api import configure_logging
     from scripts.api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from scripts.api.diagnostic_summary_api import build_diagnostic_summary
-    from scripts.api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
+    from scripts.api.status_snapshot_api import build_status_snapshot
     from scripts.api.refresh_scheduler_api import RefreshScheduler
     from scripts.api.refresh_controller_api import RefreshController
-    from scripts.api.quota_status_api import HEALTH_COLORS, health_tier
     from scripts.api.display_mode_api import compact_size
     from scripts.api.compact_state_api import CompactState, compact_geometry
     from scripts.api.window_recovery_api import recover_position
@@ -60,25 +57,6 @@ def ensure_single_instance():
     global _single_instance_guard
     _single_instance_guard = SingleInstance()
     return _single_instance_guard.acquire()
-
-
-def percent_left(window):
-    if not isinstance(window, dict):
-        return "--"
-    try:
-        used = int(window.get("usedPercent", 0))
-    except (TypeError, ValueError):
-        return "--"
-    return f"{max(0, 100 - used)}%"
-
-
-def short_time(epoch):
-    if not epoch:
-        return "--"
-    try:
-        return datetime.fromtimestamp(float(epoch), tz=timezone.utc).astimezone().strftime("%H:%M")
-    except (TypeError, ValueError, OverflowError, OSError):
-        return "--"
 
 
 class ActivityMonitor:
@@ -418,32 +396,17 @@ class Pet(tk.Tk):
         threading.Thread(target=worker, name="codex-quota-refresh", daemon=True).start()
 
     def render_status(self):
-        limits = self.latest_quota.get("rateLimits", {})
-        primary, secondary = limits.get("primary", {}), limits.get("secondary", {})
-        credits = self.latest_quota.get("rateLimitResetCredits") or {}
-        activity = self.latest_activity
-        active_count = activity.get("active", 0)
+        presentation = build_status_snapshot(
+            self.latest_activity, self.latest_quota, self.quota_state.state, self.settings["font_color"]
+        )
+        active_count = presentation["active_count"]
         blocked = bool(getattr(self, "context_menu", None)) or bool(self.settings_dialog and self.settings_dialog.winfo_exists())
         should_be_compact = self.compact_state.update(
             self.settings.get("compact_when_idle"), active_count, self.hovered, blocked
         )
         if should_be_compact != self.compact:
             self.set_compact(should_be_compact)
-        credit_items = credits if isinstance(credits, (list, dict)) else []
-        earliest_credit_expiry = earliest_future_expiry(credit_items)
-        tier = health_tier(primary)
-        if self.quota_state.state == "stale":
-            text_color = "#9ca3af"
-        else:
-            text_color = self.settings["font_color"] if tier == "healthy" else HEALTH_COLORS.get(tier, self.settings["font_color"])
-        quota_state_label = "（额度过期）" if self.quota_state.state == "stale" else ""
-        self.text.config(text=(
-            f"Codex {activity.get('detail', '空闲')}{quota_state_label}\n"
-            f"{activity.get('progress', '')}\n"
-            f"5h {percent_left(primary)} / {short_time(primary.get('resetsAt'))}\n"
-            f"{quota_line('周', percent_left(secondary), secondary.get('resetsAt'))}\n"
-            f"{reset_credit_line(credits.get('availableCount', '--') if isinstance(credits, dict) else '--', earliest_credit_expiry)}"
-        ), fg=text_color)
+        self.text.config(text=presentation["text"], fg=presentation["color"])
 
     def poll(self):
         if self.closing:

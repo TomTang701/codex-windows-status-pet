@@ -44,6 +44,7 @@
 | `scripts/api/models_api.py` | 类型化额度领域数据类。 |
 | `scripts/api/codex_transport_api.py` | 本地 Codex CLI 发现和 app-server stdio JSON-RPC 通信。 |
 | `scripts/api/diagnostic_summary_api.py` | 带敏感数据排除契约的安全运行诊断摘要生成器。 |
+| `scripts/api/status_snapshot_api.py` | 纯状态展示构造器，负责文字、颜色和活动数量。 |
 
 ## 运行时配置
 

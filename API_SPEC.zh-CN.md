@@ -35,6 +35,7 @@
 | 托盘 UI | `scripts/ui/tray_adapter.py` | 管理图标构造、pystray 回调、托盘线程和停止处理；动作通过队列返回。 | 托盘故障、动作白名单、重复启动和实体显示/隐藏检查。 |
 | Codex 通信 API | `scripts/api/codex_transport_api.py` | 发现本机 Codex CLI 并执行 app-server stdio JSON-RPC，不承担 UI 职责。 | 配置路径发现、停止进程拒绝和模拟通信边界测试。 |
 | 诊断摘要 API | `scripts/api/diagnostic_summary_api.py` | 生成可复制运行诊断，同时排除凭据、提示词、回答、会话内容和原始额度。 | 状态/路径格式化和敏感数据排除测试。 |
+| 状态快照 API | `scripts/api/status_snapshot_api.py` | 在不依赖 Tk 的情况下，将批准的活动/额度状态转换为显示文字、颜色和活动数量。 | 真实格式化、stale 颜色和原始字段排除测试。 |
 
 ## 不变量
 

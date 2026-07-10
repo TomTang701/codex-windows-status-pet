@@ -16,6 +16,7 @@
 - Extracted the notification-area icon adapter while keeping all actions on the Tk-owned queue.
 - Extracted local Codex CLI discovery and app-server stdio JSON-RPC transport from the UI composition module.
 - Added a copyable diagnostic summary menu action with an explicit no-token/no-content data boundary.
+- Extracted status text/color formatting into a Tk-independent presentation API.
 - Added the active development roadmap and synchronized Chinese translation.
 - Added validated window dimensions, scale mode, and 1–10 second refresh interval settings.
 - Added popup work-area placement and pure quota date/earliest-expiry formatting APIs.

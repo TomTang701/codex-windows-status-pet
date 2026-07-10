@@ -37,6 +37,7 @@ headless tests.
 | Tray UI | `scripts/ui/tray_adapter.py` | Own icon construction, pystray callbacks, tray thread, and stop handling; actions return through a queue. | Tray failure, action allowlist, repeated launch, and physical show/hide checks. |
 | Codex Transport API | `scripts/api/codex_transport_api.py` | Discover the local Codex CLI and perform app-server stdio JSON-RPC without UI ownership. | Configured-path discovery, stopped-process rejection, and mocked transport boundaries. |
 | Diagnostic Summary API | `scripts/api/diagnostic_summary_api.py` | Produce copyable operational diagnostics while excluding credentials, prompts, responses, session contents, and raw quota. | State/path formatting and sensitive-data exclusion tests. |
+| Status Snapshot API | `scripts/api/status_snapshot_api.py` | Convert approved activity/quota state into display text, color, and active-count values without Tk. | Truthful formatting, stale color, and raw-field exclusion tests. |
 
 ## Invariants
 

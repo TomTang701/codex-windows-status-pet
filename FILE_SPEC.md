@@ -44,6 +44,7 @@
 | `scripts/api/models_api.py` | Typed quota-domain dataclasses. |
 | `scripts/api/codex_transport_api.py` | Local Codex CLI discovery and app-server stdio JSON-RPC transport. |
 | `scripts/api/diagnostic_summary_api.py` | Safe operational summary generator with a sensitive-data exclusion contract. |
+| `scripts/api/status_snapshot_api.py` | Pure status presentation builder for text, color, and activity count. |
 
 ## Runtime configuration
 
