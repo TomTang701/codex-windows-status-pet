@@ -4,13 +4,14 @@
 
 - Reorganized documentation into governance, architecture, product, quality, operations, and archive layers with a manifest-driven bilingual gate.
 - Added repository, configuration, architecture, testing, release, security, installation, troubleshooting, and contribution guides.
-- Added a manifest validator to the automated release checks; the suite now passes 75 tests and 17 registered bilingual pairs.
+- Added a manifest validator to the automated release checks; the suite now passes 78 tests and 17 registered bilingual pairs.
 - Added an internal Markdown-link validator to the release checks so document moves cannot silently leave broken navigation.
 - Added a validated settings backup sidecar and a context-menu action to restore the previous settings snapshot.
 - Strengthened runtime window recovery to correct taskbar-partial placements and re-check topology changes periodically while preserving legal secondary-monitor coordinates within DPI rounding tolerance.
 - Added dated physical test-record storage and linked the current Windows 11 dual-monitor topology evidence from the compatibility matrix.
 - Extracted the main Tk window into `scripts/ui/main_window.py` while retaining `scripts/codex_status_pet.py` as a stable launcher and import facade.
 - Updated package smoke and compile gates to validate the modular main-window version source and entry point.
+- Added a dedicated version-source consistency gate for the manifest, main window, app-server client, and changelog.
 - Added transactional settings sessions: Apply previews runtime values, Save persists them, and Close restores the opening snapshot.
 - Added shared integer validation that supports typing negative coordinates while rejecting malformed pasted values.
 - Added reversible percentage resize sessions; plus and minus scale width and height symmetrically.
