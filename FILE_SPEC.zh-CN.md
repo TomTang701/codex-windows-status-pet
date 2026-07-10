@@ -1,12 +1,5 @@
 # 文件规范
 
-## 本次运行规范补充
-
-- API 边界、测试契约和重大变更/性能变更要求见 `API_SPEC.md` 与 `API_SPEC.zh-CN.md`。
-- 启动时先取得命名互斥体；已有实例时新实例直接退出，不杀死旧进程，避免误杀和“旧进程被杀后新进程启动失败”。
-- 主界面第二行始终只显示 `活动对话 N 个`，不显示计划步骤详情。
-- 主界面右键菜单第一次左键点击就执行命令，并在执行后关闭菜单。
-
 ## 仓库结构
 
 | 路径 | 用途 |
@@ -22,6 +15,22 @@
 | `FILE_SPEC.zh-CN.md` | 中文文件规范。 |
 | `CHANGELOG.md` | 主更新日志，英文版。 |
 | `CHANGELOG.zh-CN.md` | 中文更新日志。 |
+| `API_SPEC.md` / `API_SPEC.zh-CN.md` | API 边界、测试契约和变更分类。 |
+| `PRODUCT_REVIEW.md` / `PRODUCT_REVIEW.zh-CN.md` | 英文产品评审及中文翻译副本。 |
+| `DEVELOPMENT_PLAN.md` | 英文主开发路线图。 |
+| `DEVELOPMENT_PLAN.zh-CN.md` | 开发路线图的中文翻译副本。 |
+| `requirements.txt` | 回退 Python 环境的运行时依赖下限。 |
+| `tests/` | 无界面 API 和 UI 适配层回归测试。 |
+| `scripts/api/quota_format_api.py` | 与 UI 无关的额度/日期格式化 API。 |
+| `scripts/api/quota_status_api.py` | 与 UI 无关的额度健康状态分类 API。 |
+| `scripts/api/display_mode_api.py` | 与 UI 无关的收缩/展开显示模式 API。 |
+| `scripts/api/window_size_api.py` | 与 UI 无关的自由/等比例窗口尺寸 API。 |
+| `scripts/api/quota_provider_api.py` | 仅限本地的数据源响应规范化 API，不负责认证或网络。 |
+| `COMPATIBILITY_MATRIX.md` / `COMPATIBILITY_MATRIX.zh-CN.md` | 持续维护的 Windows 兼容性和发布门槛记录。 |
+| `scripts/api/tray_lifecycle_api.py` | 与 UI 无关的托盘动作和恢复策略 API。 |
+| `scripts/api/refresh_scheduler_api.py` | 与 UI 无关的单实例刷新调度 API。 |
+| `scripts/check_doc_parity.py` | 英文/中文文档副本结构一致性检查器。 |
+| `scripts/run_release_checks.py` | 可重复的自动化发布门禁；实体测试保持独立。 |
 
 ## 运行时配置
 
@@ -36,7 +45,12 @@
   "topmost": true,
   "locked": true,
   "x": 4151,
-  "y": 1248
+  "y": 1248,
+  "window_width": 330,
+  "window_height": 138,
+  "scale_mode": "free",
+  "refresh_interval_seconds": 5,
+  "compact_when_idle": false
 }
 ```
 
@@ -49,3 +63,4 @@
 - 打开或关闭设置后，主悬浮窗必须恢复可见。
 - 菜单命令只执行一次，命令执行后关闭右键菜单。
 - 后台线程不能直接调用 Tk API，界面调度必须留在 Tk 主线程。
+- 较大变更在自动发布门禁通过后必须及时提交；远程所有者和作者身份由本地 Git 配置及 pre-push 钩子核验。

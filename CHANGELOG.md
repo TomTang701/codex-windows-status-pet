@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+- Added the active development roadmap and synchronized Chinese translation.
+- Added validated window dimensions, scale mode, and 1–10 second refresh interval settings.
+- Added popup work-area placement and pure quota date/earliest-expiry formatting APIs.
+- Added a dedicated single-flight refresh scheduler API with bounded delay tests.
+- Added a structural parity checker for six English/Chinese document pairs.
+- Added a pure quota health-status API and healthy/caution/critical overlay colors.
+- Added opt-in idle compaction with hover expansion; the default remains expanded.
+- Ensured showing the overlay from a compact state expands it before settings or tray recovery.
+- Added a tray lifecycle policy API for action allowlisting and single-scheduled recovery.
+- Extracted free/proportional window resizing into a dedicated tested API.
+- Added a bilingual compatibility matrix with explicit physical-test release gates.
+- Added a local-only quota provider normalization API with an explicit no-token boundary.
+- Added a reproducible automated release-gate runner that keeps physical checks separate.
+- Added Git/GitHub change discipline to the bilingual development and API specifications.
+- Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
+- Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
+
 ## 0.2.0 - 2026-07-10
 
 - Added isolated configuration, activity, runtime, diagnostics, and test-boundary APIs.
@@ -12,7 +31,7 @@
 - Added a Windows notification-area integration with show, hide, settings, and exit actions.
 - Switched the launcher and Startup shortcut to `pythonw.exe` to avoid a persistent console window.
 - Added persistent opacity, colors, font size, topmost, lock, and multi-monitor X/Y settings.
-- Added plan completion display instead of tool-call counts.
+- The legacy implementation replaced tool-call counts with activity count; the current UI contract displays only active conversation count.
 - Fixed hidden-window state recovery and preserved virtual-desktop coordinates.
 - Fixed context-menu command dispatch and main-thread Tk scheduling.
 - Added bilingual README, file specification, and changelog documents.

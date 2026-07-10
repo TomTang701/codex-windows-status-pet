@@ -16,8 +16,21 @@
 | `CHANGELOG.md` | Primary English release history. |
 | `CHANGELOG.zh-CN.md` | Chinese release history. |
 | `API_SPEC.md` / `API_SPEC.zh-CN.md` | API boundaries, test contracts, and change classification. |
+| `PRODUCT_REVIEW.md` / `PRODUCT_REVIEW.zh-CN.md` | Product review and synchronized Chinese translation. |
 | `requirements.txt` | Runtime dependency floor for fallback Python environments. |
 | `tests/` | Headless API and UI-adapter regression tests. |
+| `DEVELOPMENT_PLAN.md` | Canonical phased development plan. |
+| `DEVELOPMENT_PLAN.zh-CN.md` | Synchronized Chinese translation copy of the development plan. |
+| `scripts/api/quota_format_api.py` | UI-independent quota/date formatting API. |
+| `scripts/api/quota_status_api.py` | UI-independent quota health classification API. |
+| `scripts/api/display_mode_api.py` | UI-independent compact/expanded display-mode API. |
+| `scripts/api/window_size_api.py` | UI-independent free/proportional window-size API. |
+| `scripts/api/quota_provider_api.py` | Local-only provider response normalization API; no auth or network ownership. |
+| `COMPATIBILITY_MATRIX.md` / `COMPATIBILITY_MATRIX.zh-CN.md` | Living Windows compatibility and release-gate record. |
+| `scripts/api/tray_lifecycle_api.py` | UI-independent tray action and recovery policy API. |
+| `scripts/api/refresh_scheduler_api.py` | UI-independent single-flight refresh scheduling API. |
+| `scripts/check_doc_parity.py` | Structural parity checker for English/Chinese document pairs. |
+| `scripts/run_release_checks.py` | Reproducible automated release gate; physical checks remain separate. |
 
 ## Runtime configuration
 
@@ -32,7 +45,12 @@
   "topmost": true,
   "locked": true,
   "x": 4151,
-  "y": 1248
+  "y": 1248,
+  "window_width": 330,
+  "window_height": 138,
+  "scale_mode": "free",
+  "refresh_interval_seconds": 5,
+  "compact_when_idle": false
 }
 ```
 
@@ -50,3 +68,4 @@ Diagnostics are written to `%USERPROFILE%\.codex\codex-windows-status-pet.log`; 
 - The second overlay line is always `Active conversations N`; plan-step details are intentionally not displayed.
 - Menu commands execute once on the first click and close the context menu after the command runs.
 - Background workers never call Tk APIs directly; UI scheduling remains on the Tk main thread.
+- Substantial changes are committed promptly after the automated release gate passes; remote owner and author identity are verified by the local Git configuration and pre-push hook.

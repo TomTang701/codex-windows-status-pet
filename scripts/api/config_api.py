@@ -18,6 +18,11 @@ DEFAULT_SETTINGS = {
     "locked": False,
     "x": 30,
     "y": 120,
+    "window_width": 330,
+    "window_height": 138,
+    "scale_mode": "free",
+    "refresh_interval_seconds": 5,
+    "compact_when_idle": False,
 }
 
 
@@ -33,6 +38,23 @@ def _bool_value(value, default):
     if isinstance(value, (int, float)) and value in (0, 1):
         return bool(value)
     return default
+
+
+def _integer_value(value, default, minimum=None, maximum=None):
+    """Parse an integer without accepting floats or embedded punctuation."""
+    if isinstance(value, bool):
+        return default
+    if isinstance(value, int):
+        result = value
+    elif isinstance(value, str) and re.fullmatch(r"[+-]?\d+", value.strip()):
+        result = int(value.strip())
+    else:
+        return default
+    if minimum is not None:
+        result = max(minimum, result)
+    if maximum is not None:
+        result = min(maximum, result)
+    return result
 
 
 def normalize_settings(raw):
@@ -60,12 +82,32 @@ def normalize_settings(raw):
         warnings.append("font_size is invalid; default retained")
 
     for key in ("x", "y"):
-        try:
-            settings[key] = int(raw.get(key, settings[key]))
-        except (TypeError, ValueError):
+        value = raw.get(key, settings[key])
+        parsed = _integer_value(value, settings[key])
+        if parsed == settings[key] and value != settings[key]:
             warnings.append(f"{key} is invalid; default retained")
+        settings[key] = parsed
 
-    for key in ("topmost", "locked"):
+    for key, minimum, maximum in (("window_width", 180, 1200), ("window_height", 80, 800)):
+        value = raw.get(key, settings[key])
+        parsed = _integer_value(value, settings[key], minimum, maximum)
+        if parsed == settings[key] and value != settings[key]:
+            warnings.append(f"{key} is invalid; default retained")
+        settings[key] = parsed
+
+    scale_mode = raw.get("scale_mode", settings["scale_mode"])
+    if scale_mode in {"free", "proportional"}:
+        settings["scale_mode"] = scale_mode
+    elif "scale_mode" in raw:
+        warnings.append("scale_mode is invalid; default retained")
+
+    value = raw.get("refresh_interval_seconds", settings["refresh_interval_seconds"])
+    parsed = _integer_value(value, settings["refresh_interval_seconds"], 1, 10)
+    if parsed == settings["refresh_interval_seconds"] and value != settings["refresh_interval_seconds"]:
+        warnings.append("refresh_interval_seconds is invalid; default retained")
+    settings["refresh_interval_seconds"] = parsed
+
+    for key in ("topmost", "locked", "compact_when_idle"):
         settings[key] = _bool_value(raw.get(key, settings[key]), settings[key])
         if key in raw and settings[key] == DEFAULT_SETTINGS[key] and raw[key] not in (True, False, 0, 1, "true", "false", "1", "0", "yes", "no", "on", "off"):
             warnings.append(f"{key} is invalid; default retained")
@@ -76,7 +118,8 @@ def load_settings(path: Path):
     """Load settings without allowing a malformed file to crash the app."""
     warnings = []
     try:
-        raw = json.loads(path.read_text(encoding="utf-8"))
+        # Windows editors and PowerShell may write a UTF-8 BOM.
+        raw = json.loads(path.read_text(encoding="utf-8-sig"))
     except FileNotFoundError:
         raw = {}
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
