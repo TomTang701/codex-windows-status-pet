@@ -4,6 +4,8 @@
 
 Before a release, automated checks, required physical rows, version-source consistency, bilingual parity, sensitive-file scan, clean-environment startup, changelog, known issues, and rollback instructions must be complete. Current physical blockers are reported by `scripts/check_release_readiness.py`.
 
+The runtime dependency policy uses minimum compatible bounds in `requirements.txt`. The release gate verifies that each declaration is installed, meets its minimum version, and imports successfully; the current verified environment uses Pillow 12.2.0 and pystray 0.19.5.
+
 ## Version and rollback
 
 Use Semantic Versioning. Keep application, manifest, changelog, package, artifact, and diagnostic versions aligned. Record the previous stable version, configuration compatibility, reinstall path, downgrade limits, and backup/restore path.

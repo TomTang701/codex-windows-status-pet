@@ -28,6 +28,7 @@ def main():
         "document_links": [python, str(ROOT / "scripts" / "check_doc_links.py")],
         "version_sources": [python, str(ROOT / "scripts" / "check_version_sources.py")],
         "sensitive_files": [python, str(ROOT / "scripts" / "check_sensitive_files.py")],
+        "dependencies": [python, str(ROOT / "scripts" / "check_dependencies.py")],
         "document_parity": [python, str(ROOT / "scripts" / "check_doc_parity.py")],
         "compile": [
             python,
