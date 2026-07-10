@@ -49,6 +49,22 @@ class MenuInteractionTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             app.destroy()
 
+    def test_restore_backup_button_dispatches_once_and_closes(self):
+        app = self.module["Pet"]()
+        calls = []
+        app.restore_settings_backup = lambda: calls.append("restore")
+        try:
+            app.menu(SimpleNamespace(x_root=4200, y_root=200))
+            popup = app.context_menu
+            body = popup.winfo_children()[0]
+            restore = next(child for child in body.winfo_children() if child.winfo_class() == "Button" and child.cget("text") == "恢复上次设置")
+            restore.invoke()
+            app.update_idletasks()
+            self.assertEqual(calls, ["restore"])
+            self.assertFalse(popup.winfo_exists())
+        finally:
+            app.destroy()
+
 
 if __name__ == "__main__":
     unittest.main()
