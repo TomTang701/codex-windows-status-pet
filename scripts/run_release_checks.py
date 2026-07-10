@@ -27,6 +27,7 @@ def main():
         "document_manifest": [python, str(ROOT / "scripts" / "check_doc_manifest.py")],
         "document_links": [python, str(ROOT / "scripts" / "check_doc_links.py")],
         "version_sources": [python, str(ROOT / "scripts" / "check_version_sources.py")],
+        "sensitive_files": [python, str(ROOT / "scripts" / "check_sensitive_files.py")],
         "document_parity": [python, str(ROOT / "scripts" / "check_doc_parity.py")],
         "compile": [
             python,
