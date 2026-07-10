@@ -29,12 +29,12 @@ try:
     from api.activity_api import snapshot_activity
     from api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
     from api.diagnostics_api import configure_logging
-    from api.runtime_api import SingleInstance
+    from api.runtime_api import SingleInstance, enable_dpi_awareness
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
     from scripts.api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
     from scripts.api.diagnostics_api import configure_logging
-    from scripts.api.runtime_api import SingleInstance
+    from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
 
 
 def ensure_single_instance():
@@ -177,9 +177,10 @@ class ActivityMonitor:
     def __init__(self):
         self.sessions = Path.home() / ".codex" / "sessions"
         self.stale_seconds = 600
+        self.cache = {}
 
     def snapshot(self):
-        return snapshot_activity(self.sessions, self.stale_seconds)
+        return snapshot_activity(self.sessions, self.stale_seconds, cache=self.cache)
         # Legacy implementation retained temporarily for line-level migration.
         now = time.time()
         active = []
@@ -515,6 +516,7 @@ class Pet(tk.Tk):
         self.queue = queue.Queue()
         self.tray_actions = queue.Queue()
         self.settings_dialog = None
+        self.tray_restart_scheduled = False
         self.server = AppServer(self.queue)
         self.activity = ActivityMonitor()
         self.refresh_inflight = False
@@ -522,7 +524,7 @@ class Pet(tk.Tk):
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", 28), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.face.pack(side="left", padx=(12, 5), pady=10)
-        self.text = tk.Label(self, text="Codex\n\u8fde\u63a5\u4e2d...", justify="left", anchor="w", font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self.text = tk.Label(self, text="Codex\n\u8fde\u63a5\u4e2d...", justify="left", anchor="w", wraplength=260, font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.text.pack(side="left", fill="both", expand=True, pady=10)
         self.bind("<Button-3>", self.menu)
         for widget in (self.face, self.text):
@@ -670,6 +672,7 @@ class Pet(tk.Tk):
         tk.Button(body, text="退出", command=lambda: run_and_close(self.close), **button_options).pack(fill="x", padx=2, pady=1)
         popup.bind("<Escape>", lambda _event: (close_popup(), "break")[1])
         popup.bind("<Button-3>", lambda _event: close_popup())
+        popup.bind("<FocusOut>", lambda _event: popup.after_idle(close_popup))
         popup.update_idletasks()
         popup.grab_set()
         popup.focus_force()
@@ -854,12 +857,25 @@ class Pet(tk.Tk):
                     self.close()
                 elif action == "tray_error":
                     self.text.config(text="Codex\n托盘图标异常", fg="#fca5a5")
+                    if not self.tray_restart_scheduled:
+                        self.tray_restart_scheduled = True
+                        self.after(2000, self.restart_tray)
         except queue.Empty:
             pass
         except Exception:
             logging.getLogger("codex-status-pet").exception("tray action failed")
         if not self.closing:
             self.after(100, self.process_tray_actions)
+
+    def restart_tray(self):
+        if self.closing:
+            return
+        try:
+            self.tray = TrayIcon3(self.tray_actions)
+            self.tray_restart_scheduled = False
+        except Exception:
+            logging.getLogger("codex-status-pet").exception("notification-area icon restart failed")
+            self.after(5000, self.restart_tray)
 
     def refresh(self):
         if self.closing or self.refresh_inflight:
@@ -932,6 +948,7 @@ if __name__ == "__main__":
     if sys.platform != "win32":
         raise SystemExit("This tool is for Windows.")
     configure_logging(Path.home() / ".codex" / "codex-windows-status-pet.log")
+    enable_dpi_awareness()
     if not ensure_single_instance():
         raise SystemExit(0)
     try:

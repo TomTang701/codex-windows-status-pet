@@ -1,5 +1,6 @@
 import json
 import os
+import queue
 import sys
 import tempfile
 import unittest
@@ -71,6 +72,33 @@ class ActivityApiTests(unittest.TestCase):
             os.utime(path, (1000, 1000))
             result = snapshot_activity(Path(directory), now=1000)
             self.assertEqual(result["active"], 0)
+
+    def test_unchanged_session_uses_parse_cache(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.write_session(directory, [
+                {"timestamp": stamp(950), "type": "event_msg", "payload": {"type": "task_started"}},
+            ])
+            cache = {}
+            first = snapshot_activity(Path(directory), now=1000, cache=cache)
+            cached_value = next(iter(cache.values()))
+            second = snapshot_activity(Path(directory), now=1001, cache=cache)
+            self.assertEqual(first, second)
+            self.assertIs(cached_value, next(iter(cache.values())))
+
+
+class DiagnosticsAndTrayTests(unittest.TestCase):
+    def test_tray_failure_is_reported_to_ui_queue(self):
+        module = __import__("codex_status_pet")
+        tray = module.TrayIcon3.__new__(module.TrayIcon3)
+        tray.actions = queue.Queue()
+
+        class FailedIcon:
+            def run(self):
+                raise RuntimeError("injected tray failure")
+
+        tray.icon = FailedIcon()
+        tray._run()
+        self.assertEqual(tray.actions.get_nowait(), "tray_error")
 
 
 if __name__ == "__main__":

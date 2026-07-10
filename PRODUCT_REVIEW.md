@@ -1,55 +1,37 @@
-# Codex Windows Status Pet 产品评审
+# Codex Windows Status Pet — Product Review
 
-## 产品定位
+## Current positioning
 
-这是一个面向重度 Codex 用户的低干扰桌面状态入口：用户不必切换窗口，就能知道当前是否有活动对话、当前阶段、计划完成度和额度窗口状态。
+This is a low-distraction external status companion for heavy Codex users. It provides active
+conversation state, rate-limit windows, reset credits, settings, and a tray recovery path without
+modifying Codex core files or injecting text into the built-in pet.
 
-## 当前版本评价
+## Current product contract
 
-优点：
+- The overlay shows only the active conversation count; it does not show plan-step `N/M` text.
+- Settings support opacity, colors, font size, topmost, lock, and virtual-desktop X/Y coordinates.
+- The tray is the recovery path when the overlay is hidden or off-screen.
+- API boundaries and headless regression tests are defined in `API_SPEC.md`.
 
-- 数据直接来自本机 Codex app-server 和会话记录，不维护第二套额度估算。
-- 外部浮窗不修改 Codex 核心文件，更新风险低于注入桌面应用。
-- 活动状态比“运行中”更准确，并能显示计划 N/M。
-- 设置有明确的保存、应用、关闭和恢复默认值语义。
-- 系统托盘提供可靠入口，取消置顶后仍能找回窗口。
+## Strengths
 
-主要风险：
+- Local-only data boundary and no third-party backend.
+- External architecture limits risk to Codex core behavior.
+- Explicit configuration persistence and multi-monitor coordinate support.
+- API split makes configuration and activity behavior testable without Tk.
 
-- Codex 会话 JSONL 和 app-server 方法属于实现层数据，未来可能变化。
-- 计划完成度只有在当前会话产生可解析的 plan 时才有 N/M；没有计划时显示活动对话数量。
-- Windows 登录启动依赖本机 Python 运行时路径，运行时升级后需要更新快捷方式。
-- 浮窗是辅助工具，不应遮挡 Codex 主窗口或抢焦点。
+## Current risks
 
-## 优先级建议
+- Windows Tk and notification-area behavior still require physical multi-monitor and DPI testing.
+- The tray needs failure-injection tests and automatic recreation before it can be treated as a
+  guaranteed recovery path.
+- The fixed-size overlay can clip long diagnostics or localized text.
+- Dependency installation and startup logging need clean-machine validation.
 
-### P0：可靠性
+## Recommended product priorities
 
-- 保留 app-server 请求超时和失败降级，失败时显示上次成功数据或“暂不可用”。
-- 记录本地诊断日志，但禁止写入 access token、项目内容和完整会话正文。
-- 处理多显示器、DPI 缩放和屏幕边缘位置，避免窗口离开可见区域。
-- 启动项使用稳定的 launcher，检查 Python 和脚本路径后再启动。
-
-### P1：高频使用体验
-
-- 托盘菜单显示一行摘要，例如“活动 1 个｜计划 3/5｜5h 72%”。
-- 支持点击托盘图标显示/隐藏，右键提供设置和退出。
-- 在等待审批、失败、额度低于阈值时提供可选通知；默认关闭，避免打扰。
-- 增加紧凑模式和只显示活动状态模式，减少桌面占用。
-
-### P2：增强能力
-
-- 支持选择显示哪个计划或哪个活动会话。
-- 支持自定义刷新间隔和状态文本语言。
-- 将配置、诊断和版本信息集中到设置页，而不是散落在文件中。
-
-## 建议衡量指标
-
-- 发现活动状态的平均耗时是否低于 2 秒。
-- 用户无需打开 Codex 主窗口即可判断状态的比例。
-- 启动失败率和连续运行 8 小时无崩溃率。
-- 用户主动关闭或隐藏浮窗的比例，用于判断干扰程度。
-
-## 结论
-
-当前最合理的产品形态是“轻量外部状态层 + Codex app-server 数据源 + 系统托盘入口”。不建议继续尝试把动态文字注入 Codex 内置宠物：内置宠物契约只描述静态 spritesheet，缺少稳定的动态数据回调；强行修改 Codex 内部实现会增加更新破坏、权限和安全风险。
+1. Make the tray and off-screen recovery observable and self-healing.
+2. Finish DPI/mixed-scale and multi-monitor test coverage.
+3. Add a diagnostics view or a clear “open log” action.
+4. Keep the default overlay compact and status-focused; avoid bringing plan-step detail back into
+   the primary line unless it is explicitly user-configurable.

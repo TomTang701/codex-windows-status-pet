@@ -7,7 +7,7 @@
 | API | 模块 | 职责 | 测试边界 |
 |---|---|---|---|
 | 配置 API | `scripts/api/config_api.py` | 校验、规范化、读取和原子保存设置。 | 临时 JSON 文件，不启动 Tk。 |
-| 活动状态 API | `scripts/api/activity_api.py` | 读取 Codex JSONL 会话并计算活动/完成状态。 | 合成 JSONL 目录，可注入时间。 |
+| 活动状态 API | `scripts/api/activity_api.py` | 读取 Codex JSONL 会话并计算活动/完成状态，对未变化文件使用缓存。 | 合成 JSONL 目录，可注入时间和缓存。 |
 | 运行时 API | `scripts/api/runtime_api.py` | 管理 Windows 命名单实例互斥体。 | Windows 互斥体申请和释放。 |
 | 诊断 API | `scripts/api/diagnostics_api.py` | 在 `pythonw.exe` 隐藏控制台时记录未捕获异常。 | 临时日志和合成异常。 |
 | Codex 通信 API | `AppServer` | 启动本机 app-server、执行 JSON-RPC 并报告协议错误。 | 模拟子进程和响应矩阵。 |

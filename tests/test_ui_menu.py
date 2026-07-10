@@ -41,6 +41,8 @@ class MenuInteractionTests(unittest.TestCase):
             buttons[1].invoke()
             app.update_idletasks()
             self.assertIsNotNone(app.settings_dialog)
+            self.assertGreaterEqual(app.settings_dialog.winfo_x(), 0)
+            self.assertGreaterEqual(app.settings_dialog.winfo_y(), 0)
             self.assertFalse(popup.winfo_exists())
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
