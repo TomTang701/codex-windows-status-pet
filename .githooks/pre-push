@@ -27,4 +27,17 @@ if [ "$remote_owner" != "$expected_owner" ]; then
   exit 1
 fi
 
+expected_email="$(git config --local --get codex.expected-author-email)"
+actual_email="$(git config --get user.email)"
+if [ -z "$expected_email" ]; then
+  echo "Blocked: set the approved commit author email first:" >&2
+  echo "  git config --local codex.expected-author-email <github-noreply-email>" >&2
+  exit 1
+fi
+
+if [ "$actual_email" != "$expected_email" ]; then
+  echo "Blocked: commit author email '$actual_email' does not match approved email '$expected_email'." >&2
+  exit 1
+fi
+
 exit 0

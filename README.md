@@ -39,10 +39,14 @@ differs from it:
 ```powershell
 git config --local core.hooksPath .githooks
 git config --local codex.expected-owner <your-github-username>
+git config --local user.name "Your GitHub display name"
+git config --local user.email "your-github-noreply-email"
+git config --local codex.expected-author-email "your-github-noreply-email"
 ```
 
-This is deliberate: the GitHub CLI account and credential helper are machine-level state and must
-not silently determine where a project is published.
+The hook validates both the remote owner and the commit author email. This is deliberate: the
+GitHub CLI account, credential helper, and global Git identity are machine-level state and must not
+silently determine where a project is published or whose name appears on commits.
 
 The application is intentionally an external companion. Codex custom pets currently provide a static spritesheet contract, so dynamic text remains in this companion overlay rather than being injected into the built-in pet.
 
