@@ -23,11 +23,31 @@
       "required_for_release": true
     },
     {
-      "id": "FILE-SPEC",
+      "id": "REPOSITORY-STRUCTURE",
       "class": "descriptive",
       "status": "active",
-      "canonical": "FILE_SPEC.md",
-      "translations": {"zh-CN": "FILE_SPEC.zh-CN.md"},
+      "canonical": "docs/architecture/REPOSITORY_STRUCTURE.md",
+      "translations": {"zh-CN": "docs/architecture/REPOSITORY_STRUCTURE.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "CONFIGURATION",
+      "class": "normative",
+      "status": "active",
+      "canonical": "docs/architecture/CONFIGURATION.md",
+      "translations": {"zh-CN": "docs/architecture/CONFIGURATION.zh-CN.md"},
+      "owner": "maintainer",
+      "review_cycle_days": 90,
+      "required_for_release": true
+    },
+    {
+      "id": "DIAGNOSTICS",
+      "class": "normative",
+      "status": "active",
+      "canonical": "docs/operations/DIAGNOSTICS.md",
+      "translations": {"zh-CN": "docs/operations/DIAGNOSTICS.zh-CN.md"},
       "owner": "maintainer",
       "review_cycle_days": 90,
       "required_for_release": true

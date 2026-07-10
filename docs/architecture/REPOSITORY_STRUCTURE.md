@@ -1,0 +1,35 @@
+# Repository Structure
+
+This document describes where project files belong. Configuration values belong in `CONFIGURATION.md`; runtime API contracts belong in `API_SPEC.md`.
+
+## Top-level layout
+
+| Path | Purpose |
+|---|---|
+| `.codex-plugin/plugin.json` | Codex plugin manifest and cache-busting version. |
+| `scripts/codex_status_pet.py` | Windows overlay, tray integration, app-server client, activity monitor, and settings UI. |
+| `scripts/api/` | UI-independent domain, transport, validation, refresh, quota, geometry, and diagnostics APIs. |
+| `scripts/ui/` | Tk and notification-area adapters. |
+| `start_codex_status_pet.cmd` | Recommended double-click launcher using `pythonw.exe`. |
+| `skills/codex-windows-status-pet/SKILL.md` | Codex skill instructions. |
+| `tests/` | Headless API and UI-adapter regression tests. |
+| `docs/` | Layered project documentation and evidence. |
+| `.github/workflows/ci.yml` | Windows CI quality gate and smoke artifact workflow. |
+| `requirements.txt` | Runtime dependency floor for fallback Python environments. |
+
+## Placement rules
+
+- New pure behavior belongs in `scripts/api/` with deterministic tests.
+- Windows or Tk calls belong in platform/UI adapters and must not become domain dependencies.
+- User-facing installation and troubleshooting belong in `docs/operations/`.
+- Normative governance belongs in `docs/governance/`.
+- Architecture and configuration contracts belong in `docs/architecture/`.
+- Compatibility results belong in `docs/quality/`; one-time audits belong in `docs/archive/audits/`.
+- Generated smoke packages, probe output, logs, and local settings must not be committed.
+
+## Runtime ownership invariants
+
+- Only one companion instance may run at a time; a second launch exits without killing the existing process.
+- Background workers never call Tk APIs directly; UI scheduling remains on the Tk main thread.
+- Menu commands execute once on the first click and close the context menu after execution.
+- Substantial changes are committed after the automated release gate passes, with remote owner and author identity verified by local Git configuration and the pre-push hook.

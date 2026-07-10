@@ -8,7 +8,7 @@
 |---|---|
 | 用户 | [根目录 README](../README.zh-CN.md) |
 | 贡献者 | [工程开发总规范](../Goal/ENGINEERING_STANDARD.zh-CN.md)、[路线图](product/ROADMAP.zh-CN.md) |
-| API或UI开发者 | [API规范](architecture/API_SPEC.zh-CN.md)、[文件规范](../FILE_SPEC.zh-CN.md) |
+| API或UI开发者 | [API规范](architecture/API_SPEC.zh-CN.md)、[仓库结构](architecture/REPOSITORY_STRUCTURE.zh-CN.md)、[配置](architecture/CONFIGURATION.zh-CN.md) |
 | 测试或发布维护者 | [兼容性矩阵](quality/COMPATIBILITY_MATRIX.zh-CN.md)、[测试错误报告](archive/audits/2026-07-09-test-error-report.md) |
 
 ## 文档分类
