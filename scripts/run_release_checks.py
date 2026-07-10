@@ -24,6 +24,7 @@ def main():
     python = sys.executable
     api_files = [str(path) for path in (ROOT / "scripts" / "api").glob("*.py")]
     checks = {
+        "document_manifest": [python, str(ROOT / "scripts" / "check_doc_manifest.py")],
         "document_parity": [python, str(ROOT / "scripts" / "check_doc_parity.py")],
         "compile": [python, "-m", "py_compile", str(ROOT / "scripts" / "codex_status_pet.py"), *api_files],
         "tests": [python, "-m", "unittest", "discover", "-s", "tests", "-q"],

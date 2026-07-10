@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Reorganized documentation into governance, architecture, product, quality, operations, and archive layers with a manifest-driven bilingual gate.
+- Added repository, configuration, architecture, testing, release, security, installation, troubleshooting, and contribution guides.
+- Added a manifest validator to the automated release checks; the suite now passes 70 tests and 17 registered bilingual pairs.
 - Added transactional settings sessions: Apply previews runtime values, Save persists them, and Close restores the opening snapshot.
 - Added shared integer validation that supports typing negative coordinates while rejecting malformed pasted values.
 - Added reversible percentage resize sessions; plus and minus scale width and height symmetrically.
