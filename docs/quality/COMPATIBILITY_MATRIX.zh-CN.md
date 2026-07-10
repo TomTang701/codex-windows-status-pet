@@ -27,7 +27,7 @@ review_cycle_days: 30
 | SETTINGS-RESIZE | 设置 | 宽高及等比例缩放 | Automated pass | No | Window Size API覆盖自由、比例、边界和非法因子。 |
 | INPUT-PASTE | 设置 | 数字输入和间隔1–10 | Automated pass | No | 校验fixture拒绝非法粘贴并限制边界。 |
 | CONFIG-BOM | 设置 | UTF-8 BOM JSON | Automated pass | No | 配置API接受UTF-8和UTF-8-BOM fixture。 |
-| QUOTA-DISPLAY | 额度显示 | 完整Reset Credit到期 | Partial | Yes | 自动parser/快照测试通过；仍需Windows 11可见记录。 |
+| QUOTA-DISPLAY | 额度显示 | 完整Reset Credit到期 | Physical pass | Yes | [2026-07-10状态行记录](test-records/2026-07-10-win11-reset-credit-status-rows.md)显示保存的330x138窗口内完整 `HH:MM M/D`。 |
 | LIFECYCLE-HIDE | 生命周期 | 隐藏后继续运行 | Physical pass | No | 隐藏后 `pythonw.exe` 仍运行。 |
 | TRAY-RESTORE | 生命周期 | 托盘隐藏后显示 | Physical pass | Yes | 隐藏再显示后恢复到副屏。 |
 | DPI-MIXED | DPI | 混合缩放 | Deferred | No | 已有自动几何覆盖；混合DPI实体证据不在v0.3.0声明内。 |

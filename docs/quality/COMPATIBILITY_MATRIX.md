@@ -27,7 +27,7 @@ review_cycle_days: 30
 | SETTINGS-RESIZE | Settings | Width/height and proportional resize | Automated pass | No | Window Size API tests cover free, proportional, bounded, and invalid factors. |
 | INPUT-PASTE | Settings | Digit-only entries and interval 1–10 | Automated pass | No | Validation fixtures reject malformed paste and clamp bounds. |
 | CONFIG-BOM | Settings | UTF-8 BOM JSON | Automated pass | No | Configuration API accepts UTF-8 and UTF-8-BOM fixtures. |
-| QUOTA-DISPLAY | Quota display | Complete Reset Credit expiry | Partial | Yes | Automated parser/snapshot tests pass; dated Windows 11 visible record remains. |
+| QUOTA-DISPLAY | Quota display | Complete Reset Credit expiry | Physical pass | Yes | [2026-07-10 status-row record](test-records/2026-07-10-win11-reset-credit-status-rows.md) shows complete `HH:MM M/D` in the saved 330x138 window. |
 | LIFECYCLE-HIDE | Lifecycle | Hidden overlay remains running | Physical pass | No | Hide removed the overlay while `pythonw.exe` remained alive. |
 | TRAY-RESTORE | Lifecycle | Tray show after hide | Physical pass | Yes | Hide then Show restored the overlay on the secondary monitor. |
 | DPI-MIXED | DPI | Mixed scaling | Deferred | No | Automated geometry coverage exists; mixed-DPI physical evidence is outside the v0.3.0 claim. |

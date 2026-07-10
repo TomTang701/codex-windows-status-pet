@@ -24,6 +24,7 @@ review_cycle_days: 30
 - Defined Windows 11 x64 with the normal bottom taskbar as the current support target; deferred Windows 10 and alternate-edge physical testing outside v0.3.0 blockers.
 - Replaced the fragile multiline overlay label with five independently rendered, stable-ID status rows so Reset Credit dates cannot be clipped by another row.
 - Extracted refresh coordination, presentation/compact decisions, settings persistence, and idempotent close state from the Tk window into tested controllers.
+- Reduced status-row vertical padding and recorded Windows 11 physical evidence that all five rows, including the complete Reset Credit date, fit the legacy 330x138 window.
 - Reorganized documentation into governance, architecture, product, quality, operations, and archive layers with a manifest-driven bilingual gate.
 - Added repository, configuration, architecture, testing, release, security, installation, troubleshooting, and contribution guides.
 - Added a manifest validator to the automated release checks; the suite now passes 88 tests and 17 registered bilingual pairs.

@@ -115,7 +115,7 @@ class Pet(tk.Tk):
         self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", 28), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.face.pack(side="left", padx=(12, 5), pady=10)
         self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=max(1, self.settings["window_width"] - 82), font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
-        self.text.pack(side="left", fill="both", expand=True, pady=10)
+        self.text.pack(side="left", fill="both", expand=True, pady=3)
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
         self.bind("<Leave>", self._pointer_leave)
@@ -240,7 +240,7 @@ class Pet(tk.Tk):
         else:
             self.face.pack_forget()
             self.face.pack(side="left", padx=(12, 5), pady=10)
-            self.text.pack(side="left", fill="both", expand=True, pady=10)
+            self.text.pack(side="left", fill="both", expand=True, pady=3)
             size = None
         x, y = self.settings["x"], self.settings["y"]
         if compact:
