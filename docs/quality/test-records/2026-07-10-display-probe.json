@@ -1,0 +1,29 @@
+{
+  "date": "2026-07-10",
+  "commit": "b4fbc78",
+  "windows": "Windows 11 Home build 26200",
+  "virtual_desktop": [0, 0, 4480, 1434],
+  "monitors": [
+    {
+      "name": "\\\\.\\DISPLAY1",
+      "rect": [0, 0, 2048, 1152],
+      "work": [0, 0, 2048, 1104],
+      "dpi_x": 96,
+      "dpi_y": 96
+    },
+    {
+      "name": "\\\\.\\DISPLAY2",
+      "rect": [2560, 354, 4480, 1434],
+      "work": [2560, 354, 4480, 1386],
+      "dpi_x": 96,
+      "dpi_y": 96
+    }
+  ],
+  "overlay_window": null,
+  "taskbar": {
+    "available": true,
+    "edge": "bottom",
+    "rect": [0, 1380, 2560, 1440]
+  },
+  "sensitive_data_review": "No credentials, session content, or project files included."
+}

@@ -8,7 +8,7 @@
 | Windows version | Windows 10 | Pending | Run the launcher and full UI smoke test on a Windows 10 machine. |
 | Windows version | Windows 11 Home 10.0.26200 (build 26200) | Physical pass | 2026-07-10 host probe via `Win32_OperatingSystem`; launcher and overlay were manually started. |
 | Displays | Single monitor | Automated + partial physical | Geometry API tests pass; physical single-monitor run still needs a saved screenshot. |
-| Displays | Two monitors | Physical pass | 2026-07-10 `DISPLAY1`/`DISPLAY2` probe completed; virtual desktop is `0,0-4480,1434`, work areas are `0,0-2048,1104` and `2560,354-4480,1386`; secondary coordinate `(4150,1248)` remains supported. |
+| Displays | Two monitors | Physical pass | [2026-07-10 topology record](test-records/2026-07-10-win11-dual-monitor.md); `DISPLAY1`/`DISPLAY2` probe completed; virtual desktop is `0,0-4480,1434`, work areas are `0,0-2048,1104` and `2560,354-4480,1386`; secondary coordinate `(4150,1248)` remains supported. |
 | Coordinates | Negative virtual coordinates | Automated | `Display API` intersection and placement tests cover negative coordinates. |
 | Coordinates | Large secondary coordinate `(4151,1248)` | Physical pass | Overlay and context menu were observed on the secondary monitor. |
 | Popup | Four corners and taskbar work area | Automated + partial physical | Current physical probe reports the primary taskbar at the bottom (`0,1380-2560,1440`); geometry tests pass; top/left/right taskbar-edge matrix remains pending. |
