@@ -1,0 +1,29 @@
+name: Windows quality gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python scripts/run_quality_checks.py
+      - name: Check whitespace
+        shell: bash
+        run: git diff --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: codex-windows-status-pet-smoke
+          path: .build/codex-windows-status-pet-smoke.zip
