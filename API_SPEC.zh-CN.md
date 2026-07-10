@@ -36,7 +36,7 @@
 | Codex 通信 API | `scripts/api/codex_transport_api.py` | 发现本机 Codex CLI 并执行 app-server stdio JSON-RPC，不承担 UI 职责。 | 配置路径发现、停止进程拒绝和模拟通信边界测试。 |
 | 诊断摘要 API | `scripts/api/diagnostic_summary_api.py` | 生成可复制运行诊断，同时排除凭据、提示词、回答、会话内容和原始额度。 | 状态/路径格式化和敏感数据排除测试。 |
 | 状态快照 API | `scripts/api/status_snapshot_api.py` | 在不依赖 Tk 的情况下，将批准的活动/额度状态转换为显示文字、颜色和活动数量。 | 真实格式化、stale 颜色和原始字段排除测试。 |
-| 启动项审计 | `scripts/startup_audit.py` | 只读检测已知旧版 Codex 状态宠物启动项。 | 已知旧名称、无关项目和不修改文件测试。 |
+| 启动项审计 | `scripts/startup_audit.py` | 只读检测启动文件夹及 Run/RunOnce 注册表中的已知旧版 Codex 状态宠物项目。 | 已知旧名称/路径、无关项目和不修改测试。 |
 | 任务栏 API | `scripts/api/taskbar_api.py` | 读取当前主任务栏边缘和矩形，用于实体兼容性证据。 | 稳定边缘映射和 Windows 探测输出。 |
 
 ## 不变量

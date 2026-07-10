@@ -23,6 +23,7 @@
 - Recorded a successful isolated-venv dependency install, 65-test run, and package smoke check; clean-machine startup remains distinct.
 - Added a report-only startup audit to detect known legacy Codex Status Pet entries without modifying unrelated startup items.
 - Added the startup audit to the automated release-check output; the current host reports no legacy entry.
+- Extended startup auditing to detect legacy names and paths in Run/RunOnce registry values.
 - Added taskbar-edge diagnostics to `probe_display.py`; the current host records a bottom taskbar without inferring other edges.
 - Added the active development roadmap and synchronized Chinese translation.
 - Added validated window dimensions, scale mode, and 1–10 second refresh interval settings.

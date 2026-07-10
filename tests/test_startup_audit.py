@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
-from startup_audit import audit_startup
+from startup_audit import audit_startup, is_legacy_value
 
 
 class StartupAuditTests(unittest.TestCase):
@@ -25,3 +25,8 @@ class StartupAuditTests(unittest.TestCase):
             result = audit_startup(folder)
             self.assertTrue(result["clean"])
             self.assertEqual(result["legacy_entries"], [])
+
+    def test_old_path_or_name_is_flagged_in_run_values(self):
+        self.assertTrue(is_legacy_value("Codex Status Pet", "pythonw.exe old.py"))
+        self.assertTrue(is_legacy_value("Other", r"C:\Users\tangz\.agents\plugins\plugins\codex-windows-status-pet\scripts\codex_status_pet.py"))
+        self.assertFalse(is_legacy_value("Ollama", "ollama.exe"))
