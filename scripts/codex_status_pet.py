@@ -26,11 +26,13 @@ try:
     from api.activity_api import snapshot_activity
     from api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
     from api.diagnostics_api import configure_logging
+    from api.display_api import dpi_for_window, virtual_desktop_bounds
     from api.runtime_api import SingleInstance, enable_dpi_awareness
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
     from scripts.api.config_api import DEFAULT_SETTINGS, load_settings as load_settings_api, save_settings_atomic
     from scripts.api.diagnostics_api import configure_logging
+    from scripts.api.display_api import dpi_for_window, virtual_desktop_bounds
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
 
 
@@ -671,6 +673,9 @@ if __name__ == "__main__":
         raise SystemExit(0)
     try:
         app = Pet()
+        logging.getLogger("codex-status-pet").info(
+            "display bounds=%s window_dpi=%s", virtual_desktop_bounds(), dpi_for_window(app.winfo_id())
+        )
         app.mainloop()
     except Exception:
         logging.getLogger("codex-status-pet").exception("application startup or mainloop failure")

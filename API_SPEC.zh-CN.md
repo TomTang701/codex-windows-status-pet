@@ -10,6 +10,7 @@
 | 活动状态 API | `scripts/api/activity_api.py` | 读取 Codex JSONL 会话并计算活动/完成状态，对未变化文件使用缓存。 | 合成 JSONL 目录，可注入时间和缓存。 |
 | 运行时 API | `scripts/api/runtime_api.py` | 管理 Windows 命名单实例互斥体。 | Windows 互斥体申请和释放。 |
 | 诊断 API | `scripts/api/diagnostics_api.py` | 在 `pythonw.exe` 隐藏控制台时记录未捕获异常。 | 临时日志和合成异常。 |
+| 显示 API | `scripts/api/display_api.py` | 查询虚拟桌面范围/DPI，并在不限制合法多屏坐标的前提下测试位置相交。 | 模拟 96/144/192 DPI 和虚拟桌面范围。 |
 | Codex 通信 API | `AppServer` | 启动本机 app-server、执行 JSON-RPC 并报告协议错误。 | 模拟子进程和响应矩阵。 |
 | UI/托盘适配层 | `Pet` 与 `TrayIcon3` | 将 API 结果转换为 Tk 和托盘动作。 | Windows 界面和人工交互测试。 |
 

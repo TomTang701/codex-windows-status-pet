@@ -12,6 +12,7 @@ headless tests.
 | Activity API | `scripts/api/activity_api.py` | Read Codex session JSONL and derive active/recent status with unchanged-file caching. | Synthetic JSONL directory; injectable clock and cache. |
 | Runtime API | `scripts/api/runtime_api.py` | Own the named Windows single-instance mutex. | Windows mutex acquisition/release. |
 | Diagnostics API | `scripts/api/diagnostics_api.py` | Capture uncaught main-thread and worker exceptions when `pythonw.exe` hides the console. | Temporary log path and synthetic exception. |
+| Display API | `scripts/api/display_api.py` | Query virtual-desktop bounds/DPI and test coordinate intersection without clamping legal monitor coordinates. | Simulated 96/144/192 DPI and virtual bounds. |
 | Codex transport API | `AppServer` in `scripts/codex_status_pet.py` | Start local app-server, perform JSON-RPC requests, and report protocol failures. | Mock subprocess/stdout response matrix. |
 | UI/tray adapter | `Pet` and `TrayIcon3` in `scripts/codex_status_pet.py` | Translate API results into Tk and tray actions. | Windows UI/manual interaction tests only. |
 
