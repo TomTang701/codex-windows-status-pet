@@ -1,3 +1,13 @@
+---
+document_id: REPOSITORY-STRUCTURE
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/architecture/REPOSITORY_STRUCTURE.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # 仓库结构
 
 本文档说明项目文件的归属。配置值属于 `CONFIGURATION.md`；运行时API契约属于 `API_SPEC.md`。

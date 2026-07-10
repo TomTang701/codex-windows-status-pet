@@ -1,3 +1,13 @@
+---
+document_id: README
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: README.zh-CN.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # Codex Windows Status Pet
 
 An unofficial Windows companion for Codex. It provides a small desktop overlay and a notification-area icon for live Codex activity, rate limits, and reset credits.

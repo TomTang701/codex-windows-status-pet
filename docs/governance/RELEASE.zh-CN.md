@@ -1,3 +1,13 @@
+---
+document_id: RELEASE
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/governance/RELEASE.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # 发布
 
 当前生效的[工程开发总规范](ENGINEERING_STANDARD.zh-CN.md)是本发布流程的最高层级依据。

@@ -1,3 +1,13 @@
+---
+document_id: CONTRIBUTING
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: CONTRIBUTING.zh-CN.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # Contributing
 
 The active [Engineering Standard](docs/governance/ENGINEERING_STANDARD.md) is the highest-level authority for every contribution; this file adds contributor workflow details without overriding it.

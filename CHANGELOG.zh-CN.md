@@ -1,3 +1,13 @@
+---
+document_id: CHANGELOG
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: CHANGELOG.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 30
+---
 # 更新日志
 
 ## 未发布
@@ -6,6 +16,7 @@
 - 新增类型化配置加载状态；读取未来或损坏schema后阻止所有自动保存，只有用户明确执行“恢复默认值”并保存才重新允许持久化。
 - 将日常非严格质量检查与严格发布候选检查分离，编译改为递归 `compileall`，并新增tag、制品、checksum、更新日志、实体就绪和回滚门禁。
 - 将工程开发总规范正式激活为发布必需且具有最高优先级的仓库规范。
+- 新增强制文档front matter、manifest身份/版本检查、review-age策略、发布必需校验和孤立Active文档检测。
 - 将文档重组为治理、架构、产品、质量、运维和归档层，并使用manifest驱动双语门禁。
 - 新增仓库、配置、架构、测试、发布、安全、安装、故障排除和贡献指南。
 - 新增manifest校验器并接入自动发布检查；当前测试套件通过88项测试并登记17组双语文档。

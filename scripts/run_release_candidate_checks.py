@@ -49,6 +49,8 @@ def main():
     results["quality"] = {"passed": code == 0, "output": output.strip()}
     code, output = run([sys.executable, str(ROOT / "scripts" / "check_release_readiness.py"), "--strict"])
     results["physical_readiness_strict"] = {"passed": code == 0, "output": output.strip()}
+    code, output = run([sys.executable, str(ROOT / "scripts" / "check_doc_review_age.py"), "--strict"])
+    results["document_review_age_strict"] = {"passed": code == 0, "output": output.strip()}
     for name, check in (("release_metadata", _release_metadata_check), ("artifact_checksum", _artifact_check)):
         code, output = check()
         results[name] = {"passed": code == 0, "output": output}

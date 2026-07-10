@@ -20,6 +20,9 @@ def quality_commands(python=None):
     python = python or sys.executable
     return {
         "document_manifest": [python, str(ROOT / "scripts" / "check_doc_manifest.py")],
+        "document_metadata": [python, str(ROOT / "scripts" / "check_doc_metadata.py")],
+        "document_review_age": [python, str(ROOT / "scripts" / "check_doc_review_age.py")],
+        "orphan_documents": [python, str(ROOT / "scripts" / "check_orphan_documents.py")],
         "document_links": [python, str(ROOT / "scripts" / "check_doc_links.py")],
         "version_sources": [python, str(ROOT / "scripts" / "check_version_sources.py")],
         "sensitive_files": [python, str(ROOT / "scripts" / "check_sensitive_files.py")],

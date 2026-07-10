@@ -1,3 +1,13 @@
+---
+document_id: CONFIGURATION
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/architecture/CONFIGURATION.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # 配置
 
 ## 位置和schema

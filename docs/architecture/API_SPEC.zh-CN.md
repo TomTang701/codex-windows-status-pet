@@ -1,3 +1,13 @@
+---
+document_id: API-SPEC
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/architecture/API_SPEC.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # API 与测试边界规范
 
 ## 目的

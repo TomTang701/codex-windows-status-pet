@@ -1,3 +1,13 @@
+---
+document_id: README
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: README.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # Codex Windows 状态宠物
 
 这是一个非官方 Windows Codex 外部伴侣工具，提供桌面悬浮窗和任务栏通知区域图标，用于显示 Codex 活动状态、额度和重置次数。

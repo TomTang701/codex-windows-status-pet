@@ -1,3 +1,13 @@
+---
+document_id: DEVELOPMENT-PLAN
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/product/ROADMAP.zh-CN.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 30
+---
 # Codex Windows Status Pet Development Plan
 
 **Status:** Active roadmap  

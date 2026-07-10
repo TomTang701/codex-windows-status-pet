@@ -1,3 +1,13 @@
+---
+document_id: REPOSITORY-STRUCTURE
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/architecture/REPOSITORY_STRUCTURE.zh-CN.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # Repository Structure
 
 This document describes where project files belong. Configuration values belong in `CONFIGURATION.md`; runtime API contracts belong in `API_SPEC.md`.

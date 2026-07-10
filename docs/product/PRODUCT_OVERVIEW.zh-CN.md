@@ -1,3 +1,13 @@
+---
+document_id: PRODUCT-REVIEW
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/product/PRODUCT_OVERVIEW.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # Codex Windows 状态宠物——产品评审
 
 ## 当前定位

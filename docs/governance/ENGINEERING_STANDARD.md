@@ -1,3 +1,13 @@
+---
+document_id: ENGINEERING-STANDARD
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/governance/ENGINEERING_STANDARD.zh-CN.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # Codex Windows Status Pet Engineering Standard
 
 > **Document-Version:** 1.0.0  

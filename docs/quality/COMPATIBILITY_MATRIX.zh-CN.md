@@ -1,3 +1,13 @@
+---
+document_id: COMPATIBILITY-MATRIX
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/quality/COMPATIBILITY_MATRIX.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 30
+---
 # Windows 兼容性矩阵
 
 **状态：** 持续维护的测试记录  

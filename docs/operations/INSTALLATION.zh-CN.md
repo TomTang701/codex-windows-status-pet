@@ -1,3 +1,13 @@
+---
+document_id: INSTALLATION
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/operations/INSTALLATION.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # 安装
 
 推荐入口是 `start_codex_status_pet.cmd`。可用时它使用内置 `pythonw.exe`，不会创建命令提示符窗口，也不会写入启动文件夹。回退Python环境必须安装 `requirements.txt`。

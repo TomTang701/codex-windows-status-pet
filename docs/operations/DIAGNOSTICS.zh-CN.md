@@ -1,3 +1,13 @@
+---
+document_id: DIAGNOSTICS
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/operations/DIAGNOSTICS.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # 诊断
 
 诊断日志写入 `%USERPROFILE%\.codex\codex-windows-status-pet.log`。日志不得包含auth token、项目文件、完整会话正文或原始provider响应。

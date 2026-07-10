@@ -1,3 +1,13 @@
+---
+document_id: CONTRIBUTING
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: CONTRIBUTING.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # 贡献
 
 当前生效的[工程开发总规范](docs/governance/ENGINEERING_STANDARD.zh-CN.md)是所有贡献的最高层级依据；本文仅补充贡献流程，不得覆盖总规范。

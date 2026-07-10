@@ -1,3 +1,13 @@
+---
+document_id: DEVELOPMENT-PLAN
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/product/ROADMAP.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 30
+---
 # Codex Windows 状态宠物开发计划
 
 **状态：** 正在执行的路线图  

@@ -1,3 +1,13 @@
+---
+document_id: RELEASE
+status: active
+document_version: 1.0.0
+canonical_language: en
+translation_pair: docs/governance/RELEASE.zh-CN.md
+owner: maintainer
+last_reviewed: 2026-07-10
+review_cycle_days: 90
+---
 # Release
 
 The active [Engineering Standard](ENGINEERING_STANDARD.md) is the highest-level authority for this release process.
