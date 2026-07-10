@@ -4,7 +4,7 @@
 
 - Reorganized documentation into governance, architecture, product, quality, operations, and archive layers with a manifest-driven bilingual gate.
 - Added repository, configuration, architecture, testing, release, security, installation, troubleshooting, and contribution guides.
-- Added a manifest validator to the automated release checks; the suite now passes 70 tests and 17 registered bilingual pairs.
+- Added a manifest validator to the automated release checks; the suite now passes 71 tests and 17 registered bilingual pairs.
 - Added an internal Markdown-link validator to the release checks so document moves cannot silently leave broken navigation.
 - Added transactional settings sessions: Apply previews runtime values, Save persists them, and Close restores the opening snapshot.
 - Added shared integer validation that supports typing negative coordinates while rejecting malformed pasted values.
