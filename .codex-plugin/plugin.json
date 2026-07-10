@@ -1,0 +1,18 @@
+{
+  "name": "codex-windows-status-pet",
+  "version": "0.1.0+codex.20260710042224",
+  "description": "Codex Windows Status Pet plugin",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex Windows Status Pet",
+    "shortDescription": "Use Codex Windows Status Pet in Codex.",
+    "longDescription": "Codex Windows Status Pet adds a local Codex plugin scaffold.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "Help me use Codex Windows Status Pet."
+  }
+}
