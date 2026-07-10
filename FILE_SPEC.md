@@ -38,7 +38,9 @@
 ## Runtime invariants
 
 - Only one companion instance may run at a time.
+- Starting the launcher first terminates stale `python.exe`/`pythonw.exe` companion processes whose window title is `Codex Windows Status Pet`, then claims the named Windows mutex. This prevents duplicate overlays and duplicate tray icons during testing or repeated launches.
 - Hiding changes opacity to zero and does not overwrite the saved position.
 - Opening or closing settings restores the main overlay to visible state.
-- Menu commands execute once and close the context menu after the command runs.
+- The second overlay line is `Active conversations N (step M/K)` when a Codex plan is present; `M` is the completed-step count plus one, capped at `K`.
+- Menu commands execute once on the first click and close the context menu after the command runs.
 - Background workers never call Tk APIs directly; UI scheduling remains on the Tk main thread.

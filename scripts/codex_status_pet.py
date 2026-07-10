@@ -7,6 +7,7 @@ from ctypes import wintypes
 import json
 import os
 import queue
+import re
 import subprocess
 import sys
 import threading
@@ -34,11 +35,29 @@ _single_instance_mutex = None
 
 
 def ensure_single_instance():
-    """Prevent login startup and manual launcher from creating duplicate pets."""
+    """Terminate stale launcher instances, then keep one live process."""
     global _single_instance_mutex
     kernel32 = ctypes.windll.kernel32
-    _single_instance_mutex = kernel32.CreateMutexW(None, True, "Local\\CodexWindowsStatusPet")
-    return bool(_single_instance_mutex) and kernel32.GetLastError() != 183
+    startup = subprocess.STARTUPINFO()
+    startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    startup.wShowWindow = subprocess.SW_HIDE
+    for image in ("python.exe", "pythonw.exe"):
+        try:
+            subprocess.run(
+                ["taskkill", "/F", "/FI", f"IMAGENAME eq {image}", "/FI", "WINDOWTITLE eq Codex Windows Status Pet"],
+                startupinfo=startup,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+        except OSError:
+            pass
+    for _ in range(3):
+        _single_instance_mutex = kernel32.CreateMutexW(None, True, "Local\\CodexWindowsStatusPet")
+        if _single_instance_mutex and kernel32.GetLastError() != 183:
+            return True
+        time.sleep(0.25)
+    return False
 
 
 def find_codex() -> str:
@@ -143,6 +162,7 @@ def short_time(epoch):
 
 
 def parse_plan(payload):
+    """Return (completed, total) for JSON or JSON-like update_plan payloads."""
     raw = payload.get("input") or payload.get("arguments") or ""
     if isinstance(raw, dict):
         data = raw
@@ -150,13 +170,20 @@ def parse_plan(payload):
         try:
             data = json.loads(raw)
         except (TypeError, json.JSONDecodeError):
-            return None
+            data = None
     plan = data.get("plan") if isinstance(data, dict) else None
-    if not isinstance(plan, list) or not plan:
-        return None
-    total = len(plan)
-    done = sum(1 for item in plan if isinstance(item, dict) and item.get("status") == "completed")
-    return done, total
+    if isinstance(plan, list) and plan:
+        total = len(plan)
+        done = sum(1 for item in plan if isinstance(item, dict) and item.get("status") == "completed")
+        return done, total
+    if isinstance(raw, str):
+        statuses = re.findall(
+            r"(?:[\"']?status[\"']?)\s*:\s*[\"'](completed|in_progress|pending)[\"']",
+            raw,
+        )
+        if statuses:
+            return statuses.count("completed"), len(statuses)
+    return None
 
 
 class ActivityMonitor:
@@ -171,6 +198,7 @@ class ActivityMonitor:
         active = []
         recently_completed = []
         latest_plan = None
+        latest_plan_time = -1
         if not self.sessions.exists():
             return {"active": 0, "detail": "\u7a7a\u95f2", "progress": ""}
 
@@ -206,9 +234,13 @@ class ActivityMonitor:
                         elif record.get("type") == "response_item":
                             payload = record.get("payload", {})
                             item_type = payload.get("type")
-                            plan = parse_plan(payload) if payload.get("name") in ("update_plan", "plan") else None
-                            if plan:
+                            plan = parse_plan(payload) if (
+                                payload.get("name") in ("update_plan", "plan")
+                                or item_type in ("function_call", "custom_tool_call")
+                            ) else None
+                            if plan and event_time >= latest_plan_time:
                                 latest_plan = plan
+                                latest_plan_time = event_time
                             if started and not completed:
                                 if item_type in ("function_call", "custom_tool_call"):
                                     last_phase = "\u8c03\u7528\u5de5\u5177"
@@ -229,10 +261,19 @@ class ActivityMonitor:
         if active:
             active.sort(reverse=True)
             _, phase = active[0]
-            progress = f"\u8ba1\u5212 {latest_plan[0]}/{latest_plan[1]}" if latest_plan else f"\u6d3b\u52a8\u5bf9\u8bdd {len(active)} \u4e2a"
+            if latest_plan:
+                completed, total = latest_plan
+                current = min(total, completed + 1)
+                progress = f"\u6d3b\u52a8\u5bf9\u8bdd {len(active)} \u4e2a\uff08\u7b2c {current}/{total} \u6b65\uff09"
+            else:
+                progress = f"\u6d3b\u52a8\u5bf9\u8bdd {len(active)} \u4e2a"
             return {"active": len(active), "detail": phase, "progress": progress}
         if recently_completed:
-            progress = f"\u8ba1\u5212 {latest_plan[0]}/{latest_plan[1]}" if latest_plan else "\u6700\u8fd1\u5bf9\u8bdd\u5df2\u5b8c\u6210"
+            if latest_plan:
+                completed, total = latest_plan
+                progress = f"\u6d3b\u52a8\u5bf9\u8bdd 0 \u4e2a\uff08\u7b2c {min(total, completed + 1)}/{total} \u6b65\uff09"
+            else:
+                progress = "\u6700\u8fd1\u5bf9\u8bdd\u5df2\u5b8c\u6210"
             return {"active": 0, "detail": "\u5df2\u5b8c\u6210", "progress": progress}
         return {"active": 0, "detail": "\u7a7a\u95f2", "progress": "\u6ca1\u6709\u6d3b\u52a8\u4e2d\u7684\u5bf9\u8bdd"}
 
@@ -633,7 +674,23 @@ class Pet(tk.Tk):
         menu.add_separator()
         menu.add_command(label="\u9690\u85cf\u7a97\u53e3", command=lambda: run_and_close(self.hide_window))
         menu.add_command(label="\u9000\u51fa", command=lambda: run_and_close(self.close))
-        menu.tk_popup(event.x_root, event.y_root)
+
+        # Some Windows Tk builds consume the first mouse release while the
+        # posted menu is acquiring focus. Handle the release at widget level
+        # so the first click always invokes the selected entry exactly once.
+        def invoke_first_click(click_event):
+            try:
+                index = menu.index(f"@{click_event.y}")
+                if index is not None and menu.type(index) not in ("separator", None):
+                    menu.invoke(index)
+                    return "break"
+            except tk.TclError:
+                pass
+            return None
+
+        menu.bind("<ButtonRelease-1>", invoke_first_click, add="+")
+        menu.post(event.x_root, event.y_root)
+        menu.grab_set()
 
     def toggle_topmost(self):
         self.settings["topmost"] = bool(self.topmost_var.get())
