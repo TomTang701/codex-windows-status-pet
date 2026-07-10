@@ -47,6 +47,7 @@ headless tests.
 - Configuration API accepts UTF-8 and UTF-8-BOM JSON produced by common Windows editors.
 - Configuration writes use a same-directory temporary file and atomic replacement.
 - A successful save keeps one previous valid settings file in the `.bak` sidecar; malformed current or backup files are never promoted or restored.
+- Configuration schema v1 is written on save; legacy files without a schema version are normalized, while unknown future versions fall back safely with a warning.
 - Activity API uses the latest session event as the inactivity clock, not only task start time.
 - Runtime initialization requests per-monitor DPI awareness before creating Tk windows.
 - Runtime API never kills an unrelated process to obtain the mutex.

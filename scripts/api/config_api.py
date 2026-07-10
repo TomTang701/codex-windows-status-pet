@@ -10,7 +10,10 @@ import tempfile
 from pathlib import Path
 
 
+CONFIG_SCHEMA_VERSION = 1
+
 DEFAULT_SETTINGS = {
+    "schema_version": CONFIG_SCHEMA_VERSION,
     "alpha": 0.95,
     "font_color": "#e5e7eb",
     "font_size": 10,
@@ -64,6 +67,12 @@ def normalize_settings(raw):
     warnings = []
     if not isinstance(raw, dict):
         return settings, ["settings root is not an object"]
+
+    schema_version = raw.get("schema_version")
+    if schema_version is not None:
+        parsed_schema = _integer_value(schema_version, -1)
+        if parsed_schema != CONFIG_SCHEMA_VERSION:
+            return settings, [f"unsupported settings schema version: {schema_version}"]
 
     for key in ("font_color", "background_color"):
         value = raw.get(key, settings[key])
@@ -138,7 +147,9 @@ def save_settings_atomic(path: Path, settings):
         _, warnings = load_settings(path)
         if not warnings:
             _copy_atomic(path, backup)
-    payload = json.dumps(settings, ensure_ascii=False, indent=2) + "\n"
+    persisted = dict(settings)
+    persisted["schema_version"] = CONFIG_SCHEMA_VERSION
+    payload = json.dumps(persisted, ensure_ascii=False, indent=2) + "\n"
     fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as stream:

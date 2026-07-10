@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from api.activity_api import snapshot_activity
-from api.config_api import DEFAULT_SETTINGS, backup_settings_path, load_settings, restore_settings_backup, save_settings_atomic
+from api.config_api import CONFIG_SCHEMA_VERSION, DEFAULT_SETTINGS, backup_settings_path, load_settings, restore_settings_backup, save_settings_atomic
 
 
 def stamp(seconds):
@@ -93,6 +93,30 @@ class ConfigApiTests(unittest.TestCase):
             settings, warnings = load_settings(path)
             self.assertEqual((settings["x"], settings["y"]), (4151, 1248))
             self.assertEqual(warnings, [])
+
+    def test_legacy_settings_migrate_to_current_schema_in_memory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text(json.dumps({"x": 4151}), encoding="utf-8")
+            settings, warnings = load_settings(path)
+            self.assertEqual(settings["schema_version"], CONFIG_SCHEMA_VERSION)
+            self.assertEqual(settings["x"], 4151)
+            self.assertEqual(warnings, [])
+
+    def test_unknown_settings_schema_falls_back_safely(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text(json.dumps({"schema_version": 99, "x": 4151}), encoding="utf-8")
+            settings, warnings = load_settings(path)
+            self.assertEqual(settings, DEFAULT_SETTINGS)
+            self.assertTrue(any("unsupported settings schema" in warning for warning in warnings))
+
+    def test_save_always_persists_current_schema_version(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            save_settings_atomic(path, {"x": 4151})
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(raw["schema_version"], CONFIG_SCHEMA_VERSION)
 
 
 class ActivityApiTests(unittest.TestCase):

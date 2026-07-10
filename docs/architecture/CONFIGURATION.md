@@ -2,12 +2,13 @@
 
 ## Location and schema
 
-Settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json`. The current file predates schema-versioned migration; adding a schema version is a required follow-up before a breaking configuration change.
+Settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json` and use schema version `1`. A legacy file without `schema_version` is read as the pre-version format and normalized in memory; a save writes the current schema.
 
 The last valid file is retained at `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`. The context menu action **Restore Previous Settings** validates this sidecar before atomically restoring it; missing or malformed backups are ignored.
 
 ```json
 {
+  "schema_version": 1,
   "alpha": 0.35,
   "font_color": "#e5e7eb",
   "font_size": 10,
