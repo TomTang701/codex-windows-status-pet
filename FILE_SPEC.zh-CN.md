@@ -8,6 +8,7 @@
 | `scripts/codex_status_pet.py` | Windows 悬浮窗、托盘、app-server 客户端、活动监视和设置界面。 |
 | `scripts/ui/context_menu.py` | 独立的首次点击安全右键菜单 Tk 适配层。 |
 | `scripts/ui/settings_dialog.py` | 独立的事务化设置窗口 Tk 适配层。 |
+| `scripts/ui/tray_adapter.py` | 独立的通知区域图标和回调适配层。 |
 | `scripts/start_pet.ps1` | 允许 PowerShell 的环境下使用的启动脚本。 |
 | `start_codex_status_pet.cmd` | 推荐双击启动程序，使用 `pythonw.exe`。 |
 | `skills/codex-windows-status-pet/SKILL.md` | Codex 使用该伴侣工具的技能说明。 |

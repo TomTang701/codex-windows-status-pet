@@ -8,6 +8,7 @@
 | `scripts/codex_status_pet.py` | Main Windows overlay, tray integration, app-server client, activity monitor, and settings UI. |
 | `scripts/ui/context_menu.py` | Isolated first-click-safe context-menu Tk adapter. |
 | `scripts/ui/settings_dialog.py` | Isolated transactional settings-dialog Tk adapter. |
+| `scripts/ui/tray_adapter.py` | Isolated notification-area icon and callback adapter. |
 | `scripts/start_pet.ps1` | Optional PowerShell launcher for environments that permit it. |
 | `start_codex_status_pet.cmd` | Recommended double-click launcher using `pythonw.exe`. |
 | `skills/codex-windows-status-pet/SKILL.md` | Codex skill instructions for using the companion. |
