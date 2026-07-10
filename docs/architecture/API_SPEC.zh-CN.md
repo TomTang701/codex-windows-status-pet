@@ -38,6 +38,10 @@ review_cycle_days: 90
 | 托盘生命周期 API | `scripts/api/tray_lifecycle_api.py` | 校验托盘动作，并保证只请求一次恢复重建。 | 动作白名单、可见性策略、重复故障和关闭场景。 |
 | 刷新调度 API | `scripts/api/refresh_scheduler_api.py` | 使用已校验的间隔，并保证同时只有一个刷新工作线程。 | 重复刷新调用和间隔限制测试。 |
 | 刷新控制器 API | `scripts/api/refresh_controller_api.py` | 使用 generation、取消和关闭保护，让 Activity 与 Quota 通道彼此独立。 | 独立 single-flight 通道、过期 generation 和关闭回调测试。 |
+| 应用控制器 API | `scripts/api/application_controller_api.py` | 在不拥有Tk的情况下协调独立Activity/Quota generation和额度调度。 | 通道独立、shutdown、delay和finish测试。 |
+| 状态展示控制器 API | `scripts/api/status_presentation_controller_api.py` | 组合纯快照格式化和compact状态决策。 | 稳定Reset Credit行及activity/hover转换测试。 |
+| 设置持久化控制器 API | `scripts/api/settings_persistence_controller_api.py` | 管理schema状态、writable、加载/保存、backup恢复和明确reset授权。 | 未来schema保留及current/legacy保存测试。 |
+| 窗口生命周期控制器 API | `scripts/api/window_lifecycle_controller_api.py` | 提供不依赖Tk的幂等close转换。 | 首次/重复close测试。 |
 | Codex 通信 API | `scripts/api/codex_transport_api.py` | 启动本机 app-server、执行 JSON-RPC 并报告协议错误。 | 模拟子进程和响应矩阵。 |
 | UI/托盘适配层 | `scripts/ui/main_window.py` 中的 `Pet` 与 `scripts/ui/tray_adapter.py` 中的 `TrayIcon3` | 将 API 结果转换为 Tk 和托盘动作。 | Windows 界面和人工交互测试。 |
 | 右键菜单 UI | `scripts/ui/context_menu.py` | 管理首次点击安全的弹出菜单构造、定位、命令分发和关闭。 | 现有首次点击/设置弹窗集成测试和实体角落检查。 |

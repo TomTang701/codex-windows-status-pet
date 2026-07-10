@@ -14,15 +14,15 @@ APP_VERSION = "0.2.0"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
-    from api.config_api import load_settings as load_settings_api, restore_settings_backup, save_settings_atomic
+    from api.settings_persistence_controller_api import SettingsPersistenceController
     from api.diagnostics_api import configure_logging
     from api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from api.diagnostic_summary_api import build_diagnostic_summary
-    from api.status_snapshot_api import build_status_snapshot
-    from api.refresh_scheduler_api import RefreshScheduler
-    from api.refresh_controller_api import RefreshController
+    from api.application_controller_api import ApplicationController
     from api.display_mode_api import compact_size
-    from api.compact_state_api import CompactState, compact_geometry
+    from api.compact_state_api import compact_geometry
+    from api.status_presentation_controller_api import StatusPresentationController
+    from api.window_lifecycle_controller_api import WindowLifecycleController
     from api.window_recovery_api import recover_position
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.quota_provider_api import normalize_snapshot
@@ -35,15 +35,15 @@ try:
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
     from scripts.api.codex_transport_api import AppServer
-    from scripts.api.config_api import load_settings as load_settings_api, restore_settings_backup, save_settings_atomic
+    from scripts.api.settings_persistence_controller_api import SettingsPersistenceController
     from scripts.api.diagnostics_api import configure_logging
     from scripts.api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from scripts.api.diagnostic_summary_api import build_diagnostic_summary
-    from scripts.api.status_snapshot_api import build_status_snapshot
-    from scripts.api.refresh_scheduler_api import RefreshScheduler
-    from scripts.api.refresh_controller_api import RefreshController
+    from scripts.api.application_controller_api import ApplicationController
     from scripts.api.display_mode_api import compact_size
-    from scripts.api.compact_state_api import CompactState, compact_geometry
+    from scripts.api.compact_state_api import compact_geometry
+    from scripts.api.status_presentation_controller_api import StatusPresentationController
+    from scripts.api.window_lifecycle_controller_api import WindowLifecycleController
     from scripts.api.window_recovery_api import recover_position
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.quota_provider_api import normalize_snapshot
@@ -77,12 +77,17 @@ class ActivityMonitor:
 
 
 class Pet(tk.Tk):
+    @property
+    def closing(self):
+        return self.lifecycle.closing
+
     def __init__(self):
         super().__init__()
+        self.lifecycle = WindowLifecycleController()
         self.title("Codex Windows Status Pet")
         self.overrideredirect(True)
         self.settings_path = Path.home() / ".codex" / "codex-windows-status-pet.json"
-        self.closing = False
+        self.settings_controller = SettingsPersistenceController(self.settings_path)
         self.settings = self.load_settings()
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
         self.configure(bg=self.settings["background_color"])
@@ -91,7 +96,7 @@ class Pet(tk.Tk):
         self.hidden_position = (self.settings["x"], self.settings["y"])
         self.expanded_position = (self.settings["x"], self.settings["y"])
         self.compact = False
-        self.compact_state = CompactState()
+        self.presentation_controller = StatusPresentationController()
         self._next_window_recovery = 0.0
         self.hovered = False
         self.protocol("WM_DELETE_WINDOW", self.close)
@@ -101,8 +106,7 @@ class Pet(tk.Tk):
         self.tray_restart_scheduled = False
         self.server = AppServer(self.queue)
         self.activity = ActivityMonitor()
-        self.refresh_scheduler = RefreshScheduler(self.settings["refresh_interval_seconds"])
-        self.refresh_controller = RefreshController(("activity", "quota"))
+        self.application_controller = ApplicationController(self.settings["refresh_interval_seconds"])
         self.latest_activity = {"active": 0, "detail": "空闲", "progress": ""}
         self.latest_quota = {"rateLimits": {}, "rateLimitResetCredits": {}}
         self.quota_state = QuotaState()
@@ -131,15 +135,13 @@ class Pet(tk.Tk):
         self.after(1000, self.refresh)
 
     def load_settings(self):
-        result = load_settings_api(self.settings_path)
-        self.config_schema_status = result.schema_status
-        self.config_writable = result.writable
+        result = self.settings_controller.load()
         for warning in result.warnings:
             logging.getLogger("codex-status-pet").warning(warning)
         if not result.writable:
             logging.getLogger("codex-status-pet").warning(
                 "settings are read-only because schema status is %s; choose Restore Defaults and Save to replace them",
-                result.schema_status,
+                self.settings_controller.schema_status,
             )
         return result.settings
 
@@ -169,27 +171,25 @@ class Pet(tk.Tk):
         return recovered_x, recovered_y
 
     def save_settings(self):
-        if not self.config_writable:
+        if not self.settings_controller.writable:
             logging.getLogger("codex-status-pet").warning(
-                "settings save skipped because schema status is %s", self.config_schema_status
+                "settings save skipped because schema status is %s", self.settings_controller.schema_status
             )
             return False
         try:
-            save_settings_atomic(self.settings_path, self.settings)
-            return True
+            return self.settings_controller.save(self.settings)
         except OSError:
             logging.getLogger("codex-status-pet").exception("failed to save settings")
             return False
 
     def authorize_configuration_reset(self):
         """Allow one explicit user reset to replace an unsupported source file."""
-        self.config_schema_status = "current"
-        self.config_writable = True
+        self.settings_controller.authorize_reset()
 
     def restore_settings_backup(self):
         """Restore the last valid settings sidecar and apply it to the running overlay."""
         try:
-            if not restore_settings_backup(self.settings_path):
+            if not self.settings_controller.restore_backup():
                 logging.getLogger("codex-status-pet").warning("settings backup is unavailable or malformed")
                 return False
             self.settings = self.load_settings()
@@ -201,8 +201,8 @@ class Pet(tk.Tk):
 
     def apply_settings(self, settings):
         self.settings = dict(settings)
-        if hasattr(self, "refresh_scheduler"):
-            self.refresh_scheduler.set_interval(self.settings["refresh_interval_seconds"])
+        if hasattr(self, "application_controller"):
+            self.application_controller.set_quota_interval(self.settings["refresh_interval_seconds"])
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
         self.geometry(f"{self.settings['window_width']}x{self.settings['window_height']}+{self.settings['x']}+{self.settings['y']}")
         self.attributes("-alpha", self.settings["alpha"])
@@ -414,7 +414,7 @@ class Pet(tk.Tk):
         """Refresh local session activity independently from app-server quota."""
         if self.closing:
             return
-        generation = self.refresh_controller.begin("activity")
+        generation = self.application_controller.begin_activity()
         if generation is None:
             return
 
@@ -430,11 +430,10 @@ class Pet(tk.Tk):
 
     def refresh(self):
         """Refresh app-server quota on the user-selected interval."""
-        if self.closing or not self.refresh_scheduler.begin():
+        if self.closing:
             return
-        generation = self.refresh_controller.begin("quota")
+        generation = self.application_controller.begin_quota()
         if generation is None:
-            self.refresh_scheduler.finish()
             return
 
         def worker():
@@ -452,13 +451,15 @@ class Pet(tk.Tk):
         threading.Thread(target=worker, name="codex-quota-refresh", daemon=True).start()
 
     def render_status(self):
-        presentation = build_status_snapshot(
-            self.latest_activity, self.latest_quota, self.quota_state.state, self.settings["font_color"]
-        )
-        active_count = presentation["active_count"]
         blocked = bool(getattr(self, "context_menu", None)) or bool(self.settings_dialog and self.settings_dialog.winfo_exists())
-        should_be_compact = self.compact_state.update(
-            self.settings.get("compact_when_idle"), active_count, self.hovered, blocked
+        presentation, should_be_compact = self.presentation_controller.render(
+            self.latest_activity,
+            self.latest_quota,
+            self.quota_state.state,
+            self.settings["font_color"],
+            self.settings.get("compact_when_idle"),
+            self.hovered,
+            blocked,
         )
         if should_be_compact != self.compact:
             self.set_compact(should_be_compact)
@@ -472,16 +473,15 @@ class Pet(tk.Tk):
                 payload = self.queue.get_nowait()
                 if payload.get("_channel_done"):
                     channel = payload["_channel_done"]
-                    self.refresh_controller.finish(channel, payload.get("_generation"))
+                    self.application_controller.finish(channel, payload.get("_generation"))
                     if channel == "quota":
-                        self.refresh_scheduler.finish()
                         if not self.closing:
-                            self.after(self.refresh_scheduler.delay_ms, self.refresh)
+                            self.after(self.application_controller.quota_delay_ms, self.refresh)
                     elif channel == "activity" and not self.closing:
                         self.after(1000, self.refresh_activity)
                     continue
                 channel = payload.get("_channel")
-                if channel and not self.refresh_controller.is_current(channel, payload.get("_generation")):
+                if channel and not self.application_controller.is_current(channel, payload.get("_generation")):
                     continue
                 if channel == "activity":
                     self.latest_activity = payload.get("_activity", self.latest_activity)
@@ -507,12 +507,11 @@ class Pet(tk.Tk):
             self.after(250, self.poll)
 
     def close(self):
-        if self.closing:
+        if not self.lifecycle.begin_close():
             return
-        self.closing = True
-        self.compact_state.force_expanded()
-        if hasattr(self, "refresh_controller"):
-            self.refresh_controller.shutdown()
+        self.presentation_controller.force_expanded()
+        if hasattr(self, "application_controller"):
+            self.application_controller.shutdown()
         try:
             self.save_settings()
         except OSError:

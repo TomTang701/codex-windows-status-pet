@@ -40,6 +40,8 @@ Tk主窗口 -> UI适配器 -> 纯API策略
 
 依赖向内：UI和transport适配器可以调用API策略，但纯API模块不得导入Tk、pystray或具体窗口对象。Queue payload只包含channel、generation、批准的活动/额度结果或脱敏错误；原始provider对象不得进入展示层。
 
+ApplicationController管理刷新generation和额度调度；StatusPresentationController管理快照/compact决策；SettingsPersistenceController管理schema writable和持久写入；WindowLifecycleController管理幂等close转换。Tk窗口委托这些控制器，只保留widget创建、事件绑定、渲染、worker启动和 `after` 调度。
+
 展开悬浮窗渲染五个稳定Label（`activity`、`progress`、`primary_5h`、`weekly`和`reset_credit`）。Compact模式可以隐藏整组，但展开会恢复每一行，不重建或截断展示文本。
 
 ## 启动和关闭顺序

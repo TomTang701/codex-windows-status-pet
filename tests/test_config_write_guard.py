@@ -9,13 +9,16 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from ui.main_window import Pet
+from api.settings_persistence_controller_api import SettingsPersistenceController
 
 
 class ConfigurationWriteGuardTests(unittest.TestCase):
     def _read_only_app(self, path):
+        controller = SettingsPersistenceController(path)
+        controller.writable = False
+        controller.schema_status = "unsupported_future"
         return SimpleNamespace(
-            config_writable=False,
-            config_schema_status="unsupported_future",
+            settings_controller=controller,
             settings_path=path,
             settings={"schema_version": 1, "x": 30, "y": 120, "locked": False},
         )
@@ -26,7 +29,7 @@ class ConfigurationWriteGuardTests(unittest.TestCase):
             original = json.dumps({"schema_version": 99, "future": "keep"})
             path.write_text(original, encoding="utf-8")
             app = self._read_only_app(path)
-            with patch("ui.main_window.save_settings_atomic") as save:
+            with patch.object(app.settings_controller, "save") as save:
                 self.assertFalse(Pet.save_settings(app))
             save.assert_not_called()
             self.assertEqual(path.read_text(encoding="utf-8"), original)
@@ -46,6 +49,5 @@ class ConfigurationWriteGuardTests(unittest.TestCase):
     def test_explicit_reset_reenables_current_schema_writes(self):
         app = self._read_only_app(Path("unused"))
         Pet.authorize_configuration_reset(app)
-        self.assertTrue(app.config_writable)
-        self.assertEqual(app.config_schema_status, "current")
-
+        self.assertTrue(app.settings_controller.writable)
+        self.assertEqual(app.settings_controller.schema_status, "current")

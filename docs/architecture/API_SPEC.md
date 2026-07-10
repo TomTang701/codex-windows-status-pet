@@ -40,6 +40,10 @@ headless tests.
 | Tray Lifecycle API | `scripts/api/tray_lifecycle_api.py` | Validate tray actions and guarantee one recovery restart request. | Action allowlist, visibility policy, duplicate failure, and shutdown cases. |
 | Refresh Scheduler API | `scripts/api/refresh_scheduler_api.py` | Use a validated interval and one in-flight worker at a time. | Repeated refresh calls and interval clamp fixtures. |
 | Refresh Controller API | `scripts/api/refresh_controller_api.py` | Keep Activity and Quota channels independent with generation, cancellation, and shutdown guards. | Independent single-flight channels, stale generations, and shutdown callbacks. |
+| Application Controller API | `scripts/api/application_controller_api.py` | Coordinate independent Activity/Quota generations and quota scheduling without Tk ownership. | Channel independence, shutdown, delay, and finish tests. |
+| Status Presentation Controller API | `scripts/api/status_presentation_controller_api.py` | Combine pure snapshot formatting with compact-state decisions. | Stable Reset Credit row and activity/hover transition tests. |
+| Settings Persistence Controller API | `scripts/api/settings_persistence_controller_api.py` | Own schema status, writability, load/save, backup restore, and explicit reset authorization. | Future-schema preservation and current/legacy save tests. |
+| Window Lifecycle Controller API | `scripts/api/window_lifecycle_controller_api.py` | Provide an idempotent close transition independent from Tk. | First/repeated close tests. |
 | Codex transport API | `scripts/api/codex_transport_api.py` | Start local app-server, perform JSON-RPC requests, and report protocol failures. | Mock subprocess/stdout response matrix. |
 | UI/tray adapter | `Pet` in `scripts/ui/main_window.py` and `TrayIcon3` in `scripts/ui/tray_adapter.py` | Translate API results into Tk and tray actions. | Windows UI/manual interaction tests only. |
 | Context Menu UI | `scripts/ui/context_menu.py` | Own first-click-safe popup construction, placement, command dispatch, and close behavior. | Existing first-click/settings popup integration test and physical corner checks. |
