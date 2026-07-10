@@ -36,6 +36,7 @@ headless tests.
 | Settings Dialog UI | `scripts/ui/settings_dialog.py` | Own settings controls, validation binding, transaction actions, and reachable-dialog placement. | Settings session tests and Windows secondary-monitor interaction checks. |
 | Tray UI | `scripts/ui/tray_adapter.py` | Own icon construction, pystray callbacks, tray thread, and stop handling; actions return through a queue. | Tray failure, action allowlist, repeated launch, and physical show/hide checks. |
 | Codex Transport API | `scripts/api/codex_transport_api.py` | Discover the local Codex CLI and perform app-server stdio JSON-RPC without UI ownership. | Configured-path discovery, stopped-process rejection, and mocked transport boundaries. |
+| Diagnostic Summary API | `scripts/api/diagnostic_summary_api.py` | Produce copyable operational diagnostics while excluding credentials, prompts, responses, session contents, and raw quota. | State/path formatting and sensitive-data exclusion tests. |
 
 ## Invariants
 
@@ -58,6 +59,7 @@ headless tests.
 - The default quota provider accepts local app-server results only; it never reads auth files, sends tokens, or persists credentials.
 - A major behavior or performance change requires a changelog entry, specification update, and regression test.
 - The context-menu implementation has one reachable popup path; obsolete native-menu code must not remain after an unconditional return.
+- Diagnostic summaries may include paths and operational states, but must never include tokens, prompts, responses, session contents, or raw quota payloads.
 
 ## Test commands
 

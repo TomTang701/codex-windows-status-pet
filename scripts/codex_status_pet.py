@@ -16,7 +16,8 @@ try:
     from api.codex_transport_api import AppServer
     from api.config_api import load_settings as load_settings_api, save_settings_atomic
     from api.diagnostics_api import configure_logging
-    from api.display_api import dpi_for_window, virtual_desktop_bounds, work_area_for_point
+    from api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
+    from api.diagnostic_summary_api import build_diagnostic_summary
     from api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
     from api.refresh_scheduler_api import RefreshScheduler
     from api.refresh_controller_api import RefreshController
@@ -36,7 +37,8 @@ except ModuleNotFoundError:
     from scripts.api.codex_transport_api import AppServer
     from scripts.api.config_api import load_settings as load_settings_api, save_settings_atomic
     from scripts.api.diagnostics_api import configure_logging
-    from scripts.api.display_api import dpi_for_window, virtual_desktop_bounds, work_area_for_point
+    from scripts.api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
+    from scripts.api.diagnostic_summary_api import build_diagnostic_summary
     from scripts.api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
     from scripts.api.refresh_scheduler_api import RefreshScheduler
     from scripts.api.refresh_controller_api import RefreshController
@@ -288,6 +290,21 @@ class Pet(tk.Tk):
     def menu(self, event):
         """Show a native-looking Tk popup whose controls receive first-click events."""
         show_context_menu(self, event)
+
+    def copy_diagnostics(self):
+        summary = build_diagnostic_summary(
+            version=APP_VERSION,
+            settings_path=self.settings_path,
+            log_path=Path.home() / ".codex" / "codex-windows-status-pet.log",
+            activity_path=self.activity.sessions,
+            app_server_running=bool(self.server.proc and self.server.proc.poll() is None),
+            quota_state=self.quota_state.state,
+            monitor_count=len(monitor_snapshot()),
+            dpi=dpi_for_window(self.winfo_id()),
+        )
+        self.clipboard_clear()
+        self.clipboard_append(summary)
+        self.update()
 
     def toggle_topmost(self):
         self.settings["topmost"] = bool(self.topmost_var.get())

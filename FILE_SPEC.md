@@ -43,6 +43,7 @@
 | `scripts/api/quota_state_api.py` | Last-good, stale, and explicit quota failure state. |
 | `scripts/api/models_api.py` | Typed quota-domain dataclasses. |
 | `scripts/api/codex_transport_api.py` | Local Codex CLI discovery and app-server stdio JSON-RPC transport. |
+| `scripts/api/diagnostic_summary_api.py` | Safe operational summary generator with a sensitive-data exclusion contract. |
 
 ## Runtime configuration
 

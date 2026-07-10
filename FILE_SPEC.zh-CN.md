@@ -43,6 +43,7 @@
 | `scripts/api/quota_state_api.py` | 最近成功、过期和明确额度错误状态 API。 |
 | `scripts/api/models_api.py` | 类型化额度领域数据类。 |
 | `scripts/api/codex_transport_api.py` | 本地 Codex CLI 发现和 app-server stdio JSON-RPC 通信。 |
+| `scripts/api/diagnostic_summary_api.py` | 带敏感数据排除契约的安全运行诊断摘要生成器。 |
 
 ## 运行时配置
 
