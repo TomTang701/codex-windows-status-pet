@@ -26,7 +26,7 @@ modifying Codex core files or injecting text into the built-in pet.
 - The tray needs failure-injection tests and automatic recreation before it can be treated as a
   guaranteed recovery path.
 - The fixed-size overlay can clip long diagnostics or localized text.
-- Dependency installation and startup logging need clean-machine validation.
+- A clean virtual environment now passes dependency import and regression tests; physical mixed-DPI coverage remains.
 
 ## Recommended product priorities
 

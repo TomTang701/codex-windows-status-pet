@@ -62,6 +62,8 @@ to disappear because it runs through `pythonw.exe` without a console.
 | Main menu first-click behavior | FAIL | User-reported defect reproduced in the running build; a Win32 click attempt did not produce the settings window after one click. |
 | Full Codex app-server/rate-limit validation | NOT COMPLETED | Requires a controlled Codex server response matrix; no production behavior was changed for this audit. |
 | Clean-machine dependency/startup validation | NOT COMPLETED | Current machine already has the bundled dependencies installed. |
+| Isolated virtual-environment dependency validation | PASS | A temporary venv installed `requirements.txt`; imports and all eight tests passed. This is not a separate Windows installation. |
+| Current DPI/virtual-desktop probe | PARTIAL | `enable_dpi_awareness()` returned true; running window reported 96 DPI and virtual bounds `0,0,4480,1434`. No physically mixed-DPI monitor was available for the matrix. |
 
 ## Highest-priority release blockers
 
@@ -82,8 +84,8 @@ The audit report above is the original baseline. In the continuation work, the f
 were implemented and are now covered by the API/test boundary specification:
 
 - **Addressed:** ERR-001, ERR-002, ERR-003, ERR-004, ERR-005, ERR-006, ERR-007, ERR-008, ERR-009, ERR-011, ERR-013, ERR-014, ERR-015, ERR-016, ERR-017, ERR-018, ERR-019, ERR-020, ERR-021, ERR-023, ERR-024, ERR-025, ERR-026, and ERR-027.
-- **Partially addressed:** ERR-012 (fallback dependencies are declared in `requirements.txt`, but clean-machine installation remains unverified); ERR-022 (per-monitor DPI awareness is requested, but mixed-scale geometry still needs a matrix).
+- **Partially addressed:** ERR-022 (per-monitor DPI awareness is requested and the current 96-DPI desktop passed the call, but mixed-scale geometry still needs a matrix).
 - **Test coverage added:** eight tests in `tests/`, including first-click command invocation through the popup control, malformed settings fallback, atomic settings round-trip, long-running activity detection, stale activity rejection, malformed JSONL tolerance, unchanged-file activity caching, and injected tray failure reporting. Physical Windows checks opened settings on the first click, closed the popup by an outside click, and restored `(4151,1248)`.
-- **Still open:** ERR-012 clean-machine dependency installation and ERR-022 mixed-scale geometry validation.
+- **Still open:** ERR-022 mixed-scale geometry validation on physically different-DPI monitors.
 
 This status section records progress only; it does not claim the product is fully release-ready.
