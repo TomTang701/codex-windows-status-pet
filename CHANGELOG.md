@@ -9,6 +9,7 @@
 - Added a validated settings backup sidecar and a context-menu action to restore the previous settings snapshot.
 - Strengthened runtime window recovery to correct taskbar-partial placements and re-check topology changes periodically while preserving legal secondary-monitor coordinates within DPI rounding tolerance.
 - Added dated physical test-record storage and linked the current Windows 11 dual-monitor topology evidence from the compatibility matrix.
+- Extracted the main Tk window into `scripts/ui/main_window.py` while retaining `scripts/codex_status_pet.py` as a stable launcher and import facade.
 - Added transactional settings sessions: Apply previews runtime values, Save persists them, and Close restores the opening snapshot.
 - Added shared integer validation that supports typing negative coordinates while rejecting malformed pasted values.
 - Added reversible percentage resize sessions; plus and minus scale width and height symmetrically.

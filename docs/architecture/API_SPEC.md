@@ -30,8 +30,8 @@ headless tests.
 | Tray Lifecycle API | `scripts/api/tray_lifecycle_api.py` | Validate tray actions and guarantee one recovery restart request. | Action allowlist, visibility policy, duplicate failure, and shutdown cases. |
 | Refresh Scheduler API | `scripts/api/refresh_scheduler_api.py` | Use a validated interval and one in-flight worker at a time. | Repeated refresh calls and interval clamp fixtures. |
 | Refresh Controller API | `scripts/api/refresh_controller_api.py` | Keep Activity and Quota channels independent with generation, cancellation, and shutdown guards. | Independent single-flight channels, stale generations, and shutdown callbacks. |
-| Codex transport API | `AppServer` in `scripts/codex_status_pet.py` | Start local app-server, perform JSON-RPC requests, and report protocol failures. | Mock subprocess/stdout response matrix. |
-| UI/tray adapter | `Pet` and `TrayIcon3` in `scripts/codex_status_pet.py` | Translate API results into Tk and tray actions. | Windows UI/manual interaction tests only. |
+| Codex transport API | `scripts/api/codex_transport_api.py` | Start local app-server, perform JSON-RPC requests, and report protocol failures. | Mock subprocess/stdout response matrix. |
+| UI/tray adapter | `Pet` in `scripts/ui/main_window.py` and `TrayIcon3` in `scripts/ui/tray_adapter.py` | Translate API results into Tk and tray actions. | Windows UI/manual interaction tests only. |
 | Context Menu UI | `scripts/ui/context_menu.py` | Own first-click-safe popup construction, placement, command dispatch, and close behavior. | Existing first-click/settings popup integration test and physical corner checks. |
 | Settings Dialog UI | `scripts/ui/settings_dialog.py` | Own settings controls, validation binding, transaction actions, and reachable-dialog placement. | Settings session tests and Windows secondary-monitor interaction checks. |
 | Tray UI | `scripts/ui/tray_adapter.py` | Own icon construction, pystray callbacks, tray thread, and stop handling; actions return through a queue. | Tray failure, action allowlist, repeated launch, and physical show/hide checks. |
@@ -72,7 +72,7 @@ headless tests.
 $py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
 & $py -m unittest discover -s .\tests -v
 $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
-& $py -m py_compile .\scripts\codex_status_pet.py $api
+& $py -m py_compile .\scripts\codex_status_pet.py .\scripts\ui\main_window.py $api
 # Live Windows display evidence (run with the companion visible)
 & $py .\scripts\probe_display.py
 & $py .\scripts\check_doc_parity.py

@@ -8,6 +8,7 @@ This document describes where project files belong. Configuration values belong 
 |---|---|
 | `.codex-plugin/plugin.json` | Codex plugin manifest and cache-busting version. |
 | `scripts/codex_status_pet.py` | Windows overlay, tray integration, app-server client, activity monitor, and settings UI. |
+| `scripts/ui/main_window.py` | Main Tk window lifecycle, rendering, recovery, refresh orchestration, and UI composition. |
 | `scripts/api/` | UI-independent domain, transport, validation, refresh, quota, geometry, and diagnostics APIs. |
 | `scripts/ui/` | Tk and notification-area adapters. |
 | `start_codex_status_pet.cmd` | Recommended double-click launcher using `pythonw.exe`. |

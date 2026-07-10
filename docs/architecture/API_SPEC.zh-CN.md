@@ -28,8 +28,8 @@
 | 托盘生命周期 API | `scripts/api/tray_lifecycle_api.py` | 校验托盘动作，并保证只请求一次恢复重建。 | 动作白名单、可见性策略、重复故障和关闭场景。 |
 | 刷新调度 API | `scripts/api/refresh_scheduler_api.py` | 使用已校验的间隔，并保证同时只有一个刷新工作线程。 | 重复刷新调用和间隔限制测试。 |
 | 刷新控制器 API | `scripts/api/refresh_controller_api.py` | 使用 generation、取消和关闭保护，让 Activity 与 Quota 通道彼此独立。 | 独立 single-flight 通道、过期 generation 和关闭回调测试。 |
-| Codex 通信 API | `AppServer` | 启动本机 app-server、执行 JSON-RPC 并报告协议错误。 | 模拟子进程和响应矩阵。 |
-| UI/托盘适配层 | `Pet` 与 `TrayIcon3` | 将 API 结果转换为 Tk 和托盘动作。 | Windows 界面和人工交互测试。 |
+| Codex 通信 API | `scripts/api/codex_transport_api.py` | 启动本机 app-server、执行 JSON-RPC 并报告协议错误。 | 模拟子进程和响应矩阵。 |
+| UI/托盘适配层 | `scripts/ui/main_window.py` 中的 `Pet` 与 `scripts/ui/tray_adapter.py` 中的 `TrayIcon3` | 将 API 结果转换为 Tk 和托盘动作。 | Windows 界面和人工交互测试。 |
 | 右键菜单 UI | `scripts/ui/context_menu.py` | 管理首次点击安全的弹出菜单构造、定位、命令分发和关闭。 | 现有首次点击/设置弹窗集成测试和实体角落检查。 |
 | 设置窗口 UI | `scripts/ui/settings_dialog.py` | 管理设置控件、校验绑定、事务动作和可到达窗口定位。 | 设置会话测试和 Windows 副屏交互检查。 |
 | 托盘 UI | `scripts/ui/tray_adapter.py` | 管理图标构造、pystray 回调、托盘线程和停止处理；动作通过队列返回。 | 托盘故障、动作白名单、重复启动和实体显示/隐藏检查。 |
@@ -68,7 +68,7 @@
 $py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
 & $py -m unittest discover -s .\tests -v
 $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
-& $py -m py_compile .\scripts\codex_status_pet.py $api
+& $py -m py_compile .\scripts\codex_status_pet.py .\scripts\ui\main_window.py $api
 # 伴侣可见时运行 Windows 显示器探测
 & $py .\scripts\probe_display.py
 & $py .\scripts\check_doc_parity.py
