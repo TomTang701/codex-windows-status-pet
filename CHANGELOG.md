@@ -14,6 +14,7 @@
 - Added a dedicated version-source consistency gate for the manifest, main window, app-server client, and changelog.
 - Added a high-confidence sensitive-file and secret-material scan to the release checks.
 - Added an offline dependency gate that validates requirements, minimum versions, and imports before tests and packaging.
+- Documented the tested Python/runtime baseline, x64 scope, pending Windows 10 coverage, and unsigned-binary behavior.
 - Added transactional settings sessions: Apply previews runtime values, Save persists them, and Close restores the opening snapshot.
 - Added shared integer validation that supports typing negative coordinates while rejecting malformed pasted values.
 - Added reversible percentage resize sessions; plus and minus scale width and height symmetrically.
