@@ -7,6 +7,7 @@ import ctypes
 from pathlib import Path
 
 from api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds
+from api.taskbar_api import taskbar_snapshot
 
 
 def main():
@@ -16,6 +17,7 @@ def main():
         "monitors": monitor_snapshot(),
         "overlay_window": {"hwnd": int(hwnd), "dpi": dpi_for_window(hwnd)} if hwnd else None,
         "config_path": str(Path.home() / ".codex" / "codex-windows-status-pet.json"),
+        "taskbar": taskbar_snapshot(),
     }
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

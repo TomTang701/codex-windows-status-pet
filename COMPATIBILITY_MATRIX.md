@@ -11,7 +11,7 @@
 | Displays | Two monitors | Physical pass | 2026-07-10 `DISPLAY1`/`DISPLAY2` probe completed; virtual desktop is `0,0-4480,1434`, work areas are `0,0-2048,1104` and `2560,354-4480,1386`; secondary coordinate `(4150,1248)` remains supported. |
 | Coordinates | Negative virtual coordinates | Automated | `Display API` intersection and placement tests cover negative coordinates. |
 | Coordinates | Large secondary coordinate `(4151,1248)` | Physical pass | Overlay and context menu were observed on the secondary monitor. |
-| Popup | Four corners and taskbar work area | Automated + partial physical | Geometry tests pass; physical taskbar-edge matrix remains pending. |
+| Popup | Four corners and taskbar work area | Automated + partial physical | Current physical probe reports the primary taskbar at the bottom (`0,1380-2560,1440`); geometry tests pass; top/left/right taskbar-edge matrix remains pending. |
 | Popup | First click | Physical pass | First click on settings opened the dialog during the secondary-monitor test. |
 | Settings | Width/height and proportional resize | Automated | `Window Size API` tests cover free, proportional, bounded, and invalid-factor cases. |
 | Settings | Digit-only entries and interval 1–10 | Automated | Configuration and scheduler tests cover malformed and bounded values; manual paste test remains pending. |

@@ -37,6 +37,7 @@
 | `scripts/package_smoke_test.py` | 校验打包元数据并创建非正式发布 smoke ZIP。 |
 | `scripts/check_release_readiness.py` | 报告 v0.3.0 发布门槛中的实体兼容性阻塞项。 |
 | `scripts/startup_audit.py` | 旧版 Codex 状态宠物启动项只读审计。 |
+| `scripts/api/taskbar_api.py` | Windows 任务栏边缘和矩形诊断 API。 |
 | `.github/workflows/ci.yml` | Windows GitHub Actions 质量门禁和 smoke 制品工作流。 |
 | `scripts/api/compact_state_api.py` | 与 UI 无关的定时收缩/展开状态和边缘几何 API。 |
 | `scripts/api/window_recovery_api.py` | 与 UI 无关的离屏恢复和最近工作区选择 API。 |
