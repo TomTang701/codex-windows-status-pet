@@ -137,15 +137,21 @@ def show_settings_dialog(owner):
         owner.apply_settings(settings_session.apply())
         return True
 
+    reset_requested = False
+
     def save_and_close():
         if not apply_draft():
             return
         owner.settings = settings_session.save()
         owner.apply_settings(owner.settings)
+        if reset_requested:
+            owner.authorize_configuration_reset()
         owner.save_settings()
         owner.close_settings(dialog)
 
     def restore_defaults():
+        nonlocal reset_requested
+        reset_requested = True
         settings_session.restore_defaults(DEFAULT_SETTINGS)
         draft.clear()
         draft.update(settings_session.draft_settings)

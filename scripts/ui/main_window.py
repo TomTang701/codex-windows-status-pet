@@ -129,10 +129,17 @@ class Pet(tk.Tk):
         self.after(1000, self.refresh)
 
     def load_settings(self):
-        settings, warnings = load_settings_api(self.settings_path)
-        for warning in warnings:
+        result = load_settings_api(self.settings_path)
+        self.config_schema_status = result.schema_status
+        self.config_writable = result.writable
+        for warning in result.warnings:
             logging.getLogger("codex-status-pet").warning(warning)
-        return settings
+        if not result.writable:
+            logging.getLogger("codex-status-pet").warning(
+                "settings are read-only because schema status is %s; choose Restore Defaults and Save to replace them",
+                result.schema_status,
+            )
+        return result.settings
 
     def safe_position(self, x, y):
         """Preserve legal virtual-desktop coordinates and recover disconnected displays."""
@@ -160,12 +167,22 @@ class Pet(tk.Tk):
         return recovered_x, recovered_y
 
     def save_settings(self):
+        if not self.config_writable:
+            logging.getLogger("codex-status-pet").warning(
+                "settings save skipped because schema status is %s", self.config_schema_status
+            )
+            return False
         try:
             save_settings_atomic(self.settings_path, self.settings)
             return True
         except OSError:
             logging.getLogger("codex-status-pet").exception("failed to save settings")
             return False
+
+    def authorize_configuration_reset(self):
+        """Allow one explicit user reset to replace an unsupported source file."""
+        self.config_schema_status = "current"
+        self.config_writable = True
 
     def restore_settings_backup(self):
         """Restore the last valid settings sidecar and apply it to the running overlay."""

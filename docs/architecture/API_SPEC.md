@@ -8,7 +8,7 @@ headless tests.
 
 | API | Module | Responsibility | Test boundary |
 |---|---|---|---|
-| Configuration API | `scripts/api/config_api.py` | Validate, normalize, load, atomically save, back up, and restore settings. | Temporary JSON files; no Tk. |
+| Configuration API | `scripts/api/config_api.py` | Validate, normalize, classify schema state, load, atomically save, back up, and restore settings. | Temporary JSON files and future/malformed write guards; no Tk. |
 | Activity API | `scripts/api/activity_api.py` | Read Codex session JSONL and derive active/recent status with unchanged-file caching. | Synthetic JSONL directory; injectable clock and cache. |
 | Runtime API | `scripts/api/runtime_api.py` | Own the named Windows single-instance mutex. | Windows mutex acquisition/release. |
 | Diagnostics API | `scripts/api/diagnostics_api.py` | Capture uncaught main-thread and worker exceptions when `pythonw.exe` hides the console. | Temporary log path and synthetic exception. |
@@ -43,11 +43,11 @@ headless tests.
 
 ## Invariants
 
-- Configuration API never raises for malformed user JSON; it returns defaults plus warnings.
+- Configuration API never raises for malformed user JSON; `ConfigLoadResult` returns defaults, warnings, schema status, and a writable flag.
 - Configuration API accepts UTF-8 and UTF-8-BOM JSON produced by common Windows editors.
 - Configuration writes use a same-directory temporary file and atomic replacement.
 - A successful save keeps one previous valid settings file in the `.bak` sidecar; malformed current or backup files are never promoted or restored.
-- Configuration schema v1 is written on save; legacy files without a schema version are normalized, while unknown future versions fall back safely with a warning.
+- Configuration schema v1 is written on save; legacy files without a schema version are normalized. Unknown future or malformed files are read-only and cannot be overwritten by exit, drag, hide, toggles, recovery, or settings-save paths until the user explicitly selects Restore Defaults and Save.
 - Activity API uses the latest session event as the inactivity clock, not only task start time.
 - Runtime initialization requests per-monitor DPI awareness before creating Tk windows.
 - Runtime API never kills an unrelated process to obtain the mutex.

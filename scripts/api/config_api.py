@@ -7,10 +7,26 @@ import os
 import re
 import shutil
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 
 
 CONFIG_SCHEMA_VERSION = 1
+
+
+@dataclass(frozen=True)
+class ConfigLoadResult:
+    """Validated settings plus persistence safety for the source file."""
+
+    settings: dict
+    warnings: tuple[str, ...]
+    schema_status: str
+    writable: bool
+
+    def __iter__(self):
+        """Keep the historical two-value unpacking API during migration."""
+        yield self.settings
+        yield list(self.warnings)
 
 DEFAULT_SETTINGS = {
     "schema_version": CONFIG_SCHEMA_VERSION,
@@ -132,11 +148,28 @@ def load_settings(path: Path):
         raw = json.loads(path.read_text(encoding="utf-8-sig"))
     except FileNotFoundError:
         raw = {}
+        schema_status = "missing"
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raw = {}
         warnings.append(f"settings file could not be read: {exc}")
+        schema_status = "malformed"
+    else:
+        if not isinstance(raw, dict):
+            schema_status = "malformed"
+        elif "schema_version" not in raw:
+            schema_status = "legacy"
+        elif _integer_value(raw.get("schema_version"), -1) == CONFIG_SCHEMA_VERSION:
+            schema_status = "current"
+        else:
+            schema_status = "unsupported_future"
     settings, normalize_warnings = normalize_settings(raw)
-    return settings, warnings + normalize_warnings
+    combined = tuple(warnings + normalize_warnings)
+    return ConfigLoadResult(
+        settings=settings,
+        warnings=combined,
+        schema_status=schema_status,
+        writable=schema_status in {"current", "legacy", "missing"},
+    )
 
 
 def save_settings_atomic(path: Path, settings):
@@ -144,8 +177,8 @@ def save_settings_atomic(path: Path, settings):
     path.parent.mkdir(parents=True, exist_ok=True)
     backup = backup_settings_path(path)
     if path.exists():
-        _, warnings = load_settings(path)
-        if not warnings:
+        result = load_settings(path)
+        if result.writable and not result.warnings:
             _copy_atomic(path, backup)
     persisted = dict(settings)
     persisted["schema_version"] = CONFIG_SCHEMA_VERSION
@@ -192,10 +225,10 @@ def restore_settings_backup(path: Path) -> bool:
     backup = backup_settings_path(path)
     if not backup.exists():
         return False
-    settings, warnings = load_settings(backup)
-    if warnings:
+    result = load_settings(backup)
+    if not result.writable or result.warnings:
         return False
-    payload = json.dumps(settings, ensure_ascii=False, indent=2) + "\n"
+    payload = json.dumps(result.settings, ensure_ascii=False, indent=2) + "\n"
     temporary = path.with_name(f".{path.name}.restore.tmp")
     try:
         temporary.write_text(payload, encoding="utf-8", newline="\n")

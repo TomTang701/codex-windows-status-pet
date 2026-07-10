@@ -102,6 +102,8 @@ class ConfigApiTests(unittest.TestCase):
             self.assertEqual(settings["schema_version"], CONFIG_SCHEMA_VERSION)
             self.assertEqual(settings["x"], 4151)
             self.assertEqual(warnings, [])
+            self.assertEqual(load_settings(path).schema_status, "legacy")
+            self.assertTrue(load_settings(path).writable)
 
     def test_unknown_settings_schema_falls_back_safely(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -110,6 +112,19 @@ class ConfigApiTests(unittest.TestCase):
             settings, warnings = load_settings(path)
             self.assertEqual(settings, DEFAULT_SETTINGS)
             self.assertTrue(any("unsupported settings schema" in warning for warning in warnings))
+            result = load_settings(path)
+            self.assertEqual(result.schema_status, "unsupported_future")
+            self.assertFalse(result.writable)
+
+    def test_malformed_settings_are_read_only_and_preserved(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            original = "{damaged"
+            path.write_text(original, encoding="utf-8")
+            result = load_settings(path)
+            self.assertEqual(result.schema_status, "malformed")
+            self.assertFalse(result.writable)
+            self.assertEqual(path.read_text(encoding="utf-8"), original)
 
     def test_save_always_persists_current_schema_version(self):
         with tempfile.TemporaryDirectory() as directory:
