@@ -2,7 +2,7 @@
 
 ## 0.2.0 - 2026-07-10
 
-- Added JSON-like session parsing for Codex `update_plan` calls, displaying `Active conversations N (step M/K)` on the second line.
+- Removed plan-step text from the overlay; the second line now always shows only the active conversation count.
 - Added stale-process cleanup plus a named mutex so repeated launches leave at most one overlay and tray icon.
 - Reworked the overlay context menu to execute on the first click and close immediately.
 - Added a Windows notification-area integration with show, hide, settings, and exit actions.

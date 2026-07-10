@@ -7,7 +7,6 @@ from ctypes import wintypes
 import json
 import os
 import queue
-import re
 import subprocess
 import sys
 import threading
@@ -161,31 +160,6 @@ def short_time(epoch):
     return datetime.fromtimestamp(epoch, tz=timezone.utc).astimezone().strftime("%H:%M")
 
 
-def parse_plan(payload):
-    """Return (completed, total) for JSON or JSON-like update_plan payloads."""
-    raw = payload.get("input") or payload.get("arguments") or ""
-    if isinstance(raw, dict):
-        data = raw
-    else:
-        try:
-            data = json.loads(raw)
-        except (TypeError, json.JSONDecodeError):
-            data = None
-    plan = data.get("plan") if isinstance(data, dict) else None
-    if isinstance(plan, list) and plan:
-        total = len(plan)
-        done = sum(1 for item in plan if isinstance(item, dict) and item.get("status") == "completed")
-        return done, total
-    if isinstance(raw, str):
-        statuses = re.findall(
-            r"(?:[\"']?status[\"']?)\s*:\s*[\"'](completed|in_progress|pending)[\"']",
-            raw,
-        )
-        if statuses:
-            return statuses.count("completed"), len(statuses)
-    return None
-
-
 class ActivityMonitor:
     """Infer active turns and latest plan completion from Codex session JSONL."""
 
@@ -197,8 +171,6 @@ class ActivityMonitor:
         now = time.time()
         active = []
         recently_completed = []
-        latest_plan = None
-        latest_plan_time = -1
         if not self.sessions.exists():
             return {"active": 0, "detail": "\u7a7a\u95f2", "progress": ""}
 
@@ -234,16 +206,6 @@ class ActivityMonitor:
                         elif record.get("type") == "response_item":
                             payload = record.get("payload", {})
                             item_type = payload.get("type")
-                            plan = None
-                            if payload.get("name") in ("update_plan", "plan"):
-                                plan = parse_plan(payload)
-                            elif item_type in ("function_call", "custom_tool_call"):
-                                raw_input = payload.get("input") or payload.get("arguments") or ""
-                                if isinstance(raw_input, str) and "update_plan" in raw_input:
-                                    plan = parse_plan(payload)
-                            if plan and started and not completed and event_time >= latest_plan_time:
-                                latest_plan = plan
-                                latest_plan_time = event_time
                             if started and not completed:
                                 if item_type in ("function_call", "custom_tool_call"):
                                     last_phase = "\u8c03\u7528\u5de5\u5177"
@@ -264,20 +226,10 @@ class ActivityMonitor:
         if active:
             active.sort(reverse=True)
             _, phase = active[0]
-            if latest_plan:
-                completed, total = latest_plan
-                current = min(total, completed + 1)
-                progress = f"\u6d3b\u52a8\u5bf9\u8bdd {len(active)} \u4e2a\uff08\u7b2c {current}/{total} \u6b65\uff09"
-            else:
-                progress = f"\u6d3b\u52a8\u5bf9\u8bdd {len(active)} \u4e2a"
+            progress = f"\u6d3b\u52a8\u5bf9\u8bdd {len(active)} \u4e2a"
             return {"active": len(active), "detail": phase, "progress": progress}
         if recently_completed:
-            if latest_plan:
-                completed, total = latest_plan
-                progress = f"\u6d3b\u52a8\u5bf9\u8bdd 0 \u4e2a\uff08\u7b2c {min(total, completed + 1)}/{total} \u6b65\uff09"
-            else:
-                progress = "\u6700\u8fd1\u5bf9\u8bdd\u5df2\u5b8c\u6210"
-            return {"active": 0, "detail": "\u5df2\u5b8c\u6210", "progress": progress}
+            return {"active": 0, "detail": "\u5df2\u5b8c\u6210", "progress": "\u6700\u8fd1\u5bf9\u8bdd\u5df2\u5b8c\u6210"}
         return {"active": 0, "detail": "\u7a7a\u95f2", "progress": "\u6ca1\u6709\u6d3b\u52a8\u4e2d\u7684\u5bf9\u8bdd"}
 
 

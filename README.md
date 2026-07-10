@@ -6,7 +6,7 @@ An unofficial Windows companion for Codex. It provides a small desktop overlay a
 
 - Reads rate limits from the local `codex app-server --stdio` JSON-RPC interface.
 - Detects active Codex sessions from local session JSONL files.
-- Shows the latest plan completion as `N/M` when a plan is available.
+- Shows the number of currently active conversations without exposing plan-step details.
 - Supports multiple monitors and preserves user-supplied virtual-desktop coordinates.
 - Settings: opacity, font size, font color, background color, default X/Y position, always-on-top, and position lock.
 - Settings actions: Save, Apply, Restore Defaults, and Close.
