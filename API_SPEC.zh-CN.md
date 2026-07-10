@@ -33,6 +33,7 @@
 | 右键菜单 UI | `scripts/ui/context_menu.py` | 管理首次点击安全的弹出菜单构造、定位、命令分发和关闭。 | 现有首次点击/设置弹窗集成测试和实体角落检查。 |
 | 设置窗口 UI | `scripts/ui/settings_dialog.py` | 管理设置控件、校验绑定、事务动作和可到达窗口定位。 | 设置会话测试和 Windows 副屏交互检查。 |
 | 托盘 UI | `scripts/ui/tray_adapter.py` | 管理图标构造、pystray 回调、托盘线程和停止处理；动作通过队列返回。 | 托盘故障、动作白名单、重复启动和实体显示/隐藏检查。 |
+| Codex 通信 API | `scripts/api/codex_transport_api.py` | 发现本机 Codex CLI 并执行 app-server stdio JSON-RPC，不承担 UI 职责。 | 配置路径发现、停止进程拒绝和模拟通信边界测试。 |
 
 ## 不变量
 

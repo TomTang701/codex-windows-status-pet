@@ -35,6 +35,7 @@ headless tests.
 | Context Menu UI | `scripts/ui/context_menu.py` | Own first-click-safe popup construction, placement, command dispatch, and close behavior. | Existing first-click/settings popup integration test and physical corner checks. |
 | Settings Dialog UI | `scripts/ui/settings_dialog.py` | Own settings controls, validation binding, transaction actions, and reachable-dialog placement. | Settings session tests and Windows secondary-monitor interaction checks. |
 | Tray UI | `scripts/ui/tray_adapter.py` | Own icon construction, pystray callbacks, tray thread, and stop handling; actions return through a queue. | Tray failure, action allowlist, repeated launch, and physical show/hide checks. |
+| Codex Transport API | `scripts/api/codex_transport_api.py` | Discover the local Codex CLI and perform app-server stdio JSON-RPC without UI ownership. | Configured-path discovery, stopped-process rejection, and mocked transport boundaries. |
 
 ## Invariants
 

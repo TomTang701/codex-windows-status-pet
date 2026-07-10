@@ -42,6 +42,7 @@
 | `scripts/api/quota_parse_api.py` | 严格批准字段的额度响应解析 API。 |
 | `scripts/api/quota_state_api.py` | 最近成功、过期和明确额度错误状态 API。 |
 | `scripts/api/models_api.py` | 类型化额度领域数据类。 |
+| `scripts/api/codex_transport_api.py` | 本地 Codex CLI 发现和 app-server stdio JSON-RPC 通信。 |
 
 ## 运行时配置
 

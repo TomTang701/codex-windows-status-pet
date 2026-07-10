@@ -2,25 +2,18 @@
 
 from __future__ import annotations
 
-import os
-import json
 import logging
 import queue
-import shutil
-import subprocess
 import sys
 import threading
 import tkinter as tk
-try:
-    import tomllib
-except ModuleNotFoundError:
-    tomllib = None
 from datetime import datetime, timezone
 from pathlib import Path
 
 APP_VERSION = "0.2.0"
 try:
     from api.activity_api import snapshot_activity
+    from api.codex_transport_api import AppServer
     from api.config_api import load_settings as load_settings_api, save_settings_atomic
     from api.diagnostics_api import configure_logging
     from api.display_api import dpi_for_window, virtual_desktop_bounds, work_area_for_point
@@ -40,6 +33,7 @@ try:
     from ui.tray_adapter import TrayIcon3
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
+    from scripts.api.codex_transport_api import AppServer
     from scripts.api.config_api import load_settings as load_settings_api, save_settings_atomic
     from scripts.api.diagnostics_api import configure_logging
     from scripts.api.display_api import dpi_for_window, virtual_desktop_bounds, work_area_for_point
@@ -64,114 +58,6 @@ def ensure_single_instance():
     global _single_instance_guard
     _single_instance_guard = SingleInstance()
     return _single_instance_guard.acquire()
-
-
-def find_codex() -> str:
-    candidates = []
-    configured = os.environ.get("CODEX_CLI_PATH")
-    if configured:
-        candidates.append(configured)
-    config = Path.home() / ".codex" / "config.toml"
-    if config.exists() and tomllib:
-        try:
-            parsed = tomllib.loads(config.read_text(encoding="utf-8"))
-
-            def find_config_values(value):
-                if isinstance(value, dict):
-                    for key, child in value.items():
-                        if key.lower() == "codex_cli_path" and isinstance(child, str):
-                            candidates.append(child)
-                        else:
-                            find_config_values(child)
-
-            find_config_values(parsed)
-        except (OSError, UnicodeError, tomllib.TOMLDecodeError):
-            logging.getLogger("codex-status-pet").warning("unable to parse Codex config.toml", exc_info=True)
-    candidates.extend(["codex.exe", "codex"])
-    for candidate in candidates:
-        if Path(candidate).exists():
-            return str(Path(candidate))
-        resolved = shutil.which(candidate)
-        if resolved:
-            return resolved
-    raise FileNotFoundError("Codex CLI was not found")
-
-
-class AppServer:
-    def __init__(self, updates: queue.Queue):
-        self.updates = updates
-        self.proc = None
-        self.next_id = 1
-        self.pending = {}
-        self.lock = threading.Lock()
-
-    def start(self):
-        startup = subprocess.STARTUPINFO()
-        startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        startup.wShowWindow = subprocess.SW_HIDE
-        self.proc = subprocess.Popen(
-            [find_codex(), "app-server", "--stdio"],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            text=True,
-            encoding="utf-8",
-            startupinfo=startup,
-        )
-        threading.Thread(target=self._reader, daemon=True).start()
-        initialized = self._send({"method": "initialize", "params": {"clientInfo": {
-            "name": "codex-windows-status-pet", "title": "Codex Windows Status Pet", "version": APP_VERSION
-        }, "capabilities": {"experimentalApi": True}}})
-        if "error" in initialized:
-            raise RuntimeError(initialized["error"].get("message", "Codex app-server initialization failed"))
-        self._send({"method": "initialized", "params": {}}, wait=False)
-
-    def _reader(self):
-        try:
-            for line in self.proc.stdout:
-                try:
-                    message = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                ident = message.get("id")
-                with self.lock:
-                    callback = self.pending.pop(ident, None)
-                if callback:
-                    callback(message)
-        finally:
-            self.updates.put({"error": "Codex app-server stopped"})
-
-    def _send(self, message, wait=True):
-        if not self.proc or self.proc.poll() is not None:
-            raise RuntimeError("Codex app-server is not running")
-        ident = None
-        if wait:
-            with self.lock:
-                ident = self.next_id
-                self.next_id += 1
-                message["id"] = ident
-                event = threading.Event()
-                result = []
-                self.pending[ident] = lambda value: (result.append(value), event.set())
-        self.proc.stdin.write(json.dumps(message) + "\n")
-        self.proc.stdin.flush()
-        if not wait:
-            return None
-        if not event.wait(5):
-            with self.lock:
-                self.pending.pop(ident, None)
-            raise TimeoutError("Codex app-server request timed out")
-        return result[0]
-
-    def read_limits(self):
-        response = self._send({"method": "account/rateLimits/read", "params": {}})
-        if "error" in response:
-            raise RuntimeError(response["error"].get("message", "rate limit request failed"))
-        return response.get("result", {})
-
-    def stop(self):
-        if self.proc and self.proc.poll() is None:
-            self.proc.terminate()
 
 
 def percent_left(window):
