@@ -99,7 +99,7 @@ This status section records progress only; it does not claim the product is full
 
 ### Current remediation summary (latest)
 
-- The repository now has 65 automated tests, seven bilingual document-pair checks, a Windows GitHub Actions gate, and a package smoke check.
+- The repository now has 67 automated tests, seven bilingual document-pair checks, a Windows GitHub Actions gate, a package smoke check, and a read-only startup audit.
 - The first-click menu, settings transactions, input validation, single-instance lifecycle, tray recovery policy, off-screen recovery, strict quota parsing, independent refresh channels, diagnostics summary, and UI/API module boundaries are implemented and tested.
 - Windows 11 dual-monitor evidence is current; Windows 10, mixed-DPI, taskbar-edge, clean-machine physical evidence, and a full idle Compact run remain release-gate items.
 - A temporary isolated venv installed `requirements.txt` and passed the full 65-test/release/smoke sequence; this is stronger dependency evidence but is not a clean Windows-machine startup test.

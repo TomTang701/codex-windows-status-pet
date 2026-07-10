@@ -23,7 +23,7 @@
 | Dependencies | Bundled runtime and fallback requirements | Automated partial | 2026-07-10 temporary venv installed `requirements.txt`, ran 65 tests and package smoke successfully; Windows CI also passed; a separate clean Windows machine startup remains pending. |
 | Automated gate | Document parity, compilation, and unit tests | Pass | `scripts/run_release_checks.py` passed; this gate intentionally excludes physical Windows checks. |
 | Launcher | Root `start_codex_status_pet.cmd`, repeated launch | Physical pass | 2026-07-10 two consecutive launches produced one actual `pythonw.exe` overlay process and no persistent CMD window; command-line self-match was excluded from the process count. |
-| Startup cleanup | Former `Codex Status Pet.lnk` | Physical pass | 2026-07-10 inspected Startup folder and shortcut target; removed the shortcut pointing to the obsolete `.agents\plugins\plugins\codex-windows-status-pet` copy. No current project startup entry remains. |
+| Startup cleanup | Former `Codex Status Pet.lnk` | Physical pass | 2026-07-10 inspected Startup folder and shortcut target; removed the shortcut pointing to the obsolete `.agents\plugins\plugins\codex-windows-status-pet` copy. `startup_audit.py` now reports `clean: true`; no current project startup entry remains. |
 
 ## Release gate
 

@@ -36,6 +36,7 @@
 | Codex 通信 API | `scripts/api/codex_transport_api.py` | 发现本机 Codex CLI 并执行 app-server stdio JSON-RPC，不承担 UI 职责。 | 配置路径发现、停止进程拒绝和模拟通信边界测试。 |
 | 诊断摘要 API | `scripts/api/diagnostic_summary_api.py` | 生成可复制运行诊断，同时排除凭据、提示词、回答、会话内容和原始额度。 | 状态/路径格式化和敏感数据排除测试。 |
 | 状态快照 API | `scripts/api/status_snapshot_api.py` | 在不依赖 Tk 的情况下，将批准的活动/额度状态转换为显示文字、颜色和活动数量。 | 真实格式化、stale 颜色和原始字段排除测试。 |
+| 启动项审计 | `scripts/startup_audit.py` | 只读检测已知旧版 Codex 状态宠物启动项。 | 已知旧名称、无关项目和不修改文件测试。 |
 
 ## 不变量
 
@@ -78,6 +79,7 @@ $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
 
 打包 smoke 测试会检查 manifest/应用版本一致性、已核验作者元数据、启动器和文档是否存在，并创建非正式发布 ZIP。GitHub Actions 会在 Windows 上运行这些检查。
 `check_release_readiness.py` 默认只报告仍阻止 v0.3.0 发布的实体兼容性行，不会误使日常门禁失败；发布决策时使用 `--strict`。
+`startup_audit.py` 默认也只报告，不会删除无关启动项。
 
 ## Windows 显示器现场证据
 

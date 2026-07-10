@@ -45,6 +45,7 @@ $py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies
 The reproducible automated gate is `python scripts/run_release_checks.py`. It does not replace the physical Windows checks listed in `COMPATIBILITY_MATRIX.md`.
 The package smoke gate is `python scripts/package_smoke_test.py`; GitHub Actions runs both gates on Windows.
 Use `python scripts/check_release_readiness.py` to see whether physical compatibility evidence still blocks v0.3.0. The current repository does not install a Startup-folder entry automatically.
+Use `python scripts/startup_audit.py` to report known legacy startup entries; it is read-only unless a maintainer explicitly removes a confirmed old entry.
 
 Before publishing, approve the intended GitHub owner in the local repository. The tracked
 `.githooks/pre-push` guard rejects pushes until this is set and rejects any remote whose owner

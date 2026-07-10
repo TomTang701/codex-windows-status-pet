@@ -28,6 +28,7 @@ def main():
         "compile": [python, "-m", "py_compile", str(ROOT / "scripts" / "codex_status_pet.py"), *api_files],
         "tests": [python, "-m", "unittest", "discover", "-s", "tests", "-q"],
         "release_readiness_report": [python, str(ROOT / "scripts" / "check_release_readiness.py")],
+        "startup_audit": [python, str(ROOT / "scripts" / "startup_audit.py")],
     }
     results = {}
     for name, command in checks.items():

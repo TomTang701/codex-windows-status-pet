@@ -38,6 +38,7 @@ headless tests.
 | Codex Transport API | `scripts/api/codex_transport_api.py` | Discover the local Codex CLI and perform app-server stdio JSON-RPC without UI ownership. | Configured-path discovery, stopped-process rejection, and mocked transport boundaries. |
 | Diagnostic Summary API | `scripts/api/diagnostic_summary_api.py` | Produce copyable operational diagnostics while excluding credentials, prompts, responses, session contents, and raw quota. | State/path formatting and sensitive-data exclusion tests. |
 | Status Snapshot API | `scripts/api/status_snapshot_api.py` | Convert approved activity/quota state into display text, color, and active-count values without Tk. | Truthful formatting, stale color, and raw-field exclusion tests. |
+| Startup Audit | `scripts/startup_audit.py` | Read-only detection of known legacy Codex Status Pet startup entries. | Known legacy name, unrelated entry, and no-modification tests. |
 
 ## Invariants
 
@@ -85,6 +86,7 @@ The package smoke test checks manifest/app version consistency, verified author 
 launcher/docs, and creates a non-release ZIP. GitHub Actions runs these checks on Windows.
 `check_release_readiness.py` is intentionally non-blocking by default and reports the physical
 compatibility rows that still prevent a v0.3.0 release; use `--strict` only in a release decision.
+`startup_audit.py` is also report-only by default; it never removes unrelated startup entries.
 
 ## Live Windows display evidence (run with the companion visible)
 

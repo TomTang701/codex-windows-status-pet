@@ -23,7 +23,7 @@
 | 依赖 | 捆绑运行时和回退依赖 | 自动化部分完成 | 2026-07-10 临时 venv 安装 `requirements.txt`、运行 65 项测试和打包 smoke 均成功；Windows CI 也通过；独立干净 Windows 机器启动仍待完成。 |
 | 自动化门禁 | 文档一致性、编译和单元测试 | 通过 | `scripts/run_release_checks.py` 已通过；该门禁明确不包含实体 Windows 测试。 |
 | 启动器 | 根目录 `start_codex_status_pet.cmd`，重复启动 | 实体通过 | 2026-07-10 连续启动两次只产生一个实际 `pythonw.exe` 悬浮窗进程，没有常驻 CMD 窗口；进程计数已排除命令行自匹配。 |
-| 启动项清理 | 旧 `Codex Status Pet.lnk` | 实体通过 | 2026-07-10 检查启动文件夹和快捷方式目标；已删除指向旧 `.agents\plugins\plugins\codex-windows-status-pet` 副本的快捷方式，当前没有本项目启动项。 |
+| 启动项清理 | 旧 `Codex Status Pet.lnk` | 实体通过 | 2026-07-10 检查启动文件夹和快捷方式目标；已删除指向旧 `.agents\plugins\plugins\codex-windows-status-pet` 副本的快捷方式；`startup_audit.py` 当前报告 `clean: true`，没有本项目启动项。 |
 
 ## 发布门槛
 

@@ -21,6 +21,8 @@
 - Added a non-blocking release-readiness report that enumerates the physical gates still blocking v0.3.0.
 - Removed the stale Windows Startup shortcut that targeted the former `.agents` copy; the current repository does not install an automatic startup entry.
 - Recorded a successful isolated-venv dependency install, 65-test run, and package smoke check; clean-machine startup remains distinct.
+- Added a report-only startup audit to detect known legacy Codex Status Pet entries without modifying unrelated startup items.
+- Added the startup audit to the automated release-check output; the current host reports no legacy entry.
 - Added the active development roadmap and synchronized Chinese translation.
 - Added validated window dimensions, scale mode, and 1–10 second refresh interval settings.
 - Added popup work-area placement and pure quota date/earliest-expiry formatting APIs.
