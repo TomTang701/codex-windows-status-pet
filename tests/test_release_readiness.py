@@ -15,7 +15,8 @@ class ReleaseReadinessTests(unittest.TestCase):
         required = {
             "WIN10-DEFERRED", "WIN11-X64", "DISPLAY-1", "DISPLAY-2", "TASKBAR-BOTTOM",
             "TASKBAR-ALT", "COMPACT-HOVER", "CLEAN-ENV", "QUOTA-DISPLAY",
-            "DISPLAY-RECONNECT", "SINGLE-INSTANCE", "TRAY-RESTORE",
+            "DISPLAY-RECONNECT", "SINGLE-INSTANCE", "TRAY-RESTORE", "SETTINGS-TRANSACTION",
+            "CONFIG-BACKUP", "SHUTDOWN-IDEMPOTENT",
         }
         present = {line.strip("|").split("|", 1)[0].strip() for line in text.splitlines() if line.startswith("|")}
         self.assertEqual(required - present, set())

@@ -25,8 +25,10 @@ review_cycle_days: 30
 | TASKBAR-ALT | 菜单 | 顶部/左侧/右侧几何 | Automated pass | No | 纯几何测试覆盖其他工作区；不要求不受支持的注册表修改。 |
 | POPUP-FIRST-CLICK | 菜单 | 第一次点击 | Physical pass | No | 副屏测试第一次点击打开设置。 |
 | SETTINGS-RESIZE | 设置 | 宽高及等比例缩放 | Automated pass | No | Window Size API覆盖自由、比例、边界和非法因子。 |
+| SETTINGS-TRANSACTION | 设置 | 打开、应用、保存和关闭语义 | Partial | Yes | 事务/controller测试通过；仍需controller重构后的Windows 11交互记录。 |
 | INPUT-PASTE | 设置 | 数字输入和间隔1–10 | Automated pass | No | 校验fixture拒绝非法粘贴并限制边界。 |
 | CONFIG-BOM | 设置 | UTF-8 BOM JSON | Automated pass | No | 配置API接受UTF-8和UTF-8-BOM fixture。 |
+| CONFIG-BACKUP | 设置 | Backup和恢复 | Partial | Yes | 原子backup/restore测试通过；仍需带日期Windows 11菜单恢复记录。 |
 | QUOTA-DISPLAY | 额度显示 | 完整Reset Credit到期 | Physical pass | Yes | [2026-07-10状态行记录](test-records/2026-07-10-win11-reset-credit-status-rows.md)显示保存的330x138窗口内完整 `HH:MM M/D`。 |
 | LIFECYCLE-HIDE | 生命周期 | 隐藏后继续运行 | Physical pass | No | 隐藏后 `pythonw.exe` 仍运行。 |
 | TRAY-RESTORE | 生命周期 | 托盘隐藏后显示 | Physical pass | Yes | 隐藏再显示后恢复到副屏。 |
@@ -38,6 +40,7 @@ review_cycle_days: 30
 | SOAK-8H | 可靠性 | 8小时soak | Deferred | No | 属于未来可靠性证据，不是v0.3.0实体要求。 |
 | QUALITY-GATE | 自动门禁 | 文档、编译、测试和打包 | Automated pass | No | 日常Quality通过但不直接批准发布。 |
 | SINGLE-INSTANCE | 启动器 | 重复启动 | Physical pass | Yes | 两次启动只产生一个悬浮窗进程且无常驻CMD。 |
+| SHUTDOWN-IDEMPOTENT | 生命周期 | 正常和重复shutdown | Partial | Yes | Controller/托盘重复stop测试通过；仍需带日期Windows 11进程退出记录。 |
 | STARTUP-CLEAN | 启动项 | 旧快捷方式审计 | Physical pass | No | 启动项审计报告 `clean: true`。 |
 
 ## 发布门槛

@@ -25,8 +25,10 @@ review_cycle_days: 30
 | TASKBAR-ALT | Popup | Top, left, and right geometry | Automated pass | No | Pure geometry tests cover alternate work areas; unsupported registry changes are not required. |
 | POPUP-FIRST-CLICK | Popup | First click | Physical pass | No | First click opened settings during the secondary-monitor test. |
 | SETTINGS-RESIZE | Settings | Width/height and proportional resize | Automated pass | No | Window Size API tests cover free, proportional, bounded, and invalid factors. |
+| SETTINGS-TRANSACTION | Settings | Open, Apply, Save, and Close semantics | Partial | Yes | Transaction/controller tests pass; post-controller Windows 11 interaction record remains. |
 | INPUT-PASTE | Settings | Digit-only entries and interval 1–10 | Automated pass | No | Validation fixtures reject malformed paste and clamp bounds. |
 | CONFIG-BOM | Settings | UTF-8 BOM JSON | Automated pass | No | Configuration API accepts UTF-8 and UTF-8-BOM fixtures. |
+| CONFIG-BACKUP | Settings | Backup and restore | Partial | Yes | Atomic backup/restore tests pass; dated Windows 11 menu recovery record remains. |
 | QUOTA-DISPLAY | Quota display | Complete Reset Credit expiry | Physical pass | Yes | [2026-07-10 status-row record](test-records/2026-07-10-win11-reset-credit-status-rows.md) shows complete `HH:MM M/D` in the saved 330x138 window. |
 | LIFECYCLE-HIDE | Lifecycle | Hidden overlay remains running | Physical pass | No | Hide removed the overlay while `pythonw.exe` remained alive. |
 | TRAY-RESTORE | Lifecycle | Tray show after hide | Physical pass | Yes | Hide then Show restored the overlay on the secondary monitor. |
@@ -38,6 +40,7 @@ review_cycle_days: 30
 | SOAK-8H | Reliability | Eight-hour soak | Deferred | No | Useful future reliability evidence, not a v0.3.0 physical requirement. |
 | QUALITY-GATE | Automated gate | Documents, compile, tests, package | Automated pass | No | Daily Quality passes and does not itself grant release approval. |
 | SINGLE-INSTANCE | Launcher | Repeated launch | Physical pass | Yes | Two launches produced one overlay process and no persistent CMD window. |
+| SHUTDOWN-IDEMPOTENT | Lifecycle | Normal and repeated shutdown | Partial | Yes | Controller/tray repeated-stop tests pass; dated Windows 11 process-exit record remains. |
 | STARTUP-CLEAN | Startup cleanup | Legacy shortcut audit | Physical pass | No | Startup audit reports `clean: true`. |
 
 ## Release gate
