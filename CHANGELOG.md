@@ -8,6 +8,7 @@
 - Split Activity and Quota refreshes into independent single-flight channels with stale-generation and shutdown guards.
 - Added strict quota parsing, typed quota-domain models, and last-good/stale state tracking.
 - Added delayed compact-state transitions, hover/activity expansion, edge anchoring, and nearest-work-area recovery for disconnected displays.
+- Removed unreachable legacy native context-menu code after the tested popup implementation.
 - Added the active development roadmap and synchronized Chinese translation.
 - Added validated window dimensions, scale mode, and 1–10 second refresh interval settings.
 - Added popup work-area placement and pure quota date/earliest-expiry formatting APIs.

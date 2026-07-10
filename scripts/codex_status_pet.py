@@ -31,11 +31,10 @@ try:
     from api.refresh_scheduler_api import RefreshScheduler
     from api.refresh_controller_api import RefreshController
     from api.quota_status_api import HEALTH_COLORS, health_tier
-    from api.display_mode_api import compact_size, should_compact
+    from api.display_mode_api import compact_size
     from api.compact_state_api import CompactState, compact_geometry
     from api.window_recovery_api import recover_position
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
-    from api.window_size_api import resize_dimensions
     from api.input_validation_api import is_signed_integer_candidate, is_unsigned_integer_candidate, parse_signed_integer, parse_unsigned_integer
     from api.resize_session_api import ResizeSession
     from api.settings_session_api import SettingsSession
@@ -51,11 +50,10 @@ except ModuleNotFoundError:
     from scripts.api.refresh_scheduler_api import RefreshScheduler
     from scripts.api.refresh_controller_api import RefreshController
     from scripts.api.quota_status_api import HEALTH_COLORS, health_tier
-    from scripts.api.display_mode_api import compact_size, should_compact
+    from scripts.api.display_mode_api import compact_size
     from scripts.api.compact_state_api import CompactState, compact_geometry
     from scripts.api.window_recovery_api import recover_position
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
-    from scripts.api.window_size_api import resize_dimensions
     from scripts.api.input_validation_api import is_signed_integer_candidate, is_unsigned_integer_candidate, parse_signed_integer, parse_unsigned_integer
     from scripts.api.resize_session_api import ResizeSession
     from scripts.api.settings_session_api import SettingsSession
@@ -502,54 +500,6 @@ class Pet(tk.Tk):
         popup.geometry(f"+{popup_x}+{popup_y}")
         popup.grab_set()
         popup.focus_force()
-        return
-
-        if getattr(self, "context_menu", None) is not None:
-            try:
-                self.context_menu.destroy()
-            except tk.TclError:
-                pass
-        menu = tk.Menu(self, tearoff=0)
-        self.context_menu = menu
-
-        def close_menu():
-            if getattr(self, "context_menu", None) is menu:
-                self.context_menu = None
-            try:
-                menu.grab_release()
-                menu.unpost()
-                menu.destroy()
-            except tk.TclError:
-                pass
-
-        def run_and_close(command):
-            command()
-            close_menu()
-
-        menu.add_command(label="\u7acb\u5373\u5237\u65b0", command=lambda: run_and_close(self.refresh))
-        menu.add_command(label="\u663e\u793a\u8bbe\u7f6e", command=lambda: run_and_close(self.show_settings))
-        menu.add_checkbutton(label="\u7f6e\u9876", variable=self.topmost_var, command=lambda: run_and_close(self.toggle_topmost))
-        menu.add_checkbutton(label="\u9501\u5b9a\u4f4d\u7f6e", variable=self.locked_var, command=lambda: run_and_close(self.toggle_locked))
-        menu.add_separator()
-        menu.add_command(label="\u9690\u85cf\u7a97\u53e3", command=lambda: run_and_close(self.hide_window))
-        menu.add_command(label="\u9000\u51fa", command=lambda: run_and_close(self.close))
-
-        # Some Windows Tk builds consume the first mouse release while the
-        # posted menu is acquiring focus. Handle the release at widget level
-        # so the first click always invokes the selected entry exactly once.
-        def invoke_first_click(click_event):
-            try:
-                index = menu.index(f"@{click_event.y}")
-                if index is not None and menu.type(index) not in ("separator", None):
-                    menu.invoke(index)
-                    return "break"
-            except tk.TclError:
-                pass
-            return None
-
-        menu.bind("<ButtonRelease-1>", invoke_first_click, add="+")
-        menu.post(event.x_root, event.y_root)
-        menu.grab_set()
 
     def toggle_topmost(self):
         self.settings["topmost"] = bool(self.topmost_var.get())
