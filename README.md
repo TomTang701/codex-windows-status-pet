@@ -12,6 +12,8 @@ review_cycle_days: 90
 
 An unofficial Windows companion for Codex. It provides a small desktop overlay and a notification-area icon for live Codex activity, rate limits, and reset credits.
 
+Windows 11 x64 is the currently supported and physically tested platform. Windows 10, ARM64, and 32-bit Windows are outside the current release scope and are not claimed as supported.
+
 The active [Engineering Standard](docs/governance/ENGINEERING_STANDARD.md) is the repository's highest-level development and release authority.
 
 ## Features

@@ -14,6 +14,8 @@ review_cycle_days: 90
 
 Use Unit, Contract, Integration, UI-contract, Platform, Physical, Packaging, and Soak tests as appropriate. Simulation must never be recorded as physical evidence.
 
+The release-validation target is Windows 11 x64 with the normal bottom taskbar. Windows 10, ARM64, 32-bit Windows, and physical alternate-edge taskbars are deferred and non-blocking.
+
 ## Commands
 
 ```powershell
@@ -34,7 +36,7 @@ Physical records must include date, commit, Windows build, monitor topology, DPI
 | Pure policy or parser | Unit and contract fixtures, including malformed input |
 | Cross-module state flow | Integration test with injected transport/time/filesystem |
 | Tk or tray adapter | UI-contract test plus targeted physical interaction |
-| Display, DPI, taskbar | Geometry tests plus dated Windows physical record |
+| Claimed Windows 11 display/taskbar | Geometry tests plus dated Windows physical record |
 | Packaging or launcher | Package smoke, repeated-launch check, clean-machine record |
 | Security boundary | Negative, redaction, injection, and sensitive-file checks |
 

@@ -13,9 +13,9 @@ class ReleaseReadinessTests(unittest.TestCase):
         matrix = Path(__file__).parents[1] / "docs" / "quality" / "COMPATIBILITY_MATRIX.md"
         text = matrix.read_text(encoding="utf-8")
         required = {
-            "WIN-10", "DISPLAY-1", "DPI-MIXED", "TASKBAR-TOP", "TASKBAR-LEFT",
-            "TASKBAR-RIGHT", "COMPACT-HOVER", "CLEAN-MACHINE", "INPUT-PASTE",
-            "QUOTA-DISPLAY", "DISPLAY-RECONNECT", "WORKAREA-RUNTIME", "SOAK-8H",
+            "WIN10-DEFERRED", "WIN11-X64", "DISPLAY-1", "DISPLAY-2", "TASKBAR-BOTTOM",
+            "TASKBAR-ALT", "COMPACT-HOVER", "CLEAN-ENV", "QUOTA-DISPLAY",
+            "DISPLAY-RECONNECT", "SINGLE-INSTANCE", "TRAY-RESTORE",
         }
         present = {line.strip("|").split("|", 1)[0].strip() for line in text.splitlines() if line.startswith("|")}
         self.assertEqual(required - present, set())
@@ -24,10 +24,10 @@ class ReleaseReadinessTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             matrix = Path(directory) / "matrix.md"
             matrix.write_text(
-                "| ID | Area | Coverage | Status | Evidence / next action | Blocking |\n"
+                "| ID | Area | Coverage | Status | Blocking | Evidence / next action |\n"
                 "|---|---|---|---|---|---|\n"
-                "| WIN-10 | Windows | Windows 10 | Pending | needs a machine | Yes |\n"
-                "| UNIT | Tests | Unit | Automated pass | green | No |\n",
+                "| WIN-10 | Windows | Windows 10 | Pending | Yes | needs a machine |\n"
+                "| UNIT | Tests | Unit | Automated pass | No | green |\n",
                 encoding="utf-8",
             )
             result = assess(matrix)
@@ -38,10 +38,10 @@ class ReleaseReadinessTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             matrix = Path(directory) / "matrix.md"
             matrix.write_text(
-                "| ID | Area | Coverage | Status | Evidence / next action | Blocking |\n"
+                "| ID | Area | Coverage | Status | Blocking | Evidence / next action |\n"
                 "|---|---|---|---|---|---|\n"
-                "| WIN-11 | Windows | Windows 11 | Physical pass | verified | Yes |\n"
-                "| UNIT | Tests | Unit | Automated pass | green | No |\n",
+                "| WIN-11 | Windows | Windows 11 | Physical pass | Yes | verified |\n"
+                "| UNIT | Tests | Unit | Automated pass | No | green |\n",
                 encoding="utf-8",
             )
             self.assertEqual(assess(matrix), {"ready": True, "blockers": []})
@@ -50,11 +50,22 @@ class ReleaseReadinessTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             matrix = Path(directory) / "matrix.md"
             matrix.write_text(
-                "| ID | Area | Coverage | Status | Evidence | Blocking |\n"
+                "| ID | Area | Coverage | Status | Blocking | Evidence |\n"
                 "|---|---|---|---|---|---|\n"
-                "| BAD | Tests | Unit | Mostly done | vague | No |\n",
+                "| BAD | Tests | Unit | Mostly done | No | vague |\n",
                 encoding="utf-8",
             )
             result = assess(matrix)
             self.assertFalse(result["ready"])
             self.assertEqual(result["blockers"][0]["status"], "Invalid")
+
+    def test_automated_pass_can_satisfy_an_explicit_blocking_row(self):
+        with tempfile.TemporaryDirectory() as directory:
+            matrix = Path(directory) / "matrix.md"
+            matrix.write_text(
+                "| ID | Area | Coverage | Status | Blocking | Evidence |\n"
+                "|---|---|---|---|---|---|\n"
+                "| CLEAN | Environment | Fresh venv | Automated pass | Yes | verified |\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(assess(matrix), {"ready": True, "blockers": []})

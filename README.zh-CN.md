@@ -12,6 +12,8 @@ review_cycle_days: 90
 
 这是一个非官方 Windows Codex 外部伴侣工具，提供桌面悬浮窗和任务栏通知区域图标，用于显示 Codex 活动状态、额度和重置次数。
 
+Windows 11 x64是当前支持并完成实体测试的平台。Windows 10、ARM64和32位Windows不在当前发布范围，也不宣称支持。
+
 当前生效的[工程开发总规范](docs/governance/ENGINEERING_STANDARD.zh-CN.md)是本仓库开发和发布的最高层级依据。
 
 ## 功能

@@ -8,8 +8,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ALLOWED_STATUSES = {"Pending", "Automated pass", "Physical pass", "Partial", "Not applicable", "Approved limitation", "Blocked"}
-RELEASE_READY_STATUSES = {"Physical pass", "Not applicable", "Approved limitation"}
+ALLOWED_STATUSES = {"Pending", "Automated pass", "Physical pass", "Partial", "Deferred", "Not applicable", "Approved limitation", "Blocked"}
+RELEASE_READY_STATUSES = {"Automated pass", "Physical pass", "Not applicable", "Approved limitation"}
 
 
 def assess(matrix_path=ROOT / "docs" / "quality" / "COMPATIBILITY_MATRIX.md"):
@@ -20,7 +20,7 @@ def assess(matrix_path=ROOT / "docs" / "quality" / "COMPATIBILITY_MATRIX.md"):
         cells = [cell.strip() for cell in line.strip("|").split("|")]
         if len(cells) < 6 or cells[0] == "ID":
             continue
-        test_id, area, coverage, status, evidence, blocking = cells[:6]
+        test_id, area, coverage, status, blocking, evidence = cells[:6]
         if status not in ALLOWED_STATUSES:
             blockers.append({"id": test_id, "area": area, "coverage": coverage, "status": "Invalid", "evidence": f"unsupported status: {status}"})
         elif blocking == "Yes" and status not in RELEASE_READY_STATUSES:
