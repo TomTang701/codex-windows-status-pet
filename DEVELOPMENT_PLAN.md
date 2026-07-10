@@ -61,7 +61,8 @@ English files are canonical; Chinese files are synchronized translation copies i
 | `QuotaStatusAPI` | Classify quota health without network or UI dependencies. |
 | `DisplayModeAPI` | Decide opt-in idle compaction and calculate compact geometry. |
 | `TrayLifecycleAPI` | Validate tray actions and single-schedule recovery. |
-| `RefreshSchedulerAPI` | Run one refresh at a time, with interval, backoff, and cancellation. |
+| `RefreshSchedulerAPI` | Run one quota refresh at a time with a bounded user interval. |
+| `RefreshControllerAPI` | Keep Activity and Quota refresh channels independent and generation-safe. |
 | `QuotaProviderAPI` | Adapt local or future providers to one normalized snapshot schema. |
 | `DiagnosticsAPI` | Persist startup, worker, UI, and tray failures. |
 

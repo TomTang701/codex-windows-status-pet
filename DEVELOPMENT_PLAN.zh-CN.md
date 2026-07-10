@@ -61,7 +61,8 @@
 | `QuotaStatusAPI` | 在无网络、无 UI 依赖的情况下分类额度健康状态。 |
 | `DisplayModeAPI` | 决定是否启用空闲收缩并计算收缩尺寸。 |
 | `TrayLifecycleAPI` | 校验托盘动作并保证恢复只调度一次。 |
-| `RefreshSchedulerAPI` | 根据间隔、退避和取消机制保证一次只刷新一次。 |
+| `RefreshSchedulerAPI` | 按有限的用户间隔保证 Quota 同时只有一次刷新。 |
+| `RefreshControllerAPI` | 保证 Activity 与 Quota 刷新通道独立并安全处理 generation。 |
 | `QuotaProviderAPI` | 将本地或未来数据源适配为统一快照结构。 |
 | `DiagnosticsAPI` | 持久化启动、工作线程、UI 和托盘错误。 |
 

@@ -29,6 +29,7 @@ try:
     from api.display_api import dpi_for_window, virtual_desktop_bounds, place_popup, work_area_for_point
     from api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
     from api.refresh_scheduler_api import RefreshScheduler
+    from api.refresh_controller_api import RefreshController
     from api.quota_status_api import HEALTH_COLORS, health_tier
     from api.display_mode_api import compact_size, should_compact
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
@@ -45,6 +46,7 @@ except ModuleNotFoundError:
     from scripts.api.display_api import dpi_for_window, virtual_desktop_bounds, place_popup, work_area_for_point
     from scripts.api.quota_format_api import earliest_future_expiry, quota_line, reset_credit_line
     from scripts.api.refresh_scheduler_api import RefreshScheduler
+    from scripts.api.refresh_controller_api import RefreshController
     from scripts.api.quota_status_api import HEALTH_COLORS, health_tier
     from scripts.api.display_mode_api import compact_size, should_compact
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
@@ -262,6 +264,9 @@ class Pet(tk.Tk):
         self.server = AppServer(self.queue)
         self.activity = ActivityMonitor()
         self.refresh_scheduler = RefreshScheduler(self.settings["refresh_interval_seconds"])
+        self.refresh_controller = RefreshController(("activity", "quota"))
+        self.latest_activity = {"active": 0, "detail": "空闲", "progress": ""}
+        self.latest_quota = {"rateLimits": {}, "rateLimitResetCredits": {}}
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", 28), fg=self.settings["font_color"], bg=self.settings["background_color"])
@@ -283,6 +288,7 @@ class Pet(tk.Tk):
         self.tray = TrayIcon3(self.tray_actions)
         self.after(100, self.process_tray_actions)
         self.after(250, self.poll)
+        self.after(1000, self.refresh_activity)
         self.after(1000, self.refresh)
 
     def load_settings(self):
@@ -732,21 +738,66 @@ class Pet(tk.Tk):
             logging.getLogger("codex-status-pet").exception("notification-area icon restart failed")
             self.after(5000, self.restart_tray)
 
+    def refresh_activity(self):
+        """Refresh local session activity independently from app-server quota."""
+        if self.closing:
+            return
+        generation = self.refresh_controller.begin("activity")
+        if generation is None:
+            return
+
+        def worker():
+            try:
+                self.queue.put({"_channel": "activity", "_generation": generation, "_activity": self.activity.snapshot()})
+            except Exception as exc:
+                self.queue.put({"_channel": "activity", "_generation": generation, "error": str(exc)})
+            finally:
+                self.queue.put({"_channel_done": "activity", "_generation": generation})
+
+        threading.Thread(target=worker, name="codex-activity-refresh", daemon=True).start()
+
     def refresh(self):
+        """Refresh app-server quota on the user-selected interval."""
         if self.closing or not self.refresh_scheduler.begin():
             return
+        generation = self.refresh_controller.begin("quota")
+        if generation is None:
+            self.refresh_scheduler.finish()
+            return
+
         def worker():
             try:
                 if not self.server.proc or self.server.proc.poll() is not None:
                     self.server.start()
                 payload = normalize_snapshot(self.server.read_limits())
-                payload["_activity"] = self.activity.snapshot()
+                payload.update({"_channel": "quota", "_generation": generation})
                 self.queue.put(payload)
             except Exception as exc:
-                self.queue.put({"error": str(exc)})
+                self.queue.put({"_channel": "quota", "_generation": generation, "error": str(exc)})
             finally:
-                self.queue.put({"_refresh_done": True})
-        threading.Thread(target=worker, daemon=True).start()
+                self.queue.put({"_channel_done": "quota", "_generation": generation})
+
+        threading.Thread(target=worker, name="codex-quota-refresh", daemon=True).start()
+
+    def render_status(self):
+        limits = self.latest_quota.get("rateLimits", {})
+        primary, secondary = limits.get("primary", {}), limits.get("secondary", {})
+        credits = self.latest_quota.get("rateLimitResetCredits") or {}
+        activity = self.latest_activity
+        active_count = activity.get("active", 0)
+        if self.settings.get("compact_when_idle"):
+            self.set_compact(should_compact(True, active_count, self.hovered))
+        credit_items = credits if isinstance(credits, (list, dict)) else []
+        earliest_credit_expiry = earliest_future_expiry(credit_items)
+        tier = health_tier(primary)
+        text_color = self.settings["font_color"] if tier == "healthy" else HEALTH_COLORS.get(tier, self.settings["font_color"])
+        self.text.config(text=(
+            f"Codex {activity.get('detail', '空闲')}\n"
+            f"{activity.get('progress', '')}\n"
+            f"5h {percent_left(primary)} / {short_time(primary.get('resetsAt'))}\n"
+            f"{quota_line('周', percent_left(secondary), secondary.get('resetsAt'))}\n"
+            f"{reset_credit_line(credits.get('availableCount', '--') if isinstance(credits, dict) else '--', earliest_credit_expiry)}"
+        ), fg=text_color)
 
     def poll(self):
         if self.closing:
@@ -754,32 +805,27 @@ class Pet(tk.Tk):
         try:
             while True:
                 payload = self.queue.get_nowait()
-                if payload.get("_refresh_done"):
-                    self.refresh_scheduler.finish()
-                    if not self.closing:
-                        self.after(self.refresh_scheduler.delay_ms, self.refresh)
+                if payload.get("_channel_done"):
+                    channel = payload["_channel_done"]
+                    self.refresh_controller.finish(channel, payload.get("_generation"))
+                    if channel == "quota":
+                        self.refresh_scheduler.finish()
+                        if not self.closing:
+                            self.after(self.refresh_scheduler.delay_ms, self.refresh)
+                    elif channel == "activity" and not self.closing:
+                        self.after(1000, self.refresh_activity)
                     continue
-                if "error" in payload:
-                    self.text.config(text="Codex\n" + payload["error"][:30], fg="#fca5a5")
+                channel = payload.get("_channel")
+                if channel and not self.refresh_controller.is_current(channel, payload.get("_generation")):
                     continue
-                limits = payload.get("rateLimits", {})
-                primary, secondary = limits.get("primary", {}), limits.get("secondary", {})
-                credits = payload.get("rateLimitResetCredits") or {}
-                activity = payload.get("_activity", {"detail": "\u7a7a\u95f2", "progress": ""})
-                active_count = activity.get("active", 0)
-                if self.settings.get("compact_when_idle"):
-                    self.set_compact(should_compact(True, active_count, self.hovered))
-                credit_items = credits if isinstance(credits, (list, dict)) else []
-                earliest_credit_expiry = earliest_future_expiry(credit_items)
-                tier = health_tier(primary)
-                text_color = self.settings["font_color"] if tier == "healthy" else HEALTH_COLORS.get(tier, self.settings["font_color"])
-                self.text.config(text=(
-                    f"Codex {activity.get('detail', '\u7a7a\u95f2')}\n"
-                    f"{activity.get('progress', '')}\n"
-                    f"5h {percent_left(primary)} / {short_time(primary.get('resetsAt'))}\n"
-                    f"{quota_line('\u5468', percent_left(secondary), secondary.get('resetsAt'))}\n"
-                    f"{reset_credit_line(credits.get('availableCount', '--') if isinstance(credits, dict) else '--', earliest_credit_expiry)}"
-                ), fg=text_color)
+                if channel == "activity":
+                    self.latest_activity = payload.get("_activity", self.latest_activity)
+                elif channel == "quota":
+                    if "error" in payload:
+                        self.text.config(text="Codex\n" + payload["error"][:30], fg="#fca5a5")
+                        continue
+                    self.latest_quota = payload
+                self.render_status()
         except queue.Empty:
             pass
         except Exception:
@@ -791,6 +837,8 @@ class Pet(tk.Tk):
         if self.closing:
             return
         self.closing = True
+        if hasattr(self, "refresh_controller"):
+            self.refresh_controller.shutdown()
         try:
             self.save_settings()
         except OSError:

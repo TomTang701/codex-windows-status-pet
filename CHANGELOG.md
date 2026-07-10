@@ -5,6 +5,7 @@
 - Added transactional settings sessions: Apply previews runtime values, Save persists them, and Close restores the opening snapshot.
 - Added shared integer validation that supports typing negative coordinates while rejecting malformed pasted values.
 - Added reversible percentage resize sessions; plus and minus scale width and height symmetrically.
+- Split Activity and Quota refreshes into independent single-flight channels with stale-generation and shutdown guards.
 - Added the active development roadmap and synchronized Chinese translation.
 - Added validated window dimensions, scale mode, and 1–10 second refresh interval settings.
 - Added popup work-area placement and pure quota date/earliest-expiry formatting APIs.
