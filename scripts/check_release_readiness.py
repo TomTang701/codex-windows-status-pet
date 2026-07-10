@@ -8,6 +8,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+ALLOWED_STATUSES = {"Pending", "Automated pass", "Physical pass", "Partial", "Not applicable", "Approved limitation", "Blocked"}
+RELEASE_READY_STATUSES = {"Physical pass", "Not applicable", "Approved limitation"}
 
 
 def assess(matrix_path=ROOT / "docs" / "quality" / "COMPATIBILITY_MATRIX.md"):
@@ -16,11 +18,13 @@ def assess(matrix_path=ROOT / "docs" / "quality" / "COMPATIBILITY_MATRIX.md"):
         if not line.startswith("|") or line.startswith("|---"):
             continue
         cells = [cell.strip() for cell in line.strip("|").split("|")]
-        if len(cells) < 4 or cells[0] == "Area":
+        if len(cells) < 6 or cells[0] == "ID":
             continue
-        status = cells[2]
-        if status.lower() == "pending" or "partial" in status.lower():
-            blockers.append({"area": cells[0], "coverage": cells[1], "status": status, "evidence": cells[3]})
+        test_id, area, coverage, status, evidence, blocking = cells[:6]
+        if status not in ALLOWED_STATUSES:
+            blockers.append({"id": test_id, "area": area, "coverage": coverage, "status": "Invalid", "evidence": f"unsupported status: {status}"})
+        elif blocking == "Yes" and status not in RELEASE_READY_STATUSES:
+            blockers.append({"id": test_id, "area": area, "coverage": coverage, "status": status, "evidence": evidence})
     return {"ready": not blockers, "blockers": blockers}
 
 

@@ -3,28 +3,28 @@
 **状态：** 持续维护的测试记录  
 **规则：** 模拟测试或无界面测试不能替代实体 Windows 测试结果。
 
-| 范围 | 覆盖内容 | 状态 | 证据/下一步 |
-|---|---|---|---|
-| Windows 版本 | Windows 10 | 待验证 | 在 Windows 10 机器上运行启动器和完整界面冒烟测试。 |
-| Windows 版本 | Windows 11 Home 10.0.26200（构建 26200） | 实体通过 | 2026-07-10 通过 `Win32_OperatingSystem` 探测主机；启动器和悬浮窗已手动启动。 |
-| 显示器 | 单显示器 | 自动化+部分实体 | 几何 API 测试通过；仍需保存单显示器实体运行截图。 |
-| 显示器 | 双显示器 | 实体通过 | [2026-07-10拓扑记录](test-records/2026-07-10-win11-dual-monitor.md)；已完成 `DISPLAY1`/`DISPLAY2` 探测；虚拟桌面为 `0,0-4480,1434`，工作区为 `0,0-2048,1104` 和 `2560,354-4480,1386`；副屏坐标 `(4150,1248)` 仍受支持。 |
-| 坐标 | 虚拟桌面负坐标 | 自动化 | `Display API` 相交和定位测试覆盖负坐标。 |
-| 坐标 | 大副屏坐标 `(4151,1248)` | 实体通过 | 已在副屏观察到悬浮窗和右键菜单。 |
-| 菜单 | 四角和任务栏工作区 | 自动化+部分实体 | 当前实体探测显示主任务栏位于底部（`0,1380-2560,1440`）；几何测试通过；顶部/左侧/右侧任务栏边缘矩阵仍待完成。 |
-| 菜单 | 第一次点击 | 实体通过 | 副屏测试中第一次点击设置即可打开设置窗口。 |
-| 设置 | 宽高及等比例缩放 | 自动化 | `Window Size API` 覆盖自由、等比例、边界和非法因子。 |
-| 设置 | 只允许数字和间隔 1–10 | 自动化 | 配置和调度测试覆盖非法及边界值；手动粘贴测试仍待完成。 |
-| 设置 | Windows 编辑器生成的 UTF-8 BOM JSON | 自动化通过 | 配置 API 接受 UTF-8 和 UTF-8-BOM 测试文件，不会丢失坐标。 |
-| 额度显示 | 主要、周额度和 Reset Credit 到期契约 | 自动化通过 | 格式化/parser/快照测试验证主要额度为 `HH:MM`、周额度和 Reset Credit 为 `HH:MM M/D`、本地时区、月日无前导零、限定别名、损坏值回退和原始字段排除；展开模式实体可见性仍待验证。 |
-| 生命周期 | 隐藏后进程继续运行 | 实体通过 | 隐藏动作移除悬浮窗，同时 `pythonw.exe` 仍然运行。 |
-| 生命周期 | 隐藏后托盘显示 | 实体通过 | 使用 Windows 键盘通知区域路径（`Win+B` → Apps）打开托盘菜单；执行隐藏再显示后，悬浮窗恢复到副屏坐标 `(4150,1248)`。 |
-| DPI | 100% / 125% / 150% / 200% | 自动化部分完成 | 当前实体探测到两块显示器均为 96 DPI；模拟 96/120/144/192 DPI 路径通过；实体混合 DPI 测试仍待完成。 |
-| 收缩模式 | 空闲收缩和悬停展开 | 自动化部分完成 | 纯模式 API 通过；实体运行接受带 BOM 的设置并保持 `(4150,1248)`，但当前 Codex 会话处于活动状态，因此未观察到空闲收缩/悬停展开。 |
-| 依赖 | 捆绑运行时和回退依赖 | 自动化部分完成 | 2026-07-10 临时 venv 安装 `requirements.txt`、运行 65 项测试和打包 smoke 均成功；Windows CI 也通过；独立干净 Windows 机器启动仍待完成。 |
-| 自动化门禁 | 文档一致性、编译和单元测试 | 通过 | `scripts/run_release_checks.py` 已通过；该门禁明确不包含实体 Windows 测试。 |
-| 启动器 | 根目录 `start_codex_status_pet.cmd`，重复启动 | 实体通过 | 2026-07-10 连续启动两次只产生一个实际 `pythonw.exe` 悬浮窗进程，没有常驻 CMD 窗口；进程计数已排除命令行自匹配。 |
-| 启动项清理 | 旧 `Codex Status Pet.lnk` | 实体通过 | 2026-07-10 检查启动文件夹和快捷方式目标；已删除指向旧 `.agents\plugins\plugins\codex-windows-status-pet` 副本的快捷方式；`startup_audit.py` 当前报告 `clean: true`，没有本项目启动项。 |
+| ID | 范围 | 覆盖内容 | 状态 | 证据/下一步 | 阻塞 |
+|---|---|---|---|---|---|
+| WIN-10 | Windows版本 | Windows 10 | Pending | 在Windows 10机器运行启动器和完整UI smoke。 | Yes |
+| WIN-11 | Windows版本 | Windows 11 Home 10.0.26200（build 26200） | Physical pass | 2026-07-10通过 `Win32_OperatingSystem` 探测；已手动启动悬浮窗。 | No |
+| DISPLAY-1 | 显示器 | 单显示器 | Partial | 几何API测试通过；仍需带日期的单屏实体记录。 | Yes |
+| DISPLAY-2 | 显示器 | 双显示器 | Physical pass | [2026-07-10拓扑记录](test-records/2026-07-10-win11-dual-monitor.md)；副屏坐标 `(4150,1248)` 受支持。 | No |
+| COORD-NEGATIVE | 坐标 | 虚拟桌面负坐标 | Automated pass | `Display API` 相交和定位测试覆盖负坐标。 | No |
+| COORD-LARGE | 坐标 | 大副屏坐标 `(4151,1248)` | Physical pass | 已在副屏观察到悬浮窗和右键菜单。 | No |
+| TASKBAR-EDGES | 菜单 | 四角和任务栏工作区 | Partial | 底部任务栏已实测且几何测试通过；顶部/左侧/右侧仍待完成。 | Yes |
+| POPUP-FIRST-CLICK | 菜单 | 第一次点击 | Physical pass | 副屏测试第一次点击即可打开设置。 | No |
+| SETTINGS-RESIZE | 设置 | 宽高及等比例缩放 | Automated pass | `Window Size API` 覆盖自由、等比例、边界和非法因子。 | No |
+| INPUT-PASTE | 设置 | 只允许数字和间隔1–10 | Partial | 自动非法/边界fixture通过；手动非法粘贴证据仍待完成。 | Yes |
+| CONFIG-BOM | 设置 | Windows编辑器UTF-8 BOM JSON | Automated pass | 配置API接受UTF-8和UTF-8-BOM fixture，不丢失坐标。 | No |
+| QUOTA-DISPLAY | 额度显示 | 主要、周额度和Reset Credit到期契约 | Partial | 自动格式/parser/快照测试通过；展开模式实体可见性仍待完成。 | Yes |
+| LIFECYCLE-HIDE | 生命周期 | 隐藏后进程继续运行 | Physical pass | 隐藏悬浮窗后 `pythonw.exe` 仍运行。 | No |
+| TRAY-RESTORE | 生命周期 | 隐藏后托盘显示 | Physical pass | 隐藏再显示后恢复到副屏坐标 `(4150,1248)`。 | No |
+| DPI-MIXED | DPI | 100% / 125% / 150% / 200% | Partial | 模拟DPI路径通过；实体混合DPI仍待完成。 | Yes |
+| COMPACT-HOVER | 收缩模式 | 空闲收缩和悬停展开 | Partial | 纯状态测试通过；实体空闲收缩/悬停展开仍待完成。 | Yes |
+| CLEAN-MACHINE | 依赖 | 捆绑运行时和回退依赖 | Partial | 临时venv和Windows CI通过；独立干净Windows启动仍待完成。 | Yes |
+| QUALITY-GATE | 自动门禁 | 文档、编译、测试和打包 | Automated pass | `scripts/run_quality_checks.py` 通过且明确不批准发布。 | No |
+| SINGLE-INSTANCE | 启动器 | 根启动器及重复启动 | Physical pass | 连续启动两次只产生一个悬浮窗进程且无常驻CMD。 | No |
+| STARTUP-CLEAN | 启动项清理 | 旧快捷方式 | Physical pass | 启动项审计报告 `clean: true`；不存在当前项目启动项。 | No |
 
 ## 发布门槛
 

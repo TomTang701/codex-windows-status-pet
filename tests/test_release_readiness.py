@@ -13,10 +13,10 @@ class ReleaseReadinessTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             matrix = Path(directory) / "matrix.md"
             matrix.write_text(
-                "| Area | Coverage | Status | Evidence / next action |\n"
-                "|---|---|---|---|\n"
-                "| Windows | Windows 10 | Pending | needs a machine |\n"
-                "| Tests | Unit | Pass | green |\n",
+                "| ID | Area | Coverage | Status | Evidence / next action | Blocking |\n"
+                "|---|---|---|---|---|---|\n"
+                "| WIN-10 | Windows | Windows 10 | Pending | needs a machine | Yes |\n"
+                "| UNIT | Tests | Unit | Automated pass | green | No |\n",
                 encoding="utf-8",
             )
             result = assess(matrix)
@@ -27,10 +27,23 @@ class ReleaseReadinessTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             matrix = Path(directory) / "matrix.md"
             matrix.write_text(
-                "| Area | Coverage | Status | Evidence / next action |\n"
-                "|---|---|---|---|\n"
-                "| Windows | Windows 11 | Physical pass | verified |\n"
-                "| Tests | Unit | Pass | green |\n",
+                "| ID | Area | Coverage | Status | Evidence / next action | Blocking |\n"
+                "|---|---|---|---|---|---|\n"
+                "| WIN-11 | Windows | Windows 11 | Physical pass | verified | Yes |\n"
+                "| UNIT | Tests | Unit | Automated pass | green | No |\n",
                 encoding="utf-8",
             )
             self.assertEqual(assess(matrix), {"ready": True, "blockers": []})
+
+    def test_invalid_status_is_always_reported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            matrix = Path(directory) / "matrix.md"
+            matrix.write_text(
+                "| ID | Area | Coverage | Status | Evidence | Blocking |\n"
+                "|---|---|---|---|---|---|\n"
+                "| BAD | Tests | Unit | Mostly done | vague | No |\n",
+                encoding="utf-8",
+            )
+            result = assess(matrix)
+            self.assertFalse(result["ready"])
+            self.assertEqual(result["blockers"][0]["status"], "Invalid")
