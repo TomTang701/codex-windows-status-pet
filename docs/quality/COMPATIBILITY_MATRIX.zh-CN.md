@@ -21,7 +21,10 @@ review_cycle_days: 30
 | DISPLAY-2 | 显示器 | 双显示器 | Physical pass | [2026-07-10拓扑记录](test-records/2026-07-10-win11-dual-monitor.md)；副屏坐标 `(4150,1248)` 受支持。 | No |
 | COORD-NEGATIVE | 坐标 | 虚拟桌面负坐标 | Automated pass | `Display API` 相交和定位测试覆盖负坐标。 | No |
 | COORD-LARGE | 坐标 | 大副屏坐标 `(4151,1248)` | Physical pass | 已在副屏观察到悬浮窗和右键菜单。 | No |
-| TASKBAR-EDGES | 菜单 | 四角和任务栏工作区 | Partial | 底部任务栏已实测且几何测试通过；顶部/左侧/右侧仍待完成。 | Yes |
+| TASKBAR-BOTTOM | 菜单 | 底部任务栏和四角 | Physical pass | 底部任务栏已实测；几何测试确保菜单位于工作区内。 | No |
+| TASKBAR-TOP | 菜单 | 顶部任务栏工作区 | Pending | 将任务栏移到顶部并记录两个顶部角的菜单位置。 | Yes |
+| TASKBAR-LEFT | 菜单 | 左侧任务栏工作区 | Pending | 将任务栏移到左侧并记录两个左侧角的菜单位置。 | Yes |
+| TASKBAR-RIGHT | 菜单 | 右侧任务栏工作区 | Pending | 将任务栏移到右侧并记录两个右侧角的菜单位置。 | Yes |
 | POPUP-FIRST-CLICK | 菜单 | 第一次点击 | Physical pass | 副屏测试第一次点击即可打开设置。 | No |
 | SETTINGS-RESIZE | 设置 | 宽高及等比例缩放 | Automated pass | `Window Size API` 覆盖自由、等比例、边界和非法因子。 | No |
 | INPUT-PASTE | 设置 | 只允许数字和间隔1–10 | Partial | 自动非法/边界fixture通过；手动非法粘贴证据仍待完成。 | Yes |
@@ -30,8 +33,11 @@ review_cycle_days: 30
 | LIFECYCLE-HIDE | 生命周期 | 隐藏后进程继续运行 | Physical pass | 隐藏悬浮窗后 `pythonw.exe` 仍运行。 | No |
 | TRAY-RESTORE | 生命周期 | 隐藏后托盘显示 | Physical pass | 隐藏再显示后恢复到副屏坐标 `(4150,1248)`。 | No |
 | DPI-MIXED | DPI | 100% / 125% / 150% / 200% | Partial | 模拟DPI路径通过；实体混合DPI仍待完成。 | Yes |
+| DISPLAY-RECONNECT | 显示器 | 断开并重新连接显示器 | Pending | 记录实体断开/重连后的可达性、坐标恢复和位置还原。 | Yes |
+| WORKAREA-RUNTIME | 任务栏 | 运行时工作区变化 | Pending | 运行期间改变任务栏工作区并记录无需重启的恢复。 | Yes |
 | COMPACT-HOVER | 收缩模式 | 空闲收缩和悬停展开 | Partial | 纯状态测试通过；实体空闲收缩/悬停展开仍待完成。 | Yes |
 | CLEAN-MACHINE | 依赖 | 捆绑运行时和回退依赖 | Partial | 临时venv和Windows CI通过；独立干净Windows启动仍待完成。 | Yes |
+| SOAK-8H | 可靠性 | 8小时运行soak | Pending | 按带日期流程执行刷新、托盘、设置、恢复和关闭观察。 | Yes |
 | QUALITY-GATE | 自动门禁 | 文档、编译、测试和打包 | Automated pass | `scripts/run_quality_checks.py` 通过且明确不批准发布。 | No |
 | SINGLE-INSTANCE | 启动器 | 根启动器及重复启动 | Physical pass | 连续启动两次只产生一个悬浮窗进程且无常驻CMD。 | No |
 | STARTUP-CLEAN | 启动项清理 | 旧快捷方式 | Physical pass | 启动项审计报告 `clean: true`；不存在当前项目启动项。 | No |

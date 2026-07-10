@@ -21,7 +21,10 @@ review_cycle_days: 30
 | DISPLAY-2 | Displays | Two monitors | Physical pass | [2026-07-10 topology record](test-records/2026-07-10-win11-dual-monitor.md); secondary coordinate `(4150,1248)` remains supported. | No |
 | COORD-NEGATIVE | Coordinates | Negative virtual coordinates | Automated pass | `Display API` intersection and placement tests cover negative coordinates. | No |
 | COORD-LARGE | Coordinates | Large secondary coordinate `(4151,1248)` | Physical pass | Overlay and context menu were observed on the secondary monitor. | No |
-| TASKBAR-EDGES | Popup | Four corners and taskbar work area | Partial | Bottom taskbar is physically observed and geometry tests pass; top/left/right edges remain pending. | Yes |
+| TASKBAR-BOTTOM | Popup | Bottom taskbar and four corners | Physical pass | Bottom taskbar was physically observed; geometry tests keep the popup within its work area. | No |
+| TASKBAR-TOP | Popup | Top taskbar work area | Pending | Move the taskbar to the top and record popup placement at both top corners. | Yes |
+| TASKBAR-LEFT | Popup | Left taskbar work area | Pending | Move the taskbar left and record popup placement at both left corners. | Yes |
+| TASKBAR-RIGHT | Popup | Right taskbar work area | Pending | Move the taskbar right and record popup placement at both right corners. | Yes |
 | POPUP-FIRST-CLICK | Popup | First click | Physical pass | First click on settings opened the dialog during the secondary-monitor test. | No |
 | SETTINGS-RESIZE | Settings | Width/height and proportional resize | Automated pass | `Window Size API` tests cover free, proportional, bounded, and invalid-factor cases. | No |
 | INPUT-PASTE | Settings | Digit-only entries and interval 1–10 | Partial | Automated malformed/boundary fixtures pass; manual illegal-paste evidence remains pending. | Yes |
@@ -30,8 +33,11 @@ review_cycle_days: 30
 | LIFECYCLE-HIDE | Lifecycle | Hidden overlay remains running | Physical pass | Hide removed the overlay while `pythonw.exe` remained alive. | No |
 | TRAY-RESTORE | Lifecycle | Tray show after hide | Physical pass | Hide then Show restored the overlay to secondary coordinate `(4150,1248)`. | No |
 | DPI-MIXED | DPI | 100% / 125% / 150% / 200% | Partial | Simulated DPI paths pass; physical mixed-DPI evidence remains pending. | Yes |
+| DISPLAY-RECONNECT | Displays | Disconnect and reconnect a monitor | Pending | Record reachability, coordinate recovery, and restoration after a physical disconnect/reconnect cycle. | Yes |
+| WORKAREA-RUNTIME | Taskbar | Runtime work-area change | Pending | Change taskbar work area while running and record recovery without restart. | Yes |
 | COMPACT-HOVER | Compact mode | Idle shrink and hover expand | Partial | Pure state tests pass; physical idle shrink/hover expansion remains pending. | Yes |
 | CLEAN-MACHINE | Dependencies | Bundled runtime and fallback requirements | Partial | Temporary venv and Windows CI pass; separate clean Windows startup remains pending. | Yes |
+| SOAK-8H | Reliability | Eight-hour operational soak | Pending | Run the dated soak procedure with refresh, tray, settings, recovery, and shutdown observations. | Yes |
 | QUALITY-GATE | Automated gate | Documents, compile, tests, and package | Automated pass | `scripts/run_quality_checks.py` passes and intentionally does not grant release approval. | No |
 | SINGLE-INSTANCE | Launcher | Root launcher and repeated launch | Physical pass | Two launches produced one overlay process and no persistent CMD window. | No |
 | STARTUP-CLEAN | Startup cleanup | Former legacy shortcut | Physical pass | Startup audit reports `clean: true`; no current project startup entry exists. | No |

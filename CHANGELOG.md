@@ -20,6 +20,7 @@ review_cycle_days: 30
 - Strengthened bilingual parity checks for API names, versions, stable test/table IDs, fence languages, document metadata, and configuration schema references.
 - Replaced the completion-heavy roadmap with future-only Now, Next, Later, Blocked, and Out of scope sections.
 - Expanded architecture, testing, security, contribution, and release standards and added five bilingual architecture decision records.
+- Split alternate taskbar edges into separate physical gates and added monitor reconnect, runtime work-area change, and eight-hour soak release blockers.
 - Reorganized documentation into governance, architecture, product, quality, operations, and archive layers with a manifest-driven bilingual gate.
 - Added repository, configuration, architecture, testing, release, security, installation, troubleshooting, and contribution guides.
 - Added a manifest validator to the automated release checks; the suite now passes 88 tests and 17 registered bilingual pairs.

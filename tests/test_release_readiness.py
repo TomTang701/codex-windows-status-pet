@@ -9,6 +9,17 @@ from check_release_readiness import assess
 
 
 class ReleaseReadinessTests(unittest.TestCase):
+    def test_repository_matrix_keeps_required_physical_ids(self):
+        matrix = Path(__file__).parents[1] / "docs" / "quality" / "COMPATIBILITY_MATRIX.md"
+        text = matrix.read_text(encoding="utf-8")
+        required = {
+            "WIN-10", "DISPLAY-1", "DPI-MIXED", "TASKBAR-TOP", "TASKBAR-LEFT",
+            "TASKBAR-RIGHT", "COMPACT-HOVER", "CLEAN-MACHINE", "INPUT-PASTE",
+            "QUOTA-DISPLAY", "DISPLAY-RECONNECT", "WORKAREA-RUNTIME", "SOAK-8H",
+        }
+        present = {line.strip("|").split("|", 1)[0].strip() for line in text.splitlines() if line.startswith("|")}
+        self.assertEqual(required - present, set())
+
     def test_partial_physical_rows_block_release(self):
         with tempfile.TemporaryDirectory() as directory:
             matrix = Path(directory) / "matrix.md"
