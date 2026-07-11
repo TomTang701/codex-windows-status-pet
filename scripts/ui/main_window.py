@@ -25,6 +25,7 @@ try:
     from api.status_presentation_controller_api import StatusPresentationController
     from api.window_lifecycle_controller_api import WindowLifecycleController
     from api.window_recovery_api import recover_position
+    from api.window_scale_api import derive_window_metrics
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.quota_provider_api import normalize_snapshot
     from api.quota_state_api import QuotaState
@@ -47,6 +48,7 @@ except ModuleNotFoundError:
     from scripts.api.status_presentation_controller_api import StatusPresentationController
     from scripts.api.window_lifecycle_controller_api import WindowLifecycleController
     from scripts.api.window_recovery_api import recover_position
+    from scripts.api.window_scale_api import derive_window_metrics
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.quota_provider_api import normalize_snapshot
     from scripts.api.quota_state_api import QuotaState
@@ -118,9 +120,10 @@ class Pet(tk.Tk):
         self.settings_path = Path.home() / ".codex" / "codex-windows-status-pet.json"
         self.settings_controller = SettingsPersistenceController(self.settings_path)
         self.settings = self.load_settings()
+        self.window_metrics = derive_window_metrics(self.settings.get("window_scale_percent"))
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
         self.configure(bg=self.settings["background_color"])
-        self.geometry(f"{self.settings['window_width']}x{self.settings['window_height']}+{self.settings['x']}+{self.settings['y']}")
+        self.geometry(f"{self.window_metrics.width}x{self.window_metrics.height}+{self.settings['x']}+{self.settings['y']}")
         self.hidden = False
         self.hidden_position = (self.settings["x"], self.settings["y"])
         self.expanded_position = (self.settings["x"], self.settings["y"])
@@ -141,10 +144,9 @@ class Pet(tk.Tk):
         self.quota_state = QuotaState()
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
-        self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", 28), fg=self.settings["font_color"], bg=self.settings["background_color"])
-        self.face.pack(side="left", padx=(12, 5), pady=10)
-        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=260, font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
-        self.text.pack(side="left", fill="both", expand=True, pady=10)
+        self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", self.window_metrics.face_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=("Segoe UI", self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self._pack_expanded_content()
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
         self.bind("<Leave>", self._pointer_leave)
@@ -187,8 +189,9 @@ class Pet(tk.Tk):
             monitors = monitor_snapshot()
         except (ImportError, AttributeError, OSError):
             pass
+        metrics = getattr(self, "window_metrics", derive_window_metrics(self.settings.get("window_scale_percent")))
         recovered_x, recovered_y, recovered = recover_position(
-            x, y, self.settings.get("window_width", 330), self.settings.get("window_height", 138), monitors, fallback_area
+            x, y, metrics.width, metrics.height, monitors, fallback_area
         )
         if recovered:
             logging.getLogger("codex-status-pet").warning("saved window position was off-screen; recovered to (%s, %s)", recovered_x, recovered_y)
@@ -222,16 +225,19 @@ class Pet(tk.Tk):
 
     def apply_settings(self, settings):
         self.settings = dict(settings)
+        metrics = self._sync_compatibility_metrics(self.settings)
         if hasattr(self, "application_controller"):
             self.application_controller.set_quota_interval(self.settings["refresh_interval_seconds"])
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
-        self.geometry(f"{self.settings['window_width']}x{self.settings['window_height']}+{self.settings['x']}+{self.settings['y']}")
+        self.geometry(f"{metrics.width}x{metrics.height}+{self.settings['x']}+{self.settings['y']}")
         self.attributes("-alpha", self.settings["alpha"])
         self.attributes("-topmost", self.settings["topmost"])
         bg, fg = self.settings["background_color"], self.settings["font_color"]
         self.configure(bg=bg)
-        self.face.configure(bg=bg, fg=fg)
-        self.text.configure_rows(bg=bg, fg=fg, font=("Segoe UI", self.settings["font_size"]), wraplength=260)
+        self.face.configure(bg=bg, fg=fg, font=("Segoe UI Emoji", metrics.face_font_size))
+        self.text.configure_rows(bg=bg, fg=fg, font=("Segoe UI", metrics.text_font_size), wraplength=metrics.wraplength)
+        if not self.compact:
+            self._pack_expanded_content()
         self.topmost_var.set(self.settings["topmost"])
         self.locked_var.set(self.settings["locked"])
 
@@ -243,6 +249,31 @@ class Pet(tk.Tk):
     def _pointer_leave(self, _event=None):
         self.hovered = False
 
+    def _sync_compatibility_metrics(self, settings):
+        metrics = derive_window_metrics(settings.get("window_scale_percent"))
+        settings["window_scale_percent"] = metrics.scale_percent
+        settings["font_size"] = metrics.text_font_size
+        settings["window_width"] = metrics.width
+        settings["window_height"] = metrics.height
+        settings["scale_mode"] = "proportional"
+        self.window_metrics = metrics
+        return metrics
+
+    def _pack_expanded_content(self):
+        metrics = self.window_metrics
+        self.face.pack_forget()
+        self.face.pack(
+            side="left",
+            padx=(metrics.horizontal_padding, metrics.face_text_gap),
+            pady=metrics.vertical_padding,
+        )
+        self.text.pack(
+            side="left",
+            fill="both",
+            expand=True,
+            pady=metrics.vertical_padding,
+        )
+
     def set_compact(self, compact):
         compact = bool(compact)
         if compact == self.compact or self.closing:
@@ -252,17 +283,15 @@ class Pet(tk.Tk):
             self.text.pack_forget()
             self.face.pack_forget()
             self.face.pack(expand=True, padx=8, pady=8)
-            size = compact_size(self.settings["window_width"], self.settings["window_height"])
+            size = compact_size(self.window_metrics.width, self.window_metrics.height)
         else:
-            self.face.pack_forget()
-            self.face.pack(side="left", padx=(12, 5), pady=10)
-            self.text.pack(side="left", fill="both", expand=True, pady=10)
+            self._pack_expanded_content()
             size = None
         x, y = self.settings["x"], self.settings["y"]
         if compact:
             work_area = work_area_for_point(x, y)
-            x, y = compact_geometry(x, y, self.settings["window_width"], self.settings["window_height"], size, work_area)
-        geometry = f"{size}x{size}+{x}+{y}" if size else f"{self.settings['window_width']}x{self.settings['window_height']}+{x}+{y}"
+            x, y = compact_geometry(x, y, self.window_metrics.width, self.window_metrics.height, size, work_area)
+        geometry = f"{size}x{size}+{x}+{y}" if size else f"{self.window_metrics.width}x{self.window_metrics.height}+{x}+{y}"
         self.geometry(geometry)
 
     def show_window(self):

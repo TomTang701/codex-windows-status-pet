@@ -252,6 +252,60 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_apply_scale_updates_geometry_fonts_wrap_and_padding_together(self):
+        import tkinter.font as tkfont
+
+        app = self.module["Pet"]()
+        try:
+            app.apply_settings({**app.settings, "window_scale_percent": 150})
+            app.update_idletasks()
+            self.assertEqual(app.window_metrics.scale_percent, 150)
+            self.assertTrue(app.geometry().startswith("495x207"))
+            text_font = tkfont.Font(root=app, font=next(iter(app.text.labels.values())).cget("font"))
+            face_font = tkfont.Font(root=app, font=app.face.cget("font"))
+            self.assertEqual(text_font.cget("size"), 15)
+            self.assertEqual(face_font.cget("size"), 42)
+            for label in app.text.labels.values():
+                self.assertEqual(int(label.cget("wraplength")), 390)
+            padx = tuple(int(value) for value in app.tk.splitlist(app.face.pack_info()["padx"]))
+            self.assertEqual(padx, (18, 8))
+            self.assertEqual(int(app.face.pack_info()["pady"]), 15)
+        finally:
+            self.destroy_app(app)
+
+    def test_hide_show_and_compact_expand_preserve_current_scale(self):
+        app = self.module["Pet"]()
+        app.save_settings = lambda **_kwargs: True
+        try:
+            app.apply_settings({**app.settings, "window_scale_percent": 150})
+            app.hide_window()
+            self.assertTrue(app.hidden)
+            self.assertEqual(float(app.attributes("-alpha")), 0.0)
+            app.show_window()
+            app.update_idletasks()
+            self.assertFalse(app.hidden)
+            self.assertTrue(app.geometry().startswith("495x207"))
+            app.set_compact(True)
+            app.update_idletasks()
+            self.assertFalse(app.geometry().startswith("495x207"))
+            app.set_compact(False)
+            app.update_idletasks()
+            self.assertTrue(app.geometry().startswith("495x207"))
+            self.assertEqual(app.window_metrics.scale_percent, 150)
+        finally:
+            self.destroy_app(app)
+
+    def test_scale_application_keeps_five_row_identities(self):
+        app = self.module["Pet"]()
+        try:
+            identities = {key: str(value) for key, value in app.text.labels.items()}
+            app.apply_settings({**app.settings, "window_scale_percent": 80})
+            app.apply_settings({**app.settings, "window_scale_percent": 200})
+            self.assertEqual({key: str(value) for key, value in app.text.labels.items()}, identities)
+            self.assertEqual(len(app.text.labels), 5)
+        finally:
+            self.destroy_app(app)
+
     def test_pet_uses_pure_controllers_and_tracks_replaced_settings_path(self):
         app = self.module["Pet"]()
         try:

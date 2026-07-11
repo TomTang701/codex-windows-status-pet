@@ -3,26 +3,26 @@
 - Active version: `0.4.0`
 - Branch: `release/v0.4.0-unified-window-scale`
 - Base main SHA: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
-- Current HEAD: `d9a09f2d83428f697281d570fe50a68738f486d3`
-- Last pushed SHA: `d9a09f2d83428f697281d570fe50a68738f486d3`
-- Current phase: TDD Task 3 — exact two-slider settings UI ready for checkpoint commit
+- Current HEAD: `090f19dc0f5af4468aa1dd1134f935d6e3a9d706`
+- Last pushed SHA: `090f19dc0f5af4468aa1dd1134f935d6e3a9d706`
+- Current phase: TDD Task 4 — main-window lifecycle integration ready for checkpoint commit
 - Product decision: `GO`
 - Scope lock: unified window-scale v0.4.0 only; no v0.4.1+ or unrelated work
 - Active Superpowers skill: `superpowers:test-driven-development`
 - Design spec: `docs/superpowers/specs/2026-07-10-unified-window-scale-design.md`; self-review passed for placeholders, contradictions, scope, ambiguity, interface naming, and authority conflicts
 - Implementation plan: `docs/superpowers/plans/2026-07-10-unified-window-scale-implementation.md`; six sequential tasks with exact interfaces, RED/GREEN commands, documentation/host validation, release lifecycle, and self-review
-- Latest RED evidence: two focused Tk tests failed because the old dialog lacked the `窗口大小` label and had no Scale with upper bound 200
-- Latest GREEN evidence: UI menu/settings/status-row group ran 14 tests in 2.497s, all passed
-- Latest completion verification: exactly two Scale widgets, removed legacy controls absent, retained controls present, slider draft-only before Apply, 150% derived fields, defaults to 100%, and protected Save semantics all passed
+- Latest RED evidence: integrated tests found no `Pet.window_metrics` and 150% Apply did not produce 495x207; one geometry assertion then exposed a missing Tk idle flush in the test
+- Latest GREEN evidence: main/UI/recovery/Compact/controller group ran 32 tests in 2.755s, all passed
+- Latest completion verification: one 150% metrics result updates geometry/fonts/wrap/padding; Hide/Show and Compact/Expand restore 150%; five row widget identities remain stable across 80→200%
 - Candidate RC state: not started for v0.4.0
 - Final RC state: not started for v0.4.0
 - Remote CI state: no v0.4.0 PR yet
 - Main protection state: unavailable on current private repository/account plan; compensating PR controls remain mandatory
-- Autonomous checks completed: Tasks 1–2 RED/GREEN; Task 3 RED; stale row-index test coupling diagnosed; 14-test Tk GREEN
+- Autonomous checks completed: Tasks 1–3 RED/GREEN; Task 4 RED; Tk geometry-read timing root cause isolated without sleep; 32-test GREEN
 - Human fact required: `None`
 - Methods attempted: repository history, source/API/UI/test/document inspection
 - Why human input is necessary: `None`
-- Completed: v0.3.2 release; v0.4.0 branch/Brief/design/plan; Tasks 1–3 RED→GREEN
-- Remaining: commit/push Task 3; Tasks 4–6; Windows validation; PR/CI/merge/tag/final audit
-- Next exact action: verify and commit Task 3, then write Task 4 integrated metrics/lifecycle RED tests before changing main-window production code
+- Completed: v0.3.2 release; v0.4.0 branch/Brief/design/plan; Tasks 1–4 RED→GREEN
+- Remaining: commit/push Task 4; Task 5 docs/Windows validation; Task 6 release; final audit
+- Next exact action: verify and commit Task 4, then update canonical bilingual docs and run the complete pre-host automated gate
 - Last updated: 2026-07-10
