@@ -22,13 +22,8 @@ jobs:
           cache: pip
       - name: Install runtime dependencies
         run: python -m pip install -r requirements.txt
-      - name: Run routine quality checks
-        run: python scripts/run_quality_checks.py
-      - name: Run package smoke test
-        run: python scripts/package_smoke_test.py
-      - name: Check whitespace
-        shell: bash
-        run: git diff --check
+      - name: Run formal release candidate checks
+        run: python scripts/run_release_candidate_checks.py
       - name: Upload package smoke artifact
         uses: actions/upload-artifact@v4
         with:

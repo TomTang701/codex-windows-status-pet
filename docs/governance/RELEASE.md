@@ -2,7 +2,7 @@
 
 ## Gates
 
-Routine `run_quality_checks.py` validates automated code health and never approves a release. Before a formal release, `run_release_candidate_checks.py` must pass Quality, package smoke, strict physical readiness, and whitespace checks. Current physical blockers are reported by `scripts/check_release_readiness.py`.
+Routine `run_quality_checks.py` provides fast automated code-health feedback and never approves a release. `run_release_candidate_checks.py` is the single formal automated release command; it executes Quality, package smoke, strict compatibility readiness, and whitespace exactly once and reports passes, blockers, and limitations separately. The canonical fact classification and authority are recorded in `docs/quality/verification-inventory.json`.
 
 The runtime dependency policy uses minimum compatible bounds in `requirements.txt`. Quality verifies that each declaration is installed, meets its minimum version, and imports successfully; the current verified environment uses Pillow 12.2.0 and pystray 0.19.5.
 

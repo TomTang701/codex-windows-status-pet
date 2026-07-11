@@ -43,8 +43,8 @@ $py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies
 & $py -m unittest discover -s .\tests -v
 ```
 
-日常自动 Quality 命令是 `python scripts/run_quality_checks.py`；通过不代表发布批准。正式候选版本使用 `python scripts/run_release_candidate_checks.py`，它会严格执行 `docs/quality/COMPATIBILITY_MATRIX.zh-CN.md` 中的 Windows 阻塞项。
-打包冒烟门禁是 `python scripts/package_smoke_test.py`；GitHub Actions 会在 Windows 上运行两组门禁。
+日常自动 Quality 命令是 `python scripts/run_quality_checks.py`；通过不代表发布批准。正式候选版本和 Windows CI 统一使用唯一命令 `python scripts/run_release_candidate_checks.py`，它只运行一次 Quality、打包冒烟、严格兼容性和空白检查，并分别输出通过项、阻塞项和限制。
+每项发布事实的权威检查及自动化/实体分类记录在 `docs/quality/verification-inventory.json`。
 使用 `python scripts/check_release_readiness.py` 检查当前兼容性阻塞项和明确延期的实体环境限制。仓库不会自动安装启动文件夹项目。
 使用 `python scripts/startup_audit.py` 报告已知旧启动项；该命令只读，只有维护者明确批准后才可删除确认过的旧项目。
 

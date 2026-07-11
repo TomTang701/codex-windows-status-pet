@@ -43,8 +43,8 @@ $py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies
 & $py -m unittest discover -s .\tests -v
 ```
 
-Routine automated Quality is `python scripts/run_quality_checks.py`; passing it is not release approval. A formal candidate uses `python scripts/run_release_candidate_checks.py`, which strictly enforces the Windows blockers in `docs/quality/COMPATIBILITY_MATRIX.md`.
-The package smoke gate is `python scripts/package_smoke_test.py`; GitHub Actions runs both gates on Windows.
+Routine automated Quality is `python scripts/run_quality_checks.py`; passing it is not release approval. A formal candidate and Windows CI use the single command `python scripts/run_release_candidate_checks.py`, which runs Quality, package smoke, strict compatibility, and whitespace once and separates passes, blockers, and limitations.
+The verification authority and automation/physical classification for each release fact are recorded in `docs/quality/verification-inventory.json`.
 Use `python scripts/check_release_readiness.py` to inspect current compatibility blockers and explicitly deferred physical limitations. The repository does not install a Startup-folder entry automatically.
 Use `python scripts/startup_audit.py` to report known legacy startup entries; it is read-only unless a maintainer explicitly removes a confirmed old entry.
 
