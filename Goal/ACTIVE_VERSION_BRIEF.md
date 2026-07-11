@@ -5,7 +5,7 @@
 - Version: `0.3.2`
 - Branch: `release/v0.3.2-windows11-stabilization`
 - Base: `main` at `d4a69e9ce4a6adc7d519ff1a37b00617d548e8dd`
-- PR: `[v0.3.2] Complete Windows 11 stabilization`
+- PR: `[v0.3.2] Complete Windows 11 release stabilization`
 - Tag: `v0.3.2`
 
 ## Product
@@ -13,7 +13,8 @@
 - One-sentence outcome: The declared Windows 11 x64 scope has truthful physical evidence or explicit approved environment limitations, and strict Release Candidate passes.
 - Target user: A Windows 11 x64 Codex user relying on the overlay continuously.
 - Success criteria: Launch/relaunch, one-instance/no-console, five rows, Reset Credit date path, menu/settings, hide/show, tray recovery, secondary coordinates, compact interaction, and exit are verified; no blocking matrix row remains; strict RC exits 0.
-- Explicit non-goals: New feature, Windows 10 claim, ARM64/32-bit claim, UI redesign, new setting, controller refactor, dependency change.
+- Explicit non-goals: New feature, any v0.4.0 work, Windows 10 claim, ARM64/32-bit claim, UI redesign, new setting, controller refactor, dependency change.
+- Execution exclusions: No browser automation and no new network, IPC, worker, timer, or polling path.
 - Decision: GO
 
 ## Applicability Matrix
@@ -21,10 +22,12 @@
 | Role | Applicable | Decision |
 |---|---:|---|
 | Product | Yes | GO |
-| Windows/UI | Yes | PASS pending evidence |
+| Visual/UI/UX | Physical verification only | PASS pending evidence |
+| Frontend | Yes | PASS pending evidence |
+| Backend | Lifecycle/process verification only | PASS pending evidence |
 | QA/Release | Yes | PASS pending evidence |
-| Backend/Resource | Verification only | PASS pending evidence |
-| Security | Verification only | PASS pending evidence |
+| Security/Resource | Yes | PASS pending evidence |
+| Repository administration | Yes | PASS pending evidence |
 
 ## Physical Windows 11 Matrix
 
@@ -33,7 +36,7 @@
 - Root launcher is run twice; one overlay/tray and no persistent CMD are verified.
 - Main overlay visibly has five rows and Reset Credit uses truthful available data (date appears only when supplied).
 - Right-click menu has exactly five items, first click works, settings remains visible, hide/show recovers, and exit/relaunch works.
-- Compact shrink/hover-expand is exercised through a bounded physical Tk harness when live Codex activity prevents production-idle observation.
+- Compact shrink/hover-expand is tested through genuine existing application idle behavior; if the active Codex session prevents idle, the limitation is recorded without adding a debug path.
 - Decision: PASS only with saved dated evidence.
 
 ## Environment Limitations
@@ -66,4 +69,4 @@
 - Allowed release files: evidence records, compatibility/release/testing docs, tests for reproduced defects, canonical version sources, bilingual Changelog.
 - Forbidden: new capabilities, Windows 10/ARM/32-bit claims, speculative refactors, new dependencies/settings/UI.
 - Release shape: one focused stabilization/release commit, one PR, one tag.
-- This is the final version in the authorized release train.
+- No v0.4.0 production work is included; v0.4.0 begins only after the v0.3.2 transition gate.
