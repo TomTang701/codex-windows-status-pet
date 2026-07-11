@@ -83,11 +83,9 @@ $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
 # 伴侣可见时运行 Windows 显示器探测
 & $py .\scripts\probe_display.py
 & $py .\scripts\check_doc_parity.py
-# 日常 Quality（不代表发布批准）
+# 快速日常 Quality（不代表发布批准）
 & $py .\scripts\run_quality_checks.py
-& $py .\scripts\package_smoke_test.py
-& $py .\scripts\check_release_readiness.py
-# 仅用于正式候选版本；严格执行实体阻塞项。
+# 唯一正式候选命令；由它统一执行打包、严格就绪和空白检查。
 & $py .\scripts\run_release_candidate_checks.py
 ```
 

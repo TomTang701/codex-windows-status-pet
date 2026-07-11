@@ -58,6 +58,13 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.5.0 - 2026-07-11
+
+- Deleted unused quota-domain model, historical free-resize, and historical resize-session modules whose only consumers were implementation-detail tests.
+- Removed the one-function quota-provider pass-through and connected the existing main-window worker directly to the strict approved-field quota parser.
+- Preserved token/unknown-field exclusion, malformed-input behavior, schema-1 downgrade geometry, canonical window scaling, and all protected UI/lifecycle contracts.
+- Reduced runtime production Python from 39 files / 2,742 lines to 35 files / 2,650 lines and API modules from 32 to 28; runtime dependencies remain 2.
+
 ## 0.4.2 - 2026-07-11
 
 - Added a machine-validated inventory that classifies release facts as automated, automatable, physical-only, obsolete, or duplicate and names one authority for each fact.

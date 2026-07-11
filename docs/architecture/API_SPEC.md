@@ -87,11 +87,9 @@ $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
 # Live Windows display evidence (run with the companion visible)
 & $py .\scripts\probe_display.py
 & $py .\scripts\check_doc_parity.py
-# Routine Quality (not release approval)
+# Fast routine Quality (not release approval)
 & $py .\scripts\run_quality_checks.py
-& $py .\scripts\package_smoke_test.py
-& $py .\scripts\check_release_readiness.py
-# Formal candidate only; strict physical blockers apply.
+# The only formal candidate command; it owns package, strict readiness, and whitespace.
 & $py .\scripts\run_release_candidate_checks.py
 ```
 
