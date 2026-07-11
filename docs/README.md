@@ -20,7 +20,7 @@ Architecture, testing, release, security, installation, troubleshooting, and con
 - **Evidence:** records automated or physical test results.
 - **Historical:** preserves a completed audit or superseded plan.
 
-The repository is migrating from a flat root-level layout to the layered structure described in [the documentation structure plan](../Goal/codex-status-pet-documentation-structure-plan-zh.md). The manifest records the active source path and links remain compatible with the current layout.
+The repository uses the layered structure recorded by the manifest. The former [documentation structure plan](archive/plans/codex-status-pet-documentation-structure-plan-zh.md) is retained as non-normative history only.
 
 ## Source of truth
 

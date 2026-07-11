@@ -58,6 +58,12 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.2.1 - 2026-07-10
+
+- Simplified the overlay context menu to exactly five actions: Open Settings, Always on Top, Lock Position, Hide Window, and Exit.
+- Removed the manual refresh, diagnostic-copy, and previous-settings restore entries from the context menu while preserving automatic refresh and internal diagnostic/configuration mechanisms.
+- Added regression coverage for the exact menu contract, first-click single dispatch, immediate close, and Escape dismissal.
+
 ## 0.2.0 - 2026-07-10
 
 - Added isolated configuration, activity, runtime, diagnostics, and test-boundary APIs.

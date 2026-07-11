@@ -30,15 +30,32 @@ class MenuInteractionTests(unittest.TestCase):
         cls.module["AppServer"] = DummyServer
         cls.module["TrayIcon3"] = DummyTray
 
+    @staticmethod
+    def menu_items(popup):
+        body = popup.winfo_children()[0]
+        return [
+            child for child in body.winfo_children()
+            if child.winfo_class() in {"Button", "Checkbutton"}
+        ]
+
+    def test_popup_contains_only_the_five_approved_actions(self):
+        app = self.module["Pet"]()
+        try:
+            app.menu(SimpleNamespace(x_root=4200, y_root=200))
+            labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
+            self.assertEqual(labels, ["显示设置", "置顶", "锁定位置", "隐藏窗口", "退出"])
+            for removed in ("立即刷新", "复制诊断摘要", "恢复上次设置"):
+                self.assertNotIn(removed, labels)
+        finally:
+            app.destroy()
+
     def test_settings_button_is_invokable_once_from_popup(self):
         app = self.module["Pet"]()
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             popup = app.context_menu
-            body = popup.winfo_children()[0]
-            buttons = [child for child in body.winfo_children() if child.winfo_class() == "Button"]
-            self.assertGreaterEqual(len(buttons), 2)
-            buttons[1].invoke()
+            settings = next(item for item in self.menu_items(popup) if item.cget("text") == "显示设置")
+            settings.invoke()
             app.update_idletasks()
             self.assertIsNotNone(app.settings_dialog)
             self.assertGreaterEqual(app.settings_dialog.winfo_x(), 0)
@@ -49,18 +66,29 @@ class MenuInteractionTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             app.destroy()
 
-    def test_restore_backup_button_dispatches_once_and_closes(self):
+    def test_hide_button_dispatches_once_and_closes(self):
         app = self.module["Pet"]()
         calls = []
-        app.restore_settings_backup = lambda: calls.append("restore")
+        app.hide_window = lambda: calls.append("hide")
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             popup = app.context_menu
-            body = popup.winfo_children()[0]
-            restore = next(child for child in body.winfo_children() if child.winfo_class() == "Button" and child.cget("text") == "恢复上次设置")
-            restore.invoke()
+            hide = next(item for item in self.menu_items(popup) if item.cget("text") == "隐藏窗口")
+            hide.invoke()
             app.update_idletasks()
-            self.assertEqual(calls, ["restore"])
+            self.assertEqual(calls, ["hide"])
+            self.assertFalse(popup.winfo_exists())
+        finally:
+            app.destroy()
+
+    def test_escape_closes_popup_and_releases_owner_reference(self):
+        app = self.module["Pet"]()
+        try:
+            app.menu(SimpleNamespace(x_root=4200, y_root=200))
+            popup = app.context_menu
+            popup.event_generate("<Escape>")
+            app.update()
+            self.assertIsNone(app.context_menu)
             self.assertFalse(popup.winfo_exists())
         finally:
             app.destroy()

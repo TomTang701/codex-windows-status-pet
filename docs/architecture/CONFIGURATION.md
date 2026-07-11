@@ -4,7 +4,7 @@
 
 Settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json` and use schema version `1`. A legacy file without `schema_version` is read as the pre-version format and normalized in memory; a save writes the current schema.
 
-The last valid file is retained at `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`. The context menu action **Restore Previous Settings** validates this sidecar before atomically restoring it; missing or malformed backups are ignored.
+The last valid file is retained at `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`. The configuration API can validate this sidecar before atomically restoring it; missing or malformed backups are ignored. Version 0.2.1 does not expose restoration in the context menu.
 
 ```json
 {

@@ -4,7 +4,7 @@
 
 设置保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json`，当前使用schema版本 `1`。没有 `schema_version` 的旧文件按版本化前格式读取并在内存中规范化；保存时会写入当前schema。
 
-上一个有效文件保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`。右键菜单中的“恢复上次设置”会先校验该副本，再原子恢复；缺失或损坏的备份会被忽略。
+上一个有效文件保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`。配置 API 可以先校验该副本，再原子恢复；缺失或损坏的备份会被忽略。0.2.1 版本不在右键菜单中提供恢复入口。
 
 ```json
 {
