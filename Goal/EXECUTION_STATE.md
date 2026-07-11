@@ -1,17 +1,16 @@
 # Execution State
 
-- Active phase: `Phase 1 — Correctness Stabilization` release verification after DPI-aware correction
-- Active version: `0.4.1`
-- Branch / HEAD: `fix/v0.4.1-correctness` / `97b9e772eb5f80f495c63fed7593f3452d3a3624`; remote branch not created
-- Active skill: `systematic-debugging`
-- Current design/spec: `docs/superpowers/specs/2026-07-11-v0.4.1-correctness-stabilization-design.md`; DPI-aware revision is `DESIGN VERIFIED`
-- Current plan: `docs/superpowers/plans/2026-07-11-v0.4.1-correctness-stabilization.md`
-- Current task: complete exact-build documentation, Quality/RC, PR/CI, merge, and v0.4.1 release reconciliation
-- Latest RED: Tom's 2026-07-11 screenshot shows the Reset Credit row clipped in the actual v0.4.1 candidate despite all-step Tk tests passing
-- Root cause: the old mapped-Tk test skipped production `enable_dpi_awareness()` and mixed Tk point fonts with unscaled physical-pixel geometry, so it passed at 96 DPI while the production 120-DPI path clipped every scale step
-- Latest GREEN: production-order isolated Tk probe reports effective DPI 120 and `all_fit=true` for all 25 scale steps; 80% Reset Credit allocation/request is 23/23 px; root launcher has one exact-repository `pythonw.exe` and no persistent CMD
-- Latest verification: final branch Quality passed 130 core + 22 Tk tests; package smoke passed; strict readiness reports zero blockers; full Release Candidate is approved
+- Active phase: `Phase 2 — v0.4.2 Autonomous Verification Conversion`
+- Active version: `0.4.2`
+- Branch / HEAD: `feat/v0.4.2-autonomous-verification` from released `v0.4.1` / `22fb0151ffcbf6a5a3ef8404da06d172f2ff432b`
+- Active skill: `brainstorming` transitioning to `writing-plans`
+- Current design/spec: `docs/superpowers/specs/2026-07-11-v0.4.2-autonomous-verification-design.md`; `DESIGN VERIFIED`
+- Current plan: pending writing-plans output
+- Current task: write the executable Phase 2 implementation plan from the verified design
+- Latest release: v0.4.1 tag and Release published at merged main `22fb0151ffcbf6a5a3ef8404da06d172f2ff432b`; PR #13 exact-head CI passed; release branch remote deleted
+- Phase 2 evidence: CI duplicates Quality/package/whitespace already owned by RC; readiness conflates limitations with deferred work; active docs retain generic manual UI requirements; subprocess decoding is locale-dependent
+- Latest verification: merged v0.4.1 main passed DPI-120 25/25 content fit and full RC after merge
 - Human fact required: `None`
 - Blocker: `None`
-- Next exact action: commit final evidence, push the verified branch, create the v0.4.1 PR, and monitor exact-head CI
+- Next exact action: write and self-review the v0.4.2 implementation plan, then begin TDD with the inventory and orchestration RED tests
 - Last updated: 2026-07-11
