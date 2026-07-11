@@ -58,6 +58,12 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.2.6 - 2026-07-10
+
+- Added one focused executable document-governance check: `Goal/ACTIVE_GOAL.md` is the only normative goal and the Goal directory uses a strict allowlist.
+- Required archived plans to declare archived/non-normative front matter and a valid supersession target; archived manifest entries cannot block release.
+- Deliberately avoided archive parity, freshness, prose-style, review-age, and other low-value documentation gates.
+
 ## 0.2.5 - 2026-07-10
 
 - Replaced the ambiguous automated release runner with a routine Quality runner that makes no release-readiness decision.
