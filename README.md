@@ -11,21 +11,19 @@ Supported platform: Windows 11 x64. Windows 10 is Deferred, Not claimed, and Non
 - Renders activity, active-conversation count, 5h quota, weekly quota, and Reset Credit as five independent stable rows without exposing plan-step details.
 - Supports multiple monitors and preserves user-supplied virtual-desktop coordinates.
 - Keeps the context menu fully inside the active monitor work area, including bottom-right edges.
-- Settings: opacity, font size, font color, background color, default X/Y position, always-on-top, and position lock.
-- Settings also include width, height, proportional scaling controls, and a 1–10 second refresh interval.
+- Settings: opacity, one proportional Window Size slider (80–200%), font color, background color, default X/Y position, always-on-top, position lock, and a digit-only 1–10 second refresh interval.
 - Optional idle compaction shrinks the overlay and expands it again on hover; it is off by default.
 - Weekly quota and the earliest future reset-credit expiry use local `HH:MM M/D` formatting without leading zeroes.
 - Settings actions: Save, Apply, Restore Defaults, and Close.
 - Notification-area menu: show, hide, open settings, and exit.
 - Uses `pythonw.exe`; no persistent command prompt window is required.
-- Starts automatically at Windows sign-in through a Startup shortcut.
+- The repository launcher starts the companion on demand; it does not install an automatic sign-in entry.
 
 ## Quick start
 
 Double-click `start_codex_status_pet.cmd` in this repository, or use the workspace launcher `启动Codex状态宠物.cmd`.
 
-The bundled Python runtime is preferred. If it is unavailable, the launcher falls back to `pythonw.exe` on `PATH`.
-The fallback environment must install the packages listed in `requirements.txt`.
+The bundled Python runtime is preferred. If it is unavailable, the launcher falls back to `pythonw.exe` on `PATH`. The fallback environment must install the packages listed in `requirements.txt`.
 
 ## Data and security boundary
 
@@ -45,14 +43,12 @@ $py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies
 & $py -m unittest discover -s .\tests -v
 ```
 
-Routine automated Quality is `python scripts/run_quality_checks.py`; passing it is not release approval. A formal candidate uses `python scripts/run_release_candidate_checks.py`, which strictly enforces the physical Windows blockers in `docs/quality/COMPATIBILITY_MATRIX.md`.
+Routine automated Quality is `python scripts/run_quality_checks.py`; passing it is not release approval. A formal candidate uses `python scripts/run_release_candidate_checks.py`, which strictly enforces the Windows blockers in `docs/quality/COMPATIBILITY_MATRIX.md`.
 The package smoke gate is `python scripts/package_smoke_test.py`; GitHub Actions runs both gates on Windows.
-Use `python scripts/check_release_readiness.py` to see whether physical compatibility evidence still blocks v0.3.0. The current repository does not install a Startup-folder entry automatically.
+Use `python scripts/check_release_readiness.py` to inspect current compatibility blockers and explicitly deferred physical limitations. The repository does not install a Startup-folder entry automatically.
 Use `python scripts/startup_audit.py` to report known legacy startup entries; it is read-only unless a maintainer explicitly removes a confirmed old entry.
 
-Before publishing, approve the intended GitHub owner in the local repository. The tracked
-`.githooks/pre-push` guard rejects pushes until this is set and rejects any remote whose owner
-differs from it:
+Before publishing, approve the intended GitHub owner in the local repository. The tracked `.githooks/pre-push` guard rejects pushes until this is set and rejects any remote whose owner differs from it:
 
 ```powershell
 git config --local core.hooksPath .githooks
@@ -62,9 +58,7 @@ git config --local user.email "your-github-noreply-email"
 git config --local codex.expected-author-email "your-github-noreply-email"
 ```
 
-The hook validates both the remote owner and the commit author email. This is deliberate: the
-GitHub CLI account, credential helper, and global Git identity are machine-level state and must not
-silently determine where a project is published or whose name appears on commits.
+The hook validates both the remote owner and the commit author email. This is deliberate: the GitHub CLI account, credential helper, and global Git identity are machine-level state and must not silently determine where a project is published or whose name appears on commits.
 
 The application is intentionally an external companion. Codex custom pets currently provide a static spritesheet contract, so dynamic text remains in this companion overlay rather than being injected into the built-in pet.
 

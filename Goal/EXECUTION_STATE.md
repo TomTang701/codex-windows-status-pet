@@ -1,28 +1,17 @@
 # Execution State
 
-- Active version: `0.4.0`
-- Branch: `release/v0.4.0-unified-window-scale`
-- Base main SHA: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
-- Current HEAD: `49982a21bc269ef2ea2d99e18d49d02381abe4e9`
-- Last pushed SHA: `49982a21bc269ef2ea2d99e18d49d02381abe4e9`
-- Current phase: Task 6 — v0.4.0 metadata complete; final branch RC pending
-- Product decision: `GO`
-- Scope lock: unified window-scale v0.4.0 only; no v0.4.1+ or unrelated work
-- Active Superpowers skill: `superpowers:verification-before-completion`
-- Design spec: `docs/superpowers/specs/2026-07-10-unified-window-scale-design.md`; self-review passed for placeholders, contradictions, scope, ambiguity, interface naming, and authority conflicts
-- Implementation plan: `docs/superpowers/plans/2026-07-10-unified-window-scale-implementation.md`; six sequential tasks with exact interfaces, RED/GREEN commands, documentation/host validation, release lifecycle, and self-review
-- Latest RED evidence: integrated tests found no `Pet.window_metrics` and 150% Apply did not produce 495x207; one geometry assertion then exposed a missing Tk idle flush in the test
-- Latest GREEN evidence: main/UI/recovery/Compact/controller group ran 32 tests in 2.755s, all passed
-- Latest completion verification: fresh exact-state RC after limitation-label correction approved — 141 tests (124 core + 17 UI), Quality, package smoke, strict readiness, parity, sensitive scan, whitespace, and RC all passed
-- Candidate RC state: not started for v0.4.0
-- Final RC state: approved on the final uncommitted release diff; only this execution-state evidence line changed afterward
-- Remote CI state: no v0.4.0 PR yet
-- Main protection state: unavailable on current private repository/account plan; compensating PR controls remain mandatory
-- Autonomous checks completed: Tasks 1–4 RED/GREEN; 141-test full gate; bilingual docs; four-scale real Tk metrics/menu/drag/lock/Hide/Show/Compact/persistence; actual branch relaunch and display probe
+- Active phase: `Phase 1 — Correctness Stabilization`; Phase 0 reconciliation complete locally
+- Active version: `0.4.1`
+- Branch / HEAD: local `main` / `02ab1f60a1e8a6b91e4b212bb47773e88d068c84`; equals `origin/main`
+- Active skill: `verification-before-completion`; `systematic-debugging` used for Phase 0 governance and RC decoding failures
+- Current design/spec: `Goal/ACTIVE_VERSION_BRIEF.md`; Phase 1 design verification is `PENDING`
+- Current plan: `docs/superpowers/plans/2026-07-11-repository-truth-and-baseline.md`
+- Current task: begin Phase 1 clipping/error-path investigation and Design Verification
+- Latest RED: baseline Quality failed because `Goal/CODEX_PROJECT_RENEWAL_ACTIVE_GOAL.md` existed as an unapproved second Goal file
+- Root cause: the supplied file explicitly required replacement of `ACTIVE_GOAL.md`; the replacement had not yet occurred, and governance correctly rejected the duplicate
+- Latest GREEN: Goal governance, manifest, links, 17 document pairs, Quality, package smoke, strict readiness, whitespace, and strict RC pass after reconciliation
+- Latest verification: 124 core and 17 UI tests passed; active normative LOC reduced from 2,675 to 1,012; runtime Python files/LOC and dependencies remain 39/2,702 and 2
 - Human fact required: `None`
-- Methods attempted: repository history, source/API/UI/test/document inspection
-- Why human input is necessary: `None`
-- Completed: v0.3.2 release; v0.4.0 branch/Brief/design/plan; Tasks 1–5; version sources and bilingual Changelog updated to 0.4.0
-- Remaining: commit/push; PR/CI/merge/main retest/tag/release report/branch deletion; final audit
-- Next exact action: inspect, commit, and push the verified v0.4.0 release candidate; open the exact-title PR and monitor Windows Quality
+- Blocker: `None`
+- Next exact action: create a v0.4.1 work branch, reproduce clipping and both legacy error paths, and complete Design Verification before production changes
 - Last updated: 2026-07-11
