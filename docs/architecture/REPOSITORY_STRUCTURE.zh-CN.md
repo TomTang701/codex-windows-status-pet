@@ -12,6 +12,7 @@
 | `scripts/api/status_rows_api.py` | 纯五行身份和兼容文字契约。 |
 | `scripts/ui/status_rows.py` | 五 Label Tk 状态渲染适配层。 |
 | `scripts/api/` | 与UI无关的领域、传输、校验、刷新、额度、几何和诊断API。 |
+| `scripts/api/*_controller_api.py` | 纯应用、展示、持久化和生命周期协调状态。 |
 | `scripts/ui/` | Tk和通知区域适配层。 |
 | `start_codex_status_pet.cmd` | 推荐使用 `pythonw.exe` 的双击启动程序。 |
 | `skills/codex-windows-status-pet/SKILL.md` | Codex技能说明。 |
@@ -34,6 +35,7 @@
 
 - 同时只允许一个伴侣实例；第二次启动不杀死已有进程而直接退出。
 - 后台worker不得直接调用Tk API；UI调度必须在Tk主线程。
+- `Pet` 拥有 Tk 组合职责；纯控制器拥有协调状态，并且不得导入 Tk 或 pystray。
 - 菜单命令第一次点击执行一次，执行后关闭右键菜单。
 - 五个状态行在更新期间保持稳定身份和持久 Tk 控件。
 - 日常 Quality 通过后应提交重大变更，并由本地 Git 配置和 pre-push 钩子核验远程所有者及作者身份；正式 Release Candidate 批准保持独立。

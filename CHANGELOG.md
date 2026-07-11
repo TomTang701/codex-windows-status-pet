@@ -58,6 +58,12 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.3.1 - 2026-07-10
+
+- Extracted pure application, status-presentation, settings-persistence, and window-lifecycle controllers from the Tk main window.
+- Preserved Activity/Quota timing and generation behavior, compact decisions, protected configuration/reset semantics, five-row rendering, and idempotent shutdown.
+- Retained compatibility views for existing refresh, scheduler, compact-state, and settings-path integrations while moving ownership out of `Pet`.
+
 ## 0.3.0 - 2026-07-10
 
 - Replaced the single multiline status Label with five persistent independently updated rows: activity, active-conversation progress, 5h quota, weekly quota, and Reset Credit.

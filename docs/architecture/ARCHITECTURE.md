@@ -10,6 +10,8 @@ Domain and pure APIs must not import Tkinter or pystray. UI adapters render vali
 
 Status presentation crosses the pure/UI boundary as five named rows. The pure snapshot owns order and compatibility text; the Tk adapter owns five persistent labels and updates them in place.
 
+The application, status-presentation, settings-persistence, and window-lifecycle controllers own coordination state but no widgets. `Pet` composes them and translates their decisions into Tk actions.
+
 ## Runtime boundaries
 
 - Activity and Quota refresh channels are independent, single-flight, generation-safe, cancellable, and shutdown-aware.

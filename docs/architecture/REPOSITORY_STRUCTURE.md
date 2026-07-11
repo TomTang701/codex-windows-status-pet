@@ -12,6 +12,7 @@ This document describes where project files belong. Configuration values belong 
 | `scripts/api/status_rows_api.py` | Pure five-row identity and compatibility-text contract. |
 | `scripts/ui/status_rows.py` | Five-label Tk status rendering adapter. |
 | `scripts/api/` | UI-independent domain, transport, validation, refresh, quota, geometry, and diagnostics APIs. |
+| `scripts/api/*_controller_api.py` | Pure application, presentation, persistence, and lifecycle coordination state. |
 | `scripts/ui/` | Tk and notification-area adapters. |
 | `start_codex_status_pet.cmd` | Recommended double-click launcher using `pythonw.exe`. |
 | `skills/codex-windows-status-pet/SKILL.md` | Codex skill instructions. |
@@ -34,6 +35,7 @@ This document describes where project files belong. Configuration values belong 
 
 - Only one companion instance may run at a time; a second launch exits without killing the existing process.
 - Background workers never call Tk APIs directly; UI scheduling remains on the Tk main thread.
+- `Pet` owns Tk composition; pure controllers own coordination state and never import Tk or pystray.
 - Menu commands execute once on the first click and close the context menu after execution.
 - Five status rows retain stable identities and persistent Tk widgets across updates.
 - Substantial changes are committed after routine Quality passes, with remote owner and author identity verified by local Git configuration and the pre-push hook. Formal Release Candidate approval remains separate.
