@@ -36,7 +36,7 @@ headless tests.
 | Settings Persistence Controller API | `scripts/api/settings_persistence_controller_api.py` | Own the settings path, source compatibility state, atomic save authorization, and backup restore. | Future-schema preservation, explicit reset, path replacement, and backup tests. |
 | Window Lifecycle Controller API | `scripts/api/window_lifecycle_controller_api.py` | Own the one-way idempotent close transition independently from Tk. | First and repeated close tests. |
 | Codex transport API | `scripts/api/codex_transport_api.py` | Start local app-server, perform JSON-RPC requests, and report protocol failures. | Mock subprocess/stdout response matrix. |
-| UI/tray adapter | `Pet` in `scripts/ui/main_window.py` and `TrayIcon3` in `scripts/ui/tray_adapter.py` | Translate API results into Tk and tray actions. | Windows UI/manual interaction tests only. |
+| UI/tray adapter | `Pet` in `scripts/ui/main_window.py` and `TrayIcon3` in `scripts/ui/tray_adapter.py` | Translate API results into Tk and tray actions. | Deterministic Tk adapter and app-local Windows interaction tests. |
 | Context Menu UI | `scripts/ui/context_menu.py` | Own first-click-safe popup construction, placement, command dispatch, and close behavior. | Existing first-click/settings popup integration test and physical corner checks. |
 | Settings Dialog UI | `scripts/ui/settings_dialog.py` | Own settings controls, validation binding, transaction actions, and reachable-dialog placement. | Settings session tests and Windows secondary-monitor interaction checks. |
 | Tray UI | `scripts/ui/tray_adapter.py` | Own icon construction, pystray callbacks, tray thread, and stop handling; actions return through a queue. | Tray failure, action allowlist, repeated launch, and physical show/hide checks. |
@@ -113,7 +113,7 @@ orchestrator that invokes it with `--strict`; routine Quality makes no release d
 
 ## Change classification
 
-- **Major behavior:** menu dispatch, visibility, tray actions, single-instance policy, settings semantics, or displayed status. Requires a focused regression test and a manual Windows check.
+- **Major behavior:** menu dispatch, visibility, tray actions, single-instance policy, settings semantics, or displayed status. Requires a focused regression test and the authoritative Tk/Win32/process check named by the verification inventory; human confirmation is reserved for admitted physical-only facts.
 - **Performance:** session scan duration, refresh interval, thread count, or disk-write frequency. Requires a benchmark or bounded test fixture and a note in `CHANGELOG.md`.
 - **Documentation-only:** wording or examples with no runtime effect. Still requires checking English and Chinese specifications for drift.
 

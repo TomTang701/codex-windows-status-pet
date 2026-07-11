@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -12,7 +13,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def run(command):
-    completed = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+    completed = subprocess.run(
+        command,
+        cwd=ROOT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        capture_output=True,
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+    )
     return completed.returncode, completed.stdout + completed.stderr
 
 
@@ -32,6 +41,7 @@ def quality_commands(python=sys.executable):
         "sensitive_files": [python, str(ROOT / "scripts" / "check_sensitive_files.py")],
         "dependencies": [python, str(ROOT / "scripts" / "check_dependencies.py")],
         "document_parity": [python, str(ROOT / "scripts" / "check_doc_parity.py")],
+        "verification_inventory": [python, str(ROOT / "scripts" / "check_verification_inventory.py")],
         "compile": [
             python,
             "-m",
@@ -52,7 +62,7 @@ def main():
         code, output = run(command)
         results[name] = {"passed": code == 0, "output": output.strip()}
     approved = all(item["passed"] for item in results.values())
-    print(json.dumps({"quality_approved": approved, "checks": results}, ensure_ascii=False, indent=2))
+    print(json.dumps({"quality_approved": approved, "checks": results}, ensure_ascii=True, indent=2))
     return 0 if approved else 1
 
 

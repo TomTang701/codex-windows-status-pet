@@ -34,7 +34,7 @@
 | 设置持久化控制器 API | `scripts/api/settings_persistence_controller_api.py` | 拥有设置路径、源兼容状态、原子保存授权和备份恢复。 | 未来 schema 保留、明确重置、路径替换和备份测试。 |
 | 窗口生命周期控制器 API | `scripts/api/window_lifecycle_controller_api.py` | 在不依赖 Tk 的情况下拥有单向幂等关闭转换。 | 首次和重复关闭测试。 |
 | Codex 通信 API | `scripts/api/codex_transport_api.py` | 启动本机 app-server、执行 JSON-RPC 并报告协议错误。 | 模拟子进程和响应矩阵。 |
-| UI/托盘适配层 | `scripts/ui/main_window.py` 中的 `Pet` 与 `scripts/ui/tray_adapter.py` 中的 `TrayIcon3` | 将 API 结果转换为 Tk 和托盘动作。 | Windows 界面和人工交互测试。 |
+| UI/托盘适配层 | `scripts/ui/main_window.py` 中的 `Pet` 与 `scripts/ui/tray_adapter.py` 中的 `TrayIcon3` | 将 API 结果转换为 Tk 和托盘动作。 | 确定性 Tk 适配层和应用本地 Windows 交互测试。 |
 | 右键菜单 UI | `scripts/ui/context_menu.py` | 管理首次点击安全的弹出菜单构造、定位、命令分发和关闭。 | 现有首次点击/设置弹窗集成测试和实体角落检查。 |
 | 设置窗口 UI | `scripts/ui/settings_dialog.py` | 管理设置控件、校验绑定、事务动作和可到达窗口定位。 | 设置会话测试和 Windows 副屏交互检查。 |
 | 托盘 UI | `scripts/ui/tray_adapter.py` | 管理图标构造、pystray 回调、托盘线程和停止处理；动作通过队列返回。 | 托盘故障、动作白名单、重复启动和实体显示/隐藏检查。 |
@@ -107,7 +107,7 @@ $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
 
 ## 变更分类
 
-- **重大行为：** 菜单、可见性、托盘、单实例、设置语义或状态显示变化；必须有专项回归测试和 Windows 手工检查。
+- **重大行为：** 菜单、可见性、托盘、单实例、设置语义或状态显示变化；必须有专项回归测试和验证清单指定的权威 Tk/Win32/进程检查；人工确认只保留给准入的实体事实。
 - **性能变化：** 会话扫描耗时、刷新间隔、线程数量或磁盘写入频率变化；必须有基准/边界测试并记录到更新日志。
 - **文档变化：** 仍需检查中英文规范是否一致。
 

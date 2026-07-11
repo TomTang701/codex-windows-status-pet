@@ -36,7 +36,8 @@ class ReleaseReadinessTests(unittest.TestCase):
             result = assess(matrix)
             self.assertTrue(result["ready"])
             self.assertEqual(result["blockers"], [])
-            self.assertEqual(result["deferred"][0]["coverage"], "Windows 10")
+            self.assertEqual(result["limitations"][0]["coverage"], "Windows 10")
+            self.assertEqual(result["passes"][0]["coverage"], "Unit")
 
     def test_all_pass_rows_are_release_ready(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -48,4 +49,25 @@ class ReleaseReadinessTests(unittest.TestCase):
                 "| Tests | Unit | Pass | green |\n",
                 encoding="utf-8",
             )
-            self.assertEqual(assess(matrix), {"ready": True, "blockers": [], "deferred": []})
+            self.assertEqual(
+                assess(matrix),
+                {
+                    "ready": True,
+                    "passes": [
+                        {
+                            "area": "Windows",
+                            "coverage": "Windows 11",
+                            "status": "Physical pass",
+                            "evidence": "verified",
+                        },
+                        {
+                            "area": "Tests",
+                            "coverage": "Unit",
+                            "status": "Pass",
+                            "evidence": "green",
+                        },
+                    ],
+                    "blockers": [],
+                    "limitations": [],
+                },
+            )

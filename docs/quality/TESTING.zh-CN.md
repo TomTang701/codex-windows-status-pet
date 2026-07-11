@@ -11,10 +11,12 @@ $py = "<bundled-python>"
 & $py scripts/check_doc_parity.py
 & $py -m unittest discover -s tests -q
 & $py scripts/run_quality_checks.py
-# 仅用于正式候选版本；实体阻塞项存在时预期失败。
+# 唯一正式自动化发布候选命令。
 & $py scripts/run_release_candidate_checks.py
 ```
 
-UI变更需要确定性的适配器测试和Windows人工证据。显示/DPI变更需要几何测试和实体兼容矩阵。安全边界变更需要负向及脱敏测试。
+机器可观察的 UI 事实必须使用确定性的适配层、Tk、Win32、进程、文件系统或 GitHub 证据。人工视觉确认不是常规门禁。实体证据只保留给不可用硬件/拓扑或真正主观的外观。显示/DPI 变更需要几何测试和真实的实体兼容性分类；安全边界变更需要负向测试和脱敏测试。
+
+`verification-inventory.json` 分类每项发布事实并指定唯一权威检查。`AUTOMATABLE` 工作进入发布范围时必须转换；`PHYSICAL-ONLY` 限制只记录一次，不属于失败测试。`DUPLICATE` 和 `OBSOLETE` 项不得作为独立发布流程。
 
 实体记录必须包含日期、commit、Windows build、显示器拓扑、DPI、任务栏位置、结果和安全证据。除明确标记为manual外，测试不得依赖真实Codex账户。

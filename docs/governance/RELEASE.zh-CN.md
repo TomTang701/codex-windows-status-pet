@@ -2,7 +2,7 @@
 
 ## 门禁
 
-日常 `run_quality_checks.py` 只验证自动化代码质量，绝不批准发布。正式发布前，`run_release_candidate_checks.py` 必须通过 Quality、打包 smoke、严格实体就绪检查和空白检查。当前实体阻塞项由 `scripts/check_release_readiness.py` 报告。
+日常 `run_quality_checks.py` 只提供快速自动化代码质量反馈，绝不批准发布。`run_release_candidate_checks.py` 是唯一正式自动化发布命令；它只执行一次 Quality、打包 smoke、严格兼容性就绪和空白检查，并分别报告通过项、阻塞项和限制。规范事实分类与权威检查记录在 `docs/quality/verification-inventory.json`。
 
 运行时依赖策略在 `requirements.txt` 中使用最低兼容版本。Quality 会检查每项声明已安装、满足最低版本并且可以导入；当前已验证环境为 Pillow 12.2.0 和 pystray 0.19.5。
 
