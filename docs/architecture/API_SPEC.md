@@ -21,8 +21,9 @@ headless tests.
 | Display Mode API | `scripts/api/display_mode_api.py` | Decide opt-in idle compaction and calculate compact geometry. | Opt-in, active, hovered, and malformed-size cases. |
 | Compact State API | `scripts/api/compact_state_api.py` | Delay idle compaction, expand on activity/hover, and preserve edge anchors. | Idle delay, activity, hover, blockers, and edge geometry. |
 | Window Recovery API | `scripts/api/window_recovery_api.py` | Preserve legal monitor coordinates, correct taskbar-partial windows, and recover off-screen windows to the nearest work area. | Negative/secondary coordinates, DPI rounding tolerance, taskbar coverage, disconnected displays, and clamping. |
-| Window Size API | `scripts/api/window_size_api.py` | Transform free or proportional width/height changes with bounds. | Free, proportional, bounded, and invalid-factor cases. |
-| Resize Session API | `scripts/api/resize_session_api.py` | Apply reversible percentage steps from an opening base size. | Exact plus/minus symmetry and bounded dimensions. |
+| Window Scale API | `scripts/api/window_scale_api.py` | Clamp/quantize one canonical percentage, derive immutable geometry/typography/layout metrics, and infer scale from legacy visual area. | 80/100/200 metrics, half-up steps, monotonicity, ratio tolerance, malformed values, and migration bounds. |
+| Window Size API | `scripts/api/window_size_api.py` | Retain the historical free/proportional transformation contract as a compatibility utility; the normal settings UI does not consume it. | Free, proportional, bounded, and invalid-factor cases. |
+| Resize Session API | `scripts/api/resize_session_api.py` | Retain historical reversible step behavior as a compatibility utility; the normal settings UI does not consume it. | Exact plus/minus symmetry and bounded dimensions. |
 | Quota Provider API | `scripts/api/quota_provider_api.py` | Normalize already-fetched local app-server data without reading auth or making network calls. | Valid, malformed, and credential-bearing payload fixtures. |
 | Quota Parse API | `scripts/api/quota_parse_api.py` | Normalize only approved quota fields, explicit camelCase/snake_case aliases, and bounded Reset Credit expiry containers. | Unknown fields, invalid numbers, aliases, nested expiries, and missing fields. |
 | Quota State API | `scripts/api/quota_state_api.py` | Retain last-good data and classify loading, ok, stale, and explicit failures. | Success recovery, recent failure, stale timeout, and no-data failures. |
@@ -61,7 +62,9 @@ headless tests.
 - A settings Apply changes runtime preview only; only Save changes persisted settings.
 - A settings Close restores the opening snapshot, including after an Apply preview.
 - Coordinate fields accept a temporary `-` while typing but reject malformed signed integers on submit.
-- Resize buttons apply the same percentage to width and height and remain reversible around the session base size.
+- `window_scale_percent` is the only expanded-size source; geometry, text/paw fonts, wraplength, and required spacing consume one immutable Window Scale API result.
+- The normal settings dialog contains exactly two Scale widgets: opacity and Window Size. It has no font-size slider, width/height entries, size buttons, or aspect-mode checkbox.
+- Valid legacy geometry migrates by geometric-mean area inference; schema 1 persists derived downgrade fields and protects malformed/future sources exactly as before.
 - UI callbacks must not perform blocking app-server or filesystem work on the Tk thread.
 - The Tk main window composes controllers but does not directly own refresh generations/scheduling, compact decisions, persistence compatibility, or close-state transitions.
 - Tray and application shutdown operations are idempotent; repeated stop calls do not invoke a stopped backend again.
@@ -70,7 +73,7 @@ headless tests.
 - Status presentation has exactly five stable ordered rows: activity, progress, primary 5h, weekly, and Reset Credit; a blank row never shifts later identities.
 - Popup rectangles must be completely contained by the selected monitor work area.
 - Window placement is re-evaluated during the running session so monitor disconnects and taskbar work-area changes can recover the overlay.
-- Coordinates may be negative; dimensions are clamped to 180–1200 by 80–800; refresh interval is clamped to 1–10 seconds.
+- Coordinates may be negative; canonical scale is 80–200% in 5% steps; derived expanded geometry is 264x110 through 660x276; refresh interval is clamped to 1–10 seconds.
 - Quota dates use the local timezone and `M/D` without leading zeroes; missing provider data is not invented.
 - The default quota provider accepts local app-server results only; it never reads auth files, sends tokens, or persists credentials.
 - A major behavior or performance change requires a changelog entry, specification update, and regression test.
