@@ -60,8 +60,8 @@
 
 ## 0.4.1 - 2026-07-11
 
-- Prevented reset-credit row clipping across all 25 supported Window Size steps while preserving existing geometry and configuration compatibility; measured content-safe vertical padding is applied only at 80% and 95%.
-- Added mapped Tk content-fit coverage for actual/requested window, status-container, and five-row geometry, including the full Reset Credit date/time row.
+- Prevented reset-credit row clipping across all 25 supported Window Size steps by scaling runtime pixel geometry, padding, gaps, and wrapping for the effective window DPI while preserving 96-DPI logical configuration values and Tk point-font sizing.
+- Replaced the false-positive 96-DPI-only mapped Tk check with a production-order DPI-aware subprocess regression covering actual/requested window, status-container, and five-row geometry, including the full Reset Credit date/time row at 120 DPI.
 - Routed tray and quota transport failures through the authoritative five-row presentation boundary instead of invalid Label-style configuration against `StatusRows`.
 - Preserved truthful last-good/stale quota behavior, stopped displaying raw transport exception text, and restored single-scheduled tray recovery after a tray failure.
 - Added no feature, dependency, provider, network path, worker, polling loop, telemetry, configuration field, or schema change.
