@@ -27,7 +27,7 @@ try:
     from api.window_recovery_api import recover_position
     from api.window_scale_api import derive_window_metrics
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
-    from api.quota_provider_api import normalize_snapshot
+    from api.quota_parse_api import parse_quota_payload
     from api.quota_state_api import QuotaState
     from api.runtime_api import SingleInstance, enable_dpi_awareness
     from ui.context_menu import show_context_menu
@@ -50,7 +50,7 @@ except ModuleNotFoundError:
     from scripts.api.window_recovery_api import recover_position
     from scripts.api.window_scale_api import derive_window_metrics
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
-    from scripts.api.quota_provider_api import normalize_snapshot
+    from scripts.api.quota_parse_api import parse_quota_payload
     from scripts.api.quota_state_api import QuotaState
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
     from scripts.ui.context_menu import show_context_menu
@@ -491,7 +491,7 @@ class Pet(tk.Tk):
             try:
                 if not self.server.proc or self.server.proc.poll() is not None:
                     self.server.start()
-                payload = normalize_snapshot(self.server.read_limits())
+                payload = parse_quota_payload(self.server.read_limits())
                 payload.update({"_channel": "quota", "_generation": generation})
                 self.queue.put(payload)
             except Exception as exc:
