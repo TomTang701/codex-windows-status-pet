@@ -8,6 +8,8 @@ Windows/Tk adapters -> application controllers -> domain services/state -> pure 
 
 Domain and pure APIs must not import Tkinter or pystray. UI adapters render validated state and bind actions; transport adapters return normalized values without mutating UI. Background workers communicate with Tk through queues or scheduled main-thread callbacks.
 
+Status presentation crosses the pure/UI boundary as five named rows. The pure snapshot owns order and compatibility text; the Tk adapter owns five persistent labels and updates them in place.
+
 ## Runtime boundaries
 
 - Activity and Quota refresh channels are independent, single-flight, generation-safe, cancellable, and shutdown-aware.

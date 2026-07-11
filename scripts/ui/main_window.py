@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.2.6"
+APP_VERSION = "0.3.0"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -30,6 +30,7 @@ try:
     from api.runtime_api import SingleInstance, enable_dpi_awareness
     from ui.context_menu import show_context_menu
     from ui.settings_dialog import show_settings_dialog
+    from ui.status_rows import StatusRows
     from ui.tray_adapter import TrayIcon3
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
@@ -50,6 +51,7 @@ except ModuleNotFoundError:
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
     from scripts.ui.context_menu import show_context_menu
     from scripts.ui.settings_dialog import show_settings_dialog
+    from scripts.ui.status_rows import StatusRows
     from scripts.ui.tray_adapter import TrayIcon3
 
 
@@ -108,12 +110,12 @@ class Pet(tk.Tk):
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", 28), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.face.pack(side="left", padx=(12, 5), pady=10)
-        self.text = tk.Label(self, text="Codex\n\u8fde\u63a5\u4e2d...", justify="left", anchor="w", wraplength=260, font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=260, font=("Segoe UI", self.settings["font_size"]), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.text.pack(side="left", fill="both", expand=True, pady=10)
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
         self.bind("<Leave>", self._pointer_leave)
-        for widget in (self.face, self.text):
+        for widget in (self.face, *self.text.event_widgets):
             widget.bind("<Button-3>", self.menu)
             widget.bind("<Enter>", self._pointer_enter)
             widget.bind("<Leave>", self._pointer_leave)
@@ -198,7 +200,7 @@ class Pet(tk.Tk):
         bg, fg = self.settings["background_color"], self.settings["font_color"]
         self.configure(bg=bg)
         self.face.configure(bg=bg, fg=fg)
-        self.text.configure(bg=bg, fg=fg, font=("Segoe UI", self.settings["font_size"]))
+        self.text.configure_rows(bg=bg, fg=fg, font=("Segoe UI", self.settings["font_size"]), wraplength=260)
         self.topmost_var.set(self.settings["topmost"])
         self.locked_var.set(self.settings["locked"])
 
@@ -445,7 +447,7 @@ class Pet(tk.Tk):
         )
         if should_be_compact != self.compact:
             self.set_compact(should_be_compact)
-        self.text.config(text=presentation["text"], fg=presentation["color"])
+        self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
 
     def poll(self):
         if self.closing:

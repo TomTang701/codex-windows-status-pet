@@ -1,58 +1,68 @@
-# ACTIVE VERSION BRIEF — v0.2.6 Executable Document Governance
+# ACTIVE VERSION BRIEF — v0.3.0 Independent Stable Status Rows
 
 ## Identity
 
-- Version: `0.2.6`
-- Branch: `release/v0.2.6-document-governance`
-- Base: `main` at `bcbdc875ed25472bc016551835df77cabc597f14`
-- PR: `[v0.2.6] Enforce minimal document governance`
-- Tag: `v0.2.6`
+- Version: `0.3.0`
+- Branch: `release/v0.3.0-independent-status-rows`
+- Base: `main` at `77c15006f9884f7e3c426b13f2ae00dd168bb9fa`
+- PR: `[v0.3.0] Render five independent status rows`
+- Tag: `v0.3.0`
 
 ## Product
 
-- One-sentence outcome: One focused executable check guarantees the active Goal and archived-plan boundaries without adding low-value documentation bureaucracy.
-- User problem: The rules are written down, but a duplicate Goal or normative-looking archived plan could silently reintroduce conflicting instructions.
-- Success criteria: Only approved files can live in `Goal/`; `ACTIVE_GOAL.md` is unique and required; archived plans are explicitly non-normative and cannot be release-required.
-- Explicit non-goals: Documentation rewrite, freshness enforcement, prose linting, review-cycle scheduling, v0.3.0 status-row work, runtime behavior.
+- One-sentence outcome: Activity, active-conversation progress, 5h quota, weekly quota, and Reset Credit each render through a stable independent row.
+- User problem: A single multiline Label couples row identity, updates, wrapping, and event behavior, making individual status stability fragile.
+- Success criteria: Exactly five ordered row IDs exist in pure presentation and five persistent Tk labels; each row can update without shifting or recreating siblings.
+- Explicit non-goals: Controller refactor, new content, plan-step display, settings/menu/tray changes, refresh changes, layout redesign, new dependencies.
 - Decision: GO
 
 ## Applicability Matrix
 
 | Role | Applicable | Decision |
 |---|---:|---|
-| Product/Governance | Yes | GO |
-| Tooling | Yes | PASS |
+| Product | Yes | GO |
+| Visual/UI/UX | Yes | PASS |
+| Frontend | Yes | PASS |
+| Backend/presentation | Limited | PASS |
 | QA/Release | Yes | PASS |
-| Documentation | Yes | PASS |
-| Runtime/Frontend/Backend | No | N/A |
-| Security/Resource | Limited | PASS |
+| Security/Resource | Yes | PASS |
 
-## Governance Contract
+## Visual / Frontend
 
-- Allowed Goal files: `ACTIVE_GOAL.md`, `ACTIVE_VERSION_BRIEF.md`, optional `EXECUTION_STATE.md`, and `README.md`.
-- `ACTIVE_GOAL.md` must exist exactly once; version-specific Goal files and extra active-goal copies fail Quality.
-- Every Markdown plan under `docs/archive/plans/` must begin with front matter declaring `status: archived`, `normative: false`, and a valid repository-relative `superseded_by` target.
-- Manifest entries under `docs/archive/` may never set `required_for_release: true`.
-- Archived plans are checked only for safe classification/linkage; their old content, parity, freshness, and historical claims do not block release.
-- Existing manifest, link, and bilingual parity checks remain unchanged.
+- Stable row order: `activity`, `progress`, `primary_5h`, `weekly`, `reset_credit`.
+- Five labels are created once and updated in place; blank progress stays in its own row and never shifts quota rows.
+- Existing font, foreground/background, wrap width, compact hide/show, drag, hover, and right-click bindings apply to every row.
+- The existing `text`/multiline compatibility surface remains available for callers during this release.
+- No new icons, controls, animation, spacing concept, or window-size default.
+- Decision: PASS
+
+## Presentation API
+
+- `StatusRowsSnapshot` owns exact row identity/order and exports ordered dict plus legacy joined text.
+- `build_status_snapshot` produces both `rows` and byte-for-byte-equivalent `text` from the same snapshot.
+- No provider payload or new raw field reaches the UI.
+- No controller or scheduling ownership moves in v0.3.0.
 - Decision: PASS
 
 ## QA / Release
 
-- Positive fixture: approved Goal set plus correctly classified archived plan.
-- Negative fixtures: duplicate active Goal, version Goal, unknown Goal file, missing active Goal, missing/incorrect archive metadata, broken supersession target, release-required archive manifest entry.
-- One new check is added to routine Quality; no separate prose style, timestamp, ownership, or review-age gate is introduced.
+- Pure tests: exact IDs/order, blank padding, excess-line truncation, dict/text consistency, no row shifting.
+- Tk tests: exactly five persistent labels, one-row update preserves sibling widget identities/values, style propagation, event-widget coverage.
+- Integration: main Pet renders approved row mapping and compact mode still hides/restores the row container.
+- Full Quality, package smoke, `git diff --check`, Windows 11 visible-row smoke.
 - Decision: PASS
 
 ## Security / Resource
 
-- Local bounded filesystem/JSON/text inspection only.
-- No network, subprocess, runtime process, dependency, user data, credential, or product behavior change.
+- Five labels replace one label; no worker, timer, process, IPC, network, disk, dependency, data retention, or Codex quota increase.
+- Updates are bounded to five existing widgets and perform no polling.
 - Decision: PASS
 
 ## Scope Lock
 
-- Allowed files: document-governance checker/tests, Quality registration, Goal/docs governance instructions, manifest if needed, canonical version sources, bilingual Changelog.
-- Forbidden: product/runtime code other than version constants, document content rewrites, archive parity/freshness gates, status-row/controller work, CI policy changes, dependencies.
+- Allowed production files: pure status-row API, status snapshot integration, Tk status-row adapter, minimum main-window wiring.
+- Allowed tests: row API/snapshot/Tk/main-window direct regressions.
+- Allowed release files: canonical version sources, bilingual Changelog, directly affected architecture/repository/testing documents.
+- Forbidden: v0.3.1 controllers, refresh/lifecycle/settings persistence refactors, new displayed fields, plan steps, menu/tray/settings changes, dependencies.
 - Release shape: one focused implementation/release commit, one PR, one tag.
-- No work from v0.3.0 or later is included.
+- No work from v0.3.1 or later is included.

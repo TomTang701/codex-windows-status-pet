@@ -171,6 +171,23 @@ class MenuInteractionTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             self.destroy_app(app)
 
+    def test_pet_renders_five_rows_and_compact_mode_restores_container(self):
+        app = self.module["Pet"]()
+        try:
+            app.latest_activity = {"active": 1, "detail": "工具调用", "progress": "活动对话 1 个"}
+            app.render_status()
+            self.assertEqual(
+                tuple(app.text.labels),
+                ("activity", "progress", "primary_5h", "weekly", "reset_credit"),
+            )
+            self.assertEqual(app.text.row_values()["progress"], "活动对话 1 个")
+            app.set_compact(True)
+            self.assertEqual(app.text.winfo_manager(), "")
+            app.set_compact(False)
+            self.assertEqual(app.text.winfo_manager(), "pack")
+        finally:
+            self.destroy_app(app)
+
 
 if __name__ == "__main__":
     unittest.main()

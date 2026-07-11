@@ -38,6 +38,8 @@ headless tests.
 | Codex Transport API | `scripts/api/codex_transport_api.py` | Discover the local Codex CLI and perform app-server stdio JSON-RPC without UI ownership. | Configured-path discovery, stopped-process rejection, and mocked transport boundaries. |
 | Diagnostic Summary API | `scripts/api/diagnostic_summary_api.py` | Produce copyable operational diagnostics while excluding credentials, prompts, responses, session contents, and raw quota. | State/path formatting and sensitive-data exclusion tests. |
 | Status Snapshot API | `scripts/api/status_snapshot_api.py` | Convert approved activity/quota state into display text, color, and active-count values without Tk. | Truthful formatting, stale color, and raw-field exclusion tests. |
+| Status Rows API | `scripts/api/status_rows_api.py` | Preserve stable activity, progress, primary 5h, weekly, and Reset Credit row identities independently from Tk. | Exact row order, blank padding, truncation, and text/dict consistency. |
+| Status Rows UI | `scripts/ui/status_rows.py` | Render five persistent labels and update individual rows without recreating or shifting siblings. | Tk identity, style propagation, event-widget, and compact-container tests. |
 | Startup Audit | `scripts/startup_audit.py` | Read-only detection of known legacy Codex Status Pet entries in the Startup folder and Run/RunOnce registry keys. | Known legacy name/path, unrelated entry, and no-modification tests. |
 | Taskbar API | `scripts/api/taskbar_api.py` | Read the current primary taskbar edge and rectangle for physical compatibility evidence. | Stable edge mapping and Windows probe output. |
 
@@ -60,6 +62,7 @@ headless tests.
 - Tray and application shutdown operations are idempotent; repeated stop calls do not invoke a stopped backend again.
 - The overlay displays only the active conversation count; plan-step text is not part of the UI contract.
 - Status text uses a bounded label width so long diagnostics wrap instead of expanding past the overlay.
+- Status presentation has exactly five stable ordered rows: activity, progress, primary 5h, weekly, and Reset Credit; a blank row never shifts later identities.
 - Popup rectangles must be completely contained by the selected monitor work area.
 - Window placement is re-evaluated during the running session so monitor disconnects and taskbar work-area changes can recover the overlay.
 - Coordinates may be negative; dimensions are clamped to 180–1200 by 80–800; refresh interval is clamped to 1–10 seconds.

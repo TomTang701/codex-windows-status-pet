@@ -22,6 +22,8 @@ class StatusSnapshotTests(unittest.TestCase):
         self.assertEqual(result["active_count"], 1)
         self.assertEqual(result["quota_tier"], "healthy")
         self.assertNotIn("secret", result["text"])
+        self.assertEqual(tuple(result["rows"]), ("activity", "progress", "primary_5h", "weekly", "reset_credit"))
+        self.assertEqual(result["text"], "\n".join(result["rows"].values()))
 
     def test_stale_state_is_explicit_and_gray(self):
         result = build_status_snapshot({"active": 0}, {"rateLimits": {}}, "stale", "#ffffff")
