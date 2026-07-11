@@ -1,53 +1,55 @@
-# ACTIVE VERSION BRIEF — v0.4.2 Autonomous Verification Conversion
+# ACTIVE VERSION BRIEF — v0.5.0 Lean-Core Simplification
 
 ## Outcome
 
-Make the formal release path machine-authoritative for every fact observable from source, tests, Tk, Win32, process state, filesystem, package output, or GitHub state. Routine supported-host release work must require zero human visual confirmation.
+Delete four proven unnecessary production boundaries while preserving all current product behavior and verification authority:
 
-## In scope
+1. remove unused typed quota models;
+2. remove two historical resize APIs that have no runtime consumer;
+3. remove the one-function quota provider pass-through and call the strict parser directly.
 
-- Classify every Quality, RC, compatibility, and host-validation fact as `AUTOMATED`, `AUTOMATABLE`, `PHYSICAL-ONLY`, `OBSOLETE`, or `DUPLICATE`.
-- Keep one authoritative check for each machine-observable fact.
-- Replace CI's duplicated Quality/package/whitespace sequence with the formal RC orchestrator.
-- Make RC output separate passes, blockers, and non-blocking limitations.
-- Make subprocess decoding deterministic for UTF-8 diagnostics on Windows.
-- Replace blanket manual-verification wording with exact physical-only limitations.
-- Add no product feature, runtime dependency, provider, polling path, or credential access.
+## Evidence and classification
+
+| Candidate | Runtime consumers | Other consumers | Decision |
+|---|---:|---:|---|
+| `models_api.py` | 0 | 0 | DELETE |
+| `window_size_api.py` | 0 | its own implementation-detail test | DELETE |
+| `resize_session_api.py` | 0 | its own implementation-detail test | DELETE |
+| `quota_provider_api.py` | 1 | its own wrapper test | MERGE into existing `quota_parse_api` consumer/contract |
+| application/settings/presentation/lifecycle controllers | active UI and test consumers | behavior-level tests | KEEP |
 
 ## Protected behavior
 
-- All v0.4.1 runtime behavior and configuration compatibility.
-- Quality remains useful as a fast non-release gate.
-- RC remains the only formal automated release approval command.
-- Simulation never becomes physical evidence.
-- Windows 10, unavailable alternate taskbar edges, arbitrary mixed-DPI hardware, and a separate clean machine remain explicit limitations rather than failed tests.
+- v0.4.2 release verification, inventory, RC, CI, and encoding contracts.
+- 80–200% canonical window scaling and schema-1 downgrade fields.
+- Strict approved quota fields, credential/token exclusion, local app-server-only transport, last-good/stale behavior, and five stable rows.
+- Settings transactions, tray reachability, single instance, safe shutdown, Compact/Expand, Hide/Show, and DPI-aware content fit.
 
 ## Observable contracts
 
-- Every inventory item has one class, one authority, and one release disposition.
-- Duplicate or obsolete items cannot be presented as independent release requirements.
-- `run_release_candidate_checks.py` executes each formal child gate once and returns one JSON document with `passes`, `blockers`, and `limitations`.
-- A UTF-8 child diagnostic never crashes the Windows parent decoder.
-- CI invokes the same RC orchestration used locally and uploads the package produced by that run.
-- Machine-observable UI facts are protected by deterministic adapter/Tk/Win32/process checks, not generic manual confirmation prose.
+- The four obsolete/pass-through modules are absent from production.
+- No active source or normative document imports or advertises them.
+- `main_window.py` calls `parse_quota_payload` directly.
+- Token/unknown fields remain excluded and malformed quota input remains unavailable.
+- All protected runtime and release tests pass.
+- Production Python file/LOC and API-module counts decrease; runtime dependency count does not increase.
 
 ## Out of scope
 
-- New runtime host-control framework or desktop automation dependency.
-- Repeating historical physical tests on every release.
-- Claiming unavailable physical hardware coverage.
-- Phase 3 API/controller deletion or application architecture simplification.
-- Installer/startup productization.
+- Controller/state-owner merging without new evidence.
+- Config schema change or removal of downgrade compatibility fields.
+- Framework replacement, UI redesign, provider changes, installer, startup productization, or Phase 4 work.
 
 ## Design verification result
 
-`DESIGN VERIFIED`
-
-- Problem evidence: PASS — CI repeats Quality/package/whitespace outside RC; active docs still require generic manual UI evidence; readiness output calls limitations `deferred`; Windows child decoding is locale-dependent.
-- Root-cause hypothesis: N/A — this is a bounded process capability, not a runtime bug.
-- Observable contract: PASS.
-- Failure paths: PASS — inventory validation and child-gate failures map to blockers; physical-only facts map once to limitations; malformed output remains diagnostic evidence rather than crashing orchestration.
-- Regression surface: PASS — Quality/RC command composition, readiness classification, CI workflow, package artifact, bilingual governance, and all existing runtime tests remain protected.
-- RED definition: N/A; focused failing tests are specified by the implementation plan.
-- Scope bounded: PASS — no product runtime or dependency change.
-- Human verification required: NONE.
+```text
+DESIGN VERIFIED
+Problem evidence: PASS
+Root-cause hypothesis: N/A
+Observable contract: PASS
+Failure paths: PASS
+Regression surface: PASS
+RED definition: PASS — a source-boundary test fails while the four modules/imports remain
+Scope bounded: PASS
+Human verification required: NONE
+```

@@ -22,12 +22,8 @@ headless tests.
 | Compact State API | `scripts/api/compact_state_api.py` | Delay idle compaction, expand on activity/hover, and preserve edge anchors. | Idle delay, activity, hover, blockers, and edge geometry. |
 | Window Recovery API | `scripts/api/window_recovery_api.py` | Preserve legal monitor coordinates, correct taskbar-partial windows, and recover off-screen windows to the nearest work area. | Negative/secondary coordinates, DPI rounding tolerance, taskbar coverage, disconnected displays, and clamping. |
 | Window Scale API | `scripts/api/window_scale_api.py` | Clamp/quantize one canonical percentage, derive immutable logical metrics, convert pixel metrics for an effective DPI while leaving Tk point fonts unchanged, and infer scale from legacy visual area. | All 25 scale steps, production-order DPI-aware mapped content fit, half-up steps, monotonicity, ratio tolerance, malformed values, and migration bounds. |
-| Window Size API | `scripts/api/window_size_api.py` | Retain the historical free/proportional transformation contract as a compatibility utility; the normal settings UI does not consume it. | Free, proportional, bounded, and invalid-factor cases. |
-| Resize Session API | `scripts/api/resize_session_api.py` | Retain historical reversible step behavior as a compatibility utility; the normal settings UI does not consume it. | Exact plus/minus symmetry and bounded dimensions. |
-| Quota Provider API | `scripts/api/quota_provider_api.py` | Normalize already-fetched local app-server data without reading auth or making network calls. | Valid, malformed, and credential-bearing payload fixtures. |
-| Quota Parse API | `scripts/api/quota_parse_api.py` | Normalize only approved quota fields, explicit camelCase/snake_case aliases, and bounded Reset Credit expiry containers. | Unknown fields, invalid numbers, aliases, nested expiries, and missing fields. |
+| Quota Parse API | `scripts/api/quota_parse_api.py` | Normalize already-fetched local app-server data to approved quota fields, explicit camelCase/snake_case aliases, and bounded Reset Credit expiry containers without owning network or auth state. | Unknown/credential fields, invalid numbers, aliases, nested expiries, malformed input, and missing fields. |
 | Quota State API | `scripts/api/quota_state_api.py` | Retain last-good data and classify loading, ok, stale, and explicit failures. | Success recovery, recent failure, stale timeout, and no-data failures. |
-| Domain Models API | `scripts/api/models_api.py` | Define typed usage-window, reset-credit, and quota-snapshot values. | Dataclass construction and type-boundary tests. |
 | Tray Lifecycle API | `scripts/api/tray_lifecycle_api.py` | Validate tray actions and guarantee one recovery restart request. | Action allowlist, visibility policy, duplicate failure, and shutdown cases. |
 | Refresh Scheduler API | `scripts/api/refresh_scheduler_api.py` | Use a validated interval and one in-flight worker at a time. | Repeated refresh calls and interval clamp fixtures. |
 | Refresh Controller API | `scripts/api/refresh_controller_api.py` | Keep Activity and Quota channels independent with generation, cancellation, and shutdown guards. | Independent single-flight channels, stale generations, and shutdown callbacks. |
@@ -76,7 +72,7 @@ headless tests.
 - Coordinates may be negative; canonical scale is 80–200% in 5% steps; logical expanded geometry remains 264x110 through 660x276. At 120 DPI the runtime pixel geometry is 330x138 through 825x345. Logical content-safe vertical padding is 7 px at 80% and 95%, 11 px at 115%, and otherwise follows the canonical scale formula; refresh interval is clamped to 1–10 seconds.
 - Tray and quota transport failures map to approved five-row presentation results; Tk applies them only through `StatusRows.configure_rows`, and raw transport exception text is not displayed.
 - Quota dates use the local timezone and `M/D` without leading zeroes; missing provider data is not invented.
-- The default quota provider accepts local app-server results only; it never reads auth files, sends tokens, or persists credentials.
+- The quota parser accepts already-fetched local app-server results only; it never reads auth files, sends tokens, or persists credentials.
 - A major behavior or performance change requires a changelog entry, specification update, and regression test.
 - The context-menu implementation has one reachable popup path and exactly five actions in order: Open Settings, Always on Top, Lock Position, Hide Window, and Exit. Obsolete native-menu code must not remain after an unconditional return.
 - Diagnostic summaries may include paths and operational states, but must never include tokens, prompts, responses, session contents, or raw quota payloads.
@@ -91,11 +87,9 @@ $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
 # Live Windows display evidence (run with the companion visible)
 & $py .\scripts\probe_display.py
 & $py .\scripts\check_doc_parity.py
-# Routine Quality (not release approval)
+# Fast routine Quality (not release approval)
 & $py .\scripts\run_quality_checks.py
-& $py .\scripts\package_smoke_test.py
-& $py .\scripts\check_release_readiness.py
-# Formal candidate only; strict physical blockers apply.
+# The only formal candidate command; it owns package, strict readiness, and whitespace.
 & $py .\scripts\run_release_candidate_checks.py
 ```
 

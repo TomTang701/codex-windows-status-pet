@@ -8,6 +8,20 @@ from api.quota_parse_api import parse_quota_payload
 
 
 class QuotaParseTests(unittest.TestCase):
+    def test_approved_local_fields_are_normalized_and_unknown_fields_are_dropped(self):
+        result = parse_quota_payload({
+            "rateLimits": {"primary": {"usedPercent": 20}},
+            "rateLimitResetCredits": {"availableCount": 4},
+            "unexpected": "ignored",
+        })
+        self.assertEqual(result["status"], "available")
+        self.assertEqual(result["rateLimitResetCredits"]["availableCount"], 4)
+        self.assertNotIn("unexpected", result)
+
+    def test_malformed_payload_is_unavailable_without_propagating_credentials(self):
+        result = parse_quota_payload({"rateLimits": "bad", "token": "must-not-propagate"})
+        self.assertEqual(result, {"status": "unavailable", "rateLimits": {}, "rateLimitResetCredits": {}})
+
     def test_only_approved_fields_are_normalized(self):
         result = parse_quota_payload({
             "rateLimits": {"primary": {"usedPercent": 20, "secret": "drop"}},
