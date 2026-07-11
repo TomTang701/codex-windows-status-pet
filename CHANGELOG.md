@@ -58,6 +58,12 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.3.2 - 2026-07-10
+
+- Closed the declared Windows 11 x64 physical release gates with dated one- and two-monitor, launcher, single-instance, status-row, Reset Credit date, menu, hide/show, and Compact interaction evidence.
+- Approved the strict Release Candidate after 127 automated tests, document and dependency gates, package smoke, and executable compatibility readiness completed successfully.
+- Retained explicit non-blocking limitations for unclaimed Windows 10, alternate taskbar-edge, mixed-DPI physical, and separate clean-machine scenarios.
+
 ## 0.3.1 - 2026-07-10
 
 - Extracted pure application, status-presentation, settings-persistence, and window-lifecycle controllers from the Tk main window.
