@@ -58,6 +58,12 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.2.2 - 2026-07-10
+
+- Fixed Reset Credit expiry normalization for approved nested provider shapes, including `credits[].expiresAt` and snake_case aliases.
+- The Reset Credit row now shows the earliest future expiry as `重置 N 次 / HH:MM M/D`; missing valid expiry data remains undisplayed, and the 5h row remains time-only.
+- Added bounded allowlist parsing and end-to-end regression coverage without exposing unknown or credential-like fields.
+
 ## 0.2.1 - 2026-07-10
 
 - Simplified the overlay context menu to exactly five actions: Open Settings, Always on Top, Lock Position, Hide Window, and Exit.

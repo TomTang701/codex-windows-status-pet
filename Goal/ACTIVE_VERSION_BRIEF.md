@@ -1,23 +1,21 @@
-# ACTIVE VERSION BRIEF — v0.2.1 Minimal Context Menu
+# ACTIVE VERSION BRIEF — v0.2.2 Reset Credit Expiry
 
 ## Identity
 
-- Version: `0.2.1`
-- Branch: `release/v0.2.1-minimal-context-menu`
-- Base: `main` at `477acc20e635e76a98fb3e4579bd796b264bd12e`
-- PR: to be created as `[v0.2.1] Simplify the context menu`
-- Tag: `v0.2.1`
+- Version: `0.2.2`
+- Branch: `release/v0.2.2-reset-credit-expiry`
+- Base: `main` at `1dee7c9787709c909222e18ec7bf07afb4f536c1`
+- PR: `[v0.2.2] Show the earliest Reset Credit expiry`
+- Tag: `v0.2.2`
 
 ## Product
 
-- One-sentence outcome: The overlay context menu contains only five ordinary window controls.
-- Target user: A Windows 11 Codex user who keeps the passive status overlay running.
-- User problem: Maintenance actions make the menu longer and easier to misuse.
-- Why now: It is the first independently releasable cleanup in the authorized train.
-- Success criteria: Exactly Settings, Topmost, Lock Position, Hide Window, and Exit remain; automatic refresh and internal recovery continue unchanged.
-- Explicit non-goals: Reset Credit formatting, schema protection, status rows, controllers, Windows support scope, CI, document governance, new features.
-- Misuse risk: Reduced because refresh, diagnostics, and restore actions are removed from the ordinary menu.
-- User-resource impact: No new worker, IPC, network, disk write, refresh, animation, or dependency.
+- One-sentence outcome: The Reset Credit row truthfully shows `重置 N 次 / HH:MM M/D` when a future expiry is supplied.
+- Target user: A Windows 11 Codex user monitoring Reset Credit availability.
+- User problem: The count is visible, but valid provider expiry shapes are discarded before presentation.
+- Success criteria: Approved expiry aliases and containers normalize to the earliest future expiry; the 5h row remains time-only.
+- Explicit non-goals: Status-row refactor, configuration protection, menu changes, CI changes, Windows support scope, new providers.
+- Resource impact: Pure bounded parsing only; no new refresh, worker, IPC, network, disk write, or dependency.
 - Decision: GO
 
 ## Applicability Matrix
@@ -25,79 +23,53 @@
 | Role | Applicable | Decision |
 |---|---:|---|
 | Product | Yes | GO |
-| Visual/UI/UX | Yes | PASS |
-| Frontend | Yes | PASS |
-| Backend | Limited | PASS |
+| Backend | Yes | PASS |
+| Frontend | Display verification only | PASS |
 | QA/Release | Yes | PASS |
 | Security/Resource | Yes | PASS |
-
-## Visual/UI/UX
-
-- Applicable: Yes
-- Affected component: Right-click popup menu only.
-- Before: Eight actions, including refresh, diagnostics, and backup recovery.
-- After: Five approved controls with one separator before Hide/Exit.
-- Labels: `显示设置`, `置顶`, `锁定位置`, `隐藏窗口`, `退出`.
-- Layout/spacing: Preserve existing compact Windows 11 styling and work-area placement.
-- Interaction states: First click invokes once; Escape and FocusOut close; grab is released.
-- Accessibility: Preserve text labels and keyboard Escape behavior; do not add icon-only controls.
-- Misclick prevention: Remove maintenance actions; keep Exit separated.
-- Windows 11 physical check: Open at a screen edge and invoke each safe control path.
-- Decision: PASS
-
-## Frontend
-
-- Applicable: Yes
-- Components: `scripts/ui/context_menu.py` and menu tests.
-- State transitions: Open → invoke/escape/focus-out → close and release grab.
-- Event flow: Approved item delegates once to the existing owner method.
-- Thread boundary: Tk main thread only; unchanged.
-- Layout impact: Popup becomes shorter; placement algorithm remains unchanged.
-- Tests: Exact labels/count, removed labels absent, dispatch once, Escape, FocusOut, grab release.
-- Physical verification: Windows 11 first-click and edge placement smoke.
-- Decision: PASS
+| Visual/UI/UX | No layout change | N/A |
 
 ## Backend
 
-- Applicable: Limited
-- Data/API contract: No provider, Activity, Quota, configuration, or persistence change.
-- Ownership: Existing automatic refresh and internal backup remain owned by current modules.
-- Concurrency: No worker or scheduler change.
-- Persistence: Removing a UI restore entry does not remove `.bak` creation or validation.
-- Failure modes: Menu command exceptions remain sanitized and close the popup.
-- Network/IPC: No change.
-- CPU/memory/disk: No increase.
-- Tests: Existing refresh scheduler/controller tests remain green.
-- Rollback: Revert the single release commit.
+- Affected boundary: `scripts/api/quota_parse_api.py` and existing quota-format/status-snapshot APIs.
+- Input contract: Accept only approved Reset Credit expiry names (`expiresAt`, `expires_at`, `resetsAt`, `resets_at`, `resetAt`, `reset_at`) inside approved containers (`expirations`, `credits`) to bounded depth.
+- Output contract: Normalize scalar/list approved expiries into `rateLimitResetCredits.resetsAt`.
+- Failure behavior: Ignore booleans, nulls, malformed objects, unknown containers, past and invalid values; never invent a date.
+- Concurrency/persistence/network: Unchanged.
+- Rollback: Revert the v0.2.2 release commit.
+- Decision: PASS
+
+## Frontend Verification
+
+- Reset Credit row: `重置 N 次 / HH:MM M/D` for a valid future expiry.
+- Missing valid future expiry: `重置 N 次` with no fabricated suffix.
+- 5h row: remains `5h N% / HH:MM`; no date is added.
+- Weekly row: unchanged.
+- No layout, setting, menu, color, or interaction change.
 - Decision: PASS
 
 ## QA / Release
 
-- Positive cases: All five approved items exist and dispatch to the correct method.
-- Negative cases: Three removed labels/widgets/bindings are absent.
-- Regression cases: First click, Escape, FocusOut, grab release, edge placement, automatic refresh unchanged.
-- Resource checks: No new imports, threads, timers, subprocesses, writes, or network paths.
-- Security/privacy checks: No new data access; diagnostics remain internal but lose the ordinary UI entry.
-- Windows 11 checks: Bottom-taskbar popup opens, stays in work area, and closes after first invocation.
-- Quality commands: Focused menu tests, full `run_quality_checks.py`, `git diff --check`.
-- Rollback: Revert v0.2.1 and retag only through a patch release if already published.
+- Positive cases: camelCase/snake_case aliases, scalar/list values, `expirations` and `credits` containers, earliest future selection.
+- Negative cases: malformed values, booleans, unknown/credential containers, expired values, absent expiry.
+- Integration case: parsed provider payload reaches the final Reset Credit display line with local no-leading-zero date.
+- Regression case: 5h remains time-only and raw provider fields never reach display text.
+- Gates: focused parser/format/snapshot tests, full release checks, `git diff --check`, Windows 11 launcher smoke.
 - Decision: PASS
 
 ## Security / Resource
 
-- New network or IPC: No.
-- New worker or subprocess: No.
-- Refresh frequency increase: No.
-- Additional disk writes/data retention/log/cache: No.
-- Additional UI attention or misclick cost: Reduced.
-- Possible user cost or additional Codex quota use: No; manual refresh is removed.
+- Parser traversal is allowlisted and depth-bounded.
+- Unknown credential-like fields are not traversed or propagated.
+- No raw payload, token, prompt, response, or session content reaches UI/logs.
+- No additional Codex calls, quota consumption, timers, processes, memory retention, or writes.
 - Decision: PASS
 
 ## Scope Lock
 
-- Allowed production files: `scripts/ui/context_menu.py`; only remove dead menu-only callers after proving no other callers.
-- Allowed tests: context-menu and direct regression tests only.
-- Allowed release files: canonical version sources, English/Chinese Changelog, directly affected menu documentation.
-- Forbidden: all v0.2.2+ implementation, unrelated refactors, formatting churn, dependency changes, new settings, new buttons.
-- Release shape: one focused implementation commit plus required release metadata; one PR; one tag.
-- No work from the next version will be included.
+- Allowed production files: Reset Credit parser plus the minimum existing format/presentation integration required for correctness.
+- Allowed tests: quota parser, quota formatting, status snapshot, and direct integration regression tests.
+- Allowed release files: canonical version sources, bilingual Changelog, directly affected API/README text.
+- Forbidden: status-row API/refactor, configuration schema work, menu work, controller work, CI/release-policy work, dependencies, new settings.
+- Release shape: one focused implementation/release commit, one PR, one tag.
+- No work from v0.2.3 or later is included.
