@@ -1,60 +1,58 @@
-# ACTIVE VERSION BRIEF — v0.2.5 Quality / Release Candidate Separation
+# ACTIVE VERSION BRIEF — v0.2.6 Executable Document Governance
 
 ## Identity
 
-- Version: `0.2.5`
-- Branch: `release/v0.2.5-quality-rc-separation`
-- Base: `main` at `28fead56d0a68256f436831efcb3877c1b81c5ac`
-- PR: `[v0.2.5] Separate quality and release-candidate gates`
-- Tag: `v0.2.5`
+- Version: `0.2.6`
+- Branch: `release/v0.2.6-document-governance`
+- Base: `main` at `bcbdc875ed25472bc016551835df77cabc597f14`
+- PR: `[v0.2.6] Enforce minimal document governance`
+- Tag: `v0.2.6`
 
 ## Product
 
-- One-sentence outcome: Routine Quality proves automated code health, while Release Candidate separately enforces all formal release blockers.
-- User problem: A script and CI step named “release gates” currently pass while physical release blockers remain, making green Quality look like release approval.
-- Success criteria: Distinct commands, workflows, outputs, and documentation; Quality never says release-ready; RC fails while any blocking matrix row remains.
-- Explicit non-goals: Closing physical evidence gaps, UI/runtime/config/quota changes, Windows support changes, document governance redesign.
+- One-sentence outcome: One focused executable check guarantees the active Goal and archived-plan boundaries without adding low-value documentation bureaucracy.
+- User problem: The rules are written down, but a duplicate Goal or normative-looking archived plan could silently reintroduce conflicting instructions.
+- Success criteria: Only approved files can live in `Goal/`; `ACTIVE_GOAL.md` is unique and required; archived plans are explicitly non-normative and cannot be release-required.
+- Explicit non-goals: Documentation rewrite, freshness enforcement, prose linting, review-cycle scheduling, v0.3.0 status-row work, runtime behavior.
 - Decision: GO
 
 ## Applicability Matrix
 
 | Role | Applicable | Decision |
 |---|---:|---|
-| Product | Yes | GO |
-| CI/Tooling | Yes | PASS |
+| Product/Governance | Yes | GO |
+| Tooling | Yes | PASS |
 | QA/Release | Yes | PASS |
-| Documentation | Release instructions only | PASS |
-| Frontend/Backend runtime | No | N/A |
+| Documentation | Yes | PASS |
+| Runtime/Frontend/Backend | No | N/A |
 | Security/Resource | Limited | PASS |
 
-## CI / Tooling
+## Governance Contract
 
-- `run_quality_checks.py`: documents, versions, secrets, dependencies, compile, tests, startup audit; no release-readiness decision.
-- `run_release_candidate_checks.py`: runs Quality, package smoke, strict compatibility readiness, and whitespace checks; any failure rejects the candidate.
-- Pull requests and pushes to main run only the Quality workflow plus smoke artifact.
-- A separate manual Release Candidate workflow runs the strict RC command and uploads an artifact only on success.
-- The ambiguous `run_release_checks.py` entry point is removed and all active references migrate.
+- Allowed Goal files: `ACTIVE_GOAL.md`, `ACTIVE_VERSION_BRIEF.md`, optional `EXECUTION_STATE.md`, and `README.md`.
+- `ACTIVE_GOAL.md` must exist exactly once; version-specific Goal files and extra active-goal copies fail Quality.
+- Every Markdown plan under `docs/archive/plans/` must begin with front matter declaring `status: archived`, `normative: false`, and a valid repository-relative `superseded_by` target.
+- Manifest entries under `docs/archive/` may never set `required_for_release: true`.
+- Archived plans are checked only for safe classification/linkage; their old content, parity, freshness, and historical claims do not block release.
+- Existing manifest, link, and bilingual parity checks remain unchanged.
 - Decision: PASS
 
 ## QA / Release
 
-- Unit tests prove Quality contains no readiness command.
-- Unit tests prove RC invokes readiness with `--strict` and fails when it fails.
-- Unit tests prove RC succeeds only when every child gate succeeds.
-- Current repository RC is expected to fail because five Windows 11 x64 evidence blockers remain.
-- Quality remains green and explicitly reports `quality_approved`, not `release_ready`.
+- Positive fixture: approved Goal set plus correctly classified archived plan.
+- Negative fixtures: duplicate active Goal, version Goal, unknown Goal file, missing active Goal, missing/incorrect archive metadata, broken supersession target, release-required archive manifest entry.
+- One new check is added to routine Quality; no separate prose style, timestamp, ownership, or review-age gate is introduced.
 - Decision: PASS
 
 ## Security / Resource
 
-- No runtime behavior, network path, dependency, process lifetime, quota usage, or user data changes.
-- CI permissions remain read-only.
-- Manual RC avoids unnecessary per-commit physical-release evaluation.
+- Local bounded filesystem/JSON/text inspection only.
+- No network, subprocess, runtime process, dependency, user data, credential, or product behavior change.
 - Decision: PASS
 
 ## Scope Lock
 
-- Allowed files: CI workflows, check orchestration scripts, their tests, canonical version sources, bilingual Changelog, and directly affected release/testing instructions.
-- Forbidden: product code other than version constants, physical evidence fabrication, matrix policy changes, UI/config/quota/controller work, dependency changes, general document-governance redesign.
+- Allowed files: document-governance checker/tests, Quality registration, Goal/docs governance instructions, manifest if needed, canonical version sources, bilingual Changelog.
+- Forbidden: product/runtime code other than version constants, document content rewrites, archive parity/freshness gates, status-row/controller work, CI policy changes, dependencies.
 - Release shape: one focused implementation/release commit, one PR, one tag.
-- No work from v0.2.6 or later is included.
+- No work from v0.3.0 or later is included.
