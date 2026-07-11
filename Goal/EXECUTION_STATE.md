@@ -1,28 +1,28 @@
 # Execution State
 
-- Active version: `0.3.2`
-- Branch: `release/v0.3.2-windows11-stabilization`
-- Base main SHA: `d4a69e9ce4a6adc7d519ff1a37b00617d548e8dd`
-- Current HEAD: `8883b79d` (authoritative Goal checkpoint; exact SHA available from Git)
-- Last pushed SHA: `8883b79d` (authoritative Goal checkpoint)
-- Current phase: Phase D — formal v0.3.2 version metadata and final Release Candidate
+- Active version: `0.4.0`
+- Branch: `release/v0.4.0-unified-window-scale`
+- Base main SHA: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
+- Current HEAD: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
+- Last pushed SHA: branch not pushed yet
+- Current phase: Brainstorming — repository exploration and implementation-design selection
 - Product decision: `GO`
-- Scope lock: v0.3.2 stabilization and release administration only; no v0.4.0 production work
-- Active Superpowers skill: `superpowers:verification-before-completion` for final v0.3.2 release evidence
-- Design spec: `None` for v0.3.2
-- Implementation plan: `None` for v0.3.2
-- Latest RED evidence: `None`; no production behavior change is active
-- Latest GREEN evidence: `None`; no TDD cycle is active
-- Latest completion verification: final post-version-bump suite exited 0 — version sources passed; 127 tests passed; Quality approved; package smoke passed; strict readiness `ready: true`; whitespace clean; Release Candidate approved
-- Candidate RC state: approved before formal version bump; Goal-only metadata replacement does not alter runtime or release checks
-- Final RC state: approved after version `0.3.2` and bilingual Changelog update
-- Remote CI state: no v0.3.2 PR yet
-- Main protection state: unavailable for this private repository/account plan; GitHub APIs returned HTTP 403 requiring GitHub Pro or public visibility; compensating PR controls apply
-- Autonomous checks completed: repository reconciliation; no merge/rebase/cherry-pick; exact branch/base/head/remote state; one- and two-monitor evidence; Compact evidence; strict candidate RC; app-local exit/relaunch; exact process CommandLine; source and runtime Tk menu inventory; one-shot Settings/Hide; Escape release
+- Scope lock: unified window-scale v0.4.0 only; no v0.4.1+ or unrelated work
+- Active Superpowers skill: `superpowers:brainstorming`
+- Design spec: pending `docs/superpowers/specs/2026-07-10-unified-window-scale-design.md`
+- Implementation plan: `None` until design spec is validated
+- Latest RED evidence: `None`; production implementation has not started
+- Latest GREEN evidence: `None`; production implementation has not started
+- Latest completion verification: v0.3.2 transition audit — merged PR #11, main/tag commit `f75b7a57`, main gates and Windows smoke passed, release published, branch deleted
+- Candidate RC state: not started for v0.4.0
+- Final RC state: not started for v0.4.0
+- Remote CI state: no v0.4.0 PR yet
+- Main protection state: unavailable on current private repository/account plan; compensating PR controls remain mandatory
+- Autonomous checks completed: v0.3.2 transition gate; current config/settings/main/compact/tests/docs exploration; current coupling and migration boundaries identified
 - Human fact required: `None`
-- Methods attempted: repository/source inspection, Win32/process inspection, real Tk widget inventory through focused UI tests
+- Methods attempted: repository history, source/API/UI/test/document inspection
 - Why human input is necessary: `None`
-- Completed: candidate preserved and pushed; authoritative Goal and Brief reconciled; physical blocker matrix closed truthfully; strict candidate RC approved; single-monitor mode restored to extended mode; autonomous current-build menu sanity passed
-- Remaining: commit/push verified v0.3.2 release state; PR/CI/merge/main retest/tag/report; then v0.4.0
-- Next exact action: inspect and commit the verified release diff, push it, open the exact-title v0.3.2 PR, and monitor Windows Quality
+- Completed: v0.3.2 release lifecycle; v0.4.0 branch from tagged main; v0.4.0 Brief replacement; initial architecture exploration
+- Remaining: approach comparison; design spec/self-review/commit; implementation plan; sequential TDD; docs/Windows validation; PR/CI/merge/tag/final audit
+- Next exact action: compare three implementation approaches, select the pure metrics boundary, measure the safe range, and write the design spec
 - Last updated: 2026-07-10

@@ -1,72 +1,48 @@
-# ACTIVE VERSION BRIEF — v0.3.2 Windows 11 Stabilization
+# ACTIVE VERSION BRIEF — v0.4.0 Unified Window Scale
 
 ## Identity
 
-- Version: `0.3.2`
-- Branch: `release/v0.3.2-windows11-stabilization`
-- Base: `main` at `d4a69e9ce4a6adc7d519ff1a37b00617d548e8dd`
-- PR: `[v0.3.2] Complete Windows 11 release stabilization`
-- Tag: `v0.3.2`
+- Version: `0.4.0`
+- Branch: `release/v0.4.0-unified-window-scale`
+- Base: `main` at tagged v0.3.2 commit `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
+- PR: `[v0.4.0] Unify window and typography scaling`
+- Tag: `v0.4.0`
 
 ## Product
 
-- One-sentence outcome: The declared Windows 11 x64 scope has truthful physical evidence or explicit approved environment limitations, and strict Release Candidate passes.
-- Target user: A Windows 11 x64 Codex user relying on the overlay continuously.
-- Success criteria: Launch/relaunch, one-instance/no-console, five rows, Reset Credit date path, menu/settings, hide/show, tray recovery, secondary coordinates, compact interaction, and exit are verified; no blocking matrix row remains; strict RC exits 0.
-- Explicit non-goals: New feature, any v0.4.0 work, Windows 10 claim, ARM64/32-bit claim, UI redesign, new setting, controller refactor, dependency change.
-- Execution exclusions: No browser automation and no new network, IPC, worker, timer, or polling path.
-- Decision: GO
+- Outcome: Replace independent font-size and free-form width/height controls with one proportional Window Size percentage slider that scales expanded geometry and typography coherently.
+- Product decision: `GO`
+- Target user: A Windows 11 x64 Codex user who wants predictable readable overlay sizing without understanding coupled low-level controls.
+- User-visible controls: exactly two Tk Scale widgets — `透明度` and `窗口大小`; position, refresh, topmost, lock, Compact, colors, Save, Apply, Restore Defaults, and Close remain.
+- Removed controls: font-size slider, width input, height input, minus/plus size buttons, and proportional-scaling checkbox.
 
-## Applicability Matrix
+## Contract
 
-| Role | Applicable | Decision |
-|---|---:|---|
-| Product | Yes | GO |
-| Visual/UI/UX | Physical verification only | PASS pending evidence |
-| Frontend | Yes | PASS pending evidence |
-| Backend | Lifecycle/process verification only | PASS pending evidence |
-| QA/Release | Yes | PASS pending evidence |
-| Security/Resource | Yes | PASS pending evidence |
-| Repository administration | Yes | PASS pending evidence |
+- `window_scale_percent` is the only canonical expanded-size source.
+- Base metrics are 330x138 geometry, text font 10, and face font 28 at 100%.
+- Geometry keeps the fixed 330:138 ratio and typography/layout metrics derive from the same pure result.
+- Initial range candidate is 80–200% in 5% steps; physical/Tk measurement determines the final safe range.
+- Configuration schema remains version 1 unless implementation evidence proves it unsafe.
+- Legacy width/height migrate deterministically by geometric-mean area inference, then clamp and quantize.
+- Derived `font_size`, `window_width`, `window_height`, and proportional `scale_mode` remain persisted for downgrade compatibility.
+- Apply/Save/Close/Restore Defaults semantics remain transactional.
+- Hide/Show, Compact/Expand, restart, drag/lock, position recovery, menu, and topmost preserve scale.
 
-## Physical Windows 11 Matrix
+## Scope lock
 
-- Current host/build and architecture are recorded from authoritative OS probes.
-- Current monitor topology, work areas, taskbar edge, DPI, overlay HWND/DPI, and secondary coordinates are recorded.
-- Root launcher is run twice; one overlay/tray and no persistent CMD are verified.
-- Main overlay visibly has five rows and Reset Credit uses truthful available data (date appears only when supplied).
-- Right-click menu has exactly five items, first click works, settings remains visible, hide/show recovers, and exit/relaunch works.
-- Compact shrink/hover-expand is tested through genuine existing application idle behavior; if the active Codex session prevents idle, the limitation is recorded without adding a debug path.
-- Decision: PASS only with saved dated evidence.
+- Preferred production files: pure scale API, config normalization, settings dialog, main window, and only directly required settings/compact boundaries.
+- Required tests: pure metrics, migration, config protection, transaction semantics, exact two-slider inventory, main integration, recovery and persistence.
+- Explicit non-goals: theme presets, font family, manual resize, width/height/font controls, aspect toggle, quota/refresh feature, new menu action, provider, network, IPC, subprocess, worker, polling, telemetry, installer, updater, Windows 10, v0.4.1+ work, or unrelated cleanup.
 
-## Environment Limitations
+## Quality, compatibility, and release
 
-- Single-monitor hardware topology: unavailable on the connected dual-monitor host; automated geometry plus dual-monitor physical evidence is accepted for this release and recorded as an approved environment limitation.
-- Alternate taskbar edges: stock supported Windows 11 exposes the bottom taskbar path; top/left/right are not applicable to the declared stock configuration, with geometry simulations retained.
-- Mixed-DPI hardware: both connected displays report 96 DPI; simulated 96/120/144/192 paths plus current physical 96-DPI capture are accepted as an approved environment limitation, not claimed as physical mixed-DPI evidence.
-- Separate clean machine: unavailable; isolated temporary environment, Windows CI, dependency import gate, package smoke, and launcher evidence are accepted as an approved environment limitation.
-- Limitations must be explicit in the matrix and test record; they must never be mislabeled as physical passes.
+- Use Brainstorming → validated design spec → Writing Plans → sequential TDD implementation.
+- Run focused RED/GREEN cycles, full Quality, package smoke, strict readiness, strict RC, and Windows 11 host checks at minimum/100/middle-large/maximum scale.
+- English normative documents remain canonical and Chinese pairs update in the same commit.
+- Release through one PR, successful `Windows Quality / quality`, squash merge, verified main, tag `v0.4.0`, post-release smoke, and branch deletion.
 
-## QA / Release
+## Resource, security, and rollback
 
-- Run routine Quality and package smoke.
-- Save a dated v0.3.2 physical record and probe JSON.
-- Inspect sanitized diagnostics for obvious new errors; do not include tokens/session content.
-- Update matrix statuses to physical pass, not applicable, or approved environment limitation according to actual evidence.
-- Run strict `run_release_candidate_checks.py`; it must exit 0.
-- GitHub Quality must pass; post-merge main repeats Quality, strict RC, package smoke, launch/exit/relaunch.
-- Decision: PASS pending completion.
-
-## Security / Resource
-
-- Verify one process/tray instance, no persistent console, bounded workers/timers, local-only transport, no startup mutation, and clean shutdown.
-- No telemetry, cloud sync, external endpoint, token/auth reader, updater, or dependency is added.
-- Decision: PASS pending evidence.
-
-## Scope Lock
-
-- Allowed product changes: only fixes for defects directly reproduced during v0.3.2 Windows 11 stabilization.
-- Allowed release files: evidence records, compatibility/release/testing docs, tests for reproduced defects, canonical version sources, bilingual Changelog.
-- Forbidden: new capabilities, Windows 10/ARM/32-bit claims, speculative refactors, new dependencies/settings/UI.
-- Release shape: one focused stabilization/release commit, one PR, one tag.
-- No v0.4.0 production work is included; v0.4.0 begins only after the v0.3.2 transition gate.
+- New network/IPC/worker/subprocess/polling/telemetry/dependency/quota consumption: `No`.
+- Scale derivation is pure, bounded, deterministic, and constant time; slider movement changes draft only.
+- Keep schema v1 and derived legacy fields so rollback to v0.3.2 loads usable geometry and font settings.
