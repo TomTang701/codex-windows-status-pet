@@ -1,55 +1,38 @@
-# ACTIVE VERSION BRIEF — v0.5.0 Lean-Core Simplification
+# ACTIVE VERSION BRIEF — No Active Implementation Version
 
-## Outcome
+## Released state
 
-Delete four proven unnecessary production boundaries while preserving all current product behavior and verification authority:
+- Latest release: `v0.5.0` Lean-Core Simplification.
+- Phase 1: `v0.4.1` correctness stabilization — complete.
+- Phase 2: `v0.4.2` autonomous verification conversion — complete.
+- Phase 3: `v0.5.0` lean-core simplification — complete.
+- Phase 4: `PHASE 4 NOT NEEDED`.
+- Phase 5: productization decision complete; implementation not authorized by this Goal.
 
-1. remove unused typed quota models;
-2. remove two historical resize APIs that have no runtime consumer;
-3. remove the one-function quota provider pass-through and call the strict parser directly.
+## Phase 4 decision
 
-## Evidence and classification
-
-| Candidate | Runtime consumers | Other consumers | Decision |
-|---|---:|---:|---|
-| `models_api.py` | 0 | 0 | DELETE |
-| `window_size_api.py` | 0 | its own implementation-detail test | DELETE |
-| `resize_session_api.py` | 0 | its own implementation-detail test | DELETE |
-| `quota_provider_api.py` | 1 | its own wrapper test | MERGE into existing `quota_parse_api` consumer/contract |
-| application/settings/presentation/lifecycle controllers | active UI and test consumers | behavior-level tests | KEEP |
-
-## Protected behavior
-
-- v0.4.2 release verification, inventory, RC, CI, and encoding contracts.
-- 80–200% canonical window scaling and schema-1 downgrade fields.
-- Strict approved quota fields, credential/token exclusion, local app-server-only transport, last-good/stale behavior, and five stable rows.
-- Settings transactions, tray reachability, single instance, safe shutdown, Compact/Expand, Hide/Show, and DPI-aware content fit.
-
-## Observable contracts
-
-- The four obsolete/pass-through modules are absent from production.
-- No active source or normative document imports or advertises them.
-- `main_window.py` calls `parse_quota_payload` directly.
-- Token/unknown fields remain excluded and malformed quota input remains unavailable.
-- All protected runtime and release tests pass.
-- Production Python file/LOC and API-module counts decrease; runtime dependency count does not increase.
-
-## Out of scope
-
-- Controller/state-owner merging without new evidence.
-- Config schema change or removal of downgrade compatibility fields.
-- Framework replacement, UI redesign, provider changes, installer, startup productization, or Phase 4 work.
-
-## Design verification result
+The runtime has one coherent visible-state route:
 
 ```text
-DESIGN VERIFIED
-Problem evidence: PASS
-Root-cause hypothesis: N/A
-Observable contract: PASS
-Failure paths: PASS
-Regression surface: PASS
-RED definition: PASS — a source-boundary test fails while the four modules/imports remain
-Scope bounded: PASS
-Human verification required: NONE
+transport/activity result
+→ normalized domain/coordination state
+→ StatusPresentationController
+→ five-row snapshot/color
+→ StatusRows Tk adapter
 ```
+
+`Pet` owns actual Tk geometry/visibility; `CompactState` owns delayed compact decisions. These are distinct responsibilities, not duplicate state ownership. Application refresh, settings persistence, lifecycle close state, and presentation each retain one owner. No direct emergency string/color renderer remains.
+
+## Phase 5 decision
+
+| Question | Decision | Evidence |
+|---|---|---|
+| Is the lean core stable? | Yes | v0.5.0 exact-head CI and merged-main RC passed; 159 tests, zero blockers. |
+| Are supported-host routine checks automated? | Yes | v0.4.2 inventory and single RC path; no routine human visual gate for machine facts. |
+| Are active docs truthful and small? | Yes | active normative LOC reduced to 953; release procedure has one formal command. |
+| Is installation now the largest real usability problem? | Yes | the product still relies on a source checkout and root CMD launcher; there is no install/uninstall path, explicit startup choice, signed binary, or formal distributable. |
+| Would productization add more value than another stabilization release? | Yes | no known blocking correctness issue remains; installation/startup friction is the clearest remaining user-facing gap. |
+
+## Boundary
+
+Do not automatically implement v0.6.0. A future productization Goal requires a separately approved design covering install/uninstall, explicit opt-in startup behavior, artifact format, clean-machine strategy, rollback, unsigned behavior, user documentation, and verification. Until then, remain on released v0.5.0.
