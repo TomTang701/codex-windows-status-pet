@@ -58,6 +58,12 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.3.0 - 2026-07-10
+
+- Replaced the single multiline status Label with five persistent independently updated rows: activity, active-conversation progress, 5h quota, weekly quota, and Reset Credit.
+- Added a pure stable-row snapshot contract while preserving byte-for-byte compatible joined status text for existing callers.
+- Preserved compact hide/show, drag, hover, right-click, style, wrapping, refresh, and controller behavior across every row.
+
 ## 0.2.6 - 2026-07-10
 
 - Added one focused executable document-governance check: `Goal/ACTIVE_GOAL.md` is the only normative goal and the Goal directory uses a strict allowlist.

@@ -18,11 +18,12 @@ def run(command):
 
 def quality_commands(python=sys.executable):
     api_files = [str(path) for path in (ROOT / "scripts" / "api").glob("*.py")]
-    test_modules = [
+    all_test_modules = [
         f"tests.{path.stem}"
         for path in sorted((ROOT / "tests").glob("test_*.py"))
-        if path.stem != "test_ui_menu"
     ]
+    test_modules = [module for module in all_test_modules if not module.rsplit(".", 1)[-1].startswith("test_ui_")]
+    ui_test_modules = [module for module in all_test_modules if module.rsplit(".", 1)[-1].startswith("test_ui_")]
     return {
         "document_manifest": [python, str(ROOT / "scripts" / "check_doc_manifest.py")],
         "document_governance": [python, str(ROOT / "scripts" / "check_doc_governance.py")],
@@ -40,7 +41,7 @@ def quality_commands(python=sys.executable):
             *api_files,
         ],
         "tests_core": [python, "-m", "unittest", *test_modules, "-q"],
-        "tests_ui": [python, "-m", "unittest", "tests.test_ui_menu", "-q"],
+        "tests_ui": [python, "-m", "unittest", *ui_test_modules, "-q"],
         "startup_audit": [python, str(ROOT / "scripts" / "startup_audit.py")],
     }
 

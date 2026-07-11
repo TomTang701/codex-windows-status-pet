@@ -9,6 +9,8 @@
 | `.codex-plugin/plugin.json` | Codex插件清单和缓存破坏版本号。 |
 | `scripts/codex_status_pet.py` | Windows伴侣工具的稳定启动器/导入外观层。 |
 | `scripts/ui/main_window.py` | Tk主窗口生命周期、渲染、恢复、刷新编排和UI组装。 |
+| `scripts/api/status_rows_api.py` | 纯五行身份和兼容文字契约。 |
+| `scripts/ui/status_rows.py` | 五 Label Tk 状态渲染适配层。 |
 | `scripts/api/` | 与UI无关的领域、传输、校验、刷新、额度、几何和诊断API。 |
 | `scripts/ui/` | Tk和通知区域适配层。 |
 | `start_codex_status_pet.cmd` | 推荐使用 `pythonw.exe` 的双击启动程序。 |
@@ -33,4 +35,5 @@
 - 同时只允许一个伴侣实例；第二次启动不杀死已有进程而直接退出。
 - 后台worker不得直接调用Tk API；UI调度必须在Tk主线程。
 - 菜单命令第一次点击执行一次，执行后关闭右键菜单。
+- 五个状态行在更新期间保持稳定身份和持久 Tk 控件。
 - 日常 Quality 通过后应提交重大变更，并由本地 Git 配置和 pre-push 钩子核验远程所有者及作者身份；正式 Release Candidate 批准保持独立。
