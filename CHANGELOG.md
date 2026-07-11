@@ -58,6 +58,12 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.2.5 - 2026-07-10
+
+- Replaced the ambiguous automated release runner with a routine Quality runner that makes no release-readiness decision.
+- Added a strict Release Candidate runner that requires Quality, package smoke, whitespace, and blocking physical compatibility checks to pass.
+- Split GitHub Actions into push/PR Quality and a manual Release Candidate workflow; candidate artifacts upload only after strict approval.
+
 ## 0.2.4 - 2026-07-10
 
 - Aligned the supported platform declaration on Windows 11 x64 across README, installation, release, product, roadmap, and compatibility documents.

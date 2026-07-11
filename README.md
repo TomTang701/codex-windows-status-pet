@@ -45,7 +45,7 @@ $py = "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies
 & $py -m unittest discover -s .\tests -v
 ```
 
-The reproducible automated gate is `python scripts/run_release_checks.py`. It does not replace the physical Windows checks listed in `docs/quality/COMPATIBILITY_MATRIX.md`.
+Routine automated Quality is `python scripts/run_quality_checks.py`; passing it is not release approval. A formal candidate uses `python scripts/run_release_candidate_checks.py`, which strictly enforces the physical Windows blockers in `docs/quality/COMPATIBILITY_MATRIX.md`.
 The package smoke gate is `python scripts/package_smoke_test.py`; GitHub Actions runs both gates on Windows.
 Use `python scripts/check_release_readiness.py` to see whether physical compatibility evidence still blocks v0.3.0. The current repository does not install a Startup-folder entry automatically.
 Use `python scripts/startup_audit.py` to report known legacy startup entries; it is read-only unless a maintainer explicitly removes a confirmed old entry.

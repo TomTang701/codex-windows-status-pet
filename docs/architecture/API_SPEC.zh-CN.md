@@ -75,16 +75,18 @@ $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
 # 伴侣可见时运行 Windows 显示器探测
 & $py .\scripts\probe_display.py
 & $py .\scripts\check_doc_parity.py
-# 可重复的自动化发布门禁（不能替代实体测试）
-& $py .\scripts\run_release_checks.py
+# 日常 Quality（不代表发布批准）
+& $py .\scripts\run_quality_checks.py
 & $py .\scripts\package_smoke_test.py
 & $py .\scripts\check_release_readiness.py
+# 仅用于正式候选版本；严格执行实体阻塞项。
+& $py .\scripts\run_release_candidate_checks.py
 ```
 
 连接不同 Windows 缩放比例的显示器后必须重新运行现场探测并保存 JSON 输出；不能用模拟值推断混合 DPI 结论。
 
 打包 smoke 测试会检查 manifest/应用版本一致性、已核验作者元数据、启动器和文档是否存在，并创建非正式发布 ZIP。GitHub Actions 会在 Windows 上运行这些检查。
-`check_release_readiness.py` 默认只报告仍阻止 v0.3.0 发布的实体兼容性行，不会误使日常门禁失败；发布决策时使用 `--strict`。
+`check_release_readiness.py` 默认只报告仍阻止 v0.3.0 发布的实体兼容性行。只有 Release Candidate runner 会使用 `--strict`；日常 Quality 不做发布决定。
 `startup_audit.py` 默认也只报告，不会删除无关启动项。
 
 ## Windows 显示器现场证据

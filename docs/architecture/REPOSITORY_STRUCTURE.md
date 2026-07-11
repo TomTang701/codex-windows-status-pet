@@ -33,4 +33,4 @@ This document describes where project files belong. Configuration values belong 
 - Only one companion instance may run at a time; a second launch exits without killing the existing process.
 - Background workers never call Tk APIs directly; UI scheduling remains on the Tk main thread.
 - Menu commands execute once on the first click and close the context menu after execution.
-- Substantial changes are committed after the automated release gate passes, with remote owner and author identity verified by local Git configuration and the pre-push hook.
+- Substantial changes are committed after routine Quality passes, with remote owner and author identity verified by local Git configuration and the pre-push hook. Formal Release Candidate approval remains separate.

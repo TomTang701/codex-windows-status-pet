@@ -5,9 +5,9 @@
 
 ## Current progress
 
-- **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, automated release gate, transactional settings, strict integer input validation, reversible resize sessions, independent refresh channels, strict quota parsing, last-good state handling, and validated settings backup/restore.
+- **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, separated Quality/Release Candidate gates, transactional settings, strict integer input validation, reversible resize sessions, independent refresh channels, strict quota parsing, last-good state handling, and validated settings backup/restore.
 - **Verified:** 88 automated tests, 17 manifest-registered bilingual document pairs, Windows 11 launcher smoke test, secondary-monitor menu/settings path, and keyboard-driven tray hide/show recovery.
-- **Automated release:** GitHub Actions runs on Windows, installs declared dependencies, executes the release gate, validates package metadata, and uploads a smoke-package artifact.
+- **Automated gates:** GitHub Actions runs routine Quality on pushes/PRs; a separate manual workflow runs strict Release Candidate checks and uploads a candidate artifact only on success.
 - **Application modularization:** Context menu, settings dialog, tray adapter, and main window now live in `scripts/ui/`; Codex discovery/transport, safe diagnostics, and status presentation live in `scripts/api/`; `scripts/codex_status_pet.py` is a stable launcher facade.
 - **Pending physical evidence:** mixed-DPI monitors, alternate taskbar edges, clean-machine dependency installation, and a full idle desktop run that visibly exercises compact hover expansion.
 - **Release decision:** `scripts/check_release_readiness.py` currently reports five blocking Windows 11 x64 evidence gaps and reports Windows 10 separately as Deferred / Not claimed / Non-blocking; v0.3.0 is intentionally not marked ready until the blocking rows are passed or explicitly approved.
@@ -90,7 +90,7 @@ Commit and push every substantial, verified change promptly instead of accumulat
 
 Before committing:
 
-1. Run `python scripts/run_release_checks.py`.
+1. Run `python scripts/run_quality_checks.py`; this is not release approval.
 2. Run `git diff --check`.
 3. Update the English and Chinese specification/changelog pair.
 4. Inspect the staged file list and commit with a focused message.

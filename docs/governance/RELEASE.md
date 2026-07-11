@@ -2,9 +2,9 @@
 
 ## Gates
 
-Before a release, automated checks, required physical rows, version-source consistency, bilingual parity, sensitive-file scan, clean-environment startup, changelog, known issues, and rollback instructions must be complete. Current physical blockers are reported by `scripts/check_release_readiness.py`.
+Routine `run_quality_checks.py` validates automated code health and never approves a release. Before a formal release, `run_release_candidate_checks.py` must pass Quality, package smoke, strict physical readiness, and whitespace checks. Current physical blockers are reported by `scripts/check_release_readiness.py`.
 
-The runtime dependency policy uses minimum compatible bounds in `requirements.txt`. The release gate verifies that each declaration is installed, meets its minimum version, and imports successfully; the current verified environment uses Pillow 12.2.0 and pystray 0.19.5.
+The runtime dependency policy uses minimum compatible bounds in `requirements.txt`. Quality verifies that each declaration is installed, meets its minimum version, and imports successfully; the current verified environment uses Pillow 12.2.0 and pystray 0.19.5.
 
 ## Supported runtime declaration
 
@@ -17,4 +17,4 @@ The runtime dependency policy uses minimum compatible bounds in `requirements.tx
 
 Use Semantic Versioning. Keep application, manifest, changelog, package, artifact, and diagnostic versions aligned. Record the previous stable version, configuration compatibility, reinstall path, downgrade limits, and backup/restore path.
 
-Substantial changes use focused commits and are pushed only after `scripts/run_release_checks.py` and `git diff --check` pass. The remote owner must remain `TomTang701`.
+Substantial changes use focused commits and are pushed only after `scripts/run_quality_checks.py` and `git diff --check` pass. The remote owner must remain `TomTang701`. A green Quality result must never be described as formal release approval.
