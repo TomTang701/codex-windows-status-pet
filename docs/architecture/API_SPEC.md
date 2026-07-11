@@ -79,10 +79,12 @@ $api = Get-ChildItem .\scripts\api -Filter *.py | ForEach-Object FullName
 # Live Windows display evidence (run with the companion visible)
 & $py .\scripts\probe_display.py
 & $py .\scripts\check_doc_parity.py
-# Reproducible automated release gate (does not replace physical checks)
-& $py .\scripts\run_release_checks.py
+# Routine Quality (not release approval)
+& $py .\scripts\run_quality_checks.py
 & $py .\scripts\package_smoke_test.py
 & $py .\scripts\check_release_readiness.py
+# Formal candidate only; strict physical blockers apply.
+& $py .\scripts\run_release_candidate_checks.py
 ```
 
 The live probe must be rerun after connecting a monitor with a different Windows scaling setting.
@@ -91,7 +93,8 @@ Save its JSON output with the test record; a mixed-DPI result is not inferred fr
 The package smoke test checks manifest/app version consistency, verified author metadata, required
 launcher/docs, and creates a non-release ZIP. GitHub Actions runs these checks on Windows.
 `check_release_readiness.py` is intentionally non-blocking by default and reports the physical
-compatibility rows that still prevent a v0.3.0 release; use `--strict` only in a release decision.
+compatibility rows that still prevent a v0.3.0 release. The Release Candidate runner is the only
+orchestrator that invokes it with `--strict`; routine Quality makes no release decision.
 `startup_audit.py` is also report-only by default; it never removes unrelated startup entries.
 
 ## Live Windows display evidence (run with the companion visible)

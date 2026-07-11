@@ -21,7 +21,7 @@
 | DPI | 100% / 125% / 150% / 200% | Automated partial | Current physical probe observed 96 DPI on both monitors; simulated 96/120/144/192 DPI paths pass; physical mixed-DPI monitor run remains pending. |
 | Compact mode | Idle shrink and hover expand | Automated partial | Pure mode API passes; physical run accepted the BOM-enabled setting and preserved `(4150,1248)` but the current Codex session was active, so idle shrink/hover expansion was not observed. |
 | Dependencies | Bundled runtime and fallback requirements | Automated partial | 2026-07-10 temporary venv installed `requirements.txt`, ran 65 tests and package smoke successfully; Windows CI also passed; a separate clean Windows machine startup remains pending. |
-| Automated gate | Document parity, compilation, and unit tests | Pass | `scripts/run_release_checks.py` passed; this gate intentionally excludes physical Windows checks. |
+| Automated Quality | Document parity, compilation, and unit tests | Pass | `scripts/run_quality_checks.py` passed; Quality intentionally makes no release-readiness decision. |
 | Launcher | Root `start_codex_status_pet.cmd`, repeated launch | Physical pass | 2026-07-10 two consecutive launches produced one actual `pythonw.exe` overlay process and no persistent CMD window; command-line self-match was excluded from the process count. |
 | Startup cleanup | Former `Codex Status Pet.lnk` | Physical pass | 2026-07-10 inspected Startup folder and shortcut target; removed the shortcut pointing to the obsolete `.agents\plugins\plugins\codex-windows-status-pet` copy. `startup_audit.py` now reports `clean: true`; no current project startup entry remains. |
 

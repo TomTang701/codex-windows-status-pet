@@ -42,7 +42,7 @@
 python -m py_compile .\scripts\codex_status_pet.py
 ```
 
-可重复的自动化门禁命令是 `python scripts/run_release_checks.py`，不能替代 `docs/quality/COMPATIBILITY_MATRIX.zh-CN.md` 中列出的实体 Windows 测试。
+日常自动化 Quality 命令是 `python scripts/run_quality_checks.py`，通过不代表发布批准。正式候选版本使用 `python scripts/run_release_candidate_checks.py`，它会严格执行 `docs/quality/COMPATIBILITY_MATRIX.zh-CN.md` 中的实体 Windows 阻塞项。
 打包 smoke 门禁命令是 `python scripts/package_smoke_test.py`；GitHub Actions 会在 Windows 上运行两组门禁。
 使用 `python scripts/check_release_readiness.py` 查看实体兼容性证据是否仍阻止 v0.3.0 发布。当前仓库不会自动安装启动文件夹项目。
 使用 `python scripts/startup_audit.py` 报告已知旧版启动项；该命令只读，只有维护者明确确认后才删除旧项目。

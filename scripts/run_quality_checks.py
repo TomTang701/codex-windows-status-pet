@@ -1,8 +1,4 @@
-"""Run the reproducible automated release gate.
-
-Physical monitor, tray, and clean-machine checks remain separate gates in
-docs/quality/COMPATIBILITY_MATRIX.md and are intentionally not inferred here.
-"""
+"""Run routine automated quality checks without making a release decision."""
 
 from __future__ import annotations
 
@@ -20,10 +16,14 @@ def run(command):
     return completed.returncode, completed.stdout + completed.stderr
 
 
-def main():
-    python = sys.executable
+def quality_commands(python=sys.executable):
     api_files = [str(path) for path in (ROOT / "scripts" / "api").glob("*.py")]
-    checks = {
+    test_modules = [
+        f"tests.{path.stem}"
+        for path in sorted((ROOT / "tests").glob("test_*.py"))
+        if path.stem != "test_ui_menu"
+    ]
+    return {
         "document_manifest": [python, str(ROOT / "scripts" / "check_doc_manifest.py")],
         "document_links": [python, str(ROOT / "scripts" / "check_doc_links.py")],
         "version_sources": [python, str(ROOT / "scripts" / "check_version_sources.py")],
@@ -38,16 +38,20 @@ def main():
             str(ROOT / "scripts" / "ui" / "main_window.py"),
             *api_files,
         ],
-        "tests": [python, "-m", "unittest", "discover", "-s", "tests", "-q"],
-        "release_readiness_report": [python, str(ROOT / "scripts" / "check_release_readiness.py")],
+        "tests_core": [python, "-m", "unittest", *test_modules, "-q"],
+        "tests_ui": [python, "-m", "unittest", "tests.test_ui_menu", "-q"],
         "startup_audit": [python, str(ROOT / "scripts" / "startup_audit.py")],
     }
+
+
+def main():
     results = {}
-    for name, command in checks.items():
+    for name, command in quality_commands().items():
         code, output = run(command)
         results[name] = {"passed": code == 0, "output": output.strip()}
-    print(json.dumps(results, ensure_ascii=False, indent=2))
-    return 0 if all(item["passed"] for item in results.values()) else 1
+    approved = all(item["passed"] for item in results.values())
+    print(json.dumps({"quality_approved": approved, "checks": results}, ensure_ascii=False, indent=2))
+    return 0 if approved else 1
 
 
 if __name__ == "__main__":

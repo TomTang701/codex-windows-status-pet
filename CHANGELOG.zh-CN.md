@@ -58,6 +58,12 @@
 - 修复 Windows 编辑器和 PowerShell 常见 UTF-8 BOM 设置文件的读取问题。
 - 新增右下角菜单定位、副屏幕和额度格式化回归测试。
 
+## 0.2.5 - 2026-07-10
+
+- 用不做发布就绪决定的日常 Quality runner 替换含义模糊的自动发布 runner。
+- 新增严格 Release Candidate runner，要求 Quality、打包 smoke、空白检查和具有阻塞性的实体兼容性检查全部通过。
+- 将 GitHub Actions 分为 push/PR Quality 和手动 Release Candidate 工作流；只有严格批准后才上传候选制品。
+
 ## 0.2.4 - 2026-07-10
 
 - 在 README、安装、发布、产品、路线图和兼容性文档中统一 Windows 11 x64 受支持平台声明。

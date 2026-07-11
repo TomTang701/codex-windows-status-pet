@@ -10,7 +10,9 @@
 $py = "<bundled-python>"
 & $py scripts/check_doc_parity.py
 & $py -m unittest discover -s tests -q
-& $py scripts/run_release_checks.py
+& $py scripts/run_quality_checks.py
+# 仅用于正式候选版本；实体阻塞项存在时预期失败。
+& $py scripts/run_release_candidate_checks.py
 ```
 
 UI变更需要确定性的适配器测试和Windows人工证据。显示/DPI变更需要几何测试和实体兼容矩阵。安全边界变更需要负向及脱敏测试。

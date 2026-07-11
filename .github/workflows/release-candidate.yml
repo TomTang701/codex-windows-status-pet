@@ -1,16 +1,13 @@
-name: Windows Quality
+name: Windows Release Candidate
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  quality:
+  release-candidate:
     runs-on: windows-latest
     steps:
       - name: Check out repository
@@ -22,15 +19,11 @@ jobs:
           cache: pip
       - name: Install runtime dependencies
         run: python -m pip install -r requirements.txt
-      - name: Run routine quality checks
-        run: python scripts/run_quality_checks.py
-      - name: Run package smoke test
-        run: python scripts/package_smoke_test.py
-      - name: Check whitespace
-        shell: bash
-        run: git diff --check
-      - name: Upload package smoke artifact
+      - name: Run strict Release Candidate gates
+        run: python scripts/run_release_candidate_checks.py
+      - name: Upload approved candidate artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: codex-windows-status-pet-smoke
+          name: codex-windows-status-pet-release-candidate
           path: .build/codex-windows-status-pet-smoke.zip

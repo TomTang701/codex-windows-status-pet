@@ -2,6 +2,7 @@ import runpy
 import sys
 import tempfile
 import unittest
+import gc
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -40,6 +41,25 @@ class MenuInteractionTests(unittest.TestCase):
             if child.winfo_class() in {"Button", "Checkbutton"}
         ]
 
+    @staticmethod
+    def destroy_app(app):
+        """Stop callbacks/workers and collect Tk variables before destroying Tcl."""
+        if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+            app.settings_dialog.destroy()
+            app.settings_dialog = None
+        if getattr(app, "refresh_controller", None) is not None:
+            app.refresh_controller.shutdown()
+        for callback in app.tk.call("after", "info"):
+            try:
+                app.after_cancel(callback)
+            except Exception:
+                pass
+        app.topmost_var = None
+        app.locked_var = None
+        gc.collect()
+        app.destroy()
+        gc.collect()
+
     def test_popup_contains_only_the_five_approved_actions(self):
         app = self.module["Pet"]()
         try:
@@ -49,7 +69,7 @@ class MenuInteractionTests(unittest.TestCase):
             for removed in ("立即刷新", "复制诊断摘要", "恢复上次设置"):
                 self.assertNotIn(removed, labels)
         finally:
-            app.destroy()
+            self.destroy_app(app)
 
     def test_settings_button_is_invokable_once_from_popup(self):
         app = self.module["Pet"]()
@@ -66,7 +86,7 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
-            app.destroy()
+            self.destroy_app(app)
 
     def test_hide_button_dispatches_once_and_closes(self):
         app = self.module["Pet"]()
@@ -81,7 +101,7 @@ class MenuInteractionTests(unittest.TestCase):
             self.assertEqual(calls, ["hide"])
             self.assertFalse(popup.winfo_exists())
         finally:
-            app.destroy()
+            self.destroy_app(app)
 
     def test_escape_closes_popup_and_releases_owner_reference(self):
         app = self.module["Pet"]()
@@ -93,7 +113,7 @@ class MenuInteractionTests(unittest.TestCase):
             self.assertIsNone(app.context_menu)
             self.assertFalse(popup.winfo_exists())
         finally:
-            app.destroy()
+            self.destroy_app(app)
 
     def test_routine_pet_save_preserves_protected_configuration(self):
         app = self.module["Pet"]()
@@ -105,7 +125,7 @@ class MenuInteractionTests(unittest.TestCase):
                 self.assertFalse(app.save_settings())
                 self.assertEqual(app.settings_path.read_text(encoding="utf-8"), "{damaged")
         finally:
-            app.destroy()
+            self.destroy_app(app)
 
     def test_restore_defaults_then_save_explicitly_replaces_protected_configuration(self):
         app = self.module["Pet"]()
@@ -127,7 +147,7 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
-            app.destroy()
+            self.destroy_app(app)
 
     def test_rejected_ordinary_save_keeps_dialog_open_and_source_unchanged(self):
         app = self.module["Pet"]()
@@ -149,7 +169,7 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
-            app.destroy()
+            self.destroy_app(app)
 
 
 if __name__ == "__main__":
