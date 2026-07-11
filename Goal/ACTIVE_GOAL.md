@@ -1,1037 +1,978 @@
-# ACTIVE GOAL — 专业、精简、连续的小版本发布列车
+# ACTIVE GOAL — 高自动化发布闭环、Superpowers 执行纪律与统一窗口缩放迭代
 
-> **Repository:** `TomTang701/codex-windows-status-pet`  
-> **Authority:** 本文件是 `Goal/` 中唯一具有执行效力的Goal，并内置完整启动协议  
-> **Current main baseline:** `477acc20e635e76a98fb3e4579bd796b264bd12e`  
-> **Current product version:** `0.2.0`  
-> **Existing oversized draft PR:** `#2`  
-> **Current target version:** `0.2.1`  
-> **Supported platform:** Windows 11 x64  
-> **Execution mode:** 可以持续运行，但任何时刻只能有一个活动版本  
-> **Release model:** 一个版本、一个主题、一个分支、一个PR、一个tag  
-> **Product character:** 被动显示、界面简洁、本地运行、低资源占用、不易误触  
-> **Authorized release train:** `0.2.1` → `0.2.2` → `0.2.3` → `0.2.4` → `0.2.5` → `0.2.6` → `0.3.0` → `0.3.1` → `0.3.2`
+> **Repository:** `TomTang701/codex-windows-status-pet`
+> **Authority:** 本文件替换 `Goal/ACTIVE_GOAL.md`，并作为唯一规范性开发Goal
+> **Verified remote main SHA:** `d4a69e9ce4a6adc7d519ff1a37b00617d548e8dd`
+> **Verified remote released version:** `0.3.1`
+> **Verified latest released tag:** `v0.3.1`
+> **Current local candidate target:** `v0.3.2`
+> **Maintainer-reported candidate state:** strict Release Candidate passed before formal version bump/release
+> **Authorized release sequence:** finish `v0.3.2` → then implement and release `v0.4.0`
+> **Execution model:** autonomous-first, Superpowers-routed, strictly sequential, one active version at a time
+> **Enabled Superpowers skills:** Using Superpowers, Brainstorming, Writing Plans, Systematic Debugging, Test-Driven Development, Verification Before Completion
+> **Supported platform:** Windows 11 x64
+> **Final stop:** after `v0.4.0` merge, main verification, tag, and post-release smoke
+> **Forbidden:** no `v0.4.1+` implementation under this Goal
 
 ---
 
-# 0. Codex启动协议
+# 0. Highest-priority execution instruction
 
-本节是每次Codex开始执行本Goal时的强制入口。
+Read this file completely.
 
-Codex收到类似以下任一指令时：
-
-```text
-请读取并执行 Goal/ACTIVE_GOAL.md
-```
-
-或：
+Before any repository action, source edit, plan, fix, verification claim, commit, PR, merge, or release action:
 
 ```text
-继续执行当前ACTIVE_GOAL
+invoke Using Superpowers
+→ determine which enabled skill applies
+→ follow the skill routing policy in Section 2A
+→ continue under this Goal and the Engineering Standard
 ```
 
-必须自动完成本节，不需要用户再次粘贴详细说明。
+Do not invoke a skill merely to create ceremony. Do not skip a relevant enabled skill merely because the task appears small.
 
-## 0.1 权威来源
+This Goal is a direct maintainer instruction. Where a default Superpowers interaction gate conflicts with the explicit autonomous-first policy, Human Interaction Admission Gate, locked Product Decision, or exact release sequence in this Goal, this Goal controls the interaction behavior.
 
-执行优先级：
+Do not restart v0.3.2 development from remote `main`.
+
+The maintainer reports that the local v0.3.2 candidate has already passed the complete strict Release Candidate suite, while the formal application version is still `0.3.1`.
+
+Therefore the first objective is:
 
 ```text
-1. Goal/ACTIVE_GOAL.md
-2. Goal/ACTIVE_VERSION_BRIEF.md
-3. Goal/EXECUTION_STATE.md
-4. 当前版本直接相关的规范文件
-5. 当前PR描述
-6. Roadmap
-7. 历史归档和Git历史
+preserve local candidate
+→ reconcile exact local state
+→ push a verified checkpoint
+→ autonomously close remaining release administration
+→ formally release v0.3.2
 ```
 
-规则：
+Only after v0.3.2 is fully merged, verified, tagged, and closed may v0.4.0 begin.
 
-- `Goal/ACTIVE_GOAL.md`是唯一规范性开发目标；
-- 旧Goal、归档计划、旧PR描述与本文件冲突时，必须忽略旧内容；
-- 不得从历史Goal推导新的活动任务；
-- 仓库事实比文件中陈旧的SHA、版本或分支信息优先，但必须记录差异；
-- 产品方向、资源红线和版本范围不得因仓库状态变化而自动放宽。
+---
 
-## 0.2 启动检查
+# 1. Verified remote repository facts
 
-开始编码前自动执行：
+At Goal creation time:
+
+```text
+remote main SHA:
+d4a69e9ce4a6adc7d519ff1a37b00617d548e8dd
+
+remote application version:
+0.3.1
+
+v0.3.1:
+identical to remote main
+
+latest merged release:
+PR #10 — [v0.3.1] Extract main-window controllers
+
+remote v0.3.2 PR:
+not observed
+
+remote v0.3.2 branch:
+not observed in the queried remote branch state
+```
+
+Remote repository metadata is stale in two places:
+
+```text
+Goal/ACTIVE_GOAL.md still describes the old 0.2.0 / 0.2.1 baseline
+Goal/ACTIVE_VERSION_BRIEF.md still describes v0.3.1
+```
+
+Correct those files on the active v0.3.2 release branch.
+
+Do not push these corrections directly to `main`.
+
+---
+
+# 2. Autonomous-first operating policy
+
+The default mode is autonomous execution.
+
+Codex must perform safe local verification itself whenever the current environment and available local tools can truthfully determine the result.
+
+## 2.1 Verification priority
+
+Use this order:
+
+```text
+1. Repository and source inspection
+2. Pure unit or contract test
+3. Integration test
+4. Process / CommandLine / filesystem inspection
+5. Win32 / Tk / runtime introspection on the real Windows host
+6. Safe interaction with the status-pet application itself
+7. Existing evidence from the exact current build and commit
+8. Maintainer factual confirmation only as a last resort
+```
+
+Do not delegate a check to the maintainer merely because manual confirmation is easier.
+
+## 2.2 No artificial approval phrases
+
+Never require exact wording such as:
+
+```text
+请回复：当前五项菜单测试通过
+```
+
+Do not invent a human approval token, magic phrase, or fixed sentence.
+
+If human input is genuinely required, any clear natural-language answer to the factual question is sufficient.
+
+Examples of valid replies:
+
+```text
+是
+通过
+只有五项
+菜单正常
+我已经切换成单屏
+```
+
+Interpret the answer by meaning, not exact string matching.
+
+## 2.3 Human Interaction Admission Gate
+
+Codex may pause for maintainer input only when all applicable conditions below are satisfied:
+
+```text
+[ ] one exact physical fact or action is required
+[ ] source/tests/runtime inspection cannot truthfully determine it
+[ ] safe app-local automation cannot determine it
+[ ] the requested action requires physical hardware, OS display-mode change, or another user-only action
+[ ] the missing fact blocks the current release
+[ ] EXECUTION_STATE records what was attempted and why it was insufficient
+```
+
+Before asking, record:
+
+```text
+Fact required:
+Methods attempted:
+Why insufficient:
+Why human action is necessary:
+Exact factual question:
+```
+
+Then ask one concise factual question.
+
+Do not repeatedly ask the same question unless the answer is ambiguous.
+
+After sufficient confirmation:
+
+```text
+record evidence
+resume automatically
+do not wait for another “continue” message
+```
+
+## 2.4 No human-wait state for ordinary checks
+
+The following normally do not justify waiting for the maintainer:
+
+```text
+menu item inventory
+source version
+Git branch state
+PR status
+CI status
+tag existence
+process count
+process CommandLine
+module path
+window HWND existence
+Tk widget inventory
+settings control inventory
+file contents
+changelog contents
+version-source consistency
+strict RC execution
+```
+
+These should be verified autonomously.
+
+## 2.5 Browser automation remains prohibited
+
+Do not automate Chrome or another browser to:
+
+```text
+confirm a GitHub URL
+configure repository rules
+inspect private web state
+approve a PR
+```
+
+Use Git/GitHub API, existing authenticated CLI, repository connectors, or documented compensating controls.
+
+Never read or print credential values.
+
+---
+
+
+# 2A. Superpowers execution discipline
+
+The following six enabled skills are part of the normative execution model for this Goal:
+
+```text
+Using Superpowers
+Brainstorming
+Writing Plans
+Systematic Debugging
+Test-Driven Development
+Verification Before Completion
+```
+
+No other Superpowers skill is required by this Goal.
+
+The skills strengthen engineering discipline. They must not create an artificial approval loop, duplicate an already locked product decision, or weaken the autonomous-first execution policy.
+
+## 2A.1 Authority and interaction adaptation
+
+Precedence for this Goal is:
+
+```text
+1. security/privacy requirements in ENGINEERING_STANDARD.md
+2. runtime invariants in ENGINEERING_STANDARD.md
+3. direct maintainer instructions in this ACTIVE_GOAL
+4. applicable enabled Superpowers skill workflow
+5. ordinary autonomous implementation judgment
+```
+
+This Goal explicitly supplies:
+
+```text
+approved release sequence
+approved Product Decision for v0.3.2
+approved Product Decision = GO for v0.4.0
+locked v0.4.0 product outcome
+locked user-visible control inventory
+locked migration direction
+locked resource/privacy expectations
+locked version and branch sequence
+```
+
+Therefore a skill must not reopen these decisions as routine questions.
+
+Examples of prohibited artificial questions:
+
+```text
+Should v0.4.0 use a slider or width/height inputs?
+Should v0.4.0 keep an independent font-size control?
+Should work begin on v0.4.0 before v0.3.2 is released?
+Do you approve Product Decision GO?
+Should I continue?
+Which exact approval phrase should you reply with?
+```
+
+The Human Interaction Admission Gate in Section 2.3 remains authoritative.
+
+## 2A.2 Using Superpowers — mandatory skill router
+
+Use `Using Superpowers` before each materially new task category and when the nature of the task changes.
+
+Route work as follows:
+
+```text
+new feature / behavior design
+→ Brainstorming
+→ Writing Plans
+→ Test-Driven Development
+→ Verification Before Completion
+
+bug / failing test / unexpected runtime behavior / performance anomaly
+→ Systematic Debugging
+→ Test-Driven Development for the fix
+→ Verification Before Completion
+
+release administration / version bump / Changelog / branch / PR / CI / merge / tag
+→ project Goal and Engineering Standard
+→ Systematic Debugging only if failure or unexpected behavior occurs
+→ Verification Before Completion before any success/readiness claim
+
+documentation-only synchronization with no behavior change
+→ project documentation rules
+→ Verification Before Completion
+```
+
+Do not run Brainstorming merely because a release-administration step has multiple commands.
+
+Do not run Writing Plans for a typo, bilingual parity correction, version-only metadata update, evidence reconciliation, or routine release closure unless implementation scope unexpectedly expands.
+
+## 2A.3 v0.3.2 skill policy
+
+v0.3.2 is a release-closure and stabilization administration phase for an already developed local candidate.
+
+For v0.3.2:
+
+```text
+do not restart product brainstorming
+do not produce a new feature design
+do not create an implementation plan merely for release administration
+preserve and reconcile the existing candidate
+```
+
+If a bug, failed check, source/runtime disagreement, stale evidence conflict, or unexpected behavior appears:
+
+```text
+invoke Systematic Debugging before proposing a fix
+identify and record the root-cause hypothesis
+test the smallest hypothesis
+do not stack speculative fixes
+```
+
+If production code or externally observable behavior must change:
+
+```text
+invoke Test-Driven Development
+write the smallest failing regression test first
+run it and observe the expected RED failure
+implement the minimum root-cause fix
+run the focused test and observe GREEN
+run relevant regression checks
+refactor only while tests remain GREEN
+```
+
+Exceptions are limited to:
+
+```text
+version metadata
+Changelog prose
+Goal/Brief execution metadata
+evidence records that do not alter runtime behavior
+```
+
+A change that appears administrative but changes runtime behavior is not exempt.
+
+Before stating any form of:
+
+```text
+fixed
+passed
+clean
+ready
+merge-ready
+release-ready
+approved
+complete
+```
+
+invoke Verification Before Completion and obtain fresh evidence for the exact claim.
+
+## 2A.4 v0.4.0 Brainstorming policy
+
+v0.4.0 must invoke Brainstorming before production implementation.
+
+The purpose of Brainstorming is:
+
+```text
+inspect the actual current repository after v0.3.2 release
+map existing config/settings/main-window/compact boundaries
+compare 2–3 implementation approaches where implementation choices remain
+select the approach that best fits the Engineering Standard
+identify data flow, error behavior, compatibility behavior, and test boundaries
+convert the locked Product Brief into an implementation design
+```
+
+Brainstorming must not redesign the already locked product outcome.
+
+The following are implementation questions, not product reopening:
+
+```text
+which existing API owns legacy-scale inference
+whether WindowMetrics belongs in a new pure module or an existing pure module
+how current compact state stores expanded geometry
+which exact config normalization boundary introduces window_scale_percent
+what measured lower slider bound is safe
+which focused tests prove migration and transactional semantics
+```
+
+For choices not fixed by the Goal:
+
+1. inspect current code, docs, and recent relevant history;
+2. identify 2–3 viable approaches when meaningful alternatives exist;
+3. compare trade-offs against the Engineering Standard and Scope Lock;
+4. choose the recommended approach autonomously when one is clearly superior and remains inside the locked product outcome;
+5. record the rationale in the design spec.
+
+Pause for maintainer input only when a material ambiguity produces incompatible product outcomes or would require one of:
+
+```text
+security/privacy boundary change
+new network, IPC, subprocess, worker, telemetry, or backend
+configuration schema bump unsupported by existing evidence
+breaking public API
+new provider
+framework rewrite
+scope expansion outside Section 20
+a user-visible behavior decision not resolved by this Goal
+```
+
+Routine design approval is already delegated by this Goal when the design is a direct implementation of the locked requirements.
+
+## 2A.5 Brainstorming design artifact
+
+After repository exploration and design selection, write:
+
+```text
+docs/superpowers/specs/YYYY-MM-DD-unified-window-scale-design.md
+```
+
+The spec must cover:
+
+```text
+goal and non-goals
+current architecture observations
+selected approach
+rejected alternatives and trade-offs
+component boundaries
+public interfaces
+configuration compatibility
+legacy migration
+settings transaction flow
+main-window metric application
+compact/expanded restoration
+error behavior
+resource/privacy analysis
+test strategy
+Windows 11 host validation strategy
+release-document impacts
+```
+
+Before moving on, self-review the spec for:
+
+```text
+placeholders
+contradictions
+scope drift
+ambiguous requirements
+API naming inconsistencies
+conflict with ENGINEERING_STANDARD.md
+conflict with this ACTIVE_GOAL
+```
+
+Fix discovered issues inline.
+
+Because this Goal explicitly authorizes autonomous execution of the locked v0.4.0 outcome, do not enter a routine human approval wait after writing the spec.
+
+Record the spec path and review result in `Goal/EXECUTION_STATE.md`, then continue automatically to Writing Plans unless the Human Interaction Admission Gate is satisfied.
+
+Commit the validated spec as a focused documentation checkpoint before production implementation.
+
+## 2A.6 Writing Plans policy
+
+After the v0.4.0 design spec is validated, invoke Writing Plans before production implementation.
+
+Write:
+
+```text
+docs/superpowers/plans/YYYY-MM-DD-unified-window-scale-implementation.md
+```
+
+The plan must:
+
+```text
+map exact files to create or modify
+define responsibility of each touched file
+state exact interfaces consumed and produced by each task
+split work into independently testable tasks
+use checkbox steps
+show RED → verify RED → GREEN → verify GREEN → refactor/verify → commit
+include exact commands and expected result categories
+include documentation and host-validation tasks
+include final release verification
+contain no TBD/TODO/implement-later placeholders
+```
+
+The plan must preserve:
+
+```text
+DRY
+YAGNI
+the Scope Lock in Section 20
+one canonical scale source
+frequent focused commits
+one active version
+one active branch
+```
+
+Self-review the plan for:
+
+```text
+spec coverage
+placeholder language
+type/signature consistency
+missing tests
+task ordering
+scope leakage
+```
+
+Fix issues inline.
+
+This Goal selects direct sequential execution by the current Codex run.
+
+Do not ask the maintainer to choose:
+
+```text
+Subagent-Driven
+Inline Execution
+another execution mode
+```
+
+Do not require disabled Superpowers execution skills.
+
+After the validated plan is committed:
+
+```text
+execute it task-by-task in order
+update checkbox progress truthfully
+use Test-Driven Development for every feature, fix, refactor, or behavior change
+use Systematic Debugging whenever execution encounters a bug or unexpected failure
+```
+
+## 2A.7 Systematic Debugging policy
+
+Invoke Systematic Debugging for any:
+
+```text
+test failure
+CI failure
+strict RC failure
+package smoke failure
+unexpected runtime behavior
+source/runtime disagreement
+process provenance mismatch
+menu inventory mismatch
+migration mismatch
+performance anomaly
+Windows host behavior that differs from the documented contract
+```
+
+Before a fix:
+
+```text
+read the complete error or evidence
+reproduce consistently when possible
+inspect recent changes
+trace data across component boundaries
+find a working comparable pattern in the repository
+state one root-cause hypothesis
+test one variable with the smallest useful change
+```
+
+Do not:
+
+```text
+add sleep because timing looks suspicious
+wrap a broad except around the symptom
+add retries without identifying the failing boundary
+change several APIs to see whether tests become green
+weaken a test solely to make the suite pass
+mark physical evidence PASS to bypass a release blocker
+```
+
+When the root cause is identified, transition to TDD for the actual fix.
+
+Record significant debugging conclusions in the relevant test, spec, execution state, compatibility evidence, or release report. Do not create duplicate narrative files for trivial failures.
+
+## 2A.8 Test-Driven Development policy
+
+The default rule for production behavior is:
+
+```text
+NO PRODUCTION BEHAVIOR CHANGE WITHOUT AN OBSERVED FAILING TEST FIRST
+```
+
+Required cycle:
+
+```text
+RED
+→ write one minimal behavior test
+→ run the exact focused test
+→ confirm it fails for the expected missing/broken behavior
+
+GREEN
+→ implement the smallest correct change
+→ rerun the exact focused test
+→ confirm it passes
+
+REFACTOR
+→ remove duplication or improve structure only when directly useful
+→ rerun the focused test
+→ keep it green
+
+REGRESSION
+→ run the relevant module/group tests
+→ run broader project gates at the phase boundary required by this Goal
+```
+
+The RED run must be real.
+
+The test must not fail because of:
+
+```text
+syntax error
+wrong import path
+misspelled test fixture
+missing dependency unrelated to the behavior
+an intentionally impossible assertion
+```
+
+For a regression fix, the test must demonstrate the original symptom or contract violation.
+
+TDD exceptions:
+
+```text
+pure prose documentation
+version strings
+release Changelog text
+Goal/Brief execution metadata
+non-runtime evidence recording
+```
+
+Generated or configuration-only changes are exempt only when they do not alter application behavior. If a configuration change changes behavior, use TDD.
+
+Do not delete a failing test because the implementation is inconvenient unless the Goal or canonical specification proves the test is invalid.
+
+## 2A.9 Verification Before Completion policy
+
+Verification Before Completion is mandatory before:
+
+```text
+claiming a bug is fixed
+claiming focused tests pass
+claiming Quality passes
+claiming package smoke passes
+claiming strict readiness is ready
+claiming strict RC is approved
+claiming CI passes
+claiming a branch is clean
+claiming a PR is merge-ready
+claiming main converged
+claiming a tag is correct
+claiming a release is complete
+moving from v0.3.2 to v0.4.0
+stopping at Final Definition of Done
+```
+
+For each claim:
+
+```text
+1. identify the command or direct evidence that proves the claim
+2. run or retrieve it fresh for the current relevant SHA/state
+3. read the complete result and exit status where available
+4. compare the result to the exact claim
+5. state the actual status only after evidence supports it
+```
+
+Examples:
+
+```text
+unit tests passed
+→ fresh test output with zero failures
+
+working tree clean
+→ fresh git status
+
+CI passed
+→ exact PR/head SHA and successful required check state
+
+version consistent
+→ fresh version-source checker output
+
+release-ready
+→ all exact release gates required by this Goal passed for the relevant state
+
+tag correct
+→ tag SHA identified and ancestor verification passed
+```
+
+Previous output may be accepted only where this Goal explicitly allows reconciliation of evidence from the exact unchanged HEAD, such as the pre-version-bump v0.3.2 candidate RC rule in Section 6.
+
+Do not convert:
+
+```text
+should pass
+likely fixed
+looks good
+agent reported success
+old test output from a different SHA
+partial checks
+```
+
+into a success claim.
+
+## 2A.10 Skill workflow and Human Interaction Admission Gate
+
+A Superpowers skill does not independently authorize a human-wait state.
+
+Before asking the maintainer a skill-related question, apply Section 2.3.
+
+Routine skill workflow steps are not, by themselves, sufficient reasons to pause.
+
+The following do not justify a maintainer pause when the Goal already resolves the decision:
+
+```text
+design-section approval
+spec review approval
+plan execution-mode choice
+permission to continue to the next planned task
+permission to run tests
+permission to inspect source
+permission to commit a verified checkpoint
+permission to monitor CI
+```
+
+When a material unresolved question satisfies Section 2.3:
+
+```text
+record the required fact and attempted methods
+ask one concise factual or decision question
+accept any clear natural-language answer
+record the answer
+resume automatically
+```
+
+## 2A.11 Skill artifacts and repository documentation rules
+
+Superpowers spec and plan files are development artifacts, not new normative product authorities.
+
+Authority remains:
+
+```text
+ENGINEERING_STANDARD.md and other canonical project standards
+approved ADRs
+API_SPEC / CONFIGURATION / ROADMAP according to project precedence
+Goal/ACTIVE_GOAL.md for current execution
+Goal/ACTIVE_VERSION_BRIEF.md for the active version
+```
+
+A Superpowers spec or plan:
+
+```text
+must not contradict canonical project documents
+must not silently expand product scope
+must not replace required API/configuration/product documentation
+must be updated or superseded when implementation evidence invalidates a design assumption
+```
+
+English remains canonical for required normative bilingual document pairs.
+
+The Superpowers development spec and plan may remain English-only unless the project manifest or document class rules explicitly register them as a required bilingual pair.
+
+---
+
+# 3. Continuous execution and version isolation
+
+The same Codex execution may continue from v0.3.2 into v0.4.0, but never concurrently.
+
+At all times:
+
+```text
+one active product version
+one active release branch
+one active PR
+one Active Version Brief
+one locked scope
+```
+
+Forbidden:
+
+```text
+coding v0.4.0 while v0.3.2 PR is open
+putting v0.4.0 files into v0.3.2
+creating v0.4.0 from the v0.3.2 branch
+one PR with two versions
+one tag representing two releases
+postponing two completed versions and merging them together
+```
+
+---
+
+# 4. Phase A — Reconcile and preserve the local v0.3.2 candidate
+
+Run immediately:
 
 ```powershell
-git fetch --all --prune
+git fetch --all --prune --tags
 git status
 git branch --show-current
-git log -5 --oneline
+git log -15 --oneline --decorate
 git diff
+git diff --cached
+git branch -vv
+git tag --points-at origin/main
 ```
 
-并检查：
+Determine:
 
 ```text
-最新main SHA
-当前产品版本
-开放PR
-相关分支
-远程tag
-是否存在未完成merge/rebase/cherry-pick
-Goal目录内容
-ACTIVE_VERSION_BRIEF状态
-EXECUTION_STATE状态
-当前授权版本
+actual local branch
+actual HEAD SHA
+actual base SHA
+working-tree changes
+staged changes
+unpushed commits
+interrupted merge/rebase/cherry-pick state
+whether strict RC was run at current HEAD
+whether evidence files changed after the last strict RC
 ```
 
-## 0.3 Goal目录清理
+## 4.1 Preservation rules
 
-确认`Goal/`只包含：
+Do not:
 
 ```text
-ACTIVE_GOAL.md
-ACTIVE_VERSION_BRIEF.md
-EXECUTION_STATE.md
-README.md
+git reset --hard
+discard local evidence
+recreate v0.3.2 from scratch
+blindly copy remote main over local work
+blindly cherry-pick old PR #2
 ```
 
-处理规则：
+If a valid v0.3.2 branch already exists, continue it.
 
-- 多余旧Goal移入`docs/archive/plans/`或删除；
-- 归档文件必须是非规范性；
-- 不得保留多个`ACTIVE_GOAL`副本；
-- `ACTIVE_VERSION_BRIEF.md`只描述当前活动版本；
-- 已完成版本的`EXECUTION_STATE.md`必须删除或重置。
+If local candidate work exists on another branch, preserve it before reorganizing.
 
-## 0.4 基线校准
-
-如果本文件记录的：
+If no release branch exists but the local candidate is valid, create or move the work safely onto:
 
 ```text
-main SHA
-产品版本
-PR状态
-分支状态
-tag状态
+release/v0.3.2-win11-stabilization
 ```
 
-与GitHub实际情况不同：
+Do not alter content merely to normalize the branch name.
 
-1. 以最新远程仓库事实为准；
-2. 不直接假设旧计划仍可执行；
-3. 更新Brief中的实际基线；
-4. 检查当前版本是否已经部分或全部完成；
-5. 避免重复实现；
-6. 记录差异及处理方式；
-7. 不因基线变化混入下一版本内容。
+## 4.2 Candidate checkpoint push
 
-## 0.5 创建当前版本Brief
+Because remote state currently does not show v0.3.2, verified candidate work must not remain local-only.
 
-编码前创建或更新：
+When the candidate state is understood:
+
+1. run the smallest checks needed to verify the checkpoint;
+2. commit verified candidate/evidence work only;
+3. push the v0.3.2 release branch;
+4. update `Goal/EXECUTION_STATE.md`;
+5. record the remote branch SHA.
+
+This checkpoint may still report application version `0.3.1`.
+
+Do not claim that the checkpoint is a released v0.3.2.
+
+---
+
+# 5. Phase B — Replace stale Goal metadata and Brief
+
+On the v0.3.2 branch, replace stale execution metadata.
+
+## 5.1 ACTIVE_GOAL
+
+This file becomes:
 
 ```text
-Goal/ACTIVE_VERSION_BRIEF.md
+Goal/ACTIVE_GOAL.md
 ```
 
-必须完成：
+It is the only normative Goal.
+
+## 5.2 ACTIVE_VERSION_BRIEF
+
+Replace the old v0.3.1 Brief with a concise v0.3.2 Brief.
+
+Required identity:
 
 ```text
-Product
-Applicability Matrix
-Visual/UI/UX（适用时）
-Frontend（适用时）
-Backend（适用时）
-QA/Release
-Security/Resource
-Scope Lock
+Version: 0.3.2
+Branch: actual active v0.3.2 branch
+Base: actual main SHA from which the candidate originated
+PR: [v0.3.2] Complete Windows 11 release stabilization
+Tag: v0.3.2
 ```
 
-只有以下条件同时满足才能开始生产代码：
+Product outcome:
 
 ```text
-Product Decision = GO
-适用角色Decision = PASS
-Scope Lock完整
-分支从最新main建立
-当前版本明确
+Close the declared Windows 11 x64 physical release gates and formally publish the already validated stabilization candidate without adding a feature.
 ```
 
-## 0.6 首次启动汇报
-
-第一次读取本Goal，或仓库基线发生显著变化时，先向用户汇报：
+Product Decision:
 
 ```text
-当前main SHA和产品版本
-开放PR和相关分支
-远程tag状态
-Goal目录清理结果
-当前活动版本
-Product Decision
-允许范围
-明确非目标
-第一个安全执行步骤
+GO
 ```
 
-完成这次汇报后：
-
-- 普通开发步骤无需逐项等待确认；
-- 可以按本Goal持续串行执行；
-- 只有遇到红线、权限不足、产品方向变化、无法保持单一范围或不可逆风险时暂停。
-
-## 0.7 自动持续执行
-
-当当前版本完成后，不需要用户再次发送整段启动指令。
-
-若官方服务仍允许，必须：
-
-1. 完成当前版本Transition Gate；
-2. 确认远程tag；
-3. 清理当前分支和Brief；
-4. 从最新main创建下一授权版本分支；
-5. 创建新的ACTIVE_VERSION_BRIEF；
-6. 重新进行专业角色适用性评审；
-7. 只开发下一版本；
-8. 重复完整发布生命周期。
-
-## 0.8 中断恢复
-
-收到：
+Explicit non-goals:
 
 ```text
-继续执行当前ACTIVE_GOAL
-```
-
-时必须：
-
-1. 读取`Goal/EXECUTION_STATE.md`；
-2. fetch远程状态；
-3. 核对branch和last pushed SHA；
-4. 检查未完成Git操作；
-5. 重新运行最后一个已记录测试；
-6. 从`Next exact action`继续；
-7. 不重新开始已经验证并推送的工作。
-
-## 0.9 禁止事项
-
-启动指令不得被解释为授权：
-
-```text
-绕过平台额度
-同时开发多个版本
-跳过PR或tag
-直接批量修改main
-忽略资源红线
-自动开始0.4.0
-执行归档Goal
-运行无意义任务消耗额度
+unified window scaling
+settings redesign
+new menu actions
+new quota behavior
+new provider
+Windows 10
+installer
+updater
+telemetry
+v0.4.0 code
 ```
 
 ---
 
-# 1. 为什么需要更新专业开发流程
+# 6. Phase C — Accept prior candidate evidence without manufacturing a new human gate
 
-旧流程存在以下风险：
-
-1. 每个角色在每个版本都产生大量材料，容易形成形式主义。
-2. 产品、视觉、前端和后端的职责存在重叠，决策责任不够清晰。
-3. 一份Goal同时详细描述很多未来版本，容易让Codex提前实施后续任务。
-4. 长时间连续运行时，容易把“持续执行”误解为“批量完成多个版本”。
-5. 没有明确规定哪些专业评审是必需的、哪些可标记为不适用。
-6. 资源安全虽有原则，但缺少每个PR都必须回答的具体检查项。
-7. 版本完成后的观察、回滚和下一版本重新确认不够轻量化。
-
-新版采用：
+The maintainer reports:
 
 ```text
-精简跨职能Stage Gate
-+ 按需角色评审
-+ 单一责任人
-+ 单版本范围锁
-+ 连续但严格串行的发布列车
+v0.3.2 complete strict RC passed
+application version is still 0.3.1
+formal release steps were not performed
 ```
 
-目标是在保持专业标准的同时，不让流程本身拖慢产品。
+Treat this as a candidate-state fact to reconcile.
 
----
+## 6.1 Validate the fact against local state
 
-# 2. 最高优先级规则
-
-## 2.1 Goal目录
-
-`Goal/`只允许以下文件：
+Check:
 
 ```text
-Goal/
-├─ ACTIVE_GOAL.md
-├─ ACTIVE_VERSION_BRIEF.md
-├─ EXECUTION_STATE.md
-└─ README.md
+current HEAD
+current working tree
+strict RC output if recorded
+compatibility matrix state
+dated physical test records
+EXECUTION_STATE
 ```
 
-规则：
-
-- `ACTIVE_GOAL.md`：唯一有效Goal。
-- `ACTIVE_VERSION_BRIEF.md`：当前版本的精简跨职能说明。
-- `EXECUTION_STATE.md`：仅在执行中断或需要checkpoint时存在。
-- `README.md`：只描述Goal目录规则。
-
-禁止：
+If the strict RC was run at the exact current HEAD and no RC-relevant file changed afterward:
 
 ```text
-Goal/CODEX_GOAL_*.md
-Goal/v0.2.1.md
-Goal/v0.2.2.md
-多个ACTIVE_GOAL副本
-归档计划留在Goal目录
+accept it as the pre-version-bump candidate RC result
 ```
 
-旧Goal：
+Do not repeat physical confirmation solely to obtain another human statement.
 
-- 有长期参考价值的移入 `docs/archive/plans/`；
-- 其余删除；
-- Git历史已经保留旧内容；
-- 归档文件必须标记为 `status: archived` 和 `normative: false`。
-
-## 2.2 单活动版本
-
-任何时刻只能有：
+If RC-relevant files changed afterward:
 
 ```text
-一个活动版本
-一个release分支
-一个活动PR
-一个版本Brief
-一个锁定范围
+rerun strict RC autonomously
 ```
 
-不得：
+## 6.2 Menu sanity check
 
-- 同时开发两个版本；
-- 当前PR未合并就开始下一版本；
-- 当前版本夹带下一版本代码；
-- 一个PR包含多个版本号；
-- 使用大型integration PR替代多个小版本；
-- 因为运行时间充足而扩大版本范围。
+A previous old menu was observed, then disappeared after a full application restart.
 
-## 2.3 连续运行
+Remote source contract contains exactly five menu items.
 
-Codex可以持续运行，只要官方服务允许。
+Before final release evidence:
 
-连续运行的含义是：
-
-```text
-完成版本A的完整生命周期
-→ 关闭版本A
-→ 从最新main创建版本B
-→ 完成版本B
-```
-
-不代表：
-
-```text
-同时编码A和B
-一次性合并A到D
-一个PR打多个tag
-```
-
-每个版本之间必须经过正式Transition Gate。
-
----
-
-# 3. 精简跨职能Stage Gate
-
-每个版本使用七个阶段。
-
-```text
-Gate 0  Repository Sync
-Gate 1  Product Scope
-Gate 2  Design & Technical Applicability
-Gate 3  Implementation
-Gate 4  Verification
-Gate 5  Release
-Gate 6  Post-release Observation
-```
-
-只有当前Gate通过，才能进入下一个Gate。
-
----
-
-# 4. Gate 0 — Repository Sync
-
-开始任何版本前执行：
-
-```powershell
-git fetch --all --prune
-git status
-git branch --show-current
-git log -5 --oneline
-git diff
-```
-
-确认：
-
-```text
-[ ] main是最新远程main
-[ ] 工作区干净
-[ ] 没有未完成merge/rebase/cherry-pick
-[ ] 上一个版本tag存在于远程
-[ ] 没有第二个活动release分支
-[ ] Goal目录只有一个ACTIVE_GOAL
-[ ] EXECUTION_STATE没有指向已完成版本
-```
-
-如果任一项失败，先修复仓库状态，不得开始产品开发。
-
----
-
-# 5. Gate 1 — 产品经理范围锁
-
-产品经理视角始终必需。
-
-产品经理不是要求Codex写长篇分析，而是要求形成明确决策。
-
-每个版本必须在 `Goal/ACTIVE_VERSION_BRIEF.md` 中填写：
-
-```markdown
-## Product
-
-- Version:
-- One-sentence outcome:
-- Target user:
-- User problem:
-- Why now:
-- Success criteria:
-- Explicit non-goals:
-- Misuse risk:
-- User-resource impact:
-- Decision: GO / SPLIT / DEFER / REMOVE
-```
-
-## 5.1 产品经理职责
-
-必须判断：
-
-- 这个版本是否解决真实问题；
-- 是否与Codex内置功能重复；
-- 是否增加不必要的按钮或设置；
-- 是否容易误触；
-- 是否消耗CPU、内存、磁盘、网络、用户注意力或金钱；
-- 是否可以通过删除功能而不是增加功能来解决；
-- 是否可以用一句话解释；
-- 是否应拆成更小版本。
-
-## 5.2 GO条件
-
-只有同时满足以下条件才能GO：
-
-```text
-一个主要结果
-明确用户价值
-明确非目标
-可独立测试
-可独立回滚
-不越过资源/隐私红线
-没有夹带下一版本任务
-```
-
-## 5.3 自动拆分条件
-
-出现任何一项必须选择`SPLIT`：
-
-- PR描述需要用“以及”连接两个独立结果；
-- 同时包含用户功能和CI治理；
-- 同时包含UI功能和架构重构；
-- 同时修改两个无直接依赖的产品区域；
-- 需要选择性回滚；
-- 一个版本内出现两个不同用户故事；
-- 预计无法在一个短PR中完成专业review。
-
----
-
-# 6. Gate 2 — 专业角色适用性评审
-
-采用“按需参与”，避免每个版本都制造无关文档。
-
-## 6.1 始终必需
-
-以下角色每个版本都参与：
-
-```text
-Product Manager
-QA / Release Engineer
-Security & Resource Reviewer
-```
-
-## 6.2 按变更类型参与
-
-| 变更类型 | 视觉/UI | 前端 | 后端 |
-|---|---:|---:|---:|
-| 菜单、布局、颜色、字体、交互 | 必需 | 必需 | 视情况 |
-| Tk状态、事件、窗口、托盘 | 视情况 | 必需 | 视情况 |
-| Quota解析、Activity扫描 | 不适用 | 视情况 | 必需 |
-| 设置schema、保存、备份 | 不适用 | 视情况 | 必需 |
-| CI、Release脚本 | 不适用 | 不适用 | 必需 |
-| 纯文档治理 | 视情况 | 不适用 | 视情况 |
-| Windows实体测试记录 | 视情况 | 必需 | 必需 |
-
-不适用时只记录：
-
-```text
-Not applicable — no impact in this version.
-```
-
-不得为了体现“专业”而编造无关评审。
-
----
-
-# 7. 专业角色标准
-
-## 7.1 产品经理
-
-负责：
-
-- 用户问题；
-- 优先级；
-- 版本范围；
-- 非目标；
-- 成功条件；
-- 是否删除或延期功能；
-- 最终`GO/SPLIT/DEFER/REMOVE`决定。
-
-产品原则：
-
-- 功能少而准确；
-- 不重复Codex已有控制；
-- 不把开发者工具放入普通菜单；
-- 不以消耗额度、提升使用时长或增加互动为目标；
-- 不为了Roadmap而开发没有真实价值的功能。
-
-## 7.2 视觉/UI/UX设计师
-
-仅在用户可见变化时必需。
-
-检查：
-
-```text
-视觉层级
-字体和间距
-对齐
-颜色对比
-菜单长度
-控件分组
-误触风险
-Windows 11一致性
-支持的字体大小
-窗口最小尺寸
-单屏/双屏表现
-Compact/Expanded状态
-```
-
-设计原则：
-
-- 安静、紧凑、清晰；
-- 不增加无价值动画；
-- 不增加装饰性阴影、渐变或闪烁；
-- 不通过颜色作为唯一信息；
-- 不新增图片素材，除非确实提升理解；
-- 不让状态宠物看起来像Codex官方操作按钮；
-- 恢复、诊断和危险操作不进入普通菜单。
-
-Brief字段：
-
-```markdown
-## Visual/UI/UX
-
-- Applicable: Yes / No
-- Affected component:
-- Before:
-- After:
-- Labels:
-- Layout/spacing:
-- Interaction states:
-- Accessibility:
-- Misclick prevention:
-- Windows 11 physical check:
-- Decision: PASS / REVISE / N/A
-```
-
-## 7.3 前端工程师
-
-负责：
-
-```text
-Tk组件
-事件绑定
-窗口/菜单/对话框
-Compact状态
-显示器和DPI
-UI主线程
-布局和渲染
-键盘和鼠标行为
-```
-
-红线：
-
-- Tk调用只能在主线程；
-- UI线程不能做文件、子进程或阻塞IPC；
-- 子Widget必须保留必要拖动、hover和右键事件；
-- 首次点击必须有效；
-- 关闭菜单必须释放grab；
-- 设置窗口不能让主窗口丢失；
-- 不为内部机制增加普通用户按钮。
-
-Brief字段：
-
-```markdown
-## Frontend
-
-- Applicable: Yes / No
-- Components:
-- State transitions:
-- Event flow:
-- Thread boundary:
-- Layout impact:
-- Tests:
-- Physical verification:
-- Decision: PASS / REVISE / N/A
-```
-
-## 7.4 后端工程师
-
-负责：
-
-```text
-本地app-server
-Quota规范化
-Activity扫描
-刷新调度
-配置schema
-原子保存
-线程和队列
-日志
-缓存和资源边界
-shutdown
-```
-
-红线：
-
-- 不读取`auth.json`；
-- 不提取或记录token；
-- 不把原始provider payload送入UI；
-- 最多一个Quota worker和一个Activity worker；
-- 无界重试禁止；
-- 缓存、日志和备份必须有边界；
-- Activity与Quota保持独立；
-- 不添加第三方endpoint；
-- 不添加遥测或云日志；
-- 不添加付费API；
-- 故障时不得伪造数据。
-
-Brief字段：
-
-```markdown
-## Backend
-
-- Applicable: Yes / No
-- Data/API contract:
-- Ownership:
-- Concurrency:
-- Persistence:
-- Failure modes:
-- Network/IPC:
-- CPU/memory/disk:
-- Tests:
-- Rollback:
-- Decision: PASS / REVISE / N/A
-```
-
-## 7.5 QA / Release工程师
-
-每个版本都必需。
-
-负责：
-
-```text
-正向测试
-负向测试
-回归测试
-资源检查
-安全检查
-Windows 11实体检查
-CI
-版本一致
-Changelog
-tag
-rollback
-```
-
-Brief字段：
-
-```markdown
-## QA / Release
-
-- Positive cases:
-- Negative cases:
-- Regression cases:
-- Resource checks:
-- Security/privacy checks:
-- Windows 11 checks:
-- Quality commands:
-- Rollback:
-- Decision: PASS / FAIL
-```
-
-## 7.6 Security & Resource Reviewer
-
-每个版本都必须回答：
-
-```text
-是否新增网络或IPC？
-是否新增worker或subprocess？
-是否增加刷新频率？
-是否增加磁盘写入？
-是否保留更多数据？
-是否增加日志或缓存？
-是否增加UI注意力成本？
-是否可能花费用户金钱？
-是否可能消耗更多Codex额度？
-```
-
-任一答案为`Yes`时必须给出：
-
-- 业务必要性；
-- 上限；
-- 测试或测量；
-- 回滚方案；
-- 维护者明确批准。
-
----
-
-# 8. ACTIVE_VERSION_BRIEF长度限制
-
-`Goal/ACTIVE_VERSION_BRIEF.md`必须简洁。
-
-建议上限：
-
-```text
-不超过150行
-不超过约2–3页
-```
-
-它必须包含：
-
-```text
-Identity
-Product
-Applicability Matrix
-Visual/UI/UX（适用时）
-Frontend（适用时）
-Backend（适用时）
-QA/Release
-Security/Resource
-Scope Lock
-```
-
-禁止：
-
-- 复制完整Roadmap；
-- 重复API规范；
-- 长篇理论说明；
-- 粘贴测试日志；
-- 写隐藏推理过程；
-- 包含用户私密数据。
-
-详细设计应进入对应规范文件或代码测试，而不是无限扩展Brief。
-
----
-
-# 9. Gate 3 — 实施标准
-
-## 9.1 开始条件
-
-实施前必须满足：
-
-```text
-[ ] Product Decision = GO
-[ ] 适用角色已PASS
-[ ] Scope Lock完整
-[ ] 分支从最新main建立
-[ ] 当前版本号明确
-```
-
-## 9.2 开发纪律
-
-- 只修改当前版本允许的文件；
-- 发现独立问题时记录到未来版本，不顺手修复；
-- 每个commit只有一个可验证目的；
-- 不创建WIP噪声commit；
-- 不大范围格式化无关文件；
-- 不修改远程owner和Git身份；
-- 不直接推送重大变更到main。
-
-## 9.3 资源纪律
-
-禁止：
-
-```text
-忙循环
-频繁无意义轮询
-无限日志
-无限缓存
-无限重试
-为耗额度而生成任务
-外部遥测
-广告
-云同步
-后台付费API
-自动下载更新
-```
-
----
-
-# 10. Gate 4 — Verification
-
-每个版本使用分层测试。
-
-## 10.1 必需层
-
-```text
-Focused unit/contract tests
-Relevant integration tests
-Full Quality gate
-git diff --check
-```
-
-## 10.2 按需层
-
-```text
-Tk adapter tests
-Windows 11 physical verification
-resource measurement
-package smoke
-strict Release Candidate
-```
-
-## 10.3 通用命令
-
-根据仓库当前可用脚本执行：
-
-```powershell
-python -m compileall -q scripts
-python -m unittest discover -s tests -q
-python scripts/check_doc_manifest.py
-python scripts/check_doc_links.py
-python scripts/check_doc_parity.py
-python scripts/check_version_sources.py
-python scripts/check_sensitive_files.py
-python scripts/check_dependencies.py
-python scripts/package_smoke_test.py
-git diff --check
-```
-
-存在统一Quality runner后优先执行：
-
-```powershell
-python scripts/run_quality_checks.py
-```
-
-不得为了让CI变绿而降低检查标准。
-
----
-
-# 11. Gate 5 — Release
-
-每个版本必须完成：
-
-```text
-版本源更新
-正式Changelog章节
-commit
-push
-版本PR
-CI
-review
-merge
-更新本地main
-main复测
-tag
-push tag
-远程tag确认
-删除release分支
-```
-
-## 11.1 分支和PR
-
-```text
-Branch: release/vX.Y.Z-short-topic
-PR: [vX.Y.Z] One-sentence outcome
-Tag: vX.Y.Z
-```
-
-推荐squash merge，使一个版本可以整体revert。
-
-## 11.2 PR必须包含
-
-```text
-版本
-单句结果
-用户问题
-范围
-明确非目标
-角色适用性
-文件
-测试
-资源影响
-安全隐私
-Windows 11证据
-回滚
-```
-
-## 11.3 Tag规则
-
-不得给以下状态打tag：
-
-- 未合并分支；
-- 测试失败；
-- 版本源不一致；
-- Changelog缺失；
-- PR范围混入下一版本；
-- main尚未复测。
-
----
-
-# 12. Gate 6 — Post-release Observation
-
-每个版本发布后做最小观察：
-
-```text
-启动应用
-确认核心显示
-确认本版本结果
-检查是否有明显错误日志
-确认退出
-确认再次启动
-```
-
-只记录真实缺陷。
-
-发现问题：
-
-- 严重数据/隐私/启动问题：立即建立patch版本；
-- 非严重问题：进入后续版本候选；
-- 不在下一版本中偷偷修复。
-
----
-
-# 13. 版本Transition Gate
-
-版本A完成后，进入版本B前必须全部满足：
-
-```text
-[ ] A只有一个主要结果
-[ ] A的Brief完整
-[ ] A没有夹带B代码
-[ ] A测试通过
-[ ] A Quality通过
-[ ] A PR已合并
-[ ] 最新main已获取
-[ ] A Changelog正式章节存在
-[ ] A版本源一致
-[ ] A远程tag存在
-[ ] A post-release smoke通过
-[ ] A分支已关闭或删除
-[ ] A release报告完成
-[ ] 工作区干净
-[ ] 没有未完成Git操作
-[ ] B从最新tagged main创建
-[ ] B建立全新Brief
-```
-
-任一项失败：
-
-```text
-留在A
-修复、revert或明确失败
-不得开始B
-```
-
----
-
-# 14. 持续运行与额度中断
-
-## 14.1 正常持续执行
-
-只要官方服务允许，可以连续完成多个**串行**小版本。
-
-必须保持：
-
-```text
-任何时刻一个版本
-任何时刻一个分支
-任何时刻一个活动PR
-```
-
-## 14.2 禁止额度规避
-
-不得：
-
-- 使用提示词绕过额度；
-- 伪装工作规避计量；
-- 轮换账号规避限制；
-- 修改客户端或时钟欺骗服务；
-- 创建无意义任务消耗额度；
-- 把“用尽额度”当作成功标准。
-
-## 14.3 硬限制checkpoint
-
-平台硬性中断前或预计即将中断时：
-
-1. 不启动新任务；
-2. 完成当前安全文件/Git操作；
-3. 不留下冲突或半完成rebase；
-4. 运行最小相关测试；
-5. 只提交已验证内容；
-6. push当前分支；
-7. 更新 `Goal/EXECUTION_STATE.md`；
-8. 记录下一条精确命令；
-9. 下一窗口从checkpoint恢复。
-
----
-
-# 15. 现有大型PR #2处理
-
-PR #2包含多个独立主题，不应整体作为一个版本合并。
-
-执行：
-
-1. 验证当前head SHA；
-2. 建立只读归档分支：
-
-```text
-archive/pr2-reset-credit-hardening-2026-07-10
-```
-
-3. 在PR #2说明它被小版本发布列车替代；
-4. 关闭PR #2，不合并；
-5. 保留原分支直到有用改动全部重新分配；
-6. 不在该分支继续开发；
-7. 后续版本按需重新实现或选择性提取hunk；
-8. 禁止盲目cherry-pick混合commit。
-
----
-
-# 16. 当前版本：v0.2.1 — 精简右键菜单
-
-## 16.1 单一结果
-
-将状态宠物右键菜单精简为普通用户真正需要的窗口控制。
-
-移除：
-
-```text
-立即刷新
-复制诊断摘要
-恢复上次设置
-```
-
-保留：
+1. exit the project process through its own Exit action or a verified app-local shutdown path;
+2. confirm the project process is gone;
+3. start from the current v0.3.2 working tree;
+4. verify process CommandLine points to the current working tree;
+5. inspect the current menu implementation and runtime/Tk menu structure;
+6. verify exactly:
 
 ```text
 显示设置
@@ -1041,494 +982,1385 @@ archive/pr2-reset-credit-hardening-2026-07-10
 退出
 ```
 
-## 16.2 产品经理判断
-
-用户问题：
-
-- 菜单过长；
-- 内部维护功能会增加误触；
-- 手动刷新与Codex内置能力重复；
-- 恢复设置属于高级操作；
-- 复制诊断不属于普通使用场景。
-
-版本价值：
+7. verify these are absent:
 
 ```text
-更简单
-更清晰
-更低误触风险
-不改变自动刷新
-不移除后台安全机制
+立即刷新
+复制诊断摘要
+恢复上次设置
 ```
 
-Decision：
+If the source, process path, and runtime menu structure agree:
 
 ```text
-GO
+record PASS and continue automatically
 ```
 
-## 16.3 角色适用性
+Do not ask the maintainer to repeat the five-item confirmation.
 
-| 角色 | 适用 |
-|---|---|
-| Product | Yes |
-| Visual/UI/UX | Yes |
-| Frontend | Yes |
-| Backend | Limited |
-| QA/Release | Yes |
-| Security/Resource | Yes |
-
-## 16.4 允许范围
-
-优先修改：
-
-```text
-scripts/ui/context_menu.py
-相关菜单测试
-CHANGELOG中英文
-直接受影响的产品/API说明
-版本源
-```
-
-只有确认无调用者时才允许删除：
-
-```text
-copy_diagnostics
-diagnostic_summary_api
-```
-
-后台保留：
-
-```text
-自动Quota刷新
-本地脱敏日志
-原子设置保存
-内部.bak备份
-```
-
-## 16.5 明确非目标
-
-本版本禁止包含：
-
-```text
-Reset Credit日期修复
-配置schema写入保护
-独立状态行
-控制器重构
-Windows支持范围
-CI拆分
-文档治理
-新功能
-```
-
-## 16.6 设计要求
-
-菜单最终只有五项。
-
-要求：
-
-- 分组清晰；
-- 不添加图标或装饰；
-- 不添加确认弹窗；
-- 首次点击有效；
-- Escape关闭；
-- FocusOut关闭；
-- grab正确释放；
-- 菜单不被任务栏裁切。
-
-## 16.7 前端要求
-
-验证：
-
-```text
-显示设置调用show_settings
-置顶调用toggle_topmost
-锁定调用toggle_locked
-隐藏调用hide_window
-退出调用close
-```
-
-删除所有已移除动作的Widget和绑定。
-
-## 16.8 后端要求
-
-确认：
-
-- 自动refresh没有变化；
-- 不增加worker；
-- 不增加IPC；
-- 不增加磁盘写入；
-- 删除UI入口不破坏后台日志和备份；
-- 不重新暴露任何维护按钮。
-
-## 16.9 测试
-
-必须验证：
-
-```text
-菜单恰好包含五个批准项
-不存在立即刷新
-不存在复制诊断摘要
-不存在恢复上次设置
-first-click有效
-close释放grab
-Escape关闭
-FocusOut关闭
-自动refresh路径未改变
-```
-
-## 16.10 版本和发布
-
-```text
-Branch: release/v0.2.1-minimal-context-menu
-Version: 0.2.1
-Tag: v0.2.1
-```
-
-完成后执行Transition Gate，再进入`0.2.2`。
+Escalate to the full runtime-provenance audit only if the obsolete menu reappears or runtime and source disagree again.
 
 ---
 
-# 17. 后续授权版本大纲
+# 7. Phase D — Complete v0.3.2 release administration autonomously
 
-每次进入新版本前必须重新创建Brief，但无需等待人工回复，只要原计划仍然符合本Goal且没有红线变化。
+When candidate physical evidence and strict RC are valid:
 
-## v0.2.2 — Reset Credit日期正确性
+## 7.1 Version bump
 
-单一结果：
+Update all authoritative version sources:
 
 ```text
-重置 N 次 / HH:MM M/D
+0.3.1 → 0.3.2
 ```
 
-保持5h只显示`HH:MM`。
+Use the repository version-source checker to discover authoritative sources.
 
-主要角色：
+Do not create a second version constant.
+
+## 7.2 Changelog
+
+Add formal bilingual sections:
 
 ```text
-Product
-Backend
-Frontend（仅展示验证）
-QA/Release
-Security/Resource
+## 0.3.2 - YYYY-MM-DD
 ```
 
-禁止夹带状态行重构。
-
-## v0.2.3 — 配置写入保护
-
-单一结果：
+Describe only:
 
 ```text
-未来schema或损坏配置不会被旧版本自动覆盖
+Windows 11 x64 stabilization evidence
+physical release-gate closure
+strict Release Candidate approval
+minimal directly required stabilization correction, if one actually occurred
 ```
 
-主要角色：
+Do not describe v0.4.0.
 
-```text
-Product
-Backend
-Frontend（高级reset流程适用时）
-QA/Release
-Security/Resource
+Do not describe repository branch protection as an application feature.
+
+The existing historical `Unreleased` section may contain stale accumulated items. Do not perform a broad Changelog rewrite in v0.3.2 unless a release checker requires it. Record a future documentation-hygiene candidate instead.
+
+## 7.3 Final checks after version metadata changes
+
+Run:
+
+```powershell
+python -m compileall -q scripts
+python -m unittest discover -s tests -q
+python scripts/run_quality_checks.py
+python scripts/package_smoke_test.py
+python scripts/check_release_readiness.py --strict
+git diff --check
+python scripts/run_release_candidate_checks.py
 ```
 
-禁止恢复普通菜单按钮。
+The final RC must run after the version and Changelog update.
 
-## v0.2.4 — Windows 11支持和矩阵正确性
-
-单一结果：
+Required:
 
 ```text
-支持声明和可执行发布阻塞规则一致
+Quality approved
+Package smoke approved
+Strict readiness ready
+Whitespace clean
+Release Candidate approved
+Version sources consistent at 0.3.2
 ```
 
-Windows 10：
+## 7.4 Push and PR
+
+Push the verified branch.
+
+PR title:
 
 ```text
-Deferred
-Not claimed
-Non-blocking
+[v0.3.2] Complete Windows 11 release stabilization
 ```
 
-## v0.2.5 — Quality和Release Candidate分离
-
-单一结果：
+PR body:
 
 ```text
-日常Quality不冒充正式发布批准
-```
-
-只修改CI、检查脚本、测试和发布说明。
-
-## v0.2.6 — 文档治理
-
-单一结果：
-
-```text
-建立一个足够但不过度的可执行文档治理系统
-```
-
-必须确保：
-
-- 只有ACTIVE_GOAL有效；
-- 旧Goal不污染执行；
-- 归档计划不阻塞发布；
-- 不增加无价值文档门禁。
-
-## v0.3.0 — 独立稳定状态行
-
-单一用户能力：
-
-```text
-五行状态各自独立渲染
-```
-
-不得同时做控制器重构。
-
-## v0.3.1 — 控制器重构
-
-单一内部结果：
-
-```text
-降低Tk主窗口协调职责，不改变用户行为
-```
-
-## v0.3.2 — Windows 11稳定化
-
-单一结果：
-
-```text
-完成声明范围内的实体验证并通过严格Release Candidate
-```
-
-不增加新功能。
-
----
-
-# 18. 长期路线
-
-## 18.1 0.2.x
-
-目标：
-
-```text
-正确性
-配置安全
-支持契约
-发布基础
-Goal治理
-```
-
-## 18.2 0.3.x
-
-目标：
-
-```text
-UI稳定
-内部职责清晰
-Windows 11发布就绪
-```
-
-## 18.3 0.4.x–0.6.x
-
-不预先批准具体功能。
-
-候选必须满足：
-
-- 被动显示价值；
-- 不重复Codex；
-- 不增加高误触控制；
-- 不增加外部网络；
-- 不增加付费依赖；
-- 一个版本一个能力。
-
-## 18.4 0.7.x–0.8.x
-
-可能方向：
-
-```text
-可复现打包
-安装说明
-卸载和回滚
-日志边界
-升级/降级验证
-```
-
-禁止：
-
-- 强制开机启动；
-- 静默安装；
-- 自动后台下载；
-- 虚假签名声明。
-
-## 18.5 0.9.x
-
-功能冻结。
-
-重点：
-
-```text
-资源测量
-稳定性
-升级恢复
-Release Candidate缺陷
-```
-
-## 18.6 1.0.0
-
-达到以下条件：
-
-```text
-核心显示稳定
-Windows 11范围真实验证
-配置迁移/降级策略明确
-没有已知数据丢失
-没有凭据/隐私问题
-资源占用经过测量
-日志缓存有界
-安装/卸载/回滚明确
-artifact可复现
-已有多个成功小版本
-```
-
----
-
-# 19. 资源红线
-
-## 网络
-
-允许：
-
-```text
-已批准的本地Codex app-server
-```
-
-禁止：
-
-```text
-第三方Quota API
-遥测
-分析
-广告
-远程配置
-云日志
-账号同步
-隐藏网络流量
-```
-
-## CPU
-
-禁止：
-
-```text
-忙循环
-无延迟轮询
-无限subprocess重启
-重复全量扫描
-为了耗额度运行任务
-```
-
-## 内存
-
-禁止：
-
-```text
-保存完整原始provider历史
-保存prompt/response/session正文
-无界缓存
-Widget或tray泄漏
-```
-
-## 磁盘
-
-禁止：
-
-```text
-无限日志
-原始quota dump
-复制项目/session
-无限备份代数
-未管理build文件
-```
-
-## 用户注意力
-
-禁止：
-
-```text
-不必要通知
-重复弹窗
-闪烁
-重复Codex按钮
-普通菜单里的恢复/诊断动作
-```
-
-## 用户金钱
-
-禁止：
-
-```text
-付费外部API
-订阅依赖
-自动调用计费服务
-以消耗用户周额度为目标
-```
-
----
-
-# 20. 每版本发布报告
-
-每个版本完成后，在PR和最终输出中报告：
-
-```text
-版本
-一句话结果
-Product决定
-角色适用性
-Visual结论
-Frontend结论
-Backend结论
-QA/Release结论
-明确非目标是否遵守
-文件
-测试
-Windows 11证据
-资源影响
-安全隐私
-PR URL
-merge SHA
-远程tag
-post-release smoke
+single release outcome
+physical Windows environment
+evidence closed
+candidate RC before version bump
+final RC after version bump
+known non-blocking limitations
+resource impact
+security/privacy impact
+repository protection status
 rollback
-下一授权版本
+No v0.4.0 work was included
 ```
 
-明确写出：
+Open the PR and monitor CI autonomously.
+
+Do not pause merely to tell the maintainer “CI is pending.”
+
+Poll or re-check through available GitHub tooling at a reasonable bounded interval.
+
+Do not busy-loop.
+
+When CI succeeds, continue.
+
+If CI fails:
 
 ```text
-No work from the next version was included.
+read the failing job
+fix only the v0.3.2 issue
+rerun focused tests
+push
+wait for CI
 ```
 
 ---
 
-# 21. 本Goal结束条件
+# 8. Repository safety — main protection with no browser dependency
 
-Codex可以连续按顺序推进至：
+`main` protection is repository administration, not a product version feature.
+
+## 8.1 Autonomous inspection first
+
+Use available GitHub API, connector, or an existing authenticated `gh` CLI session to inspect:
+
+```text
+branch protection
+repository rulesets
+required status contexts
+```
+
+Never read, print, or copy authentication tokens.
+
+Do not automate a browser.
+
+## 8.2 Desired policy
+
+When repository plan/API supports it, configure `main` to require:
+
+```text
+pull request before merge
+successful required status check
+linear history
+force pushes blocked
+deletion blocked
+conversation resolution
+```
+
+Use the actual successful check context associated with:
+
+```text
+Windows Quality
+quality
+```
+
+Discover the exact status context from GitHub; do not invent it.
+
+For the current solo-maintainer workflow, do not require:
+
+```text
+one external approving review
+CODEOWNER approval
+approval by another person
+```
+
+## 8.3 If settings can be changed safely through API/CLI
+
+Apply the policy autonomously.
+
+Verify non-destructively through repository metadata and the PR merge requirements.
+
+Do not test by:
+
+```text
+force-pushing main
+deleting main
+making a destructive direct push
+```
+
+## 8.4 If API, repository plan, or permissions prevent configuration
+
+Do not stop v0.3.2 and do not repeatedly ask the maintainer to open GitHub settings.
+
+Record:
+
+```text
+exact API or plan limitation
+main protection = unresolved repository administration risk
+```
+
+Use mandatory compensating controls:
+
+```text
+no direct main push
+all changes through version PR
+verify exact PR head SHA
+wait for Windows Quality success
+squash merge
+fetch main after merge
+rerun Quality and RC on main
+tag only verified main
+verify tag is reachable from main
+delete release branch
+```
+
+Create a repository-administration follow-up note.
+
+Only ask the maintainer when the remaining decision is specifically:
+
+```text
+whether to pay for or change the GitHub plan
+```
+
+Do not purchase, upgrade, or make the private repository public automatically.
+
+---
+
+# 9. Phase E — Merge, main convergence, tag v0.3.2
+
+Before merge:
+
+```text
+[ ] exact PR head SHA known
+[ ] remote Quality succeeded
+[ ] final strict RC succeeded
+[ ] version sources = 0.3.2
+[ ] formal bilingual 0.3.2 Changelog exists
+[ ] physical evidence is truthful
+[ ] no v0.4.0 file or behavior included
+```
+
+Use:
+
+```text
+squash merge
+```
+
+After merge:
+
+```powershell
+git fetch origin --prune --tags
+git switch main
+git pull --ff-only origin main
+python scripts/run_quality_checks.py
+python scripts/package_smoke_test.py
+python scripts/check_release_readiness.py --strict
+python scripts/run_release_candidate_checks.py
+```
+
+Run a lightweight tagged-build smoke on the physical Windows 11 host.
+
+Verify:
+
+```text
+launch
+five stable rows
+Reset Credit date
+five-item menu
+compact/hover behavior already closed by current evidence
+hide/show
+exit
+relaunch
+single process
+no persistent CMD
+```
+
+Create:
 
 ```text
 v0.3.2
 ```
 
-本Goal结束于以下任一条件：
+on the exact verified main commit.
 
-1. `v0.3.2`完成合并、验证、tag和报告；
-2. 官方平台硬性中断，已建立安全checkpoint；
-3. 出现安全、隐私、资源红线；
-4. 当前版本不能保持单一范围，需要重新规划；
-5. GitHub权限阻止必要的push、merge或tag；
-6. 真实仓库状态与本Goal基线不一致且无法安全解决。
+Push the tag.
 
-禁止在本Goal中开始`v0.4.0`。
+Verify:
 
-`v0.4.0`必须由新的唯一`ACTIVE_GOAL.md`选择一个明确产品能力。
+```powershell
+git merge-base --is-ancestor v0.3.2 origin/main
+```
+
+Delete the v0.3.2 release branch.
+
+Write the v0.3.2 release report.
+
+Then, and only then, transition to v0.4.0.
+
+---
+
+# 10. v0.3.2 → v0.4.0 Transition Gate
+
+Every item must be true:
+
+```text
+[ ] v0.3.2 PR merged
+[ ] origin/main contains v0.3.2
+[ ] post-merge Quality passed
+[ ] post-merge strict RC passed
+[ ] v0.3.2 remote tag exists
+[ ] v0.3.2 tag is reachable from origin/main
+[ ] v0.3.2 post-release smoke passed
+[ ] v0.3.2 branch deleted
+[ ] working tree clean
+[ ] no interrupted Git operation
+[ ] v0.3.2 release report complete
+[ ] ACTIVE_VERSION_BRIEF ready to be replaced
+```
+
+If any box is false:
+
+```text
+remain in v0.3.2
+```
+
+When all pass:
+
+```powershell
+git fetch origin --prune --tags
+git switch main
+git pull --ff-only origin main
+git switch -c release/v0.4.0-unified-window-scale origin/main
+```
+
+Replace the Brief with v0.4.0.
+
+Then execute the Section 2A v0.4.0 skill sequence:
+
+```text
+Using Superpowers
+→ Brainstorming
+→ validated design spec
+→ focused spec commit
+→ Writing Plans
+→ validated implementation plan
+→ focused plan commit
+→ sequential TDD implementation
+```
+
+Do not begin v0.4.0 production implementation before the design spec and implementation plan are validated.
+
+Do not append v0.4.0 content to the v0.3.2 Brief.
+
+---
+
+# 11. v0.4.0 Product Brief — Unified Window Scale
+
+## 11.1 Product outcome
+
+```text
+Replace separate font-size and free-form window-size controls with one proportional Window Size slider that scales the overlay and typography together.
+```
+
+Product Decision:
+
+```text
+GO
+```
+
+## 11.2 User problem
+
+Current settings expose too many coupled low-level controls:
+
+```text
+Font Size slider
+Window Width input
+Window Height input
+minus button
+plus button
+Proportional Scaling checkbox
+```
+
+The user must understand relationships between font size, window geometry, aspect ratio, and clipping.
+
+This increases configuration complexity and makes unsafe combinations possible.
+
+## 11.3 User-visible goal
+
+The settings dialog must contain exactly two Tk `Scale` controls:
+
+```text
+透明度
+窗口大小
+```
+
+The dialog may still contain non-slider settings:
+
+```text
+默认位置 X/Y
+刷新间隔
+置顶
+锁定位置
+空闲时收缩
+字体颜色
+背景颜色
+保存
+应用
+恢复默认值
+关闭
+```
+
+---
+
+# 12. v0.4.0 Visual/UI/UX contract
+
+Remove from the normal settings dialog:
+
+```text
+字体大小 slider
+窗口宽度 input
+窗口高度 input
+− size button
++ size button
+等比例缩放 checkbox
+```
+
+Add:
+
+```text
+窗口大小 [ proportional slider ]
+```
+
+Target hierarchy:
+
+```text
+透明度       [ slider ]
+窗口大小     [ slider ]
+默认位置     [ X ] , [ Y ]
+刷新间隔     [ seconds ]
+置顶         [ checkbox ]
+锁定位置     [ checkbox ]
+空闲时收缩   [ checkbox ]
+字体颜色     [ button ]
+背景颜色     [ button ]
+保存 / 应用 / 恢复默认值 / 关闭
+```
+
+Design requirements:
+
+```text
+two sliders aligned
+no gaps left by removed rows
+percentage understandable to the user
+no advanced size panel
+no hidden duplicate font-size control
+no free width/height mode
+no resize animation
+no decorative UI added
+```
+
+---
+
+# 13. v0.4.0 Unified Scale model
+
+Use one canonical scale source of truth.
+
+Recommended constants:
+
+```text
+BASE_WINDOW_WIDTH = 330
+BASE_WINDOW_HEIGHT = 138
+BASE_TEXT_FONT_SIZE = 10
+BASE_FACE_FONT_SIZE = 28
+DEFAULT_WINDOW_SCALE_PERCENT = 100
+```
+
+All expanded geometry derives from:
+
+```text
+window_scale_percent
+```
+
+Core calculation:
+
+```text
+scale = window_scale_percent / 100
+
+width  = round(BASE_WINDOW_WIDTH × scale)
+height = round(BASE_WINDOW_HEIGHT × scale)
+```
+
+Fixed aspect contract:
+
+```text
+330 : 138
+```
+
+The user cannot independently change width and height.
+
+## 13.1 Slider range
+
+Initial engineering candidate:
+
+```text
+80% to 200%
+step 5%
+default 100%
+```
+
+Do not hard-code an unsafe minimum simply because 80% looks neat.
+
+The final minimum must be the smallest percentage at which:
+
+```text
+all five rows remain readable
+Reset Credit date remains visible
+layout remains usable
+menu and drag behavior remain intact
+```
+
+If 80% fails, raise the minimum.
+
+The upper bound may be reduced if geometry or practical screen use becomes unreasonable.
+
+Document the measured final range.
+
+---
+
+# 14. v0.4.0 Pure metrics API
+
+Create one pure calculation boundary, preferably:
+
+```text
+scripts/api/window_scale_api.py
+```
+
+Recommended immutable result:
+
+```python
+@dataclass(frozen=True)
+class WindowMetrics:
+    scale_percent: int
+    width: int
+    height: int
+    text_font_size: int
+    face_font_size: int
+    horizontal_padding: int
+    vertical_padding: int
+    wraplength: int
+```
+
+Provide pure functions for:
+
+```text
+clamp scale
+quantize scale
+derive metrics
+infer scale from legacy geometry
+```
+
+Do not duplicate scale formulas in:
+
+```text
+settings dialog
+main window
+config API
+compact logic
+tests
+```
+
+The UI and runtime consume the same pure metrics result.
+
+---
+
+# 15. Adaptive typography and visual metrics
+
+At minimum:
+
+```text
+text font size derives from scale
+paw/face font derives from scale
+window width derives from scale
+window height derives from scale
+wraplength derives from scale
+```
+
+Review and scale only the spacing metrics necessary to preserve visual balance:
+
+```text
+horizontal padding
+vertical padding
+face/text gap
+```
+
+Requirements:
+
+- use Tk font rendering;
+- no bitmap scaling;
+- font size changes monotonically with window scale;
+- no independent font-size source of truth;
+- no clipping throughout supported range;
+- five rows remain individually rendered.
+
+---
+
+# 16. Configuration compatibility
+
+Current configuration uses independent fields:
+
+```text
+font_size
+window_width
+window_height
+scale_mode
+```
+
+v0.4.0 introduces:
+
+```text
+window_scale_percent
+```
+
+## 16.1 Canonical source
+
+For v0.4.0:
+
+```text
+window_scale_percent = canonical source of truth
+```
+
+Derived compatibility fields:
+
+```text
+font_size
+window_width
+window_height
+scale_mode
+```
+
+Persist derived compatibility values so v0.3.2 can still read a usable configuration.
+
+Recommended:
+
+```text
+scale_mode = proportional
+window_width = derived width
+window_height = derived height
+font_size = derived text font size
+```
+
+## 16.2 Schema decision
+
+Do not bump the configuration schema automatically.
+
+First perform a compatibility review.
+
+Because an older version can ignore an unknown `window_scale_percent` field while reading the derived legacy fields, the preferred design is:
+
+```text
+keep schema version 1
+```
+
+A schema bump is allowed only when implementation evidence proves that the old contract cannot safely represent the saved settings.
+
+If a schema bump becomes necessary:
+
+```text
+stop scope implementation
+document migration and downgrade consequences
+perform Product + Backend + Security/Resource review
+```
+
+Do not silently change the schema.
+
+---
+
+# 17. Legacy settings migration
+
+For a valid existing configuration without `window_scale_percent`:
+
+1. read validated legacy width and height;
+2. infer one deterministic scale;
+3. clamp to supported range;
+4. quantize to slider step;
+5. derive fixed-ratio geometry and adaptive typography.
+
+Preferred inference:
+
+```text
+raw_scale =
+sqrt(
+    (old_width × old_height)
+    /
+    (BASE_WINDOW_WIDTH × BASE_WINDOW_HEIGHT)
+)
+```
+
+Then:
+
+```text
+scale_percent = quantize(clamp(raw_scale × 100))
+```
+
+Rationale:
+
+```text
+legacy free-width or free-height distortions do not let one dimension dominate
+visual area is preserved approximately
+migration is deterministic
+```
+
+Required properties:
+
+```text
+default legacy geometry maps to 100%
+same legacy input always maps to same scale
+extreme values clamp
+invalid inputs use safe defaults
+migration does not overwrite a protected malformed/future config
+```
+
+Preserve:
+
+```text
+position
+alpha
+font color
+background color
+refresh interval
+topmost
+locked
+compact_when_idle
+```
+
+---
+
+# 18. Transactional settings behavior
+
+Preserve exact semantics:
+
+```text
+Apply = preview runtime draft, dialog remains open
+Save = apply + persist + close
+Close = discard unsaved draft/session changes
+Restore Defaults = reset draft to defaults
+```
+
+Unified slider behavior:
+
+```text
+moving slider changes draft only
+Apply derives and applies complete WindowMetrics
+Save persists scale and derived compatibility fields
+Close without Apply/Save does not mutate runtime or disk
+repeated Apply at same scale is idempotent
+Restore Defaults sets scale to 100%
+```
+
+Do not trigger quota refresh because the size slider moves.
+
+Do not add a worker or timer for scaling.
+
+---
+
+# 19. Main-window integration
+
+On load or Apply:
+
+```text
+window_scale_percent
+→ derive WindowMetrics once
+→ apply one coherent metrics result
+```
+
+Update together:
+
+```text
+geometry
+status text font
+paw font
+wraplength
+required visual padding
+```
+
+Preserve:
+
+```text
+five stable rows
+position recovery
+Hide/Show
+Compact/Expanded
+monitor recovery
+lock
+drag
+menu
+topmost
+```
+
+Compact mode must remember the derived expanded geometry.
+
+Expanding after hover must restore the current unified scale, not an old width/height pair.
+
+---
+
+# 20. v0.4.0 Scope Lock
+
+Preferred production files:
+
+```text
+scripts/api/window_scale_api.py
+scripts/api/config_api.py
+scripts/ui/settings_dialog.py
+scripts/ui/main_window.py
+scripts/api/settings_session_api.py if directly required
+compact/display geometry API only if directly required
+```
+
+Tests:
+
+```text
+window scale API
+legacy migration
+configuration normalization
+settings transaction
+exact settings-control inventory
+main-window metric application
+compact/expanded restoration
+Hide/Show
+position recovery
+restart persistence
+```
+
+Docs:
+
+```text
+CHANGELOG.md
+CHANGELOG.zh-CN.md
+configuration documentation pair
+API/architecture documentation pair
+product/settings documentation pair
+Windows 11 test record
+```
+
+Forbidden:
+
+```text
+theme presets
+font-family selection
+manual resize handles
+manual width
+manual height
+manual font size
+aspect-ratio toggle
+new quota feature
+new refresh feature
+new context-menu action
+installer
+updater
+Windows 10
+telemetry
+external API
+unrelated cleanup
+```
+
+---
+
+# 21. v0.4.0 Automated test contract
+
+## 21.1 Pure scale
+
+Test:
+
+```text
+100% yields canonical metrics
+minimum yields safe metrics
+maximum yields bounded metrics
+quantization deterministic
+aspect ratio stable within rounding tolerance
+text font monotonic
+face font monotonic
+repeated derivation stable
+```
+
+## 21.2 Migration
+
+Test:
+
+```text
+legacy 330x138 maps to 100%
+arbitrary legacy geometry maps deterministically
+extreme geometry clamps
+invalid scale falls back safely
+valid new scale reloads identically
+legacy font_size is not an independent source after migration
+future schema remains protected
+malformed config remains protected
+```
+
+## 21.3 Settings dialog
+
+Test exact control inventory:
+
+```text
+exactly two Tk Scale widgets
+透明度 exists
+窗口大小 exists
+字体大小 control absent
+window width input absent
+window height input absent
+minus size button absent
+plus size button absent
+等比例缩放 absent
+position entries remain
+refresh entry remains
+ordinary checkboxes remain
+color buttons remain
+```
+
+Test:
+
+```text
+Apply
+Save
+Close
+Restore Defaults
+```
+
+## 21.4 Main-window integration
+
+Test:
+
+```text
+one scale result updates geometry and fonts
+five rows persist
+Hide/Show retains scale
+Compact/Expand retains scale
+position recovery uses derived geometry
+restart retains scale
+```
+
+---
+
+# 22. v0.4.0 Windows 11 host validation — autonomous-first
+
+Test the current physical Windows 11 host at:
+
+```text
+minimum supported scale
+100%
+one middle-large scale
+maximum supported scale
+```
+
+At each scale verify through the actual running build and safe local inspection:
+
+```text
+derived geometry
+fixed ratio
+five row widgets
+Reset Credit date row
+font metrics
+menu placement
+drag/lock
+Hide/Show
+Compact/Hover
+restart persistence
+```
+
+Use Tk/Win32/widget/geometry inspection where it can establish the fact.
+
+Human visual confirmation is not required merely because this is a UI feature.
+
+Only use the Human Interaction Admission Gate for a fact that truly cannot be established through the running Windows host or safe app interaction.
+
+Do not require exact confirmation wording.
+
+---
+
+# 23. v0.4.0 Resource and privacy gate
+
+Expected:
+
+```text
+new network: No
+new IPC: No
+new worker: No
+new subprocess: No
+new polling: No
+new paid service: No
+new telemetry: No
+Codex quota consumption caused by scaling: No
+```
+
+Metric calculation must be bounded and effectively constant time.
+
+Slider movement must not trigger:
+
+```text
+quota requests
+activity scans
+disk writes before Save
+background jobs
+```
+
+Any unexpected `Yes` requires a scope review before merge.
+
+---
+
+# 24. v0.4.0 Release lifecycle
+
+Branch:
+
+```text
+release/v0.4.0-unified-window-scale
+```
+
+PR:
+
+```text
+[v0.4.0] Unify window and typography scaling
+```
+
+Version:
+
+```text
+0.4.0
+```
+
+Tag:
+
+```text
+v0.4.0
+```
+
+Before PR:
+
+```text
+focused tests
+full Quality
+package smoke
+strict readiness
+strict RC
+version-source consistency
+bilingual Changelog
+Windows 11 host validation
+```
+
+Push promptly.
+
+Monitor remote CI autonomously.
+
+Merge only after CI success.
+
+Use squash merge.
+
+After merge:
+
+```text
+fetch main
+full Quality
+package smoke
+strict RC
+post-release Windows smoke
+tag verified main
+push tag
+verify tag ancestor
+delete branch
+```
+
+PR body must state:
+
+```text
+one unified-scale outcome
+controls removed
+fixed-ratio contract
+adaptive typography contract
+legacy migration
+configuration compatibility
+test results
+Windows host evidence
+resource impact
+rollback
+No v0.4.1 or later work was included
+```
+
+---
+
+# 25. Branch protection and PR safety remain active during v0.4.0
+
+If server-side `main` protection was successfully enabled:
+
+```text
+verify the v0.4.0 PR is subject to the required Quality check
+```
+
+If protection remains unavailable:
+
+```text
+verify exact head SHA
+wait for Quality success
+squash merge only
+post-merge main retest
+tag only verified main
+```
+
+Do not normalize direct pushes to main.
+
+---
+
+# 26. EXECUTION_STATE policy
+
+Use:
+
+```text
+Goal/EXECUTION_STATE.md
+```
+
+only while execution is active or interrupted.
+
+Required fields:
+
+```markdown
+# Execution State
+
+- Active version:
+- Branch:
+- Base main SHA:
+- Current HEAD:
+- Last pushed SHA:
+- Current phase:
+- Product decision:
+- Scope lock:
+- Active Superpowers skill:
+- Design spec:
+- Implementation plan:
+- Latest RED evidence:
+- Latest GREEN evidence:
+- Latest completion verification:
+- Candidate RC state:
+- Final RC state:
+- Remote CI state:
+- Main protection state:
+- Autonomous checks completed:
+- Human fact required:
+- Methods attempted:
+- Why human input is necessary:
+- Completed:
+- Remaining:
+- Next exact action:
+- Last updated:
+```
+
+Rules:
+
+- `Human fact required` must be `None` by default.
+- `Active Superpowers skill` records the current applicable enabled skill or `None` for ordinary administrative steps.
+- `Design spec` and `Implementation plan` remain `None` during v0.3.2 and are populated for v0.4.0.
+- RED/GREEN evidence records the latest material TDD cycle; do not fabricate a RED run retroactively.
+- `Latest completion verification` records the fresh evidence used for the most recent success/readiness claim.
+- Do not enter a human-wait state without satisfying the Human Interaction Admission Gate.
+- When input is no longer required, clear the human-wait fields and resume.
+- Never store credentials or private conversation content.
+
+---
+
+# 27. Checkpoint and usage interruption
+
+Continue while official service capacity permits.
+
+Do not stop because an arbitrary five-hour planning window ended.
+
+Do not bypass or evade service limits.
+
+Before a hard interruption:
+
+```text
+finish current safe operation
+do not leave a speculative debugging stack without recording the current root-cause hypothesis
+do not claim GREEN unless the focused test actually passed
+run smallest relevant tests
+commit verified work only
+push checkpoint
+update EXECUTION_STATE
+record active skill and TDD/verification evidence where applicable
+record Next exact action
+```
+
+Resume from the pushed checkpoint.
+
+Do not redo completed verified work.
+
+---
+
+# 28. Required release reports
+
+## v0.3.2 report
+
+Include:
+
+```text
+local candidate branch and initial HEAD
+candidate RC evidence
+autonomous menu sanity result
+version bump
+final RC
+PR URL
+remote CI
+main protection status
+merge SHA
+v0.3.2 tag SHA
+post-release smoke
+resource/security impact
+Superpowers skills actually invoked
+fresh verification evidence for the release-ready and complete claims
+```
+
+Explicitly state:
+
+```text
+No v0.4.0 work was included in v0.3.2.
+```
+
+## v0.4.0 report
+
+Include:
+
+```text
+Product decision
+final slider range
+canonical base metrics
+fixed-ratio result
+removed control inventory
+migration algorithm
+schema decision
+automated tests
+Windows host validation
+resource impact
+PR URL
+remote CI
+merge SHA
+v0.4.0 tag SHA
+post-release smoke
+rollback
+Brainstorming design spec path
+Writing Plans implementation plan path
+material Systematic Debugging conclusions, if any
+representative RED/GREEN evidence
+fresh verification evidence for the release-ready and complete claims
+```
+
+Explicitly state:
+
+```text
+No v0.4.1 or later work was included.
+```
+
+---
+
+# 29. Final Definition of Done
+
+## v0.3.2
+
+```text
+[ ] local candidate preserved
+[ ] candidate state reconciled
+[ ] candidate checkpoint pushed to GitHub
+[ ] Using Superpowers routed material task categories
+[ ] any encountered bug/failure was root-cause investigated before a fix
+[ ] any production-code fix used an observed failing regression test first
+[ ] release-ready and completion claims use fresh verification evidence
+[ ] ACTIVE_GOAL corrected
+[ ] ACTIVE_VERSION_BRIEF corrected to v0.3.2
+[ ] stale human five-menu approval gate removed
+[ ] five-item menu sanity verified autonomously
+[ ] candidate strict RC evidence reconciled
+[ ] version sources updated to 0.3.2
+[ ] bilingual 0.3.2 Changelog added
+[ ] final Quality passed
+[ ] final strict RC passed
+[ ] v0.3.2 PR created
+[ ] remote CI passed
+[ ] main protection applied or exact limitation recorded
+[ ] PR squash-merged
+[ ] main retested
+[ ] v0.3.2 tag pushed
+[ ] tag reachable from main
+[ ] release branch deleted
+[ ] post-release smoke passed
+```
+
+## v0.4.0
+
+```text
+[ ] v0.3.2 transition gate passed before coding
+[ ] v0.4.0 branch created from latest main
+[ ] v0.4.0 Brief replaced the prior Brief
+[ ] Using Superpowers routed the v0.4.0 workflow
+[ ] Brainstorming inspected the actual post-v0.3.2 repository
+[ ] Brainstorming design spec written, self-reviewed, and committed
+[ ] Writing Plans implementation plan written, self-reviewed, and committed
+[ ] production behavior changes followed observed RED → GREEN → REFACTOR discipline
+[ ] any unexpected failure used Systematic Debugging before the fix
+[ ] completion/readiness claims use fresh verification evidence
+[ ] settings dialog has exactly two Scale widgets
+[ ] transparency slider remains
+[ ] unified window-size slider exists
+[ ] font-size slider removed
+[ ] width input removed
+[ ] height input removed
+[ ] minus/plus size buttons removed
+[ ] proportional checkbox removed
+[ ] one canonical scale source exists
+[ ] aspect ratio is fixed
+[ ] font size derives from scale
+[ ] face font and required layout metrics derive coherently
+[ ] legacy settings migrate deterministically
+[ ] downgrade compatibility reviewed
+[ ] protected configs remain protected
+[ ] Apply/Save/Close/Restore Defaults semantics pass
+[ ] five rows remain readable throughout supported range
+[ ] Compact/Expand preserves scale
+[ ] Hide/Show preserves scale
+[ ] no new resource/privacy boundary introduced
+[ ] focused tests passed
+[ ] full Quality passed
+[ ] strict RC passed
+[ ] Windows 11 host validation passed
+[ ] version sources = 0.4.0
+[ ] bilingual 0.4.0 Changelog added
+[ ] v0.4.0 PR remote CI passed
+[ ] PR squash-merged
+[ ] main retested
+[ ] v0.4.0 tag pushed
+[ ] tag reachable from main
+[ ] release branch deleted
+[ ] post-release smoke passed
+```
+
+Then stop.
+
+Do not implement v0.4.1, v0.5.0, or later work under this Goal.
+
+---
+
+# 30. Non-executable long-term direction
+
+The following is planning context only.
+
+Possible future themes, each requiring a new Goal and one version at a time:
+
+```text
+v0.4.1 — only defects discovered after unified-scale release
+v0.5.x — one passive display clarity improvement, selected after real use
+v0.6.x — bounded resource/logging refinement if measurements justify it
+v0.7.x — reproducible packaging and install/uninstall workflow
+v0.8.x — upgrade/downgrade validation
+v0.9.x — feature freeze, measured resource profile, release hardening
+v1.0.0 — trustworthy stable product contract
+```
+
+Do not pre-implement these placeholders.
+
+The long-term target remains:
+
+```text
+accurate
+passive
+compact
+local-only
+low-resource
+recoverable
+testable
+small-versioned
+honest about support
+```

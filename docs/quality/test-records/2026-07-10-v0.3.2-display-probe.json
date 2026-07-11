@@ -1,0 +1,34 @@
+{
+  "windows": {
+    "edition": "Microsoft Windows 11 Home",
+    "version": "10.0.26200",
+    "build": "26200",
+    "architecture": "64-bit"
+  },
+  "virtual_desktop": [0, 0, 4480, 1434],
+  "monitors": [
+    {
+      "name": "DISPLAY1",
+      "rect": [0, 0, 2048, 1152],
+      "work": [0, 0, 2048, 1104],
+      "dpi_x": 96,
+      "dpi_y": 96
+    },
+    {
+      "name": "DISPLAY2",
+      "rect": [2560, 354, 4480, 1434],
+      "work": [2560, 354, 4480, 1386],
+      "dpi_x": 96,
+      "dpi_y": 96
+    }
+  ],
+  "overlay": {
+    "hwnd_observed": true,
+    "dpi": 96
+  },
+  "taskbar": {
+    "available": true,
+    "edge": "bottom",
+    "rect": [0, 1380, 2560, 1440]
+  }
+}
