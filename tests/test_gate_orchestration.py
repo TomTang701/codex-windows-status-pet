@@ -55,6 +55,19 @@ class GateOrchestrationTests(unittest.TestCase):
             self.assertEqual(run_quality_checks.run(["tool"]), (1, "错误"))
         self.assertEqual(subprocess_run.call_args.kwargs["encoding"], "utf-8")
         self.assertEqual(subprocess_run.call_args.kwargs["errors"], "replace")
+        self.assertEqual(subprocess_run.call_args.kwargs["env"]["PYTHONIOENCODING"], "utf-8")
+
+    def test_quality_json_is_safe_for_a_gbk_parent_console(self):
+        raw = io.BytesIO()
+        console = io.TextIOWrapper(raw, encoding="gbk")
+        with (
+            mock.patch.object(run_quality_checks, "quality_commands", return_value={"child": ["tool"]}),
+            mock.patch.object(run_quality_checks, "run", return_value=(1, "bad \ufffd output")),
+            mock.patch.object(sys, "stdout", console),
+        ):
+            self.assertEqual(run_quality_checks.main(), 1)
+            console.flush()
+        self.assertIn(b"\\ufffd", raw.getvalue())
 
 
 if __name__ == "__main__":

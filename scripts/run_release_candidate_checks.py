@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -19,6 +20,7 @@ def run(command):
         encoding="utf-8",
         errors="replace",
         capture_output=True,
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"},
     )
     return completed.returncode, completed.stdout + completed.stderr
 
@@ -60,7 +62,7 @@ def main():
                 "limitations": limitations,
                 "checks": results,
             },
-            ensure_ascii=False,
+            ensure_ascii=True,
             indent=2,
         )
     )

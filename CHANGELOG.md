@@ -58,6 +58,14 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.4.2 - 2026-07-11
+
+- Added a machine-validated inventory that classifies release facts as automated, automatable, physical-only, obsolete, or duplicate and names one authority for each fact.
+- Consolidated Windows CI on the single formal Release Candidate runner instead of repeating Quality, package smoke, and whitespace as separate workflow steps.
+- Separated release output into passes, blockers, and non-blocking limitations, and made child-process diagnostics UTF-8-safe on Windows.
+- Replaced generic manual UI confirmation requirements with deterministic Tk/Win32/process evidence or one explicit physical-only limitation.
+- Added no product runtime feature, dependency, provider, network path, polling, telemetry, configuration field, or credential access.
+
 ## 0.4.1 - 2026-07-11
 
 - Prevented reset-credit row clipping across all 25 supported Window Size steps by scaling runtime pixel geometry, padding, gaps, and wrapping for the effective window DPI while preserving 96-DPI logical configuration values and Tk point-font sizing.
