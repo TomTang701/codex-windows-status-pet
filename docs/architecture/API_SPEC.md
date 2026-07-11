@@ -65,7 +65,7 @@ headless tests.
 - Quota dates use the local timezone and `M/D` without leading zeroes; missing provider data is not invented.
 - The default quota provider accepts local app-server results only; it never reads auth files, sends tokens, or persists credentials.
 - A major behavior or performance change requires a changelog entry, specification update, and regression test.
-- The context-menu implementation has one reachable popup path; obsolete native-menu code must not remain after an unconditional return.
+- The context-menu implementation has one reachable popup path and exactly five actions in order: Open Settings, Always on Top, Lock Position, Hide Window, and Exit. Obsolete native-menu code must not remain after an unconditional return.
 - Diagnostic summaries may include paths and operational states, but must never include tokens, prompts, responses, session contents, or raw quota payloads.
 
 ## Test commands
