@@ -7,3 +7,5 @@
 - Historical goals and plans belong under `docs/archive/plans/` and are non-normative.
 
 Do not add version-specific Goal files or a second ACTIVE_GOAL copy.
+
+Routine Quality runs `scripts/check_doc_governance.py` to enforce this allowlist and the non-normative archived-plan boundary.

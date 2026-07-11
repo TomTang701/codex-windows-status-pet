@@ -26,4 +26,4 @@
 
 英文文档是权威版本。中文翻译必须保留标题、标识符、表格、代码示例、版本和要求，并在英文发生实质变化的同一提交中更新。
 
-机器可读的文档清单是 [`document_manifest.json`](document_manifest.json)。文档变更后应运行仓库发布检查。
+机器可读的文档清单是 [`document_manifest.json`](document_manifest.json)。日常 Quality 会检查清单、链接、双语结构、唯一活动 Goal 和非规范归档计划元数据。归档正文不接受时效性或双语一致性门禁，也不能设为发布必需项。

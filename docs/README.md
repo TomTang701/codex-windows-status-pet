@@ -26,4 +26,4 @@ The repository uses the layered structure recorded by the manifest. The former [
 
 The English document is authoritative. Chinese translations must preserve headings, identifiers, tables, code examples, versions, and requirements, and must be updated in the same commit as substantive English changes.
 
-The machine-readable inventory is [`document_manifest.json`](document_manifest.json). Run the repository release checks after documentation changes.
+The machine-readable inventory is [`document_manifest.json`](document_manifest.json). Routine Quality checks the inventory, links, bilingual structure, the single active Goal, and non-normative archived-plan metadata. Archived prose is not freshness- or parity-gated and cannot be required for release.

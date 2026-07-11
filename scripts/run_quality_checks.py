@@ -25,6 +25,7 @@ def quality_commands(python=sys.executable):
     ]
     return {
         "document_manifest": [python, str(ROOT / "scripts" / "check_doc_manifest.py")],
+        "document_governance": [python, str(ROOT / "scripts" / "check_doc_governance.py")],
         "document_links": [python, str(ROOT / "scripts" / "check_doc_links.py")],
         "version_sources": [python, str(ROOT / "scripts" / "check_version_sources.py")],
         "sensitive_files": [python, str(ROOT / "scripts" / "check_sensitive_files.py")],
