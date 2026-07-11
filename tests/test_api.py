@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from api.activity_api import snapshot_activity
-from api.config_api import ConfigWriteProtectedError, CONFIG_SCHEMA_VERSION, DEFAULT_SETTINGS, backup_settings_path, load_settings, restore_settings_backup, save_settings_atomic
+from api.config_api import ConfigWriteProtectedError, CONFIG_SCHEMA_VERSION, DEFAULT_SETTINGS, backup_settings_path, load_settings, normalize_settings, restore_settings_backup, save_settings_atomic
 
 
 def stamp(seconds):
@@ -66,7 +66,7 @@ class ConfigApiTests(unittest.TestCase):
             self.assertEqual(path.read_text(encoding="utf-8"), "not-json")
             self.assertFalse(backup_settings_path(path).exists())
 
-    def test_new_numeric_settings_are_bounded(self):
+    def test_legacy_numeric_settings_are_bounded_then_canonicalized(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "settings.json"
             path.write_text(json.dumps({
@@ -76,10 +76,88 @@ class ConfigApiTests(unittest.TestCase):
                 "scale_mode": "proportional",
             }), encoding="utf-8")
             settings, warnings = load_settings(path)
-            self.assertEqual(settings["window_width"], 1200)
-            self.assertEqual(settings["window_height"], 80)
+            self.assertEqual(settings["window_scale_percent"], 145)
+            self.assertEqual(settings["window_width"], 478)
+            self.assertEqual(settings["window_height"], 200)
+            self.assertEqual(settings["font_size"], 14)
             self.assertEqual(settings["refresh_interval_seconds"], 10)
             self.assertEqual(settings["scale_mode"], "proportional")
+
+    def test_legacy_geometry_migrates_to_canonical_scale_and_derived_fields(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text(json.dumps({
+                "window_width": 660,
+                "window_height": 138,
+                "font_size": 19,
+                "scale_mode": "free",
+                "x": 4151,
+            }), encoding="utf-8")
+            result = load_settings(path)
+            self.assertEqual(result.settings["window_scale_percent"], 140)
+            self.assertEqual((result.settings["window_width"], result.settings["window_height"]), (462, 193))
+            self.assertEqual(result.settings["font_size"], 14)
+            self.assertEqual(result.settings["scale_mode"], "proportional")
+            self.assertEqual(result.settings["x"], 4151)
+            self.assertTrue(result.writable)
+
+    def test_new_scale_overrides_conflicting_legacy_fields_and_round_trips(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            save_settings_atomic(path, {
+                **DEFAULT_SETTINGS,
+                "window_scale_percent": 150,
+                "window_width": 180,
+                "window_height": 800,
+                "font_size": 8,
+                "scale_mode": "free",
+            })
+            result = load_settings(path)
+            self.assertEqual(result.settings["window_scale_percent"], 150)
+            self.assertEqual((result.settings["window_width"], result.settings["window_height"]), (495, 207))
+            self.assertEqual(result.settings["font_size"], 15)
+            self.assertEqual(result.settings["scale_mode"], "proportional")
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(raw["schema_version"], 1)
+
+    def test_normalized_save_persists_canonical_and_derived_downgrade_fields(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            settings, warnings = load_settings(Path(directory) / "missing.json")
+            self.assertEqual(warnings, [])
+            settings["window_scale_percent"] = 150
+            normalized, warnings = normalize_settings(settings)
+            self.assertEqual(warnings, [])
+            save_settings_atomic(path, normalized)
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(raw["window_scale_percent"], 150)
+            self.assertEqual((raw["window_width"], raw["window_height"]), (495, 207))
+            self.assertEqual(raw["font_size"], 15)
+            self.assertEqual(raw["scale_mode"], "proportional")
+
+    def test_invalid_new_scale_is_protected_and_uses_safe_default(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            original = json.dumps({"schema_version": 1, "window_scale_percent": "bad"})
+            path.write_text(original, encoding="utf-8")
+            result = load_settings(path)
+            self.assertEqual(result.settings["window_scale_percent"], 100)
+            self.assertFalse(result.writable)
+            with self.assertRaises(ConfigWriteProtectedError):
+                save_settings_atomic(path, result.settings)
+            self.assertEqual(path.read_text(encoding="utf-8"), original)
+
+    def test_future_schema_scale_remains_protected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            original = json.dumps({"schema_version": 99, "window_scale_percent": 150})
+            path.write_text(original, encoding="utf-8")
+            result = load_settings(path)
+            self.assertEqual(result.settings, DEFAULT_SETTINGS)
+            self.assertFalse(result.writable)
+            with self.assertRaises(ConfigWriteProtectedError):
+                save_settings_atomic(path, result.settings)
+            self.assertEqual(path.read_text(encoding="utf-8"), original)
 
     def test_compact_setting_uses_strict_boolean_normalization(self):
         with tempfile.TemporaryDirectory() as directory:
