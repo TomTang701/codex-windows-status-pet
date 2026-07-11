@@ -2,6 +2,8 @@
 
 An unofficial Windows companion for Codex. It provides a small desktop overlay and a notification-area icon for live Codex activity, rate limits, and reset credits.
 
+Supported platform: Windows 11 x64. Windows 10 is Deferred, Not claimed, and Non-blocking; ARM64 and 32-bit Windows are not claimed.
+
 ## Features
 
 - Reads rate limits from the local `codex app-server --stdio` JSON-RPC interface.

@@ -8,7 +8,7 @@ The runtime dependency policy uses minimum compatible bounds in `requirements.tx
 
 ## Supported runtime declaration
 
-- Supported OS: Windows 11 x64 is physically tested; Windows 10 remains pending physical validation.
+- Supported OS: Windows 11 x64 is physically tested and claimed. Windows 10 is Deferred, Not claimed, and Non-blocking.
 - Python/runtime: Python 3.11 is the CI baseline; Python 3.12.13 is locally verified. The fallback runtime must provide `pythonw.exe` and install `requirements.txt`.
 - Architecture: x64 Windows is the tested architecture; ARM64 and 32-bit Windows are not claimed.
 - Unsigned behavior: the project does not ship a signed binary; Windows SmartScreen or policy warnings may appear and must be documented for any packaged release.

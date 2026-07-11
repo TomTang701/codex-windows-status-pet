@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def assess(matrix_path=ROOT / "docs" / "quality" / "COMPATIBILITY_MATRIX.md"):
     blockers = []
+    deferred = []
     for line in Path(matrix_path).read_text(encoding="utf-8").splitlines():
         if not line.startswith("|") or line.startswith("|---"):
             continue
@@ -19,9 +20,13 @@ def assess(matrix_path=ROOT / "docs" / "quality" / "COMPATIBILITY_MATRIX.md"):
         if len(cells) < 4 or cells[0] == "Area":
             continue
         status = cells[2]
-        if status.lower() == "pending" or "partial" in status.lower():
-            blockers.append({"area": cells[0], "coverage": cells[1], "status": status, "evidence": cells[3]})
-    return {"ready": not blockers, "blockers": blockers}
+        item = {"area": cells[0], "coverage": cells[1], "status": status, "evidence": cells[3]}
+        normalized = status.lower()
+        if "non-blocking" in normalized:
+            deferred.append(item)
+        elif normalized == "pending" or "partial" in normalized:
+            blockers.append(item)
+    return {"ready": not blockers, "blockers": blockers, "deferred": deferred}
 
 
 def main():

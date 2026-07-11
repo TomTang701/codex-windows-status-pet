@@ -5,7 +5,7 @@
 
 | Area | Coverage | Status | Evidence / next action |
 |---|---|---|---|
-| Windows version | Windows 10 | Pending | Run the launcher and full UI smoke test on a Windows 10 machine. |
+| Windows version | Windows 10 | Deferred / Not claimed / Non-blocking | Outside the current Windows 11 x64 support declaration; future evidence may expand support but does not block current releases. |
 | Windows version | Windows 11 Home 10.0.26200 (build 26200) | Physical pass | 2026-07-10 host probe via `Win32_OperatingSystem`; launcher and overlay were manually started. |
 | Displays | Single monitor | Automated + partial physical | Geometry API tests pass; physical single-monitor run still needs a saved screenshot. |
 | Displays | Two monitors | Physical pass | [2026-07-10 topology record](test-records/2026-07-10-win11-dual-monitor.md); `DISPLAY1`/`DISPLAY2` probe completed; virtual desktop is `0,0-4480,1434`, work areas are `0,0-2048,1104` and `2560,354-4480,1386`; secondary coordinate `(4150,1248)` remains supported. |
@@ -27,4 +27,4 @@
 
 ## Release gate
 
-Do not mark the product release-ready until all rows marked `Pending` have either a physical Windows result or an explicitly documented environment limitation approved by the maintainer.
+Windows 11 x64 is the supported platform. Do not mark the product release-ready until every blocking `Pending` or `partial` row has a physical Windows result or an explicitly documented environment limitation approved by the maintainer. Rows explicitly marked `Non-blocking` are reported but excluded from the executable blocker set.
