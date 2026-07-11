@@ -434,7 +434,10 @@ class Pet(tk.Tk):
                 elif action == "exit":
                     self.close()
                 elif action == "tray_error":
-                    self.text.config(text="Codex\n托盘图标异常", fg="#fca5a5")
+                    presentation = self.presentation_controller.render_tray_error()
+                    self.text.configure_rows(
+                        rows=presentation["rows"], fg=presentation["color"]
+                    )
                     if should_schedule_restart(action, self.tray_restart_scheduled, self.closing):
                         self.tray_restart_scheduled = True
                         self.after(2000, self.restart_tray)
@@ -535,7 +538,7 @@ class Pet(tk.Tk):
                         self.quota_state.fail("transport_error")
                         if self.quota_state.last_good is not None:
                             self.latest_quota = self.quota_state.last_good
-                        self.text.config(text="Codex\n" + payload["error"][:30], fg="#fca5a5")
+                        self.render_status()
                         continue
                     if payload.get("status") == "available":
                         self.quota_state.update(payload)
