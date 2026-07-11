@@ -1,28 +1,28 @@
 # Execution State
 
-- Active version: `0.3.2`
-- Branch: `release/v0.3.2-windows11-stabilization`
-- Base main SHA: `d4a69e9ce4a6adc7d519ff1a37b00617d548e8dd`
-- Current HEAD: `8883b79d` (authoritative Goal checkpoint; exact SHA available from Git)
-- Last pushed SHA: `8883b79d` (authoritative Goal checkpoint)
-- Current phase: Phase D — formal v0.3.2 version metadata and final Release Candidate
+- Active version: `0.4.0`
+- Branch: `release/v0.4.0-unified-window-scale`
+- Base main SHA: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
+- Current HEAD: `49982a21bc269ef2ea2d99e18d49d02381abe4e9`
+- Last pushed SHA: `49982a21bc269ef2ea2d99e18d49d02381abe4e9`
+- Current phase: Task 6 — v0.4.0 metadata complete; final branch RC pending
 - Product decision: `GO`
-- Scope lock: v0.3.2 stabilization and release administration only; no v0.4.0 production work
-- Active Superpowers skill: `superpowers:verification-before-completion` for final v0.3.2 release evidence
-- Design spec: `None` for v0.3.2
-- Implementation plan: `None` for v0.3.2
-- Latest RED evidence: `None`; no production behavior change is active
-- Latest GREEN evidence: `None`; no TDD cycle is active
-- Latest completion verification: final post-version-bump suite exited 0 — version sources passed; 127 tests passed; Quality approved; package smoke passed; strict readiness `ready: true`; whitespace clean; Release Candidate approved
-- Candidate RC state: approved before formal version bump; Goal-only metadata replacement does not alter runtime or release checks
-- Final RC state: approved after version `0.3.2` and bilingual Changelog update
-- Remote CI state: no v0.3.2 PR yet
-- Main protection state: unavailable for this private repository/account plan; GitHub APIs returned HTTP 403 requiring GitHub Pro or public visibility; compensating PR controls apply
-- Autonomous checks completed: repository reconciliation; no merge/rebase/cherry-pick; exact branch/base/head/remote state; one- and two-monitor evidence; Compact evidence; strict candidate RC; app-local exit/relaunch; exact process CommandLine; source and runtime Tk menu inventory; one-shot Settings/Hide; Escape release
+- Scope lock: unified window-scale v0.4.0 only; no v0.4.1+ or unrelated work
+- Active Superpowers skill: `superpowers:verification-before-completion`
+- Design spec: `docs/superpowers/specs/2026-07-10-unified-window-scale-design.md`; self-review passed for placeholders, contradictions, scope, ambiguity, interface naming, and authority conflicts
+- Implementation plan: `docs/superpowers/plans/2026-07-10-unified-window-scale-implementation.md`; six sequential tasks with exact interfaces, RED/GREEN commands, documentation/host validation, release lifecycle, and self-review
+- Latest RED evidence: integrated tests found no `Pet.window_metrics` and 150% Apply did not produce 495x207; one geometry assertion then exposed a missing Tk idle flush in the test
+- Latest GREEN evidence: main/UI/recovery/Compact/controller group ran 32 tests in 2.755s, all passed
+- Latest completion verification: fresh exact-state RC after limitation-label correction approved — 141 tests (124 core + 17 UI), Quality, package smoke, strict readiness, parity, sensitive scan, whitespace, and RC all passed
+- Candidate RC state: not started for v0.4.0
+- Final RC state: approved on the final uncommitted release diff; only this execution-state evidence line changed afterward
+- Remote CI state: no v0.4.0 PR yet
+- Main protection state: unavailable on current private repository/account plan; compensating PR controls remain mandatory
+- Autonomous checks completed: Tasks 1–4 RED/GREEN; 141-test full gate; bilingual docs; four-scale real Tk metrics/menu/drag/lock/Hide/Show/Compact/persistence; actual branch relaunch and display probe
 - Human fact required: `None`
-- Methods attempted: repository/source inspection, Win32/process inspection, real Tk widget inventory through focused UI tests
+- Methods attempted: repository history, source/API/UI/test/document inspection
 - Why human input is necessary: `None`
-- Completed: candidate preserved and pushed; authoritative Goal and Brief reconciled; physical blocker matrix closed truthfully; strict candidate RC approved; single-monitor mode restored to extended mode; autonomous current-build menu sanity passed
-- Remaining: commit/push verified v0.3.2 release state; PR/CI/merge/main retest/tag/report; then v0.4.0
-- Next exact action: inspect and commit the verified release diff, push it, open the exact-title v0.3.2 PR, and monitor Windows Quality
-- Last updated: 2026-07-10
+- Completed: v0.3.2 release; v0.4.0 branch/Brief/design/plan; Tasks 1–5; version sources and bilingual Changelog updated to 0.4.0
+- Remaining: commit/push; PR/CI/merge/main retest/tag/release report/branch deletion; final audit
+- Next exact action: inspect, commit, and push the verified v0.4.0 release candidate; open the exact-title PR and monitor Windows Quality
+- Last updated: 2026-07-11

@@ -5,12 +5,12 @@
 
 ## Current progress
 
-- **Completed:** P0 reliability APIs, P1 settings and quota dates, local-only provider normalization, quota health states, optional compact mode, tray lifecycle policy, compatibility matrix, separated Quality/Release Candidate gates, transactional settings, strict integer input validation, reversible resize sessions, independent refresh channels, strict quota parsing, last-good state handling, and validated settings backup/restore.
+- **Completed:** P0/P1 reliability and truthful quota work, v0.3.2 Windows stabilization, and the v0.4.0 unified-scale implementation boundary: one canonical percentage, schema-1 legacy migration, exact two-slider settings UI, and coherent main/Compact metrics.
 - **Verified:** 88 automated tests, 17 manifest-registered bilingual document pairs, Windows 11 launcher smoke test, secondary-monitor menu/settings path, and keyboard-driven tray hide/show recovery.
 - **Automated gates:** GitHub Actions runs routine Quality on pushes/PRs; a separate manual workflow runs strict Release Candidate checks and uploads a candidate artifact only on success.
 - **Application modularization:** Context menu, settings dialog, tray adapter, and main window now live in `scripts/ui/`; Codex discovery/transport, safe diagnostics, and status presentation live in `scripts/api/`; `scripts/codex_status_pet.py` is a stable launcher facade.
-- **Pending physical evidence:** mixed-DPI monitors, alternate taskbar edges, clean-machine dependency installation, and a full idle desktop run that visibly exercises compact hover expansion.
-- **Release decision:** `scripts/check_release_readiness.py` currently reports five blocking Windows 11 x64 evidence gaps and reports Windows 10 separately as Deferred / Not claimed / Non-blocking; v0.3.0 is intentionally not marked ready until the blocking rows are passed or explicitly approved.
+- **Pending physical evidence:** v0.4.0 scale validation at 80/100/150/200; mixed-DPI and separate clean-machine certification remain explicit environment limitations.
+- **Release decision:** v0.3.2 is released. v0.4.0 remains a candidate until full Quality, strict RC, Windows scale evidence, remote CI, main retest, and tag gates pass.
 - **Explicitly out of scope:** access-token readers, third-party quota endpoints, telemetry, and modifying Codex core or built-in pet files.
 
 ## Product objective
@@ -58,8 +58,9 @@ English files are canonical; Chinese files are synchronized translation copies i
 | `InputValidationAPI` | Enforce digit-only fields and typed ranges. |
 | `SettingsSessionAPI` | Separate persisted, runtime, draft, and opening settings snapshots. |
 | `DisplayGeometryAPI` | Enumerate work areas and place/clamp popup rectangles. |
-| `WindowSizeAPI` | Apply free or proportional width/height changes. |
-| `ResizeSessionAPI` | Apply reversible percentage resize steps from a base size. |
+| `WindowScaleAPI` | Derive fixed-ratio geometry, typography, wrapping, and spacing from one canonical percentage and infer legacy scale. |
+| `WindowSizeAPI` | Retain historical free/proportional transformations as a compatibility utility with no normal UI consumer. |
+| `ResizeSessionAPI` | Retain historical reversible steps as a compatibility utility with no normal UI consumer. |
 | `QuotaFormatAPI` | Select reset dates and format truthful local text. |
 | `QuotaStatusAPI` | Classify quota health without network or UI dependencies. |
 | `DisplayModeAPI` | Decide opt-in idle compaction and calculate compact geometry. |

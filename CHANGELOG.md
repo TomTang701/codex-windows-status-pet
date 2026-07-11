@@ -58,6 +58,14 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.4.0 - 2026-07-11
+
+- Replaced the independent font-size, free width/height, plus/minus, and proportional-mode controls with one 80–200% Window Size slider while retaining opacity as the only other slider.
+- Added one pure Window Scale API that derives fixed-ratio 330:138 geometry, adaptive text/paw fonts, wrapping, and spacing from a canonical percentage.
+- Kept configuration schema 1, migrated legacy geometry deterministically by geometric-mean area, and persisted derived legacy fields so v0.3.2 can load a usable downgraded size.
+- Preserved transactional Apply/Save/Close/Defaults behavior, five stable rows, position recovery, Hide/Show, Compact/Expand, drag/lock, menu placement, and restart persistence across 80/100/150/200 Windows host validation.
+- Added no network, IPC, worker, subprocess, polling, telemetry, dependency, credential path, or Codex quota consumption for scaling.
+
 ## 0.3.2 - 2026-07-10
 
 - Closed the declared Windows 11 x64 physical release gates with dated one- and two-monitor, launcher, single-instance, status-row, Reset Credit date, menu, hide/show, and Compact interaction evidence.

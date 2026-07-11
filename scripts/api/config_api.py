@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
 import shutil
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+
+from .window_scale_api import (
+    DEFAULT_WINDOW_SCALE_PERCENT,
+    derive_window_metrics,
+    infer_scale_percent,
+)
 
 
 CONFIG_SCHEMA_VERSION = 1
@@ -32,19 +39,23 @@ class ConfigLoadResult:
         yield self.settings
         yield list(self.warnings)
 
+DEFAULT_WINDOW_METRICS = derive_window_metrics(DEFAULT_WINDOW_SCALE_PERCENT)
+
+
 DEFAULT_SETTINGS = {
     "schema_version": CONFIG_SCHEMA_VERSION,
     "alpha": 0.95,
     "font_color": "#e5e7eb",
-    "font_size": 10,
+    "font_size": DEFAULT_WINDOW_METRICS.text_font_size,
     "background_color": "#111827",
     "topmost": True,
     "locked": False,
     "x": 30,
     "y": 120,
-    "window_width": 330,
-    "window_height": 138,
-    "scale_mode": "free",
+    "window_width": DEFAULT_WINDOW_METRICS.width,
+    "window_height": DEFAULT_WINDOW_METRICS.height,
+    "scale_mode": "proportional",
+    "window_scale_percent": DEFAULT_WINDOW_METRICS.scale_percent,
     "refresh_interval_seconds": 5,
     "compact_when_idle": False,
 }
@@ -79,6 +90,25 @@ def _integer_value(value, default, minimum=None, maximum=None):
     if maximum is not None:
         result = min(maximum, result)
     return result
+
+
+def _valid_numeric_scale(value):
+    if isinstance(value, bool):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except (TypeError, ValueError):
+        return False
+
+
+def _apply_scale_compatibility(settings, scale_percent):
+    metrics = derive_window_metrics(scale_percent)
+    settings["window_scale_percent"] = metrics.scale_percent
+    settings["font_size"] = metrics.text_font_size
+    settings["window_width"] = metrics.width
+    settings["window_height"] = metrics.height
+    settings["scale_mode"] = "proportional"
+    return metrics
 
 
 def normalize_settings(raw):
@@ -141,6 +171,16 @@ def normalize_settings(raw):
         settings[key] = _bool_value(raw.get(key, settings[key]), settings[key])
         if key in raw and settings[key] == DEFAULT_SETTINGS[key] and raw[key] not in (True, False, 0, 1, "true", "false", "1", "0", "yes", "no", "on", "off"):
             warnings.append(f"{key} is invalid; default retained")
+    if "window_scale_percent" in raw:
+        candidate = raw.get("window_scale_percent")
+        if _valid_numeric_scale(candidate):
+            scale_percent = candidate
+        else:
+            scale_percent = DEFAULT_WINDOW_SCALE_PERCENT
+            warnings.append("window_scale_percent is invalid; default retained")
+    else:
+        scale_percent = infer_scale_percent(settings["window_width"], settings["window_height"])
+    _apply_scale_compatibility(settings, scale_percent)
     return settings, warnings
 
 

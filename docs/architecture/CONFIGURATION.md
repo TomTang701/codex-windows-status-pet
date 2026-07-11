@@ -19,15 +19,22 @@ Future-schema, unreadable, malformed, non-object, and field-invalid source files
   "locked": true,
   "x": 4151,
   "y": 1248,
+  "window_scale_percent": 100,
   "window_width": 330,
   "window_height": 138,
-  "scale_mode": "free",
+  "scale_mode": "proportional",
   "refresh_interval_seconds": 5,
   "compact_when_idle": false
 }
 ```
 
-`x` and `y` are virtual-desktop coordinates and may be negative or beyond the primary display. Width, height, opacity, font size, colors, booleans, scale mode, and refresh interval are normalized through the input-validation API before use.
+`window_scale_percent` is the canonical expanded-size source. It is clamped to 80–200%, quantized to 5% steps, and defaults to 100%. Window width/height, text font size, paw font size, wrapping, and required spacing derive from the same pure Window Scale API result.
+
+For schema-1 downgrade compatibility, Save also persists derived `font_size`, `window_width`, `window_height`, and `scale_mode: "proportional"`. v0.3.2 ignores the unknown canonical field and reads those usable derived values.
+
+A valid legacy file without `window_scale_percent` is migrated in memory by geometric-mean area inference: `sqrt((old_width * old_height) / (330 * 138))`, followed by clamp and quantization. Legacy font size and scale mode do not remain independent sources. Migration preserves position, opacity, colors, refresh interval, topmost, lock, and Compact preference, and does not write disk until the user saves.
+
+`x` and `y` are virtual-desktop coordinates and may be negative or beyond the primary display. Coordinates, opacity, colors, booleans, refresh interval, canonical scale, and legacy migration inputs are normalized before use.
 
 ## Settings transaction
 
@@ -40,6 +47,8 @@ The settings UI keeps persisted, active-runtime, draft, and opening-snapshot val
 - A failed save preserves the previous valid settings file.
 
 Opening or closing settings restores the main overlay to visible state. Hiding changes opacity to zero without overwriting the saved position.
+
+The settings dialog exposes one Window Size slider. Moving it changes only the draft; Apply derives and previews the complete metric set, Save persists canonical and compatibility fields, Close restores the opening scale, and Restore Defaults resets the scale to 100%.
 
 ## Validation and recovery
 

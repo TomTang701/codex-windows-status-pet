@@ -42,6 +42,14 @@ class MenuInteractionTests(unittest.TestCase):
         ]
 
     @staticmethod
+    def descendants(widget):
+        result = []
+        for child in widget.winfo_children():
+            result.append(child)
+            result.extend(MenuInteractionTests.descendants(child))
+        return result
+
+    @staticmethod
     def destroy_app(app):
         """Stop callbacks/workers and collect Tk variables before destroying Tcl."""
         if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
@@ -86,6 +94,58 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
+            self.destroy_app(app)
+
+    def test_settings_dialog_has_exactly_two_scales_and_no_legacy_size_controls(self):
+        app = self.module["Pet"]()
+        try:
+            app.show_settings()
+            app.update_idletasks()
+            widgets = self.descendants(app.settings_dialog)
+            scales = [widget for widget in widgets if widget.winfo_class() == "Scale"]
+            texts = [widget.cget("text") for widget in widgets if "text" in widget.keys()]
+            self.assertEqual(len(scales), 2)
+            self.assertIn("透明度", texts)
+            self.assertIn("窗口大小", texts)
+            for removed in ("字体大小", "窗口大小 (宽, 高)", "−", "+", "等比例缩放"):
+                self.assertNotIn(removed, texts)
+            self.assertIn("默认位置 (X, Y)", texts)
+            self.assertIn("刷新间隔 (秒)", texts)
+            for retained in (
+                "置顶", "锁定位置", "空闲时收缩", "字体颜色...", "背景颜色...",
+                "保存", "应用", "恢复默认值", "关闭",
+            ):
+                self.assertIn(retained, texts)
+        finally:
+            self.destroy_app(app)
+
+    def test_scale_slider_is_draft_only_until_apply_and_defaults_to_100(self):
+        app = self.module["Pet"]()
+        apply_calls = []
+        original_apply = app.apply_settings
+        app.apply_settings = lambda settings: (apply_calls.append(dict(settings)), original_apply(settings))[1]
+        try:
+            opening_scale = app.settings["window_scale_percent"]
+            app.show_settings()
+            app.update_idletasks()
+            widgets = self.descendants(app.settings_dialog)
+            scales = [widget for widget in widgets if widget.winfo_class() == "Scale"]
+            scale = next(widget for widget in scales if float(widget.cget("to")) == 200.0)
+            scale.set(150)
+            app.update_idletasks()
+            self.assertEqual(app.settings["window_scale_percent"], opening_scale)
+            self.assertEqual(apply_calls, [])
+            buttons = {
+                widget.cget("text"): widget
+                for widget in widgets
+                if widget.winfo_class() == "Button"
+            }
+            buttons["应用"].invoke()
+            self.assertEqual(app.settings["window_scale_percent"], 150)
+            self.assertEqual((app.settings["window_width"], app.settings["window_height"]), (495, 207))
+            buttons["恢复默认值"].invoke()
+            self.assertEqual(int(scale.get()), 100)
+        finally:
             self.destroy_app(app)
 
     def test_hide_button_dispatches_once_and_closes(self):
@@ -135,9 +195,11 @@ class MenuInteractionTests(unittest.TestCase):
                 app.settings_path.write_text("{damaged", encoding="utf-8")
                 app.show_settings()
                 app.update_idletasks()
-                body = app.settings_dialog.winfo_children()[0]
-                button_row = body.grid_slaves(row=8)[0]
-                buttons = {child.cget("text"): child for child in button_row.winfo_children()}
+                buttons = {
+                    widget.cget("text"): widget
+                    for widget in self.descendants(app.settings_dialog)
+                    if widget.winfo_class() == "Button"
+                }
                 buttons["恢复默认值"].invoke()
                 buttons["保存"].invoke()
                 app.update_idletasks()
@@ -158,9 +220,11 @@ class MenuInteractionTests(unittest.TestCase):
                 app.show_settings()
                 app.update_idletasks()
                 dialog = app.settings_dialog
-                body = dialog.winfo_children()[0]
-                button_row = body.grid_slaves(row=8)[0]
-                buttons = {child.cget("text"): child for child in button_row.winfo_children()}
+                buttons = {
+                    widget.cget("text"): widget
+                    for widget in self.descendants(dialog)
+                    if widget.winfo_class() == "Button"
+                }
                 with mock.patch("ui.settings_dialog.messagebox.showwarning") as warning:
                     buttons["保存"].invoke()
                 self.assertTrue(dialog.winfo_exists())
@@ -185,6 +249,60 @@ class MenuInteractionTests(unittest.TestCase):
             self.assertEqual(app.text.winfo_manager(), "")
             app.set_compact(False)
             self.assertEqual(app.text.winfo_manager(), "pack")
+        finally:
+            self.destroy_app(app)
+
+    def test_apply_scale_updates_geometry_fonts_wrap_and_padding_together(self):
+        import tkinter.font as tkfont
+
+        app = self.module["Pet"]()
+        try:
+            app.apply_settings({**app.settings, "window_scale_percent": 150})
+            app.update_idletasks()
+            self.assertEqual(app.window_metrics.scale_percent, 150)
+            self.assertTrue(app.geometry().startswith("495x207"))
+            text_font = tkfont.Font(root=app, font=next(iter(app.text.labels.values())).cget("font"))
+            face_font = tkfont.Font(root=app, font=app.face.cget("font"))
+            self.assertEqual(text_font.cget("size"), 15)
+            self.assertEqual(face_font.cget("size"), 42)
+            for label in app.text.labels.values():
+                self.assertEqual(int(label.cget("wraplength")), 390)
+            padx = tuple(int(value) for value in app.tk.splitlist(app.face.pack_info()["padx"]))
+            self.assertEqual(padx, (18, 8))
+            self.assertEqual(int(app.face.pack_info()["pady"]), 15)
+        finally:
+            self.destroy_app(app)
+
+    def test_hide_show_and_compact_expand_preserve_current_scale(self):
+        app = self.module["Pet"]()
+        app.save_settings = lambda **_kwargs: True
+        try:
+            app.apply_settings({**app.settings, "window_scale_percent": 150})
+            app.hide_window()
+            self.assertTrue(app.hidden)
+            self.assertEqual(float(app.attributes("-alpha")), 0.0)
+            app.show_window()
+            app.update_idletasks()
+            self.assertFalse(app.hidden)
+            self.assertTrue(app.geometry().startswith("495x207"))
+            app.set_compact(True)
+            app.update_idletasks()
+            self.assertFalse(app.geometry().startswith("495x207"))
+            app.set_compact(False)
+            app.update_idletasks()
+            self.assertTrue(app.geometry().startswith("495x207"))
+            self.assertEqual(app.window_metrics.scale_percent, 150)
+        finally:
+            self.destroy_app(app)
+
+    def test_scale_application_keeps_five_row_identities(self):
+        app = self.module["Pet"]()
+        try:
+            identities = {key: str(value) for key, value in app.text.labels.items()}
+            app.apply_settings({**app.settings, "window_scale_percent": 80})
+            app.apply_settings({**app.settings, "window_scale_percent": 200})
+            self.assertEqual({key: str(value) for key, value in app.text.labels.items()}, identities)
+            self.assertEqual(len(app.text.labels), 5)
         finally:
             self.destroy_app(app)
 
