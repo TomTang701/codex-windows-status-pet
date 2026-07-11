@@ -1,10 +1,13 @@
 # ACTIVE GOAL — Autonomous Verification and Lean-Core Renewal
+> **Status:** COMPLETE — v0.4.1, v0.4.2, and v0.5.0 released; Phase 4 not needed; Phase 5 decision recorded.
 > **Repository:** `TomTang701/codex-windows-status-pet`
 > **Authority:** Replace the current `Goal/ACTIVE_GOAL.md` with this file.
 > **Mission:** Reduce unnecessary human verification and reduce project complexity while preserving the proven product core.
 > **Execution:** autonomous-first, evidence-first, design-verified, sequential releases, one active version at a time.
 > **Supported baseline:** Windows 11 x64.
 > **Permission boundary:** Repository-root `AGENTS.md` grants standing authorization for routine GitHub workflow operations only for `TomTang701/codex-windows-status-pet` within this Goal. Its listed high-risk operations remain separately permissioned; destructive unrelated Git, deployment, credential access, remote-owner changes, and repository-setting changes are not implied.
+
+> **Completion result:** The current product core is stable and release checks on the supported host are machine-authoritative. Runtime production Python decreased from 39 files / 2,742 lines at the v0.4.2 Phase 3 baseline to 35 files / 2,650 lines in v0.5.0, with no dependency increase. Phase 4 is `NOT NEEDED` because visible states have one presentation boundary and no meaningful duplicate state owner remains. Phase 5 concludes that install/startup productization is now the largest real usability opportunity, but this Goal does not authorize automatic v0.6.0 implementation; a separate approved design is required.
 ---
 ## 0. Highest-priority direction
 Read this file completely before repository changes.
