@@ -58,6 +58,14 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.4.1 - 2026-07-11
+
+- Prevented reset-credit row clipping across all 25 supported Window Size steps while preserving existing geometry and configuration compatibility; measured content-safe vertical padding is applied only at 80% and 95%.
+- Added mapped Tk content-fit coverage for actual/requested window, status-container, and five-row geometry, including the full Reset Credit date/time row.
+- Routed tray and quota transport failures through the authoritative five-row presentation boundary instead of invalid Label-style configuration against `StatusRows`.
+- Preserved truthful last-good/stale quota behavior, stopped displaying raw transport exception text, and restored single-scheduled tray recovery after a tray failure.
+- Added no feature, dependency, provider, network path, worker, polling loop, telemetry, configuration field, or schema change.
+
 ## 0.4.0 - 2026-07-11
 
 - Replaced the independent font-size, free width/height, plus/minus, and proportional-mode controls with one 80–200% Window Size slider while retaining opacity as the only other slider.
