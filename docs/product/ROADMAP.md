@@ -1,15 +1,15 @@
 # Codex Windows Status Pet Renewal Roadmap
 
 **Status:** Active roadmap
-**Released baseline:** `v0.4.1`
-**Active implementation scope:** `v0.4.2` autonomous verification conversion
+**Released baseline:** `v0.4.2`
+**Active implementation scope:** `v0.5.0` lean-core simplification
 
 ## Current state
 
-- **Released:** v0.3.2 Windows 11 stabilization, v0.4.0 unified window scaling, and v0.4.1 DPI-aware correctness stabilization are merged, tagged, and published.
-- **Verified baseline:** 130 core tests and 22 Tk UI tests pass on merged v0.4.1; Windows Quality CI, package smoke, strict readiness, production-order DPI-120 all-scale inspection, and merged-main RC passed.
+- **Released:** v0.3.2 through v0.4.2 are merged, tagged, and published; v0.4.2 converted release verification to one authoritative RC path.
+- **Verified baseline:** 140 core tests and 22 Tk UI tests pass on merged v0.4.2; exact-head Windows CI and merged-main RC passed with zero blockers and explicit limitations.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
-- **Current verification work:** classify every release fact, consolidate duplicate gate execution, and replace generic manual confirmation with authoritative machine checks or one explicit physical-only limitation.
+- **Current simplification work:** delete three zero-consumer historical modules and merge one single-function quota parser pass-through while preserving behavior-level contracts.
 - **Environment limitations:** mixed-DPI physical hardware, alternate physical taskbar edges, and a separate clean Windows machine are not available and are not claimed as physical evidence.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 
