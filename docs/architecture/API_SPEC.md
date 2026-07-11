@@ -24,7 +24,7 @@ headless tests.
 | Window Size API | `scripts/api/window_size_api.py` | Transform free or proportional width/height changes with bounds. | Free, proportional, bounded, and invalid-factor cases. |
 | Resize Session API | `scripts/api/resize_session_api.py` | Apply reversible percentage steps from an opening base size. | Exact plus/minus symmetry and bounded dimensions. |
 | Quota Provider API | `scripts/api/quota_provider_api.py` | Normalize already-fetched local app-server data without reading auth or making network calls. | Valid, malformed, and credential-bearing payload fixtures. |
-| Quota Parse API | `scripts/api/quota_parse_api.py` | Normalize only approved quota fields and explicit camelCase/snake_case aliases. | Unknown fields, invalid numbers, aliases, and missing fields. |
+| Quota Parse API | `scripts/api/quota_parse_api.py` | Normalize only approved quota fields, explicit camelCase/snake_case aliases, and bounded Reset Credit expiry containers. | Unknown fields, invalid numbers, aliases, nested expiries, and missing fields. |
 | Quota State API | `scripts/api/quota_state_api.py` | Retain last-good data and classify loading, ok, stale, and explicit failures. | Success recovery, recent failure, stale timeout, and no-data failures. |
 | Domain Models API | `scripts/api/models_api.py` | Define typed usage-window, reset-credit, and quota-snapshot values. | Dataclass construction and type-boundary tests. |
 | Tray Lifecycle API | `scripts/api/tray_lifecycle_api.py` | Validate tray actions and guarantee one recovery restart request. | Action allowlist, visibility policy, duplicate failure, and shutdown cases. |
