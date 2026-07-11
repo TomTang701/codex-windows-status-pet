@@ -20,7 +20,7 @@
 - **证据类：** 记录自动化或实体测试结果。
 - **历史类：** 保存已完成的审计或已被替代的计划。
 
-仓库正在按照[文档结构优化方案](../Goal/codex-status-pet-documentation-structure-plan-zh.md)从根目录平铺结构迁移到分层结构。manifest会记录当前有效路径，并保持现有链接兼容。
+仓库使用manifest记录的分层结构。原[文档结构优化方案](archive/plans/codex-status-pet-documentation-structure-plan-zh.md)仅作为非规范性历史保留。
 
 ## 唯一事实来源
 

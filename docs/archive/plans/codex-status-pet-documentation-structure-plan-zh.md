@@ -1,3 +1,10 @@
+---
+status: archived
+normative: false
+archived_on: 2026-07-10
+superseded_by: ../../../Goal/ACTIVE_GOAL.md
+reason: Historical documentation-structure plan; current execution is governed only by ACTIVE_GOAL.
+---
 # Codex Windows Status Pet 文档结构优化方案
 
 > **方案版本：** 1.0  
