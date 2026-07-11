@@ -4,7 +4,9 @@
 
 Settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json` and use schema version `1`. A legacy file without `schema_version` is read as the pre-version format and normalized in memory; a save writes the current schema.
 
-The last valid file is retained at `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`. The configuration API can validate this sidecar before atomically restoring it; missing or malformed backups are ignored. Version 0.2.1 does not expose restoration in the context menu.
+The last valid file is retained at `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`. The configuration API can validate this sidecar before atomically restoring it; missing or malformed backups are ignored. Restoration is not exposed in the context menu.
+
+Future-schema, unreadable, malformed, non-object, and field-invalid source files are read-only during routine operation. Drag, hide, toggles, recovery, shutdown, and an ordinary Save cannot overwrite them. To intentionally replace a protected source, choose **Restore Defaults** and then **Save** in the settings dialog.
 
 ```json
 {
@@ -33,7 +35,7 @@ The settings UI keeps persisted, active-runtime, draft, and opening-snapshot val
 
 - **Apply** previews a valid draft without persistence or closing the dialog.
 - **Save** applies and persists the valid draft.
-- **Restore Defaults** replaces the draft first.
+- **Restore Defaults** replaces the draft and explicitly authorizes the following Save to replace a protected source.
 - **Close** restores the opening snapshot for changes that were not saved.
 - A failed save preserves the previous valid settings file.
 

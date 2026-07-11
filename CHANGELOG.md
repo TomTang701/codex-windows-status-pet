@@ -58,6 +58,12 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.2.3 - 2026-07-10
+
+- Protected future-schema, malformed, non-object, and invalid configuration files from all routine save paths, including drag, hide, toggles, recovery, and shutdown.
+- Added source compatibility metadata while retaining the existing settings/warnings unpacking contract.
+- Allowed replacement of protected configuration only through the explicit Restore Defaults then Save flow; protected failures create no backup or partial write.
+
 ## 0.2.2 - 2026-07-10
 
 - Fixed Reset Credit expiry normalization for approved nested provider shapes, including `credits[].expiresAt` and snake_case aliases.

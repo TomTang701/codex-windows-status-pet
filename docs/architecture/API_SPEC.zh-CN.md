@@ -6,7 +6,7 @@
 
 | API | 模块 | 职责 | 测试边界 |
 |---|---|---|---|
-| 配置 API | `scripts/api/config_api.py` | 校验、规范化、读取、原子保存、备份和恢复设置。 | 临时 JSON 文件，不启动 Tk。 |
+| 配置 API | `scripts/api/config_api.py` | 校验、规范化、读取、保护不兼容源、原子保存、备份和恢复设置。 | 临时 JSON 文件，不启动 Tk。 |
 | 活动状态 API | `scripts/api/activity_api.py` | 读取 Codex JSONL 会话并计算活动/完成状态，对未变化文件使用缓存。 | 合成 JSONL 目录，可注入时间和缓存。 |
 | 运行时 API | `scripts/api/runtime_api.py` | 管理 Windows 命名单实例互斥体。 | Windows 互斥体申请和释放。 |
 | 诊断 API | `scripts/api/diagnostics_api.py` | 在 `pythonw.exe` 隐藏控制台时记录未捕获异常。 | 临时日志和合成异常。 |
@@ -44,6 +44,7 @@
 - 配置 API 遇到错误 JSON 不得崩溃，应返回默认值和警告。
 - 配置 API 必须兼容常见 Windows 编辑器生成的 UTF-8 和 UTF-8-BOM JSON。
 - 配置写入必须使用同目录临时文件和原子替换。
+- 常规写入必须逐字节保留未来 schema、损坏、非对象和字段无效的源文件；只有明确执行“恢复默认值”后“保存”才能授权替换。
 - 成功保存时保留一个 `.bak` 副本作为上一个有效设置；损坏的当前文件或备份不得被提升或恢复。
 - 配置保存时写入schema v1；没有版本号的旧文件会被规范化，未知的未来版本则安全回退并给出警告。
 - 活动状态 API 使用最新会话事件作为超时依据，而不是只使用任务开始时间。
