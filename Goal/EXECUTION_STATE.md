@@ -3,26 +3,26 @@
 - Active version: `0.4.0`
 - Branch: `release/v0.4.0-unified-window-scale`
 - Base main SHA: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
-- Current HEAD: `77de2628369e50e922265a77f6276fbba652dd79`
-- Last pushed SHA: `77de2628369e50e922265a77f6276fbba652dd79`
-- Current phase: Writing Plans — implementation plan written and under completion verification
+- Current HEAD: `1b6a96ab6f05c52b972d18ddad539985051d2229`
+- Last pushed SHA: `1b6a96ab6f05c52b972d18ddad539985051d2229`
+- Current phase: TDD Task 1 — pure Window Scale API ready for checkpoint commit
 - Product decision: `GO`
 - Scope lock: unified window-scale v0.4.0 only; no v0.4.1+ or unrelated work
-- Active Superpowers skill: `superpowers:writing-plans`
+- Active Superpowers skill: `superpowers:test-driven-development`
 - Design spec: `docs/superpowers/specs/2026-07-10-unified-window-scale-design.md`; self-review passed for placeholders, contradictions, scope, ambiguity, interface naming, and authority conflicts
 - Implementation plan: `docs/superpowers/plans/2026-07-10-unified-window-scale-implementation.md`; six sequential tasks with exact interfaces, RED/GREEN commands, documentation/host validation, release lifecycle, and self-review
-- Latest RED evidence: `None`; production implementation has not started
-- Latest GREEN evidence: `None`; production implementation has not started
-- Latest completion verification: implementation plan self-review found six tasks, four material RED gates, six focused commit commands, complete required sections, consistent interfaces, and no unfinished placeholder language
+- Latest RED evidence: `python -m unittest tests.test_window_scale_api -v` failed because `api.window_scale_api` did not exist; this was the expected missing feature boundary
+- Latest GREEN evidence: pure scale plus legacy scale-helper regression group ran 10 tests in 0.001s, all passed with no warnings
+- Latest completion verification: 80–200 clamp/quantization, canonical metrics, monotonic/ratio behavior, geometric-mean legacy inference, and existing free/proportional helper compatibility all passed
 - Candidate RC state: not started for v0.4.0
 - Final RC state: not started for v0.4.0
 - Remote CI state: no v0.4.0 PR yet
 - Main protection state: unavailable on current private repository/account plan; compensating PR controls remain mandatory
-- Autonomous checks completed: v0.3.2 transition; architecture exploration; three approaches; Tk range measurement; design spec/self-review/commit; implementation-plan coverage/placeholder/type/order/scope review
+- Autonomous checks completed: v0.3.2 transition; design and plan checkpoints; Task 1 observed RED; Task 1 focused GREEN plus legacy API regressions
 - Human fact required: `None`
 - Methods attempted: repository history, source/API/UI/test/document inspection
 - Why human input is necessary: `None`
-- Completed: v0.3.2 release lifecycle; v0.4.0 branch/Brief; architecture exploration; approach/range selection; validated design spec; validated implementation plan
-- Remaining: commit/push plan; execute Tasks 1–6 sequentially with TDD; Windows validation; PR/CI/merge/tag/final audit
-- Next exact action: verify and commit the plan checkpoint, then load Test-Driven Development and begin Task 1 with the pure API RED test
+- Completed: v0.3.2 release; v0.4.0 branch/Brief/design/plan; Task 1 pure API RED→GREEN
+- Remaining: commit/push Task 1; Tasks 2–6; Windows validation; PR/CI/merge/tag/final audit
+- Next exact action: verify and commit Task 1, then write Task 2 configuration migration tests before changing config production code
 - Last updated: 2026-07-10
