@@ -3,26 +3,26 @@
 - Active version: `0.4.0`
 - Branch: `release/v0.4.0-unified-window-scale`
 - Base main SHA: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
-- Current HEAD: `3219ab539637206749ee17f41ef927bb1016f8e3`
-- Last pushed SHA: `3219ab539637206749ee17f41ef927bb1016f8e3`
-- Current phase: TDD Task 2 — schema-1 migration ready for checkpoint commit
+- Current HEAD: `d9a09f2d83428f697281d570fe50a68738f486d3`
+- Last pushed SHA: `d9a09f2d83428f697281d570fe50a68738f486d3`
+- Current phase: TDD Task 3 — exact two-slider settings UI ready for checkpoint commit
 - Product decision: `GO`
 - Scope lock: unified window-scale v0.4.0 only; no v0.4.1+ or unrelated work
 - Active Superpowers skill: `superpowers:test-driven-development`
 - Design spec: `docs/superpowers/specs/2026-07-10-unified-window-scale-design.md`; self-review passed for placeholders, contradictions, scope, ambiguity, interface naming, and authority conflicts
 - Implementation plan: `docs/superpowers/plans/2026-07-10-unified-window-scale-implementation.md`; six sequential tasks with exact interfaces, RED/GREEN commands, documentation/host validation, release lifecycle, and self-review
-- Latest RED evidence: ConfigApiTests produced four missing-key errors for `window_scale_percent`; after implementation one stale legacy assertion exposed its old independent-geometry expectation
-- Latest GREEN evidence: config/settings/controller group ran 30 tests in 0.130s, all passed; version-source checker passed
-- Latest completion verification: schema 1 canonical scale, geometric-mean migration, derived downgrade fields, conflicting-field override, invalid/future protection, transaction behavior, and controller persistence all passed
+- Latest RED evidence: two focused Tk tests failed because the old dialog lacked the `窗口大小` label and had no Scale with upper bound 200
+- Latest GREEN evidence: UI menu/settings/status-row group ran 14 tests in 2.497s, all passed
+- Latest completion verification: exactly two Scale widgets, removed legacy controls absent, retained controls present, slider draft-only before Apply, 150% derived fields, defaults to 100%, and protected Save semantics all passed
 - Candidate RC state: not started for v0.4.0
 - Final RC state: not started for v0.4.0
 - Remote CI state: no v0.4.0 PR yet
 - Main protection state: unavailable on current private repository/account plan; compensating PR controls remain mandatory
-- Autonomous checks completed: design/plan; Task 1 RED/GREEN; Task 2 RED, root-cause review of stale legacy assertion, and 30-test GREEN
+- Autonomous checks completed: Tasks 1–2 RED/GREEN; Task 3 RED; stale row-index test coupling diagnosed; 14-test Tk GREEN
 - Human fact required: `None`
 - Methods attempted: repository history, source/API/UI/test/document inspection
 - Why human input is necessary: `None`
-- Completed: v0.3.2 release; v0.4.0 branch/Brief/design/plan; Tasks 1–2 RED→GREEN
-- Remaining: commit/push Task 2; Tasks 3–6; Windows validation; PR/CI/merge/tag/final audit
-- Next exact action: verify and commit Task 2, then write exact two-slider Tk RED tests before changing the settings dialog
+- Completed: v0.3.2 release; v0.4.0 branch/Brief/design/plan; Tasks 1–3 RED→GREEN
+- Remaining: commit/push Task 3; Tasks 4–6; Windows validation; PR/CI/merge/tag/final audit
+- Next exact action: verify and commit Task 3, then write Task 4 integrated metrics/lifecycle RED tests before changing main-window production code
 - Last updated: 2026-07-10
