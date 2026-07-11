@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from api.activity_api import snapshot_activity
-from api.config_api import CONFIG_SCHEMA_VERSION, DEFAULT_SETTINGS, backup_settings_path, load_settings, restore_settings_backup, save_settings_atomic
+from api.config_api import ConfigWriteProtectedError, CONFIG_SCHEMA_VERSION, DEFAULT_SETTINGS, backup_settings_path, load_settings, restore_settings_backup, save_settings_atomic
 
 
 def stamp(seconds):
@@ -57,11 +57,13 @@ class ConfigApiTests(unittest.TestCase):
             backup_settings_path(path).write_text("not-json", encoding="utf-8")
             self.assertFalse(restore_settings_backup(path))
 
-    def test_malformed_current_settings_are_not_promoted_to_backup(self):
+    def test_malformed_current_settings_are_preserved_and_not_promoted(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "settings.json"
             path.write_text("not-json", encoding="utf-8")
-            save_settings_atomic(path, {**DEFAULT_SETTINGS, "x": 300})
+            with self.assertRaises(ConfigWriteProtectedError):
+                save_settings_atomic(path, {**DEFAULT_SETTINGS, "x": 300})
+            self.assertEqual(path.read_text(encoding="utf-8"), "not-json")
             self.assertFalse(backup_settings_path(path).exists())
 
     def test_new_numeric_settings_are_bounded(self):
@@ -110,6 +112,39 @@ class ConfigApiTests(unittest.TestCase):
             settings, warnings = load_settings(path)
             self.assertEqual(settings, DEFAULT_SETTINGS)
             self.assertTrue(any("unsupported settings schema" in warning for warning in warnings))
+            result = load_settings(path)
+            self.assertEqual(result.schema_status, "unsupported")
+            self.assertFalse(result.writable)
+
+    def test_future_schema_is_preserved_by_ordinary_save(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            original = json.dumps({"schema_version": 99, "future": {"value": 1}})
+            path.write_text(original, encoding="utf-8")
+            with self.assertRaises(ConfigWriteProtectedError):
+                save_settings_atomic(path, DEFAULT_SETTINGS)
+            self.assertEqual(path.read_text(encoding="utf-8"), original)
+            self.assertFalse(backup_settings_path(path).exists())
+
+    def test_non_object_and_invalid_current_settings_are_protected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for raw in ("[]", json.dumps({"schema_version": 1, "alpha": "bad"})):
+                with self.subTest(raw=raw):
+                    path = Path(directory) / "settings.json"
+                    path.write_text(raw, encoding="utf-8")
+                    with self.assertRaises(ConfigWriteProtectedError):
+                        save_settings_atomic(path, DEFAULT_SETTINGS)
+                    self.assertEqual(path.read_text(encoding="utf-8"), raw)
+
+    def test_explicit_reset_may_replace_protected_source(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text("{damaged", encoding="utf-8")
+            save_settings_atomic(path, {**DEFAULT_SETTINGS, "x": 4151}, allow_unsafe_overwrite=True)
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(raw["schema_version"], CONFIG_SCHEMA_VERSION)
+            self.assertEqual(raw["x"], 4151)
+            self.assertFalse(backup_settings_path(path).exists())
 
     def test_save_always_persists_current_schema_version(self):
         with tempfile.TemporaryDirectory() as directory:

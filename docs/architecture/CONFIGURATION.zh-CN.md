@@ -4,7 +4,9 @@
 
 设置保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json`，当前使用schema版本 `1`。没有 `schema_version` 的旧文件按版本化前格式读取并在内存中规范化；保存时会写入当前schema。
 
-上一个有效文件保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`。配置 API 可以先校验该副本，再原子恢复；缺失或损坏的备份会被忽略。0.2.1 版本不在右键菜单中提供恢复入口。
+上一个有效文件保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json.bak`。配置 API 可以先校验该副本，再原子恢复；缺失或损坏的备份会被忽略。右键菜单不提供恢复入口。
+
+未来 schema、不可读、损坏、非对象以及字段无效的源文件在常规运行期间为只读。拖动、隐藏、切换、窗口恢复、退出和普通“保存”都不能覆盖它们。若要有意替换受保护源，请在设置窗口先选择 **恢复默认值**，再选择 **保存**。
 
 ```json
 {
@@ -33,7 +35,7 @@
 
 - **Apply：** 预览有效草稿，不持久化，也不关闭窗口。
 - **Save：** 应用并持久化有效草稿。
-- **Restore Defaults：** 先替换草稿。
+- **Restore Defaults：** 替换草稿，并明确授权下一次“保存”替换受保护源。
 - **Close：** 对未保存的变更恢复打开时快照。
 - 保存失败时保留上一个有效设置文件。
 

@@ -1,8 +1,10 @@
 import runpy
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
@@ -91,6 +93,62 @@ class MenuInteractionTests(unittest.TestCase):
             self.assertIsNone(app.context_menu)
             self.assertFalse(popup.winfo_exists())
         finally:
+            app.destroy()
+
+    def test_routine_pet_save_preserves_protected_configuration(self):
+        app = self.module["Pet"]()
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                app.settings_path = Path(directory) / "settings.json"
+                app.settings_path.write_text("{damaged", encoding="utf-8")
+                app.settings["x"] = 4151
+                self.assertFalse(app.save_settings())
+                self.assertEqual(app.settings_path.read_text(encoding="utf-8"), "{damaged")
+        finally:
+            app.destroy()
+
+    def test_restore_defaults_then_save_explicitly_replaces_protected_configuration(self):
+        app = self.module["Pet"]()
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                app.settings_path = Path(directory) / "settings.json"
+                app.settings_path.write_text("{damaged", encoding="utf-8")
+                app.show_settings()
+                app.update_idletasks()
+                body = app.settings_dialog.winfo_children()[0]
+                button_row = body.grid_slaves(row=8)[0]
+                buttons = {child.cget("text"): child for child in button_row.winfo_children()}
+                buttons["恢复默认值"].invoke()
+                buttons["保存"].invoke()
+                app.update_idletasks()
+                result = app.settings_path.read_text(encoding="utf-8")
+                self.assertIn('"schema_version": 1', result)
+                self.assertNotEqual(result, "{damaged")
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            app.destroy()
+
+    def test_rejected_ordinary_save_keeps_dialog_open_and_source_unchanged(self):
+        app = self.module["Pet"]()
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                app.settings_path = Path(directory) / "settings.json"
+                app.settings_path.write_text("{damaged", encoding="utf-8")
+                app.show_settings()
+                app.update_idletasks()
+                dialog = app.settings_dialog
+                body = dialog.winfo_children()[0]
+                button_row = body.grid_slaves(row=8)[0]
+                buttons = {child.cget("text"): child for child in button_row.winfo_children()}
+                with mock.patch("ui.settings_dialog.messagebox.showwarning") as warning:
+                    buttons["保存"].invoke()
+                self.assertTrue(dialog.winfo_exists())
+                self.assertEqual(app.settings_path.read_text(encoding="utf-8"), "{damaged")
+                warning.assert_called_once()
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
             app.destroy()
 
 

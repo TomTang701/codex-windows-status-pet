@@ -44,6 +44,7 @@ def show_settings_dialog(owner):
     dialog.resizable(False, False)
     dialog.attributes("-topmost", True)
     settings_session = SettingsSession(owner.settings)
+    reset_authorized = False
     owner._settings_session = settings_session
     draft = settings_session.draft_settings
     body = tk.Frame(dialog, padx=14, pady=12)
@@ -138,14 +139,24 @@ def show_settings_dialog(owner):
         return True
 
     def save_and_close():
+        nonlocal reset_authorized
         if not apply_draft():
+            return
+        if not owner.save_settings(allow_unsafe_overwrite=reset_authorized):
+            messagebox.showwarning(
+                "配置受保护",
+                "原配置不兼容或已损坏。若要替换它，请先选择“恢复默认值”，再保存。",
+                parent=dialog,
+            )
             return
         owner.settings = settings_session.save()
         owner.apply_settings(owner.settings)
-        owner.save_settings()
+        reset_authorized = False
         owner.close_settings(dialog)
 
     def restore_defaults():
+        nonlocal reset_authorized
+        reset_authorized = True
         settings_session.restore_defaults(DEFAULT_SETTINGS)
         draft.clear()
         draft.update(settings_session.draft_settings)

@@ -10,11 +10,11 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.2.2"
+APP_VERSION = "0.2.3"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
-    from api.config_api import load_settings as load_settings_api, restore_settings_backup, save_settings_atomic
+    from api.config_api import ConfigWriteProtectedError, load_settings as load_settings_api, restore_settings_backup, save_settings_atomic
     from api.diagnostics_api import configure_logging
     from api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from api.diagnostic_summary_api import build_diagnostic_summary
@@ -34,7 +34,7 @@ try:
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
     from scripts.api.codex_transport_api import AppServer
-    from scripts.api.config_api import load_settings as load_settings_api, restore_settings_backup, save_settings_atomic
+    from scripts.api.config_api import ConfigWriteProtectedError, load_settings as load_settings_api, restore_settings_backup, save_settings_atomic
     from scripts.api.diagnostics_api import configure_logging
     from scripts.api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from scripts.api.diagnostic_summary_api import build_diagnostic_summary
@@ -159,10 +159,17 @@ class Pet(tk.Tk):
             logging.getLogger("codex-status-pet").warning("saved window position was off-screen; recovered to (%s, %s)", recovered_x, recovered_y)
         return recovered_x, recovered_y
 
-    def save_settings(self):
+    def save_settings(self, *, allow_unsafe_overwrite=False):
         try:
-            save_settings_atomic(self.settings_path, self.settings)
+            save_settings_atomic(
+                self.settings_path,
+                self.settings,
+                allow_unsafe_overwrite=allow_unsafe_overwrite,
+            )
             return True
+        except ConfigWriteProtectedError as exc:
+            logging.getLogger("codex-status-pet").warning("%s", exc)
+            return False
         except OSError:
             logging.getLogger("codex-status-pet").exception("failed to save settings")
             return False
