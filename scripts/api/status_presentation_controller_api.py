@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .compact_state_api import CompactState
-from .status_snapshot_api import build_status_snapshot
+from .status_snapshot_api import build_status_snapshot, build_tray_error_snapshot
 
 
 class StatusPresentationController:
@@ -19,3 +19,6 @@ class StatusPresentationController:
 
     def force_expanded(self):
         self.compact.force_expanded()
+
+    def render_tray_error(self):
+        return build_tray_error_snapshot()

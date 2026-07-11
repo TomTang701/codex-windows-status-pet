@@ -10,6 +10,7 @@ from api.application_controller_api import ApplicationController
 from api.config_api import ConfigWriteProtectedError, DEFAULT_SETTINGS
 from api.settings_persistence_controller_api import SettingsPersistenceController
 from api.status_presentation_controller_api import StatusPresentationController
+from api.status_rows_api import ROW_IDS
 from api.window_lifecycle_controller_api import WindowLifecycleController
 
 
@@ -58,6 +59,13 @@ class ApplicationControllerTests(unittest.TestCase):
         controller.compact.compact = True
         controller.force_expanded()
         self.assertFalse(controller.compact.compact)
+
+    def test_presentation_controller_builds_approved_tray_error_rows(self):
+        result = StatusPresentationController().render_tray_error()
+        self.assertEqual(result["rows"]["activity"], "Codex")
+        self.assertEqual(result["rows"]["progress"], "托盘图标异常")
+        self.assertEqual(tuple(result["rows"]), ROW_IDS)
+        self.assertEqual(result["color"], "#fca5a5")
 
     def test_settings_controller_preserves_future_schema_until_explicit_reset(self):
         with tempfile.TemporaryDirectory() as directory:

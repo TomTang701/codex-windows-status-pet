@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from api.status_snapshot_api import build_status_snapshot
 from api.quota_parse_api import parse_quota_payload
+from api.status_rows_api import ROW_IDS
 
 
 class StatusSnapshotTests(unittest.TestCase):
@@ -60,3 +61,15 @@ class StatusSnapshotTests(unittest.TestCase):
         })
         result = build_status_snapshot({"active": 0}, quota)
         self.assertEqual(result["text"].splitlines()[-1], "重置 5 次 / 18:40 7/12")
+
+    def test_unavailable_state_uses_approved_rows_without_raw_error(self):
+        result = build_status_snapshot(
+            {"active": 0, "detail": "空闲", "progress": ""},
+            {"rateLimits": {}, "rateLimitResetCredits": {}},
+            "unavailable",
+            "#ffffff",
+        )
+        self.assertEqual(result["rows"]["progress"], "额度暂不可用")
+        self.assertEqual(result["color"], "#fca5a5")
+        self.assertNotIn("transport exploded", result["text"])
+        self.assertEqual(tuple(result["rows"]), ROW_IDS)
