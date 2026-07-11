@@ -1,19 +1,19 @@
-# ACTIVE VERSION BRIEF — v0.3.1 Controller Refactor
+# ACTIVE VERSION BRIEF — v0.3.2 Windows 11 Stabilization
 
 ## Identity
 
-- Version: `0.3.1`
-- Branch: `release/v0.3.1-controller-refactor`
-- Base: `main` at `a6a7177424850ba9afcf14a3d55fa48622ac2aa5`
-- PR: `[v0.3.1] Extract main-window controllers`
-- Tag: `v0.3.1`
+- Version: `0.3.2`
+- Branch: `release/v0.3.2-windows11-stabilization`
+- Base: `main` at `d4a69e9ce4a6adc7d519ff1a37b00617d548e8dd`
+- PR: `[v0.3.2] Complete Windows 11 stabilization`
+- Tag: `v0.3.2`
 
 ## Product
 
-- One-sentence outcome: The Tk main window delegates coordination state to four pure controllers without changing user-visible behavior.
-- User problem: `Pet` directly owns refresh generations/scheduling, compact presentation decisions, persistence compatibility, and idempotent close state, making regression isolation difficult.
-- Success criteria: Controller contracts own those decisions; `Pet` remains the Tk adapter/composer; all existing UI text, timing, settings, menu, tray, geometry, five-row, and failure behavior remain equivalent.
-- Explicit non-goals: New UI or behavior, physical evidence closure, status content/layout, configuration schema, refresh interval semantics, dependencies.
+- One-sentence outcome: The declared Windows 11 x64 scope has truthful physical evidence or explicit approved environment limitations, and strict Release Candidate passes.
+- Target user: A Windows 11 x64 Codex user relying on the overlay continuously.
+- Success criteria: Launch/relaunch, one-instance/no-console, five rows, Reset Credit date path, menu/settings, hide/show, tray recovery, secondary coordinates, compact interaction, and exit are verified; no blocking matrix row remains; strict RC exits 0.
+- Explicit non-goals: New feature, Windows 10 claim, ARM64/32-bit claim, UI redesign, new setting, controller refactor, dependency change.
 - Decision: GO
 
 ## Applicability Matrix
@@ -21,50 +21,49 @@
 | Role | Applicable | Decision |
 |---|---:|---|
 | Product | Yes | GO |
-| Backend/Architecture | Yes | PASS |
-| Frontend adapter | Yes | PASS |
-| QA/Release | Yes | PASS |
-| Visual/UI/UX | Behavior verification only | PASS |
-| Security/Resource | Yes | PASS |
+| Windows/UI | Yes | PASS pending evidence |
+| QA/Release | Yes | PASS pending evidence |
+| Backend/Resource | Verification only | PASS pending evidence |
+| Security | Verification only | PASS pending evidence |
 
-## Controller Boundaries
+## Physical Windows 11 Matrix
 
-- `ApplicationController`: Activity/Quota generations, quota single-flight schedule, interval, finish, current-generation checks, shutdown.
-- `StatusPresentationController`: pure status snapshot plus compact-state decision/force-expanded behavior.
-- `SettingsPersistenceController`: path, source compatibility metadata, load, atomic save, explicit reset authorization, backup restore.
-- `WindowLifecycleController`: one-way idempotent close transition.
-- Controllers import no Tk or pystray and expose no UI widgets.
-- Existing lower-level APIs remain independently testable and are not deleted.
-- Decision: PASS
+- Current host/build and architecture are recorded from authoritative OS probes.
+- Current monitor topology, work areas, taskbar edge, DPI, overlay HWND/DPI, and secondary coordinates are recorded.
+- Root launcher is run twice; one overlay/tray and no persistent CMD are verified.
+- Main overlay visibly has five rows and Reset Credit uses truthful available data (date appears only when supplied).
+- Right-click menu has exactly five items, first click works, settings remains visible, hide/show recovers, and exit/relaunch works.
+- Compact shrink/hover-expand is exercised through a bounded physical Tk harness when live Codex activity prevents production-idle observation.
+- Decision: PASS only with saved dated evidence.
 
-## Behavior Equivalence
+## Environment Limitations
 
-- Activity remains 1-second scheduled and independent from quota.
-- Quota retains configured 1–10 second single-flight delay and stale-generation rejection.
-- Status text/rows/colors and compact conditions remain identical.
-- Protected configuration and explicit Restore Defaults then Save semantics remain identical.
-- Close remains idempotent and stops scheduling before tray/server teardown.
-- Existing Pet methods and settings-path behavior used by UI/tests remain compatible.
-- Decision: PASS
+- Single-monitor hardware topology: unavailable on the connected dual-monitor host; automated geometry plus dual-monitor physical evidence is accepted for this release and recorded as an approved environment limitation.
+- Alternate taskbar edges: stock supported Windows 11 exposes the bottom taskbar path; top/left/right are not applicable to the declared stock configuration, with geometry simulations retained.
+- Mixed-DPI hardware: both connected displays report 96 DPI; simulated 96/120/144/192 paths plus current physical 96-DPI capture are accepted as an approved environment limitation, not claimed as physical mixed-DPI evidence.
+- Separate clean machine: unavailable; isolated temporary environment, Windows CI, dependency import gate, package smoke, and launcher evidence are accepted as an approved environment limitation.
+- Limitations must be explicit in the matrix and test record; they must never be mislabeled as physical passes.
 
 ## QA / Release
 
-- Pure controller tests cover channel independence, quota re-entry, finish/delay, shutdown, compact decisions, protected/current/reset persistence, backup restore, and close idempotence.
-- Integration tests cover Pet controller wiring, settings-path replacement, five-row rendering, settings reset, and repeated close-safe cleanup.
-- Existing full Quality and package smoke must remain green; no snapshot changes are expected.
-- Decision: PASS
+- Run routine Quality and package smoke.
+- Save a dated v0.3.2 physical record and probe JSON.
+- Inspect sanitized diagnostics for obvious new errors; do not include tokens/session content.
+- Update matrix statuses to physical pass, not applicable, or approved environment limitation according to actual evidence.
+- Run strict `run_release_candidate_checks.py`; it must exit 0.
+- GitHub Quality must pass; post-merge main repeats Quality, strict RC, package smoke, launch/exit/relaunch.
+- Decision: PASS pending completion.
 
 ## Security / Resource
 
-- No additional workers, timers, subprocesses, network/IPC, polling, writes, retained payloads, dependencies, or Codex quota usage.
-- Controllers only consolidate existing bounded state.
-- Decision: PASS
+- Verify one process/tray instance, no persistent console, bounded workers/timers, local-only transport, no startup mutation, and clean shutdown.
+- No telemetry, cloud sync, external endpoint, token/auth reader, updater, or dependency is added.
+- Decision: PASS pending evidence.
 
 ## Scope Lock
 
-- Allowed production files: four pure controller APIs and minimum main-window wiring.
-- Allowed tests: controller contracts and direct equivalence/integration regressions.
-- Allowed release files: canonical version sources, bilingual Changelog, directly affected architecture/API/repository docs.
-- Forbidden: v0.3.2 physical matrix closure, UI/content/layout changes, new settings/features, lower-level API deletion, dependencies.
-- Release shape: one focused implementation/release commit, one PR, one tag.
-- No work from v0.3.2 is included.
+- Allowed product changes: only fixes for defects directly reproduced during v0.3.2 Windows 11 stabilization.
+- Allowed release files: evidence records, compatibility/release/testing docs, tests for reproduced defects, canonical version sources, bilingual Changelog.
+- Forbidden: new capabilities, Windows 10/ARM/32-bit claims, speculative refactors, new dependencies/settings/UI.
+- Release shape: one focused stabilization/release commit, one PR, one tag.
+- This is the final version in the authorized release train.
