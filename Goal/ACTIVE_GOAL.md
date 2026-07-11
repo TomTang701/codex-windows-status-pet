@@ -4,7 +4,7 @@
 > **Mission:** Reduce unnecessary human verification and reduce project complexity while preserving the proven product core.
 > **Execution:** autonomous-first, evidence-first, design-verified, sequential releases, one active version at a time.
 > **Supported baseline:** Windows 11 x64.
-> **Permission boundary:** This Goal does not authorize push, PR creation, merge, release/tag publication, destructive Git, deployment, credential access, or repository-setting changes. Existing `AGENTS.md` permission rules remain authoritative.
+> **Permission boundary:** Repository-root `AGENTS.md` grants standing authorization for routine GitHub workflow operations only for `TomTang701/codex-windows-status-pet` within this Goal. Its listed high-risk operations remain separately permissioned; destructive unrelated Git, deployment, credential access, remote-owner changes, and repository-setting changes are not implied.
 ---
 ## 0. Highest-priority direction
 Read this file completely before repository changes.
@@ -545,8 +545,8 @@ Use physical-only evidence only for facts unavailable to safe machine inspection
 Do not call source assertions physical tests, simulations physical evidence, or "widget exists" proof that content fully fits.
 When slimming, tests tied only to a deleted internal helper may be removed when product behavior remains protected at a higher-value contract boundary. Do not preserve dead architecture solely to keep implementation-detail tests passing.
 ### Git/GitHub permissions
-Follow Tom's global Git/GitHub policy. This Goal does not authorize remote writes.
-When authorization is required, report the verified state and request the exact remote action permission. Do not combine that permission request with unnecessary manual technical verification.
+Follow repository-root `AGENTS.md` and Tom's global Git/GitHub safety policy. Tom's project-level standing authorization permits the routine verified branch → PR → CI → squash merge → main verification → tag/Release → branch cleanup workflow for this repository throughout this Goal.
+Do not request repeated authorization for those routine operations. Separately request permission only for the high-risk exclusions listed in `AGENTS.md`; do not combine that request with unnecessary manual technical verification.
 ---
 ## 9. Release-state reconciliation
 Every completed release ends with:

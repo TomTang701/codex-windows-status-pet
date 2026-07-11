@@ -88,7 +88,7 @@ quota transport failure
 
 ## Design verification result
 
-`PENDING` — implementation must not begin until investigation records objective problem evidence, one root-cause hypothesis per bug family, RED checks, failure-path validation, and bounded scope in a design document.
+`REOPENED / PENDING` — the 2026-07-11 real production screenshot disproved the prior clipping completion claim. The existing mapped-Tk test did not represent the production display/DPI path. Investigation must reproduce the screenshot under production DPI initialization, identify the test fidelity gap and layout root cause, then re-run Design Verification before further production changes.
 
 ## Verification evidence classes
 
