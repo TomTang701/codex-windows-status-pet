@@ -881,7 +881,7 @@ Expected: all documentation gates pass and the evidence contains no sensitive co
 
 Set application/plugin/client/test versions to `0.4.0`. Use plugin build metadata `0.4.0+codex.<current YYYYMMDDHHMMSS>`.
 
-Add `## 0.4.0 - 2026-07-10` to both Changelogs describing only:
+Add `## 0.4.0 - 2026-07-11` to both Changelogs describing only:
 
 - one Window Size slider replacing font/width/height/button/mode controls;
 - fixed-ratio geometry and adaptive typography/layout metrics;

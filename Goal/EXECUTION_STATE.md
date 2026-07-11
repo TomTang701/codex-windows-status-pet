@@ -3,9 +3,9 @@
 - Active version: `0.4.0`
 - Branch: `release/v0.4.0-unified-window-scale`
 - Base main SHA: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
-- Current HEAD: `b9c218c676b84178d6db867d9b78ecbdabccfdc4`
-- Last pushed SHA: `b9c218c676b84178d6db867d9b78ecbdabccfdc4`
-- Current phase: Task 5 — canonical docs and Windows host scale evidence ready for verification
+- Current HEAD: `49982a21bc269ef2ea2d99e18d49d02381abe4e9`
+- Last pushed SHA: `49982a21bc269ef2ea2d99e18d49d02381abe4e9`
+- Current phase: Task 6 — v0.4.0 metadata complete; final branch RC pending
 - Product decision: `GO`
 - Scope lock: unified window-scale v0.4.0 only; no v0.4.1+ or unrelated work
 - Active Superpowers skill: `superpowers:verification-before-completion`
@@ -13,16 +13,16 @@
 - Implementation plan: `docs/superpowers/plans/2026-07-10-unified-window-scale-implementation.md`; six sequential tasks with exact interfaces, RED/GREEN commands, documentation/host validation, release lifecycle, and self-review
 - Latest RED evidence: integrated tests found no `Pet.window_metrics` and 150% Apply did not produce 495x207; one geometry assertion then exposed a missing Tk idle flush in the test
 - Latest GREEN evidence: main/UI/recovery/Compact/controller group ran 32 tests in 2.755s, all passed
-- Latest completion verification: 141 tests passed; Quality/package/strict readiness passed; Windows Tk 80/100/150/200 inspection and actual app-local exit/relaunch/process/HWND smoke passed
+- Latest completion verification: fresh exact-state RC after limitation-label correction approved — 141 tests (124 core + 17 UI), Quality, package smoke, strict readiness, parity, sensitive scan, whitespace, and RC all passed
 - Candidate RC state: not started for v0.4.0
-- Final RC state: not started for v0.4.0
+- Final RC state: approved on the final uncommitted release diff; only this execution-state evidence line changed afterward
 - Remote CI state: no v0.4.0 PR yet
 - Main protection state: unavailable on current private repository/account plan; compensating PR controls remain mandatory
 - Autonomous checks completed: Tasks 1–4 RED/GREEN; 141-test full gate; bilingual docs; four-scale real Tk metrics/menu/drag/lock/Hide/Show/Compact/persistence; actual branch relaunch and display probe
 - Human fact required: `None`
 - Methods attempted: repository history, source/API/UI/test/document inspection
 - Why human input is necessary: `None`
-- Completed: v0.3.2 release; v0.4.0 branch/Brief/design/plan; Tasks 1–4; Task 5 docs and Windows validation evidence
-- Remaining: verify/commit/push Task 5; Task 6 version/final RC/PR/CI/merge/tag; final audit
-- Next exact action: run all documentation, parity, sensitive, and whitespace checks; commit/push Task 5; then update version sources and bilingual Changelog to 0.4.0
-- Last updated: 2026-07-10
+- Completed: v0.3.2 release; v0.4.0 branch/Brief/design/plan; Tasks 1–5; version sources and bilingual Changelog updated to 0.4.0
+- Remaining: commit/push; PR/CI/merge/main retest/tag/release report/branch deletion; final audit
+- Next exact action: inspect, commit, and push the verified v0.4.0 release candidate; open the exact-title PR and monitor Windows Quality
+- Last updated: 2026-07-11
