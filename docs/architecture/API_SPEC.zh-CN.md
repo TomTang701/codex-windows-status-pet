@@ -19,7 +19,7 @@
 | 显示模式 API | `scripts/api/display_mode_api.py` | 决定是否启用空闲收缩并计算收缩尺寸。 | 启用、活动、悬停和非法尺寸场景。 |
 | 收缩状态 API | `scripts/api/compact_state_api.py` | 延迟空闲收缩，在活动/悬停时展开，并保持边缘锚点。 | 空闲延迟、活动、悬停、阻塞和边缘几何测试。 |
 | 窗口恢复 API | `scripts/api/window_recovery_api.py` | 保留合法显示器坐标，修正被任务栏部分遮挡的窗口，并将离屏窗口恢复到最近工作区。 | 负坐标/副屏坐标、DPI舍入容差、任务栏覆盖、断开显示器和边界限制测试。 |
-| 窗口缩放 API | `scripts/api/window_scale_api.py` | 限制/量化唯一规范百分比，推导不可变的几何/字体/布局指标，并从旧视觉面积推断缩放。 | 80/100/200 指标、半向上步长、单调性、比例容差、非法值和迁移边界。 |
+| 窗口缩放 API | `scripts/api/window_scale_api.py` | 限制并量化唯一规范百分比，派生不可变逻辑指标，按有效 DPI 转换像素指标但保持 Tk 点制字体不变，并从旧版可视面积推断缩放值。 | 全部 25 个缩放档位、生产顺序 DPI-aware 映射内容适配、半向上步进、单调性、比例容差、非法值和迁移边界。 |
 | 窗口尺寸 API | `scripts/api/window_size_api.py` | 作为兼容工具保留历史自由/等比例变换契约；普通设置 UI 不再使用。 | 自由、等比例、边界和非法因子场景。 |
 | 缩放会话 API | `scripts/api/resize_session_api.py` | 作为兼容工具保留历史可逆步进行为；普通设置 UI 不再使用。 | 加减精确对称和边界尺寸测试。 |
 | 额度数据源 API | `scripts/api/quota_provider_api.py` | 规范化已获取的本地 app-server 数据，不读取认证信息，也不发起网络请求。 | 有效、损坏和带凭据字段的响应测试。 |
@@ -30,7 +30,7 @@
 | 刷新调度 API | `scripts/api/refresh_scheduler_api.py` | 使用已校验的间隔，并保证同时只有一个刷新工作线程。 | 重复刷新调用和间隔限制测试。 |
 | 刷新控制器 API | `scripts/api/refresh_controller_api.py` | 使用 generation、取消和关闭保护，让 Activity 与 Quota 通道彼此独立。 | 独立 single-flight 通道、过期 generation 和关闭回调测试。 |
 | 应用控制器 API | `scripts/api/application_controller_api.py` | 在不拥有 Tk 的情况下协调现有 Activity/Quota generation 和额度调度。 | 通道独立、single-flight、有界延迟、完成和关闭测试。 |
-| 状态展示控制器 API | `scripts/api/status_presentation_controller_api.py` | 在不拥有控件的情况下组合现有纯快照和收缩状态决定。 | 稳定行、活动/空闲/悬停/阻塞决定和强制展开测试。 |
+| 状态展示控制器 API | `scripts/api/status_presentation_controller_api.py` | 在不持有控件的前提下组合正常/错误纯快照和收缩状态决策。 | 稳定行、不可用和托盘错误映射、活动/空闲/悬停/阻塞决策和强制展开测试。 |
 | 设置持久化控制器 API | `scripts/api/settings_persistence_controller_api.py` | 拥有设置路径、源兼容状态、原子保存授权和备份恢复。 | 未来 schema 保留、明确重置、路径替换和备份测试。 |
 | 窗口生命周期控制器 API | `scripts/api/window_lifecycle_controller_api.py` | 在不依赖 Tk 的情况下拥有单向幂等关闭转换。 | 首次和重复关闭测试。 |
 | Codex 通信 API | `scripts/api/codex_transport_api.py` | 启动本机 app-server、执行 JSON-RPC 并报告协议错误。 | 模拟子进程和响应矩阵。 |
@@ -59,7 +59,7 @@
 - 设置中的“应用”只改变运行时预览；只有“保存”改变持久化设置。
 - 设置“关闭”恢复打开时快照，包括已经应用过预览的情况。
 - 坐标输入允许逐键输入临时的 `-`，但提交时拒绝非法带符号整数。
-- `window_scale_percent` 是展开状态的唯一尺寸来源；几何、文字/爪印字体、换行长度和必要间距使用同一个不可变 Window Scale API 结果。
+- `window_scale_percent` 是展开状态的唯一尺寸来源。持久化兼容几何保持为 96-DPI 逻辑单位；运行时几何、内边距、间隔和换行长度按有效 DPI 缩放，而 Tk 点制字体大小保持不变，因为 Tk 会自行应用 DPI 缩放。
 - 普通设置窗口严格包含两个 Scale 控件：透明度和窗口大小；不包含字体大小滑块、宽高输入框、尺寸加减按钮或比例模式复选框。
 - 有效旧几何通过几何平均面积推断迁移；schema 1 持久化派生降级字段，并继续按原规则保护损坏/未来配置。
 - Tk 线程不得执行阻塞的 app-server 或文件系统工作。
@@ -69,7 +69,8 @@
 - 状态展示严格包含五个稳定有序行：活动、进度、5h 主额度、周额度和重置额度；空行不得导致后续身份偏移。
 - 弹出菜单矩形必须完全位于所选显示器工作区内。
 - 程序运行期间必须重新评估窗口位置，以便在显示器断开或任务栏工作区变化时恢复悬浮窗。
-- 坐标允许为负数；规范缩放范围为 80–200%，步长 5%；派生展开几何为 264x110 到 660x276；刷新间隔限制为 1–10 秒。
+- 坐标允许为负数；规范缩放范围为 80–200%，步长 5%；逻辑展开几何保持 264x110 到 660x276。在 120 DPI 下，运行时像素几何为 330x138 到 825x345。逻辑内容安全垂直内边距在 80% 和 95% 为 7 px、115% 为 11 px，其余档位使用规范缩放公式；刷新间隔限制为 1–10 秒。
+- 托盘和额度传输失败映射为批准的五行展示结果；Tk 只通过 `StatusRows.configure_rows` 应用结果，并且不会显示原始传输异常文本。
 - 额度日期使用本地时区和不补前导零的 `M/D`；数据源缺失时不得臆造。
 - 默认额度数据源只接受本地 app-server 结果；不得读取认证文件、发送令牌或持久化凭据。
 - 重大行为或性能变化必须同时更新更新日志、规范和回归测试。

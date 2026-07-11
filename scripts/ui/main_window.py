@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.4.0"
+APP_VERSION = "0.4.1"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -120,7 +120,7 @@ class Pet(tk.Tk):
         self.settings_path = Path.home() / ".codex" / "codex-windows-status-pet.json"
         self.settings_controller = SettingsPersistenceController(self.settings_path)
         self.settings = self.load_settings()
-        self.window_metrics = derive_window_metrics(self.settings.get("window_scale_percent"))
+        self._sync_compatibility_metrics(self.settings)
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
         self.configure(bg=self.settings["background_color"])
         self.geometry(f"{self.window_metrics.width}x{self.window_metrics.height}+{self.settings['x']}+{self.settings['y']}")
@@ -250,14 +250,17 @@ class Pet(tk.Tk):
         self.hovered = False
 
     def _sync_compatibility_metrics(self, settings):
-        metrics = derive_window_metrics(settings.get("window_scale_percent"))
-        settings["window_scale_percent"] = metrics.scale_percent
-        settings["font_size"] = metrics.text_font_size
-        settings["window_width"] = metrics.width
-        settings["window_height"] = metrics.height
+        logical = derive_window_metrics(settings.get("window_scale_percent"))
+        display = derive_window_metrics(
+            logical.scale_percent, dpi=dpi_for_window(self.winfo_id())
+        )
+        settings["window_scale_percent"] = logical.scale_percent
+        settings["font_size"] = logical.text_font_size
+        settings["window_width"] = logical.width
+        settings["window_height"] = logical.height
         settings["scale_mode"] = "proportional"
-        self.window_metrics = metrics
-        return metrics
+        self.window_metrics = display
+        return display
 
     def _pack_expanded_content(self):
         metrics = self.window_metrics
@@ -434,7 +437,10 @@ class Pet(tk.Tk):
                 elif action == "exit":
                     self.close()
                 elif action == "tray_error":
-                    self.text.config(text="Codex\n托盘图标异常", fg="#fca5a5")
+                    presentation = self.presentation_controller.render_tray_error()
+                    self.text.configure_rows(
+                        rows=presentation["rows"], fg=presentation["color"]
+                    )
                     if should_schedule_restart(action, self.tray_restart_scheduled, self.closing):
                         self.tray_restart_scheduled = True
                         self.after(2000, self.restart_tray)
@@ -535,7 +541,7 @@ class Pet(tk.Tk):
                         self.quota_state.fail("transport_error")
                         if self.quota_state.last_good is not None:
                             self.latest_quota = self.quota_state.last_good
-                        self.text.config(text="Codex\n" + payload["error"][:30], fg="#fca5a5")
+                        self.render_status()
                         continue
                     if payload.get("status") == "available":
                         self.quota_state.update(payload)

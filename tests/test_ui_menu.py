@@ -3,6 +3,7 @@ import sys
 import tempfile
 import unittest
 import gc
+import logging
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -76,6 +77,44 @@ class MenuInteractionTests(unittest.TestCase):
             self.assertEqual(labels, ["显示设置", "置顶", "锁定位置", "隐藏窗口", "退出"])
             for removed in ("立即刷新", "复制诊断摘要", "恢复上次设置"):
                 self.assertNotIn(removed, labels)
+        finally:
+            self.destroy_app(app)
+
+    def test_tray_error_renders_rows_and_schedules_one_restart(self):
+        app = self.module["Pet"]()
+        try:
+            app.tray_actions.put("tray_error")
+            logger = logging.getLogger("codex-status-pet")
+            with mock.patch.object(logger, "exception") as logged:
+                app.process_tray_actions()
+            logged.assert_not_called()
+            self.assertEqual(app.text.row_values()["progress"], "托盘图标异常")
+            self.assertEqual(
+                app.text.labels["progress"].cget("fg"), "#fca5a5"
+            )
+            self.assertTrue(app.tray_restart_scheduled)
+        finally:
+            self.destroy_app(app)
+
+    def test_quota_transport_error_renders_unavailable_without_raw_exception(self):
+        app = self.module["Pet"]()
+        try:
+            generation = app.application_controller.begin_quota()
+            app.queue.put(
+                {
+                    "_channel": "quota",
+                    "_generation": generation,
+                    "error": "transport exploded",
+                }
+            )
+            logger = logging.getLogger("codex-status-pet")
+            with mock.patch.object(logger, "exception") as logged:
+                app.poll()
+            logged.assert_not_called()
+            values = app.text.row_values()
+            self.assertEqual(values["progress"], "额度暂不可用")
+            self.assertNotIn("transport exploded", "\n".join(values.values()))
+            self.assertEqual(app.quota_state.state, "unavailable")
         finally:
             self.destroy_app(app)
 
@@ -270,6 +309,26 @@ class MenuInteractionTests(unittest.TestCase):
             padx = tuple(int(value) for value in app.tk.splitlist(app.face.pack_info()["padx"]))
             self.assertEqual(padx, (18, 8))
             self.assertEqual(int(app.face.pack_info()["pady"]), 15)
+        finally:
+            self.destroy_app(app)
+
+    def test_apply_scale_uses_window_dpi_without_persisting_physical_geometry(self):
+        app = self.module["Pet"]()
+        try:
+            with mock.patch.object(
+                self.module["_main_window"], "dpi_for_window", return_value=120
+            ):
+                app.apply_settings(
+                    {**app.settings, "window_scale_percent": 150}
+                )
+            self.assertEqual(
+                (app.settings["window_width"], app.settings["window_height"]),
+                (495, 207),
+            )
+            self.assertEqual(
+                (app.window_metrics.width, app.window_metrics.height),
+                (619, 259),
+            )
         finally:
             self.destroy_app(app)
 

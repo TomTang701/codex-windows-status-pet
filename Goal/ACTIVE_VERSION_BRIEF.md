@@ -1,48 +1,110 @@
-# ACTIVE VERSION BRIEF — v0.4.0 Unified Window Scale
+# ACTIVE VERSION BRIEF — v0.4.1 Correctness Stabilization
 
-## Identity
+## Outcome
 
-- Version: `0.4.0`
-- Branch: `release/v0.4.0-unified-window-scale`
-- Base: `main` at tagged v0.3.2 commit `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
-- PR: `[v0.4.0] Unify window and typography scaling`
-- Tag: `v0.4.0`
+Close two known correctness gaps without adding product features:
 
-## Product
+1. The final reset-credit row remains fully visible at every supported window scale.
+2. Tray and quota transport failures render through the authoritative five-row presentation path without calling Label-only configuration methods on `StatusRows`.
 
-- Outcome: Replace independent font-size and free-form width/height controls with one proportional Window Size percentage slider that scales expanded geometry and typography coherently.
-- Product decision: `GO`
-- Target user: A Windows 11 x64 Codex user who wants predictable readable overlay sizing without understanding coupled low-level controls.
-- User-visible controls: exactly two Tk Scale widgets — `透明度` and `窗口大小`; position, refresh, topmost, lock, Compact, colors, Save, Apply, Restore Defaults, and Close remain.
-- Removed controls: font-size slider, width input, height input, minus/plus size buttons, and proportional-scaling checkbox.
+## Why now
 
-## Contract
+Tom observed incomplete final-row content after proportional scaling. Source inspection also found two legacy `self.text.config(text=..., fg=...)` error paths even though `self.text` is now a `StatusRows` frame. These are correctness regressions in the released product core and must be protected before automation or architecture slimming.
 
-- `window_scale_percent` is the only canonical expanded-size source.
-- Base metrics are 330x138 geometry, text font 10, and face font 28 at 100%.
-- Geometry keeps the fixed 330:138 ratio and typography/layout metrics derive from the same pure result.
-- Initial range candidate is 80–200% in 5% steps; physical/Tk measurement determines the final safe range.
-- Configuration schema remains version 1 unless implementation evidence proves it unsafe.
-- Legacy width/height migrate deterministically by geometric-mean area inference, then clamp and quantize.
-- Derived `font_size`, `window_width`, `window_height`, and proportional `scale_mode` remain persisted for downgrade compatibility.
-- Apply/Save/Close/Restore Defaults semantics remain transactional.
-- Hide/Show, Compact/Expand, restart, drag/lock, position recovery, menu, and topmost preserve scale.
+## In scope
 
-## Scope lock
+- Reproduce clipping using actual and requested Tk geometry at 80%, 100%, 150%, and 200%.
+- Measure status container and five row bounds, text requested size, and unexpected wrapping.
+- Define a regression check that would have caught the observed clipping.
+- Apply the minimum root-cause layout fix supported by evidence.
+- Reproduce tray-error and quota transport-error behavior through production integration paths.
+- Route affected visible output through `StatusPresentationController` and `StatusRows.configure_rows`.
+- Correct only documentation facts directly affected by these fixes.
 
-- Preferred production files: pure scale API, config normalization, settings dialog, main window, and only directly required settings/compact boundaries.
-- Required tests: pure metrics, migration, config protection, transaction semantics, exact two-slider inventory, main integration, recovery and persistence.
-- Explicit non-goals: theme presets, font family, manual resize, width/height/font controls, aspect toggle, quota/refresh feature, new menu action, provider, network, IPC, subprocess, worker, polling, telemetry, installer, updater, Windows 10, v0.4.1+ work, or unrelated cleanup.
+## Out of scope
 
-## Quality, compatibility, and release
+- New settings, menu actions, themes, animations, providers, telemetry, backends, installers, or startup changes.
+- Broad main-window decomposition, framework replacement, broad API deletion, or Phase 2/3 simplification.
+- Windows 10, ARM64, mixed-DPI physical, or alternate physical taskbar-edge support claims.
+- Version v0.4.2 or later work.
 
-- Use Brainstorming → validated design spec → Writing Plans → sequential TDD implementation.
-- Run focused RED/GREEN cycles, full Quality, package smoke, strict readiness, strict RC, and Windows 11 host checks at minimum/100/middle-large/maximum scale.
-- English normative documents remain canonical and Chinese pairs update in the same commit.
-- Release through one PR, successful `Windows Quality / quality`, squash merge, verified main, tag `v0.4.0`, post-release smoke, and branch deletion.
+## Protected behavior
 
-## Resource, security, and rollback
+- Local official Codex app-server quota path and approved local session metadata only.
+- Five stable row identities: `activity`, `progress`, `primary_5h`, `weekly`, `reset_credit`.
+- Single instance, main-thread Tk ownership, bounded single-flight refresh, safe idempotent shutdown, and no persistent console.
+- Valid/recoverable settings, Apply/Save/Close/Restore Defaults semantics, 80–200% proportional scaling, Hide/Show, Compact/Expand, drag/lock, topmost, position recovery, tray reachability, persistence, and schema-1 compatibility.
 
-- New network/IPC/worker/subprocess/polling/telemetry/dependency/quota consumption: `No`.
-- Scale derivation is pure, bounded, deterministic, and constant time; slider movement changes draft only.
-- Keep schema v1 and derived legacy fields so rollback to v0.3.2 loads usable geometry and font settings.
+## Observable contracts
+
+### Content fit
+
+At each supported scale point:
+
+- all five approved rows exist in stable order;
+- every row's actual bounding box lies inside the expanded status container;
+- the final `reset_credit` row is mapped and has positive visible height;
+- the status container's requested dimensions fit within its allocated dimensions and the window's content area;
+- an approved single-line reset-credit value does not wrap unexpectedly;
+- date/time text such as `重置 5 次 / 18:40 7/12` is fully represented.
+
+### Error presentation
+
+- A tray startup failure injected through the production path produces the approved five-row presentation without a Tk configuration error.
+- A quota transport failure injected through the production queue path produces the approved state without a Tk configuration error.
+- Both paths use the same row presentation boundary as normal runtime updates; no second direct-string renderer is added.
+
+## Failure paths
+
+```text
+scale/config
+→ window metrics
+→ Tk geometry and packing
+→ StatusRows allocation
+→ five row bounds/text layout
+→ fully visible reset-credit row
+
+tray worker failure
+→ tray action queue
+→ main-thread action handling
+→ presentation state/result
+→ StatusRows.configure_rows
+→ visible approved error rows
+
+quota transport failure
+→ production result queue
+→ main-thread polling/state normalization
+→ presentation state/result
+→ StatusRows.configure_rows
+→ visible approved unavailable/error rows
+```
+
+## Regression surface
+
+- 80%, 100%, 150%, and 200% expanded layout with five rows.
+- Compact/Expand and Hide/Show preserve scale and row readability.
+- Apply, Save, Close, Restore Defaults, restart persistence, and protected configurations.
+- Loading, available, stale with last-good data, unavailable, transport error, malformed response, tray error/recovery, and shutdown with in-flight work where affected.
+
+## Design verification result
+
+`REOPENED / PENDING` — the 2026-07-11 real production screenshot disproved the prior clipping completion claim. The existing mapped-Tk test did not represent the production display/DPI path. Investigation must reproduce the screenshot under production DPI initialization, identify the test fidelity gap and layout root cause, then re-run Design Verification before further production changes.
+
+## Verification evidence classes
+
+- Source/control-flow inspection.
+- Focused pure and Tk integration RED/GREEN tests.
+- Actual/requested Tk geometry and widget introspection.
+- Relevant settings, Compact/Expand, Hide/Show, lifecycle, and queue-path regressions.
+- Routine Quality, package smoke, strict readiness, and strict RC.
+- Safe Windows 11 app-local runtime inspection if unit/Tk integration evidence is insufficient.
+
+## Exit criteria
+
+- The observed clipping symptom is reproduced by a check that fails before the fix and passes afterward.
+- Supported-scale content-fit checks pass and the final row is fully visible.
+- Tray and quota error integrations fail before the fix for the expected legacy-rendering reason and pass afterward.
+- No affected error path calls Label-only text configuration against `StatusRows`.
+- Affected output has one authoritative presentation route.
+- Protected regressions and complete release gates pass.
+- No feature or later-phase simplification is included.

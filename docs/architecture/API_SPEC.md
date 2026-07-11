@@ -21,7 +21,7 @@ headless tests.
 | Display Mode API | `scripts/api/display_mode_api.py` | Decide opt-in idle compaction and calculate compact geometry. | Opt-in, active, hovered, and malformed-size cases. |
 | Compact State API | `scripts/api/compact_state_api.py` | Delay idle compaction, expand on activity/hover, and preserve edge anchors. | Idle delay, activity, hover, blockers, and edge geometry. |
 | Window Recovery API | `scripts/api/window_recovery_api.py` | Preserve legal monitor coordinates, correct taskbar-partial windows, and recover off-screen windows to the nearest work area. | Negative/secondary coordinates, DPI rounding tolerance, taskbar coverage, disconnected displays, and clamping. |
-| Window Scale API | `scripts/api/window_scale_api.py` | Clamp/quantize one canonical percentage, derive immutable geometry/typography/layout metrics, and infer scale from legacy visual area. | 80/100/200 metrics, half-up steps, monotonicity, ratio tolerance, malformed values, and migration bounds. |
+| Window Scale API | `scripts/api/window_scale_api.py` | Clamp/quantize one canonical percentage, derive immutable logical metrics, convert pixel metrics for an effective DPI while leaving Tk point fonts unchanged, and infer scale from legacy visual area. | All 25 scale steps, production-order DPI-aware mapped content fit, half-up steps, monotonicity, ratio tolerance, malformed values, and migration bounds. |
 | Window Size API | `scripts/api/window_size_api.py` | Retain the historical free/proportional transformation contract as a compatibility utility; the normal settings UI does not consume it. | Free, proportional, bounded, and invalid-factor cases. |
 | Resize Session API | `scripts/api/resize_session_api.py` | Retain historical reversible step behavior as a compatibility utility; the normal settings UI does not consume it. | Exact plus/minus symmetry and bounded dimensions. |
 | Quota Provider API | `scripts/api/quota_provider_api.py` | Normalize already-fetched local app-server data without reading auth or making network calls. | Valid, malformed, and credential-bearing payload fixtures. |
@@ -32,7 +32,7 @@ headless tests.
 | Refresh Scheduler API | `scripts/api/refresh_scheduler_api.py` | Use a validated interval and one in-flight worker at a time. | Repeated refresh calls and interval clamp fixtures. |
 | Refresh Controller API | `scripts/api/refresh_controller_api.py` | Keep Activity and Quota channels independent with generation, cancellation, and shutdown guards. | Independent single-flight channels, stale generations, and shutdown callbacks. |
 | Application Controller API | `scripts/api/application_controller_api.py` | Coordinate existing Activity/Quota generations and quota scheduling without Tk ownership. | Channel independence, single-flight, bounded delay, finish, and shutdown tests. |
-| Status Presentation Controller API | `scripts/api/status_presentation_controller_api.py` | Combine the existing pure snapshot and compact-state decision without owning widgets. | Stable rows, active/idle/hover/block decisions, and force-expanded tests. |
+| Status Presentation Controller API | `scripts/api/status_presentation_controller_api.py` | Combine pure normal/error snapshots and compact-state decisions without owning widgets. | Stable rows, unavailable and tray-error mappings, active/idle/hover/block decisions, and force-expanded tests. |
 | Settings Persistence Controller API | `scripts/api/settings_persistence_controller_api.py` | Own the settings path, source compatibility state, atomic save authorization, and backup restore. | Future-schema preservation, explicit reset, path replacement, and backup tests. |
 | Window Lifecycle Controller API | `scripts/api/window_lifecycle_controller_api.py` | Own the one-way idempotent close transition independently from Tk. | First and repeated close tests. |
 | Codex transport API | `scripts/api/codex_transport_api.py` | Start local app-server, perform JSON-RPC requests, and report protocol failures. | Mock subprocess/stdout response matrix. |
@@ -62,7 +62,7 @@ headless tests.
 - A settings Apply changes runtime preview only; only Save changes persisted settings.
 - A settings Close restores the opening snapshot, including after an Apply preview.
 - Coordinate fields accept a temporary `-` while typing but reject malformed signed integers on submit.
-- `window_scale_percent` is the only expanded-size source; geometry, text/paw fonts, wraplength, and required spacing consume one immutable Window Scale API result.
+- `window_scale_percent` is the only expanded-size source. Persisted compatibility geometry remains in 96-DPI logical units; runtime geometry, padding, gaps, and wrapping scale by effective DPI, while Tk point-font sizes remain unchanged because Tk applies DPI scaling itself.
 - The normal settings dialog contains exactly two Scale widgets: opacity and Window Size. It has no font-size slider, width/height entries, size buttons, or aspect-mode checkbox.
 - Valid legacy geometry migrates by geometric-mean area inference; schema 1 persists derived downgrade fields and protects malformed/future sources exactly as before.
 - UI callbacks must not perform blocking app-server or filesystem work on the Tk thread.
@@ -73,7 +73,8 @@ headless tests.
 - Status presentation has exactly five stable ordered rows: activity, progress, primary 5h, weekly, and Reset Credit; a blank row never shifts later identities.
 - Popup rectangles must be completely contained by the selected monitor work area.
 - Window placement is re-evaluated during the running session so monitor disconnects and taskbar work-area changes can recover the overlay.
-- Coordinates may be negative; canonical scale is 80–200% in 5% steps; derived expanded geometry is 264x110 through 660x276; refresh interval is clamped to 1–10 seconds.
+- Coordinates may be negative; canonical scale is 80–200% in 5% steps; logical expanded geometry remains 264x110 through 660x276. At 120 DPI the runtime pixel geometry is 330x138 through 825x345. Logical content-safe vertical padding is 7 px at 80% and 95%, 11 px at 115%, and otherwise follows the canonical scale formula; refresh interval is clamped to 1–10 seconds.
+- Tray and quota transport failures map to approved five-row presentation results; Tk applies them only through `StatusRows.configure_rows`, and raw transport exception text is not displayed.
 - Quota dates use the local timezone and `M/D` without leading zeroes; missing provider data is not invented.
 - The default quota provider accepts local app-server results only; it never reads auth files, sends tokens, or persists credentials.
 - A major behavior or performance change requires a changelog entry, specification update, and regression test.

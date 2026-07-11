@@ -21,6 +21,36 @@ class WindowScaleApiTests(unittest.TestCase):
         self.assertEqual((metrics.text_font_size, metrics.face_font_size), (10, 28))
         self.assertEqual(metrics.wraplength, 260)
 
+    def test_minimum_scale_preserves_geometry_and_uses_safe_padding(self):
+        metrics = derive_window_metrics(80)
+        self.assertEqual((metrics.width, metrics.height), (264, 110))
+        self.assertEqual(metrics.vertical_padding, 7)
+
+    def test_content_safe_padding_changes_only_measured_clipping_scales(self):
+        expected_padding = {80: 7, 95: 7, 115: 11}
+        for percent in range(80, 201, 5):
+            metrics = derive_window_metrics(percent)
+            self.assertEqual(metrics.height, round(138 * (percent / 100)), percent)
+            expected = expected_padding.get(percent, round(10 * (percent / 100)))
+            self.assertEqual(metrics.vertical_padding, expected, percent)
+
+    def test_dpi_scales_pixel_metrics_but_not_point_fonts(self):
+        logical = derive_window_metrics(80)
+        display = derive_window_metrics(80, dpi=120)
+        self.assertEqual((logical.width, logical.height), (264, 110))
+        self.assertEqual((display.width, display.height), (330, 138))
+        self.assertEqual(display.vertical_padding, 9)
+        self.assertEqual(display.wraplength, 260)
+        self.assertEqual(
+            (display.text_font_size, display.face_font_size),
+            (logical.text_font_size, logical.face_font_size),
+        )
+
+    def test_invalid_dpi_uses_96_dpi_logical_metrics(self):
+        expected = derive_window_metrics(100)
+        for dpi in (None, "bad", 0, -1):
+            self.assertEqual(derive_window_metrics(100, dpi=dpi), expected)
+
     def test_bounds_and_half_up_quantization_are_deterministic(self):
         self.assertEqual(quantize_scale_percent(79), MIN_WINDOW_SCALE_PERCENT)
         self.assertEqual(quantize_scale_percent(82.5), 85)
@@ -32,7 +62,8 @@ class WindowScaleApiTests(unittest.TestCase):
         previous = None
         for percent in range(80, 201, 5):
             metrics = derive_window_metrics(percent)
-            self.assertLessEqual(abs(metrics.width / metrics.height - 330 / 138), 0.01)
+            self.assertLessEqual(abs(metrics.width - percent * 330 / 100), 1.0)
+            self.assertLessEqual(abs(metrics.height - percent * 138 / 100), 1.0)
             if previous is not None:
                 self.assertGreaterEqual(metrics.width, previous.width)
                 self.assertGreaterEqual(metrics.height, previous.height)
