@@ -18,6 +18,7 @@ MIN_WINDOW_SCALE_PERCENT = 80
 MAX_WINDOW_SCALE_PERCENT = 200
 WINDOW_SCALE_STEP = 5
 DEFAULT_WINDOW_SCALE_PERCENT = 100
+CONTENT_SAFE_VERTICAL_PADDING = {80: 7, 95: 8}
 
 
 @dataclass(frozen=True)
@@ -62,14 +63,17 @@ def derive_window_metrics(value) -> WindowMetrics:
     """Derive expanded geometry, typography, wrapping, and spacing once."""
     percent = quantize_scale_percent(value)
     scale = percent / 100
+    scaled_vertical_padding = round(BASE_VERTICAL_PADDING * scale)
     return WindowMetrics(
         scale_percent=percent,
         width=round(BASE_WINDOW_WIDTH * scale),
-        height=math.ceil(BASE_WINDOW_HEIGHT * scale),
+        height=round(BASE_WINDOW_HEIGHT * scale),
         text_font_size=round(BASE_TEXT_FONT_SIZE * scale),
         face_font_size=round(BASE_FACE_FONT_SIZE * scale),
         horizontal_padding=round(BASE_HORIZONTAL_PADDING * scale),
-        vertical_padding=round(BASE_VERTICAL_PADDING * scale),
+        vertical_padding=CONTENT_SAFE_VERTICAL_PADDING.get(
+            percent, scaled_vertical_padding
+        ),
         face_text_gap=round(BASE_FACE_TEXT_GAP * scale),
         wraplength=round(BASE_WRAPLENGTH * scale),
     )

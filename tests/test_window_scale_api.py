@@ -21,9 +21,18 @@ class WindowScaleApiTests(unittest.TestCase):
         self.assertEqual((metrics.text_font_size, metrics.face_font_size), (10, 28))
         self.assertEqual(metrics.wraplength, 260)
 
-    def test_minimum_scale_rounds_height_up_to_protect_content(self):
+    def test_minimum_scale_preserves_geometry_and_uses_safe_padding(self):
         metrics = derive_window_metrics(80)
-        self.assertEqual((metrics.width, metrics.height), (264, 111))
+        self.assertEqual((metrics.width, metrics.height), (264, 110))
+        self.assertEqual(metrics.vertical_padding, 7)
+
+    def test_content_safe_padding_changes_only_measured_clipping_scales(self):
+        expected_padding = {80: 7, 95: 8}
+        for percent in range(80, 201, 5):
+            metrics = derive_window_metrics(percent)
+            self.assertEqual(metrics.height, round(138 * (percent / 100)), percent)
+            expected = expected_padding.get(percent, round(10 * (percent / 100)))
+            self.assertEqual(metrics.vertical_padding, expected, percent)
 
     def test_bounds_and_half_up_quantization_are_deterministic(self):
         self.assertEqual(quantize_scale_percent(79), MIN_WINDOW_SCALE_PERCENT)

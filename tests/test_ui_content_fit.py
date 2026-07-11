@@ -62,13 +62,11 @@ class ContentFitTests(unittest.TestCase):
         gc.collect()
 
     def test_supported_scales_allocate_every_requested_row(self):
-        expected = {
-            80: (264, 111),
-            100: (330, 138),
-            150: (495, 207),
-            200: (660, 276),
-        }
-        for scale, geometry in expected.items():
+        for scale in range(80, 201, 5):
+            geometry = (
+                round(330 * (scale / 100)),
+                round(138 * (scale / 100)),
+            )
             with self.subTest(scale=scale):
                 app = self.new_app(scale)
                 try:
