@@ -1,18 +1,28 @@
 # Execution State
 
-- Target version: `0.3.2`
+- Active version: `0.3.2`
 - Branch: `release/v0.3.2-windows11-stabilization`
 - Base main SHA: `d4a69e9ce4a6adc7d519ff1a37b00617d548e8dd`
-- Checkpoint parent SHA: `f16f5dae0c05cf1764844d2e8450c0b764a0490e`
-- Push state: this checkpoint is committed and pushed before the next gate begins.
-- Current gate: Gate 4/4 — run strict release candidate checks and prepare the v0.3.2 release
-- Confirmed physical evidence: Windows 11 Home x64 build 26200; one- and two-monitor runs; two 96-DPI monitors in extended mode; bottom taskbar; valid overlay HWND; repeated launch stabilized at one application process; no persistent CMD; five rows and Reset Credit date visibly observed; maintainer-confirmed Compact idle shrink and hover expansion.
-- Remaining physical evidence: current-build five-item context-menu confirmation and final tagged smoke.
-- Strict blocker output: zero after maintainer-confirmed single-monitor and Compact physical passes. Alternate taskbar edges, mixed-DPI physical certification, and a separate clean machine remain explicit non-blocking, not-claimed limitations.
-- Strict RC result: approved on 2026-07-10; 127 tests passed, Quality approved, package smoke passed, strict compatibility reported `ready: true`, and release-candidate checks approved.
-- Main-protection status: unavailable on this private repository/account plan; rulesets and branch-protection APIs return HTTP 403 requiring GitHub Pro or public visibility.
-- Completed tests: repository reconciliation; strict readiness inventory; OS/display/taskbar/HWND probe; repeated-launch stable-process/no-console observation; fresh Python 3.12 environment dependency install; Quality (115 core + 12 UI); package smoke.
-- Remaining: current-build menu confirmation; strict RC; version/Changelog; PR/CI/merge/tag; post-release smoke; v0.4.0 transition.
-- Next exact action: run the strict release candidate suite, confirm the current five-item menu interaction, then update version and changelog for the v0.3.2 PR.
-- Known limitations: no separate clean machine; no mixed-DPI hardware; branch protection unavailable on current private plan; title-based overlay rediscovery was inconsistent after repeated topology switching, while the maintainer's physical single-monitor observation passed.
+- Current HEAD: `92700591ff0bf7f4c33ce3840dda1804abde5a53`
+- Last pushed SHA: `92700591ff0bf7f4c33ce3840dda1804abde5a53`
+- Current phase: Phase C — autonomous menu sanity, then formal version bump and release administration
+- Product decision: `GO`
+- Scope lock: v0.3.2 stabilization and release administration only; no v0.4.0 production work
+- Active Superpowers skill: `superpowers:using-superpowers` routed to ordinary release administration; Systematic Debugging only on failure
+- Design spec: `None` for v0.3.2
+- Implementation plan: `None` for v0.3.2
+- Latest RED evidence: `None`; no production behavior change is active
+- Latest GREEN evidence: `None`; no TDD cycle is active
+- Latest completion verification: strict RC approved at candidate checkpoint `9270059`; 127 tests, Quality, package smoke, strict readiness, whitespace, and RC all passed
+- Candidate RC state: approved before formal version bump; Goal-only metadata replacement does not alter runtime or release checks
+- Final RC state: pending version and Changelog update
+- Remote CI state: no v0.3.2 PR yet
+- Main protection state: unavailable for this private repository/account plan; GitHub APIs returned HTTP 403 requiring GitHub Pro or public visibility; compensating PR controls apply
+- Autonomous checks completed: repository reconciliation; no merge/rebase/cherry-pick; exact branch/base/head/remote state; one- and two-monitor evidence; Compact evidence; strict candidate RC; current process CommandLine; source and focused Tk menu tests
+- Human fact required: `None`
+- Methods attempted: repository/source inspection, Win32/process inspection, real Tk widget inventory through focused UI tests
+- Why human input is necessary: `None`
+- Completed: candidate preserved and pushed; Goal and Brief reconciled; physical blocker matrix closed truthfully; strict candidate RC approved; single-monitor mode restored to extended mode
+- Remaining: commit/push authoritative Goal checkpoint; autonomous app-local restart and menu runtime sanity; version `0.3.2`; bilingual Changelog; final RC; PR/CI/merge/main retest/tag/report; then v0.4.0
+- Next exact action: commit and push the authoritative Goal checkpoint, then shut down and relaunch through a verified app-local path and record the five-item runtime Tk menu inventory
 - Last updated: 2026-07-10
