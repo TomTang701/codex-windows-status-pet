@@ -1,19 +1,19 @@
-# ACTIVE VERSION BRIEF — v0.2.3 Configuration Write Protection
+# ACTIVE VERSION BRIEF — v0.2.4 Windows 11 Support Matrix
 
 ## Identity
 
-- Version: `0.2.3`
-- Branch: `release/v0.2.3-config-write-protection`
-- Base: `main` at `60189601a790067394f6f0ae0b74438ff2ae7bdf`
-- PR: `[v0.2.3] Protect incompatible configuration files`
-- Tag: `v0.2.3`
+- Version: `0.2.4`
+- Branch: `release/v0.2.4-windows11-support-matrix`
+- Base: `main` at `ef00ce812811220181cc6ab40c5e0e82ff07aa8c`
+- PR: `[v0.2.4] Align Windows support and release gates`
+- Tag: `v0.2.4`
 
 ## Product
 
-- One-sentence outcome: A future-schema, unreadable, structurally malformed, or invalid configuration is never overwritten by routine application saves.
-- User problem: Safe in-memory fallback currently becomes destructive when drag, hide, toggle, recovery, or shutdown automatically saves defaults.
-- Success criteria: Unsafe source bytes remain unchanged across every ordinary save path; only an explicit Restore Defaults then Save can replace them.
-- Explicit non-goals: Ordinary-menu restore actions, status rows, quota behavior, controllers, CI policy, Windows support scope, dependencies.
+- One-sentence outcome: Published support claims and executable release blockers consistently define Windows 11 x64 as supported.
+- User problem: Windows 10 is not claimed but is currently represented as a release blocker, contradicting the support policy.
+- Success criteria: Windows 10 is exactly Deferred / Not claimed / Non-blocking in English, Chinese, and machine assessment; real Windows 11 scope gaps remain blockers.
+- Explicit non-goals: Windows 10 implementation/testing, CI workflow separation, UI behavior, configuration, quota, status rows, dependencies.
 - Decision: GO
 
 ## Applicability Matrix
@@ -21,54 +21,42 @@
 | Role | Applicable | Decision |
 |---|---:|---|
 | Product | Yes | GO |
-| Backend | Yes | PASS |
-| Frontend | Explicit reset flow only | PASS |
+| Backend/tooling | Yes | PASS |
 | QA/Release | Yes | PASS |
-| Security/Resource | Yes | PASS |
-| Visual/UI/UX | Existing controls only | PASS |
+| Documentation | Yes | PASS |
+| Frontend | No | N/A |
+| Security/Resource | Limited | PASS |
 
-## Backend
+## Product / Documentation
 
-- `load_settings` reports source status and whether ordinary persistence is safe while retaining historical two-value unpacking.
-- `save_settings_atomic` re-inspects the current on-disk source immediately before every write and raises a dedicated `OSError` subtype when unsafe.
-- Unsafe means unreadable/invalid JSON, non-object root, unsupported schema, or validation warnings that would lose source intent.
-- Missing, valid legacy, and valid current-schema files remain writable.
-- Explicit replacement requires `allow_unsafe_overwrite=True`; it is never used by automatic paths.
-- Existing atomic replacement and valid backup behavior remain unchanged.
+- Supported: Windows 11 x64.
+- Deferred and not claimed: Windows 10.
+- Not claimed: ARM64 and 32-bit Windows.
+- README, installation, release policy, product overview, roadmap, and compatibility matrix must not request Windows 10 evidence as a current release requirement.
+- Historical archive/test records remain historical and are not rewritten.
 - Decision: PASS
 
-## Frontend / UX
+## Tooling / QA
 
-- Ordinary Apply remains a runtime preview and performs no disk write.
-- Ordinary Save reports failure and keeps the settings dialog open when the source is protected.
-- Restore Defaults marks the current settings session as an explicit reset; its subsequent Save may replace the protected source.
-- No new ordinary context-menu item or button is added.
-- Automatic drag/hide/toggle/recovery/shutdown saves remain blocked for protected sources.
-- Decision: PASS
-
-## QA / Release
-
-- Preserve exact bytes for future schema, malformed JSON, non-object roots, and invalid current settings under ordinary save.
-- Confirm missing, valid legacy, and valid current configurations still save atomically.
-- Confirm explicit reset replaces protected content with schema v1.
-- Confirm malformed/current files are not promoted to backup.
-- Exercise Pet routine save and settings-dialog explicit reset dispatch.
-- Run focused tests, full release checks, package smoke, `git diff --check`, Windows 11 launcher smoke.
+- Compatibility rows may explicitly declare `Non-blocking` in the status cell.
+- Readiness assessment excludes explicit non-blocking rows even if they also contain Deferred or partial wording.
+- Pending/partial rows without Non-blocking remain blockers.
+- Output reports deferred exclusions separately so policy is visible rather than silently discarded.
+- Strict mode fails only for real blockers.
+- Tests cover Windows 10 deferred exclusion, real pending blockers, mixed case, and all-pass readiness.
 - Decision: PASS
 
 ## Security / Resource
 
-- No new reads beyond the pre-write local configuration inspection.
-- No network, IPC, worker, timer, dependency, credential, prompt, response, or session access.
-- Failed protected writes create no temporary file, backup, or mutation.
-- Explicit reset is user-driven and remains atomic.
+- Pure local Markdown parsing only; no network, IPC, process, timer, disk write, dependency, or runtime UI change.
+- No unsupported platform is falsely claimed.
 - Decision: PASS
 
 ## Scope Lock
 
-- Allowed production files: configuration API and minimum settings/main-window integration for explicit reset and error handling.
-- Allowed tests: configuration API and direct UI persistence/reset regressions.
-- Allowed release files: canonical version sources, bilingual Changelog, directly affected configuration/API documentation.
-- Forbidden: ordinary menu changes, status-row refactor, quota changes, controller refactor, CI/release-policy work, Windows scope changes, dependencies.
+- Allowed production files: release-readiness checker only.
+- Allowed tests: release-readiness policy tests.
+- Allowed release files: canonical version sources, bilingual Changelog, directly affected support/release documents.
+- Forbidden: Windows 10 support work, CI quality/RC split, UI/runtime/config/quota changes, dependencies, historical archive rewrites.
 - Release shape: one focused implementation/release commit, one PR, one tag.
-- No work from v0.2.4 or later is included.
+- No work from v0.2.5 or later is included.
