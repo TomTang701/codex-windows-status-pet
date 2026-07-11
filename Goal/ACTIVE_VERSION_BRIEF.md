@@ -1,19 +1,19 @@
-# ACTIVE VERSION BRIEF — v0.3.0 Independent Stable Status Rows
+# ACTIVE VERSION BRIEF — v0.3.1 Controller Refactor
 
 ## Identity
 
-- Version: `0.3.0`
-- Branch: `release/v0.3.0-independent-status-rows`
-- Base: `main` at `77c15006f9884f7e3c426b13f2ae00dd168bb9fa`
-- PR: `[v0.3.0] Render five independent status rows`
-- Tag: `v0.3.0`
+- Version: `0.3.1`
+- Branch: `release/v0.3.1-controller-refactor`
+- Base: `main` at `a6a7177424850ba9afcf14a3d55fa48622ac2aa5`
+- PR: `[v0.3.1] Extract main-window controllers`
+- Tag: `v0.3.1`
 
 ## Product
 
-- One-sentence outcome: Activity, active-conversation progress, 5h quota, weekly quota, and Reset Credit each render through a stable independent row.
-- User problem: A single multiline Label couples row identity, updates, wrapping, and event behavior, making individual status stability fragile.
-- Success criteria: Exactly five ordered row IDs exist in pure presentation and five persistent Tk labels; each row can update without shifting or recreating siblings.
-- Explicit non-goals: Controller refactor, new content, plan-step display, settings/menu/tray changes, refresh changes, layout redesign, new dependencies.
+- One-sentence outcome: The Tk main window delegates coordination state to four pure controllers without changing user-visible behavior.
+- User problem: `Pet` directly owns refresh generations/scheduling, compact presentation decisions, persistence compatibility, and idempotent close state, making regression isolation difficult.
+- Success criteria: Controller contracts own those decisions; `Pet` remains the Tk adapter/composer; all existing UI text, timing, settings, menu, tray, geometry, five-row, and failure behavior remain equivalent.
+- Explicit non-goals: New UI or behavior, physical evidence closure, status content/layout, configuration schema, refresh interval semantics, dependencies.
 - Decision: GO
 
 ## Applicability Matrix
@@ -21,48 +21,50 @@
 | Role | Applicable | Decision |
 |---|---:|---|
 | Product | Yes | GO |
-| Visual/UI/UX | Yes | PASS |
-| Frontend | Yes | PASS |
-| Backend/presentation | Limited | PASS |
+| Backend/Architecture | Yes | PASS |
+| Frontend adapter | Yes | PASS |
 | QA/Release | Yes | PASS |
+| Visual/UI/UX | Behavior verification only | PASS |
 | Security/Resource | Yes | PASS |
 
-## Visual / Frontend
+## Controller Boundaries
 
-- Stable row order: `activity`, `progress`, `primary_5h`, `weekly`, `reset_credit`.
-- Five labels are created once and updated in place; blank progress stays in its own row and never shifts quota rows.
-- Existing font, foreground/background, wrap width, compact hide/show, drag, hover, and right-click bindings apply to every row.
-- The existing `text`/multiline compatibility surface remains available for callers during this release.
-- No new icons, controls, animation, spacing concept, or window-size default.
+- `ApplicationController`: Activity/Quota generations, quota single-flight schedule, interval, finish, current-generation checks, shutdown.
+- `StatusPresentationController`: pure status snapshot plus compact-state decision/force-expanded behavior.
+- `SettingsPersistenceController`: path, source compatibility metadata, load, atomic save, explicit reset authorization, backup restore.
+- `WindowLifecycleController`: one-way idempotent close transition.
+- Controllers import no Tk or pystray and expose no UI widgets.
+- Existing lower-level APIs remain independently testable and are not deleted.
 - Decision: PASS
 
-## Presentation API
+## Behavior Equivalence
 
-- `StatusRowsSnapshot` owns exact row identity/order and exports ordered dict plus legacy joined text.
-- `build_status_snapshot` produces both `rows` and byte-for-byte-equivalent `text` from the same snapshot.
-- No provider payload or new raw field reaches the UI.
-- No controller or scheduling ownership moves in v0.3.0.
+- Activity remains 1-second scheduled and independent from quota.
+- Quota retains configured 1–10 second single-flight delay and stale-generation rejection.
+- Status text/rows/colors and compact conditions remain identical.
+- Protected configuration and explicit Restore Defaults then Save semantics remain identical.
+- Close remains idempotent and stops scheduling before tray/server teardown.
+- Existing Pet methods and settings-path behavior used by UI/tests remain compatible.
 - Decision: PASS
 
 ## QA / Release
 
-- Pure tests: exact IDs/order, blank padding, excess-line truncation, dict/text consistency, no row shifting.
-- Tk tests: exactly five persistent labels, one-row update preserves sibling widget identities/values, style propagation, event-widget coverage.
-- Integration: main Pet renders approved row mapping and compact mode still hides/restores the row container.
-- Full Quality, package smoke, `git diff --check`, Windows 11 visible-row smoke.
+- Pure controller tests cover channel independence, quota re-entry, finish/delay, shutdown, compact decisions, protected/current/reset persistence, backup restore, and close idempotence.
+- Integration tests cover Pet controller wiring, settings-path replacement, five-row rendering, settings reset, and repeated close-safe cleanup.
+- Existing full Quality and package smoke must remain green; no snapshot changes are expected.
 - Decision: PASS
 
 ## Security / Resource
 
-- Five labels replace one label; no worker, timer, process, IPC, network, disk, dependency, data retention, or Codex quota increase.
-- Updates are bounded to five existing widgets and perform no polling.
+- No additional workers, timers, subprocesses, network/IPC, polling, writes, retained payloads, dependencies, or Codex quota usage.
+- Controllers only consolidate existing bounded state.
 - Decision: PASS
 
 ## Scope Lock
 
-- Allowed production files: pure status-row API, status snapshot integration, Tk status-row adapter, minimum main-window wiring.
-- Allowed tests: row API/snapshot/Tk/main-window direct regressions.
-- Allowed release files: canonical version sources, bilingual Changelog, directly affected architecture/repository/testing documents.
-- Forbidden: v0.3.1 controllers, refresh/lifecycle/settings persistence refactors, new displayed fields, plan steps, menu/tray/settings changes, dependencies.
+- Allowed production files: four pure controller APIs and minimum main-window wiring.
+- Allowed tests: controller contracts and direct equivalence/integration regressions.
+- Allowed release files: canonical version sources, bilingual Changelog, directly affected architecture/API/repository docs.
+- Forbidden: v0.3.2 physical matrix closure, UI/content/layout changes, new settings/features, lower-level API deletion, dependencies.
 - Release shape: one focused implementation/release commit, one PR, one tag.
-- No work from v0.3.1 or later is included.
+- No work from v0.3.2 is included.
