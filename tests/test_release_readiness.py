@@ -15,13 +15,28 @@ class ReleaseReadinessTests(unittest.TestCase):
             matrix.write_text(
                 "| Area | Coverage | Status | Evidence / next action |\n"
                 "|---|---|---|---|\n"
-                "| Windows | Windows 10 | Pending | needs a machine |\n"
+                "| Display | Mixed DPI | Automated partial | needs a machine |\n"
                 "| Tests | Unit | Pass | green |\n",
                 encoding="utf-8",
             )
             result = assess(matrix)
             self.assertFalse(result["ready"])
-            self.assertEqual(result["blockers"][0]["coverage"], "Windows 10")
+            self.assertEqual(result["blockers"][0]["coverage"], "Mixed DPI")
+
+    def test_deferred_not_claimed_non_blocking_row_is_reported_but_not_blocking(self):
+        with tempfile.TemporaryDirectory() as directory:
+            matrix = Path(directory) / "matrix.md"
+            matrix.write_text(
+                "| Area | Coverage | Status | Evidence / next action |\n"
+                "|---|---|---|---|\n"
+                "| Windows | Windows 10 | Deferred / Not claimed / Non-blocking | outside support |\n"
+                "| Tests | Unit | Pass | green |\n",
+                encoding="utf-8",
+            )
+            result = assess(matrix)
+            self.assertTrue(result["ready"])
+            self.assertEqual(result["blockers"], [])
+            self.assertEqual(result["deferred"][0]["coverage"], "Windows 10")
 
     def test_all_pass_rows_are_release_ready(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -33,4 +48,4 @@ class ReleaseReadinessTests(unittest.TestCase):
                 "| Tests | Unit | Pass | green |\n",
                 encoding="utf-8",
             )
-            self.assertEqual(assess(matrix), {"ready": True, "blockers": []})
+            self.assertEqual(assess(matrix), {"ready": True, "blockers": [], "deferred": []})

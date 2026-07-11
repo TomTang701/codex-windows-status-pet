@@ -58,6 +58,12 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.2.4 - 2026-07-10
+
+- Aligned the supported platform declaration on Windows 11 x64 across README, installation, release, product, roadmap, and compatibility documents.
+- Classified Windows 10 as Deferred / Not claimed / Non-blocking instead of an executable release blocker; ARM64 and 32-bit Windows remain not claimed.
+- Updated release-readiness assessment to report explicit non-blocking rows separately while retaining every pending or partial Windows 11 x64 evidence gap as a blocker.
+
 ## 0.2.3 - 2026-07-10
 
 - Protected future-schema, malformed, non-object, and invalid configuration files from all routine save paths, including drag, hide, toggles, recovery, and shutdown.

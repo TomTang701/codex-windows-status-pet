@@ -10,7 +10,7 @@
 - **Automated release:** GitHub Actions runs on Windows, installs declared dependencies, executes the release gate, validates package metadata, and uploads a smoke-package artifact.
 - **Application modularization:** Context menu, settings dialog, tray adapter, and main window now live in `scripts/ui/`; Codex discovery/transport, safe diagnostics, and status presentation live in `scripts/api/`; `scripts/codex_status_pet.py` is a stable launcher facade.
 - **Pending physical evidence:** mixed-DPI monitors, alternate taskbar edges, clean-machine dependency installation, and a full idle desktop run that visibly exercises compact hover expansion.
-- **Release decision:** `scripts/check_release_readiness.py` currently reports six physical-gate blockers; v0.3.0 is intentionally not marked ready until those rows are passed or explicitly approved.
+- **Release decision:** `scripts/check_release_readiness.py` currently reports five blocking Windows 11 x64 evidence gaps and reports Windows 10 separately as Deferred / Not claimed / Non-blocking; v0.3.0 is intentionally not marked ready until the blocking rows are passed or explicitly approved.
 - **Explicitly out of scope:** access-token readers, third-party quota endpoints, telemetry, and modifying Codex core or built-in pet files.
 
 ## Product objective
@@ -78,7 +78,7 @@ No performance feature may be added directly to UI code without its own API boun
 
 ## Compatibility matrix
 
-Test Windows 10/11, one and two monitors, negative and large virtual coordinates, 100/125/150/200% DPI, each taskbar edge, hidden/shown, locked/unlocked, topmost/not-topmost, malformed settings, refresh values 1/10/0/11/empty/non-digit, network timeout, stale responses, missing reset dates, and repeated launches. Maintain results in `docs/quality/COMPATIBILITY_MATRIX.md`.
+Test Windows 11 x64 with one and two monitors, negative and large virtual coordinates, 100/125/150/200% DPI, each taskbar edge, hidden/shown, locked/unlocked, topmost/not-topmost, malformed settings, refresh values 1/10/0/11/empty/non-digit, network timeout, stale responses, missing reset dates, and repeated launches. Windows 10 evidence is deferred and may expand future support but is non-blocking. Maintain results in `docs/quality/COMPATIBILITY_MATRIX.md`.
 
 ## Documentation rule
 

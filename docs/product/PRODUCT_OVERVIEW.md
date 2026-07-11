@@ -24,7 +24,7 @@ modifying Codex core files or injecting text into the built-in pet.
 
 ## Current risks
 
-- Windows Tk and notification-area behavior still require Windows 10, mixed-DPI, taskbar-edge, and clean-machine evidence.
+- Windows 11 x64 Tk and notification-area behavior still require mixed-DPI, taskbar-edge, and clean-machine evidence; Windows 10 is deferred and not claimed.
 - Tray failure-injection and single-recovery policy are now covered by deterministic tests; direct tray interaction remains partly environment-limited.
 - The fixed-size overlay can clip long diagnostics or localized text.
 - A clean virtual environment and Windows CI runner pass dependency installation and regression tests; physical mixed-DPI coverage remains.
@@ -32,7 +32,7 @@ modifying Codex core files or injecting text into the built-in pet.
 
 ## Recommended product priorities
 
-1. Finish Windows 10, DPI/mixed-scale, taskbar-edge, and clean-machine evidence.
+1. Finish Windows 11 x64 DPI/mixed-scale, taskbar-edge, and clean-machine evidence.
 2. Run a full idle desktop test for compact/hover behavior and publish the v0.3.0 reliability release.
 3. Keep the diagnostic-summary action safe and add accessibility/keyboard interaction coverage.
 4. Keep the default overlay compact and status-focused; avoid bringing plan-step detail back into

@@ -8,7 +8,7 @@
 
 ## 支持的运行时声明
 
-- 支持系统：Windows 11 x64 已完成实体测试；Windows 10 仍待实体验证。
+- 支持系统：Windows 11 x64 已完成实体测试并声明支持；Windows 10 为延后、不声明支持、非阻塞。
 - Python/运行时：CI基线为Python 3.11；本地已验证Python 3.12.13。回退运行时必须提供 `pythonw.exe` 并安装 `requirements.txt`。
 - 架构：已测试架构为x64 Windows；不宣称支持ARM64或32位Windows。
 - 未签名行为：项目不提供已签名二进制；打包发布时可能出现Windows SmartScreen或策略警告，必须记录。

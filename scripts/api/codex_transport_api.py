@@ -16,7 +16,7 @@ except ModuleNotFoundError:
     tomllib = None
 
 
-DEFAULT_CLIENT_VERSION = "0.2.3"
+DEFAULT_CLIENT_VERSION = "0.2.4"
 
 
 def find_codex() -> str:
