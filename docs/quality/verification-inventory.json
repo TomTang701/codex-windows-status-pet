@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "items": [
+    {"id": "quality.documents", "classification": "AUTOMATED", "disposition": "pass", "fact": "Manifest, governance, links, and bilingual parity are valid", "authority": "python scripts/run_quality_checks.py"},
+    {"id": "quality.version", "classification": "AUTOMATED", "disposition": "pass", "fact": "All release-facing version sources agree", "authority": "python scripts/check_version_sources.py"},
+    {"id": "quality.secrets", "classification": "AUTOMATED", "disposition": "pass", "fact": "Tracked files contain no recognized sensitive material", "authority": "python scripts/check_sensitive_files.py"},
+    {"id": "quality.dependencies", "classification": "AUTOMATED", "disposition": "pass", "fact": "Declared runtime dependencies are installed, compatible, and importable", "authority": "python scripts/check_dependencies.py"},
+    {"id": "quality.compile", "classification": "AUTOMATED", "disposition": "pass", "fact": "Production Python modules compile", "authority": "python scripts/run_quality_checks.py"},
+    {"id": "quality.tests", "classification": "AUTOMATED", "disposition": "pass", "fact": "Core and Tk UI contract tests pass", "authority": "python scripts/run_quality_checks.py"},
+    {"id": "quality.startup-audit", "classification": "AUTOMATED", "disposition": "pass", "fact": "Known obsolete startup entries are absent", "authority": "python scripts/startup_audit.py"},
+    {"id": "release.package", "classification": "AUTOMATED", "disposition": "pass", "fact": "The package smoke artifact has valid metadata and required files", "authority": "python scripts/package_smoke_test.py"},
+    {"id": "release.compatibility", "classification": "AUTOMATED", "disposition": "pass", "fact": "Compatibility rows contain no blocking pending or partial evidence", "authority": "python scripts/check_release_readiness.py --strict"},
+    {"id": "release.whitespace", "classification": "AUTOMATED", "disposition": "pass", "fact": "The candidate diff has no whitespace errors", "authority": "git diff --check"},
+    {"id": "release.rc", "classification": "AUTOMATED", "disposition": "pass", "fact": "All formal automated release gates execute once and pass", "authority": "python scripts/run_release_candidate_checks.py"},
+    {"id": "release.standalone-quality", "classification": "DUPLICATE", "disposition": "excluded", "fact": "Running standalone Quality immediately before RC repeats the RC child", "authority": "historical local and CI release procedure", "replacement": "release.rc"},
+    {"id": "release.standalone-package", "classification": "DUPLICATE", "disposition": "excluded", "fact": "Running standalone package smoke immediately before RC repeats the RC child", "authority": "historical local and CI release procedure", "replacement": "release.rc"},
+    {"id": "release.standalone-whitespace", "classification": "DUPLICATE", "disposition": "excluded", "fact": "Running standalone whitespace immediately before RC repeats the RC child", "authority": "historical CI release procedure", "replacement": "release.rc"},
+    {"id": "github.exact-head-ci", "classification": "AUTOMATABLE", "disposition": "pass", "fact": "Required CI succeeds on the exact pushed PR head", "authority": "GitHub PR headRefOid and statusCheckRollup"},
+    {"id": "host.launcher-single-instance", "classification": "AUTOMATED", "disposition": "pass", "fact": "Repeated launch preserves one project process without a persistent console", "authority": "runtime mutex tests and dated launcher process evidence"},
+    {"id": "host.window-content-fit", "classification": "AUTOMATED", "disposition": "pass", "fact": "All five rows fit at every supported scale under production DPI initialization", "authority": "python tests/dpi_content_probe.py"},
+    {"id": "host.single-monitor", "classification": "AUTOMATED", "disposition": "pass", "fact": "Authorized topology switching and Win32 inspection recorded the supported single-monitor behavior", "authority": "docs/quality/test-records/2026-07-10-v0.3.2-win11-physical-validation.md"},
+    {"id": "host.dual-monitor", "classification": "AUTOMATED", "disposition": "pass", "fact": "Win32 inspection records two work areas and legal secondary coordinates", "authority": "docs/quality/test-records/2026-07-10-win11-dual-monitor.md"},
+    {"id": "host.mixed-dpi-hardware", "classification": "PHYSICAL-ONLY", "disposition": "limitation", "fact": "Arbitrary mixed-DPI hardware certification is unavailable and not claimed", "authority": "docs/quality/COMPATIBILITY_MATRIX.md"},
+    {"id": "host.alternate-taskbar-edges", "classification": "PHYSICAL-ONLY", "disposition": "limitation", "fact": "Top, left, and right physical taskbar edges are unavailable and not claimed", "authority": "docs/quality/COMPATIBILITY_MATRIX.md"},
+    {"id": "host.separate-clean-machine", "classification": "PHYSICAL-ONLY", "disposition": "limitation", "fact": "A separate clean Windows machine is unavailable and not claimed", "authority": "docs/quality/COMPATIBILITY_MATRIX.md"},
+    {"id": "manual.generic-ui-confirmation", "classification": "OBSOLETE", "disposition": "excluded", "fact": "Generic manual UI confirmation is not authoritative for machine-observable behavior", "authority": "Goal/ACTIVE_GOAL.md Section 4.3"}
+  ]
+}

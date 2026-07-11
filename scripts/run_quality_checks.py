@@ -32,6 +32,7 @@ def quality_commands(python=sys.executable):
         "sensitive_files": [python, str(ROOT / "scripts" / "check_sensitive_files.py")],
         "dependencies": [python, str(ROOT / "scripts" / "check_dependencies.py")],
         "document_parity": [python, str(ROOT / "scripts" / "check_doc_parity.py")],
+        "verification_inventory": [python, str(ROOT / "scripts" / "check_verification_inventory.py")],
         "compile": [
             python,
             "-m",
