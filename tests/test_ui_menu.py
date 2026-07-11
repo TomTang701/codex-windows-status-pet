@@ -312,6 +312,26 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_apply_scale_uses_window_dpi_without_persisting_physical_geometry(self):
+        app = self.module["Pet"]()
+        try:
+            with mock.patch.object(
+                self.module["_main_window"], "dpi_for_window", return_value=120
+            ):
+                app.apply_settings(
+                    {**app.settings, "window_scale_percent": 150}
+                )
+            self.assertEqual(
+                (app.settings["window_width"], app.settings["window_height"]),
+                (495, 207),
+            )
+            self.assertEqual(
+                (app.window_metrics.width, app.window_metrics.height),
+                (619, 259),
+            )
+        finally:
+            self.destroy_app(app)
+
     def test_hide_show_and_compact_expand_preserve_current_scale(self):
         app = self.module["Pet"]()
         app.save_settings = lambda **_kwargs: True

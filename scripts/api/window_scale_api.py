@@ -18,7 +18,8 @@ MIN_WINDOW_SCALE_PERCENT = 80
 MAX_WINDOW_SCALE_PERCENT = 200
 WINDOW_SCALE_STEP = 5
 DEFAULT_WINDOW_SCALE_PERCENT = 100
-CONTENT_SAFE_VERTICAL_PADDING = {80: 7, 95: 8}
+BASE_DPI = 96
+CONTENT_SAFE_VERTICAL_PADDING = {80: 7, 95: 7, 115: 11}
 
 
 @dataclass(frozen=True)
@@ -59,23 +60,28 @@ def quantize_scale_percent(value) -> int:
     return int(min(MAX_WINDOW_SCALE_PERCENT, max(MIN_WINDOW_SCALE_PERCENT, stepped)))
 
 
-def derive_window_metrics(value) -> WindowMetrics:
-    """Derive expanded geometry, typography, wrapping, and spacing once."""
+def derive_window_metrics(value, dpi=BASE_DPI) -> WindowMetrics:
+    """Derive logical typography and DPI-aware physical pixel metrics."""
     percent = quantize_scale_percent(value)
     scale = percent / 100
-    scaled_vertical_padding = round(BASE_VERTICAL_PADDING * scale)
+    dpi_value = _finite_number(dpi, BASE_DPI)
+    dpi_scale = dpi_value / BASE_DPI if dpi_value > 0 else 1.0
+    logical_horizontal_padding = round(BASE_HORIZONTAL_PADDING * scale)
+    logical_vertical_padding = CONTENT_SAFE_VERTICAL_PADDING.get(
+        percent, round(BASE_VERTICAL_PADDING * scale)
+    )
+    logical_face_text_gap = round(BASE_FACE_TEXT_GAP * scale)
+    logical_wraplength = round(BASE_WRAPLENGTH * scale)
     return WindowMetrics(
         scale_percent=percent,
-        width=round(BASE_WINDOW_WIDTH * scale),
-        height=round(BASE_WINDOW_HEIGHT * scale),
+        width=round(round(BASE_WINDOW_WIDTH * scale) * dpi_scale),
+        height=round(round(BASE_WINDOW_HEIGHT * scale) * dpi_scale),
         text_font_size=round(BASE_TEXT_FONT_SIZE * scale),
         face_font_size=round(BASE_FACE_FONT_SIZE * scale),
-        horizontal_padding=round(BASE_HORIZONTAL_PADDING * scale),
-        vertical_padding=CONTENT_SAFE_VERTICAL_PADDING.get(
-            percent, scaled_vertical_padding
-        ),
-        face_text_gap=round(BASE_FACE_TEXT_GAP * scale),
-        wraplength=round(BASE_WRAPLENGTH * scale),
+        horizontal_padding=round(logical_horizontal_padding * dpi_scale),
+        vertical_padding=round(logical_vertical_padding * dpi_scale),
+        face_text_gap=round(logical_face_text_gap * dpi_scale),
+        wraplength=round(logical_wraplength * dpi_scale),
     )
 
 

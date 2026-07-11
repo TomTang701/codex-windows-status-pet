@@ -1,5 +1,7 @@
 import gc
+import json
 import runpy
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -94,6 +96,19 @@ class ContentFitTests(unittest.TestCase):
                     )
                 finally:
                     self.destroy_app(app)
+
+    def test_production_dpi_startup_fits_every_supported_scale(self):
+        completed = subprocess.run(
+            [sys.executable, str(Path(__file__).with_name("dpi_content_probe.py"))],
+            text=True,
+            encoding="utf-8",
+            capture_output=True,
+            check=False,
+        )
+        result = json.loads(completed.stdout)
+        self.assertEqual(completed.returncode, 0, result)
+        self.assertTrue(result["all_fit"])
+        self.assertEqual(len(result["rows"]), 25)
 
 
 if __name__ == "__main__":

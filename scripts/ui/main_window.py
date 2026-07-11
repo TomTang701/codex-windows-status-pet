@@ -120,7 +120,7 @@ class Pet(tk.Tk):
         self.settings_path = Path.home() / ".codex" / "codex-windows-status-pet.json"
         self.settings_controller = SettingsPersistenceController(self.settings_path)
         self.settings = self.load_settings()
-        self.window_metrics = derive_window_metrics(self.settings.get("window_scale_percent"))
+        self._sync_compatibility_metrics(self.settings)
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
         self.configure(bg=self.settings["background_color"])
         self.geometry(f"{self.window_metrics.width}x{self.window_metrics.height}+{self.settings['x']}+{self.settings['y']}")
@@ -250,14 +250,17 @@ class Pet(tk.Tk):
         self.hovered = False
 
     def _sync_compatibility_metrics(self, settings):
-        metrics = derive_window_metrics(settings.get("window_scale_percent"))
-        settings["window_scale_percent"] = metrics.scale_percent
-        settings["font_size"] = metrics.text_font_size
-        settings["window_width"] = metrics.width
-        settings["window_height"] = metrics.height
+        logical = derive_window_metrics(settings.get("window_scale_percent"))
+        display = derive_window_metrics(
+            logical.scale_percent, dpi=dpi_for_window(self.winfo_id())
+        )
+        settings["window_scale_percent"] = logical.scale_percent
+        settings["font_size"] = logical.text_font_size
+        settings["window_width"] = logical.width
+        settings["window_height"] = logical.height
         settings["scale_mode"] = "proportional"
-        self.window_metrics = metrics
-        return metrics
+        self.window_metrics = display
+        return display
 
     def _pack_expanded_content(self):
         metrics = self.window_metrics
