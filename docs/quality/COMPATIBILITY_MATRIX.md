@@ -7,7 +7,7 @@
 |---|---|---|---|
 | Windows version | Windows 10 | Deferred / Not claimed / Non-blocking | Outside the current Windows 11 x64 support declaration; future evidence may expand support but does not block current releases. |
 | Windows version | Windows 11 Home 10.0.26200 (build 26200) | Physical pass | 2026-07-10 host probe via `Win32_OperatingSystem`; launcher and overlay were manually started. |
-| Displays | Single monitor | Automated + partial physical | Geometry API tests pass; physical single-monitor run still needs a saved screenshot. |
+| Displays | Single monitor | Physical pass | On 2026-07-10 the maintainer authorized and confirmed the single-monitor run. `DisplaySwitch.exe /internal` reported one `2048x1152` display with work area `(0,0)-(2048,1104)`; the root launcher stabilized at one project process; extended two-monitor mode was restored afterward. |
 | Displays | Two monitors | Physical pass | [2026-07-10 topology record](test-records/2026-07-10-win11-dual-monitor.md); `DISPLAY1`/`DISPLAY2` probe completed; virtual desktop is `0,0-4480,1434`, work areas are `0,0-2048,1104` and `2560,354-4480,1386`; secondary coordinate `(4150,1248)` remains supported. |
 | Coordinates | Negative virtual coordinates | Automated | `Display API` intersection and placement tests cover negative coordinates. |
 | Coordinates | Large secondary coordinate `(4151,1248)` | Physical pass | Overlay and context menu were observed on the secondary monitor. |
@@ -20,7 +20,7 @@
 | Lifecycle | Hidden overlay remains running | Physical pass | Hide action removed the overlay while `pythonw.exe` remained alive. |
 | Lifecycle | Tray show after hide | Physical pass | Windows keyboard notification-area path (`Win+B` → Apps) opened the tray menu; Hide then Show restored the overlay to secondary coordinate `(4150,1248)`. |
 | DPI | 100% / 125% / 150% / 200% | Approved limitation / Non-blocking | The physical host has two 96-DPI monitors, and simulated 96/120/144/192-DPI paths pass. Mixed-DPI physical certification is unavailable in this environment and is not claimed for v0.3.2. |
-| Compact mode | Idle shrink and hover expand | Automated partial | Pure mode API passes; physical run accepted the BOM-enabled setting and preserved `(4150,1248)` but the current Codex session was active, so idle shrink/hover expansion was not observed. |
+| Compact mode | Idle shrink and hover expand | Physical pass | On 2026-07-10 the maintainer confirmed genuine idle shrink and hover expansion in the running application; pure mode API regression tests also pass. |
 | Dependencies | Bundled runtime and fallback requirements | Approved limitation / Non-blocking | A fresh Python 3.12 venv installed only `requirements.txt`, passed 127 tests, Quality, package smoke, and repeated-launch smoke; Windows CI also passed. A separate clean Windows machine is unavailable and is not claimed as physically tested. |
 | Automated Quality | Document parity, compilation, and unit tests | Pass | `scripts/run_quality_checks.py` passed; Quality intentionally makes no release-readiness decision. |
 | Launcher | Root `start_codex_status_pet.cmd`, repeated launch | Physical pass | 2026-07-10 two consecutive launches produced one actual `pythonw.exe` overlay process and no persistent CMD window; command-line self-match was excluded from the process count. |
