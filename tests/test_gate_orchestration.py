@@ -1,6 +1,7 @@
 import sys
 import unittest
 import io
+import json
 from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
@@ -33,9 +34,27 @@ class GateOrchestrationTests(unittest.TestCase):
                 self.assertEqual(run_release_candidate_checks.main(), 1)
 
     def test_release_candidate_succeeds_when_every_child_gate_passes(self):
-        with mock.patch.object(run_release_candidate_checks, "run", return_value=(0, "ok")):
-            with redirect_stdout(io.StringIO()):
+        readiness = json.dumps({"ready": True, "passes": [], "blockers": [], "limitations": [{"area": "DPI"}]})
+        with mock.patch.object(
+            run_release_candidate_checks,
+            "run",
+            side_effect=[(0, "quality ok"), (0, "package ok"), (0, readiness), (0, "clean")],
+        ) as run:
+            output = io.StringIO()
+            with redirect_stdout(output):
                 self.assertEqual(run_release_candidate_checks.main(), 0)
+        result = json.loads(output.getvalue())
+        self.assertEqual(run.call_count, 4)
+        self.assertEqual(result["blockers"], [])
+        self.assertEqual(result["limitations"], [{"area": "DPI"}])
+        self.assertEqual(result["passes"], ["quality", "package_smoke", "compatibility_strict", "whitespace"])
+
+    def test_runner_requests_utf8_replacement_decoding(self):
+        completed = mock.Mock(returncode=1, stdout="错误", stderr="")
+        with mock.patch.object(run_quality_checks.subprocess, "run", return_value=completed) as subprocess_run:
+            self.assertEqual(run_quality_checks.run(["tool"]), (1, "错误"))
+        self.assertEqual(subprocess_run.call_args.kwargs["encoding"], "utf-8")
+        self.assertEqual(subprocess_run.call_args.kwargs["errors"], "replace")
 
 
 if __name__ == "__main__":

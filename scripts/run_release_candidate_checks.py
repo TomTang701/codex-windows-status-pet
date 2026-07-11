@@ -12,7 +12,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def run(command):
-    completed = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+    completed = subprocess.run(
+        command,
+        cwd=ROOT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        capture_output=True,
+    )
     return completed.returncode, completed.stdout + completed.stderr
 
 
@@ -27,11 +34,36 @@ def release_candidate_commands(python=sys.executable):
 
 def main():
     results = {}
+    passes = []
+    blockers = []
+    limitations = []
     for name, command in release_candidate_commands().items():
         code, output = run(command)
         results[name] = {"passed": code == 0, "output": output.strip()}
-    approved = all(item["passed"] for item in results.values())
-    print(json.dumps({"release_candidate_approved": approved, "checks": results}, ensure_ascii=False, indent=2))
+        if code == 0:
+            passes.append(name)
+        else:
+            blockers.append({"check": name, "output": output.strip()})
+        if name == "compatibility_strict":
+            try:
+                readiness = json.loads(output)
+            except json.JSONDecodeError:
+                readiness = {}
+            limitations.extend(readiness.get("limitations", []))
+    approved = not blockers
+    print(
+        json.dumps(
+            {
+                "release_candidate_approved": approved,
+                "passes": passes,
+                "blockers": blockers,
+                "limitations": limitations,
+                "checks": results,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
     return 0 if approved else 1
 
 
