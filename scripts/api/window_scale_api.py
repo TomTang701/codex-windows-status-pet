@@ -65,7 +65,7 @@ def derive_window_metrics(value) -> WindowMetrics:
     return WindowMetrics(
         scale_percent=percent,
         width=round(BASE_WINDOW_WIDTH * scale),
-        height=round(BASE_WINDOW_HEIGHT * scale),
+        height=math.ceil(BASE_WINDOW_HEIGHT * scale),
         text_font_size=round(BASE_TEXT_FONT_SIZE * scale),
         face_font_size=round(BASE_FACE_FONT_SIZE * scale),
         horizontal_padding=round(BASE_HORIZONTAL_PADDING * scale),

@@ -21,6 +21,10 @@ class WindowScaleApiTests(unittest.TestCase):
         self.assertEqual((metrics.text_font_size, metrics.face_font_size), (10, 28))
         self.assertEqual(metrics.wraplength, 260)
 
+    def test_minimum_scale_rounds_height_up_to_protect_content(self):
+        metrics = derive_window_metrics(80)
+        self.assertEqual((metrics.width, metrics.height), (264, 111))
+
     def test_bounds_and_half_up_quantization_are_deterministic(self):
         self.assertEqual(quantize_scale_percent(79), MIN_WINDOW_SCALE_PERCENT)
         self.assertEqual(quantize_scale_percent(82.5), 85)
@@ -32,7 +36,8 @@ class WindowScaleApiTests(unittest.TestCase):
         previous = None
         for percent in range(80, 201, 5):
             metrics = derive_window_metrics(percent)
-            self.assertLessEqual(abs(metrics.width / metrics.height - 330 / 138), 0.01)
+            self.assertLessEqual(abs(metrics.width - percent * 330 / 100), 1.0)
+            self.assertLessEqual(abs(metrics.height - percent * 138 / 100), 1.0)
             if previous is not None:
                 self.assertGreaterEqual(metrics.width, previous.width)
                 self.assertGreaterEqual(metrics.height, previous.height)
