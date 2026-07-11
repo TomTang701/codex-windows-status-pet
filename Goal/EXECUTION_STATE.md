@@ -3,26 +3,26 @@
 - Active version: `0.4.0`
 - Branch: `release/v0.4.0-unified-window-scale`
 - Base main SHA: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
-- Current HEAD: `f75b7a57b0557f5daacc1f643a53d8d18a43ef9f`
-- Last pushed SHA: branch not pushed yet
-- Current phase: Brainstorming — repository exploration and implementation-design selection
+- Current HEAD: `78e1ae2d98db9cd4cb5898f893d737bb813b7c68`
+- Last pushed SHA: `78e1ae2d98db9cd4cb5898f893d737bb813b7c68`
+- Current phase: Brainstorming — design spec written and under completion verification
 - Product decision: `GO`
 - Scope lock: unified window-scale v0.4.0 only; no v0.4.1+ or unrelated work
 - Active Superpowers skill: `superpowers:brainstorming`
-- Design spec: pending `docs/superpowers/specs/2026-07-10-unified-window-scale-design.md`
+- Design spec: `docs/superpowers/specs/2026-07-10-unified-window-scale-design.md`; self-review passed for placeholders, contradictions, scope, ambiguity, interface naming, and authority conflicts
 - Implementation plan: `None` until design spec is validated
 - Latest RED evidence: `None`; production implementation has not started
 - Latest GREEN evidence: `None`; production implementation has not started
-- Latest completion verification: v0.3.2 transition audit — merged PR #11, main/tag commit `f75b7a57`, main gates and Windows smoke passed, release published, branch deleted
+- Latest completion verification: Windows Tk metric measurement covered every 5% step from 80 through 200; representative five-row content fit at all steps
 - Candidate RC state: not started for v0.4.0
 - Final RC state: not started for v0.4.0
 - Remote CI state: no v0.4.0 PR yet
 - Main protection state: unavailable on current private repository/account plan; compensating PR controls remain mandatory
-- Autonomous checks completed: v0.3.2 transition gate; current config/settings/main/compact/tests/docs exploration; current coupling and migration boundaries identified
+- Autonomous checks completed: v0.3.2 transition gate; current config/settings/main/compact/tests/docs exploration; three approaches compared; pure metrics boundary selected; Windows Tk range measurement; design self-review
 - Human fact required: `None`
 - Methods attempted: repository history, source/API/UI/test/document inspection
 - Why human input is necessary: `None`
-- Completed: v0.3.2 release lifecycle; v0.4.0 branch from tagged main; v0.4.0 Brief replacement; initial architecture exploration
-- Remaining: approach comparison; design spec/self-review/commit; implementation plan; sequential TDD; docs/Windows validation; PR/CI/merge/tag/final audit
-- Next exact action: compare three implementation approaches, select the pure metrics boundary, measure the safe range, and write the design spec
+- Completed: v0.3.2 release lifecycle; v0.4.0 branch from tagged main; v0.4.0 Brief; architecture exploration; approach selection; measured 80–200% range; design spec and self-review
+- Remaining: verify/commit/push design spec; implementation plan; sequential TDD; docs/Windows validation; PR/CI/merge/tag/final audit
+- Next exact action: run documentation/sensitive/whitespace checks, commit the design checkpoint, then invoke Writing Plans
 - Last updated: 2026-07-10
