@@ -28,6 +28,10 @@
 | 托盘生命周期 API | `scripts/api/tray_lifecycle_api.py` | 校验托盘动作，并保证只请求一次恢复重建。 | 动作白名单、可见性策略、重复故障和关闭场景。 |
 | 刷新调度 API | `scripts/api/refresh_scheduler_api.py` | 使用已校验的间隔，并保证同时只有一个刷新工作线程。 | 重复刷新调用和间隔限制测试。 |
 | 刷新控制器 API | `scripts/api/refresh_controller_api.py` | 使用 generation、取消和关闭保护，让 Activity 与 Quota 通道彼此独立。 | 独立 single-flight 通道、过期 generation 和关闭回调测试。 |
+| 应用控制器 API | `scripts/api/application_controller_api.py` | 在不拥有 Tk 的情况下协调现有 Activity/Quota generation 和额度调度。 | 通道独立、single-flight、有界延迟、完成和关闭测试。 |
+| 状态展示控制器 API | `scripts/api/status_presentation_controller_api.py` | 在不拥有控件的情况下组合现有纯快照和收缩状态决定。 | 稳定行、活动/空闲/悬停/阻塞决定和强制展开测试。 |
+| 设置持久化控制器 API | `scripts/api/settings_persistence_controller_api.py` | 拥有设置路径、源兼容状态、原子保存授权和备份恢复。 | 未来 schema 保留、明确重置、路径替换和备份测试。 |
+| 窗口生命周期控制器 API | `scripts/api/window_lifecycle_controller_api.py` | 在不依赖 Tk 的情况下拥有单向幂等关闭转换。 | 首次和重复关闭测试。 |
 | Codex 通信 API | `scripts/api/codex_transport_api.py` | 启动本机 app-server、执行 JSON-RPC 并报告协议错误。 | 模拟子进程和响应矩阵。 |
 | UI/托盘适配层 | `scripts/ui/main_window.py` 中的 `Pet` 与 `scripts/ui/tray_adapter.py` 中的 `TrayIcon3` | 将 API 结果转换为 Tk 和托盘动作。 | Windows 界面和人工交互测试。 |
 | 右键菜单 UI | `scripts/ui/context_menu.py` | 管理首次点击安全的弹出菜单构造、定位、命令分发和关闭。 | 现有首次点击/设置弹窗集成测试和实体角落检查。 |
@@ -56,6 +60,7 @@
 - 坐标输入允许逐键输入临时的 `-`，但提交时拒绝非法带符号整数。
 - 缩放按钮对宽高应用相同比例，并且围绕会话基准尺寸可逆。
 - Tk 线程不得执行阻塞的 app-server 或文件系统工作。
+- Tk 主窗口负责组合控制器，但不直接拥有刷新 generation/调度、收缩决定、持久化兼容性或关闭状态转换。
 - 托盘和应用关闭操作必须幂等；重复stop不得再次调用已停止的底层后端。
 - 主界面只显示活动对话数量，不显示计划步骤文本。
 - 状态展示严格包含五个稳定有序行：活动、进度、5h 主额度、周额度和重置额度；空行不得导致后续身份偏移。

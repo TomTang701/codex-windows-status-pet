@@ -188,6 +188,21 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_pet_uses_pure_controllers_and_tracks_replaced_settings_path(self):
+        app = self.module["Pet"]()
+        try:
+            self.assertIs(app.refresh_controller, app.application_controller.refresh)
+            self.assertIs(app.refresh_scheduler, app.application_controller.quota)
+            self.assertIs(app.compact_state, app.presentation_controller.compact)
+            with tempfile.TemporaryDirectory() as directory:
+                replacement = Path(directory) / "settings.json"
+                app.settings_path = replacement
+                self.assertEqual(app.settings_controller.path, replacement)
+                self.assertTrue(app.save_settings())
+                self.assertTrue(replacement.exists())
+        finally:
+            self.destroy_app(app)
+
 
 if __name__ == "__main__":
     unittest.main()

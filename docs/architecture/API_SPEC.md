@@ -30,6 +30,10 @@ headless tests.
 | Tray Lifecycle API | `scripts/api/tray_lifecycle_api.py` | Validate tray actions and guarantee one recovery restart request. | Action allowlist, visibility policy, duplicate failure, and shutdown cases. |
 | Refresh Scheduler API | `scripts/api/refresh_scheduler_api.py` | Use a validated interval and one in-flight worker at a time. | Repeated refresh calls and interval clamp fixtures. |
 | Refresh Controller API | `scripts/api/refresh_controller_api.py` | Keep Activity and Quota channels independent with generation, cancellation, and shutdown guards. | Independent single-flight channels, stale generations, and shutdown callbacks. |
+| Application Controller API | `scripts/api/application_controller_api.py` | Coordinate existing Activity/Quota generations and quota scheduling without Tk ownership. | Channel independence, single-flight, bounded delay, finish, and shutdown tests. |
+| Status Presentation Controller API | `scripts/api/status_presentation_controller_api.py` | Combine the existing pure snapshot and compact-state decision without owning widgets. | Stable rows, active/idle/hover/block decisions, and force-expanded tests. |
+| Settings Persistence Controller API | `scripts/api/settings_persistence_controller_api.py` | Own the settings path, source compatibility state, atomic save authorization, and backup restore. | Future-schema preservation, explicit reset, path replacement, and backup tests. |
+| Window Lifecycle Controller API | `scripts/api/window_lifecycle_controller_api.py` | Own the one-way idempotent close transition independently from Tk. | First and repeated close tests. |
 | Codex transport API | `scripts/api/codex_transport_api.py` | Start local app-server, perform JSON-RPC requests, and report protocol failures. | Mock subprocess/stdout response matrix. |
 | UI/tray adapter | `Pet` in `scripts/ui/main_window.py` and `TrayIcon3` in `scripts/ui/tray_adapter.py` | Translate API results into Tk and tray actions. | Windows UI/manual interaction tests only. |
 | Context Menu UI | `scripts/ui/context_menu.py` | Own first-click-safe popup construction, placement, command dispatch, and close behavior. | Existing first-click/settings popup integration test and physical corner checks. |
@@ -59,6 +63,7 @@ headless tests.
 - Coordinate fields accept a temporary `-` while typing but reject malformed signed integers on submit.
 - Resize buttons apply the same percentage to width and height and remain reversible around the session base size.
 - UI callbacks must not perform blocking app-server or filesystem work on the Tk thread.
+- The Tk main window composes controllers but does not directly own refresh generations/scheduling, compact decisions, persistence compatibility, or close-state transitions.
 - Tray and application shutdown operations are idempotent; repeated stop calls do not invoke a stopped backend again.
 - The overlay displays only the active conversation count; plan-step text is not part of the UI contract.
 - Status text uses a bounded label width so long diagnostics wrap instead of expanding past the overlay.
