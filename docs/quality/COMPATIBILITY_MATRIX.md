@@ -35,6 +35,10 @@
 | Automated Quality | Document parity, compilation, and unit tests | Pass | `scripts/run_quality_checks.py` passed; Quality intentionally makes no release-readiness decision. |
 | Launcher | Root `start_codex_status_pet.cmd`, repeated launch | Physical pass | 2026-07-10 two consecutive launches produced one actual `pythonw.exe` overlay process and no persistent CMD window; command-line self-match was excluded from the process count. |
 | Startup cleanup | Former `Codex Status Pet.lnk` | Physical pass | 2026-07-10 inspected Startup folder and shortcut target; removed the shortcut pointing to the obsolete `.agents\plugins\plugins\codex-windows-status-pet` copy. `startup_audit.py` now reports `clean: true`; no current project startup entry remains. |
+| v0.8.0 package | PyInstaller onedir EXE, manifest, notices, SHA-256, and denylist | Automated pass | `python scripts/build_release.py` and `python scripts/package_smoke_test.py` produced and validated the versioned EXE ZIP. |
+| v0.8.0 packaged lifecycle | GUI EXE first launch, duplicate-instance preservation, and normal close | Pending | Run `python scripts/packaged_runtime_smoke.py` with no existing instance; no source process may stand in for this evidence. |
+| v0.8.0 clean installation | Sandbox or clean Windows 11 VM fresh install, Start Menu launch, upgrade boundary, uninstall, and purge | Pending | Record a clean-environment result; Sandbox/VM evidence must not be described as physical hardware evidence. |
+| v0.8.0 README evidence | Four packaged English and four packaged Simplified Chinese product views | Pending | Capture the eight required PNGs from the packaged EXE and pass `python scripts/check_readme_screenshots.py`. |
 
 ## Release gate
 

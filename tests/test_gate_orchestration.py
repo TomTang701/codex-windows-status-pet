@@ -26,6 +26,7 @@ class GateOrchestrationTests(unittest.TestCase):
         self.assertIn("build_release.py", commands["release_build"][1])
         self.assertIn("package_smoke_test.py", commands["package_static"][1])
         self.assertIn("packaged_runtime_smoke.py", commands["package_runtime"][1])
+        self.assertIn("check_readme_screenshots.py", commands["readme_screenshots"][1])
 
     def test_release_candidate_fails_when_any_child_gate_fails(self):
         with mock.patch.object(
@@ -33,7 +34,7 @@ class GateOrchestrationTests(unittest.TestCase):
             "run",
             side_effect=[
                 (0, "quality ok"), (0, "build ok"), (0, "package ok"),
-                (0, "runtime ok"), (1, "blocking evidence"), (0, "clean"),
+                (0, "runtime ok"), (0, "screenshots ok"), (1, "blocking evidence"), (0, "clean"),
             ],
         ):
             with redirect_stdout(io.StringIO()):
@@ -46,19 +47,19 @@ class GateOrchestrationTests(unittest.TestCase):
             "run",
             side_effect=[
                 (0, "quality ok"), (0, "build ok"), (0, "package ok"),
-                (0, "runtime ok"), (0, readiness), (0, "clean"),
+                (0, "runtime ok"), (0, "screenshots ok"), (0, readiness), (0, "clean"),
             ],
         ) as run:
             output = io.StringIO()
             with redirect_stdout(output):
                 self.assertEqual(run_release_candidate_checks.main(), 0)
         result = json.loads(output.getvalue())
-        self.assertEqual(run.call_count, 6)
+        self.assertEqual(run.call_count, 7)
         self.assertEqual(result["blockers"], [])
         self.assertEqual(result["limitations"], [{"area": "DPI"}])
         self.assertEqual(
             result["passes"],
-            ["quality", "release_build", "package_static", "package_runtime", "compatibility_strict", "whitespace"],
+            ["quality", "release_build", "package_static", "package_runtime", "readme_screenshots", "compatibility_strict", "whitespace"],
         )
 
     def test_runner_requests_utf8_replacement_decoding(self):

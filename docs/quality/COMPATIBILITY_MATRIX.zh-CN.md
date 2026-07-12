@@ -35,6 +35,10 @@ English: [English version](COMPATIBILITY_MATRIX.md)
 | 自动化 Quality | 文档一致性、编译和单元测试 | 通过 | `scripts/run_quality_checks.py` 已通过；Quality 明确不做发布就绪决定。 |
 | 启动器 | 根目录 `start_codex_status_pet.cmd`，重复启动 | 实体通过 | 2026-07-10 连续启动两次只产生一个实际 `pythonw.exe` 悬浮窗进程，没有常驻 CMD 窗口；进程计数已排除命令行自匹配。 |
 | 启动项清理 | 旧 `Codex Status Pet.lnk` | 实体通过 | 2026-07-10 检查启动文件夹和快捷方式目标；已删除指向旧 `.agents\plugins\plugins\codex-windows-status-pet` 副本的快捷方式；`startup_audit.py` 当前报告 `clean: true`，没有本项目启动项。 |
+| v0.8.0 打包 | PyInstaller onedir EXE、清单、声明、SHA-256 和排除清单 | 自动通过 | `python scripts/build_release.py` 和 `python scripts/package_smoke_test.py` 已生成并验证版本化 EXE ZIP。 |
+| v0.8.0 打包生命周期 | GUI EXE 首次启动、重复实例保持和正常关闭 | Pending | 在没有既有实例时运行 `python scripts/packaged_runtime_smoke.py`；不得以源码进程替代该证据。 |
+| v0.8.0 干净安装 | Sandbox 或干净 Windows 11 VM 的全新安装、开始菜单启动、升级边界、卸载和清除 | Pending | 记录干净环境结果；不得将 Sandbox/VM 证据描述为实体硬件证据。 |
+| v0.8.0 README 证据 | 四张打包英文和四张打包简体中文产品视图 | Pending | 从打包 EXE 捕获八张所需 PNG，并通过 `python scripts/check_readme_screenshots.py`。 |
 
 ## 发布门槛
 
