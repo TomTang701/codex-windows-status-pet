@@ -1,13 +1,13 @@
 # ACTIVE PROGRAM GOAL — v0.6.1 Quota Identity → v0.6.3 Presentation Controls
 
-> **Status:** APPROVED PROGRAM / SEQUENTIAL v0.6.n DELIVERY
+> **Status:** COMPLETE / STOPPED — FINAL RECONCILIATION VERIFIED
 > **Program owner:** Tom
 > **Repository:** `TomTang701/codex-windows-status-pet`
-> **Released baseline:** `v0.6.0`
-> **Final target:** released and reconciled `v0.6.3`
+> **Released baseline:** `v0.6.3` at `7991c38ab19f05966025a46999c83852ea4c5b15`
+> **Final target:** released and reconciled `v0.6.3` — ACHIEVED
 > **Execution model:** one active implementation version at a time
 > **Automatic sequence:** `v0.6.1 → v0.6.2 → v0.6.3`
-> **STOP:** only after v0.6.3 release, reconciliation, and final verification
+> **STOP:** reached; no active implementation scope
 > **Default battery source:** weekly
 > **Battery fallback:** forbidden
 
@@ -1514,7 +1514,23 @@ Do not resume the completed old Program.
 
 ---
 
-# 32. Final completion report
+# 32. Final reconciliation result
+
+This Program is complete. The authoritative released product is `v0.6.3` at
+`7991c38ab19f05966025a46999c83852ea4c5b15`; no implementation scope remains.
+
+| Version | Product PR and exact-head CI | Released product target |
+|---|---|---|
+| v0.6.1 | PR #28; required Windows CI passed | `40d59c8b7d9f9f536299aacc67686ed7a70467eb` |
+| v0.6.2 | PR #29; Windows Quality passed at `ff51ef0672310065b6599dfa287f93d7abf948a1` | `8b7c7fec2a864fa94601ed8235d04cb5cb716a03` |
+| v0.6.3 | PR #31; Windows Quality passed at `318d3ab116978a3add1dd2e6c6d97dfdbf0b929c` | `7991c38ab19f05966025a46999c83852ea4c5b15` |
+
+All three product commits were squash-merged, tagged, and published as their
+matching GitHub Releases. The v0.6.2 state-reconciliation PR #30 merged at
+`9b42a16088daa05b61f8c4951401b5b50c6c7d1c`. Exact release evidence and
+post-merge verification state are maintained in `Goal/EXECUTION_STATE.md`.
+
+# 33. Final completion report
 
 Report:
 
