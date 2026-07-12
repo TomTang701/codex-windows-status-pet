@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+## 0.8.0 - 2026-07-12
+
+- Added the Windows onedir distribution, manifest/checksum boundary, per-user installation lifecycle, and unified overlay/notification-area menu semantics.
+
 ## 0.7.1 - 2026-07-12
 
 - Replaced localized activity-source text with language-independent semantic states, then localized activity and conversation progress only at the presentation boundary.

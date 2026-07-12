@@ -23,12 +23,18 @@ class GateOrchestrationTests(unittest.TestCase):
         commands = run_release_candidate_checks.release_candidate_commands("python")
         self.assertEqual(commands["compatibility_strict"][-1], "--strict")
         self.assertIn("run_quality_checks.py", commands["quality"][1])
+        self.assertIn("build_release.py", commands["release_build"][1])
+        self.assertIn("package_smoke_test.py", commands["package_static"][1])
+        self.assertIn("packaged_runtime_smoke.py", commands["package_runtime"][1])
 
     def test_release_candidate_fails_when_any_child_gate_fails(self):
         with mock.patch.object(
             run_release_candidate_checks,
             "run",
-            side_effect=[(0, "quality ok"), (0, "package ok"), (1, "blocking evidence"), (0, "clean")],
+            side_effect=[
+                (0, "quality ok"), (0, "build ok"), (0, "package ok"),
+                (0, "runtime ok"), (1, "blocking evidence"), (0, "clean"),
+            ],
         ):
             with redirect_stdout(io.StringIO()):
                 self.assertEqual(run_release_candidate_checks.main(), 1)
@@ -38,16 +44,22 @@ class GateOrchestrationTests(unittest.TestCase):
         with mock.patch.object(
             run_release_candidate_checks,
             "run",
-            side_effect=[(0, "quality ok"), (0, "package ok"), (0, readiness), (0, "clean")],
+            side_effect=[
+                (0, "quality ok"), (0, "build ok"), (0, "package ok"),
+                (0, "runtime ok"), (0, readiness), (0, "clean"),
+            ],
         ) as run:
             output = io.StringIO()
             with redirect_stdout(output):
                 self.assertEqual(run_release_candidate_checks.main(), 0)
         result = json.loads(output.getvalue())
-        self.assertEqual(run.call_count, 4)
+        self.assertEqual(run.call_count, 6)
         self.assertEqual(result["blockers"], [])
         self.assertEqual(result["limitations"], [{"area": "DPI"}])
-        self.assertEqual(result["passes"], ["quality", "package_smoke", "compatibility_strict", "whitespace"])
+        self.assertEqual(
+            result["passes"],
+            ["quality", "release_build", "package_static", "package_runtime", "compatibility_strict", "whitespace"],
+        )
 
     def test_runner_requests_utf8_replacement_decoding(self):
         completed = mock.Mock(returncode=1, stdout="错误", stderr="")

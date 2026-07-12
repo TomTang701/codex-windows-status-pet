@@ -1,36 +1,35 @@
-"""Validate the files and metadata required for a distributable package."""
+"""Validate the actual versioned Windows release ZIP after it is built."""
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 import re
-import zipfile
+from pathlib import Path
+
+from api.release_artifact_api import release_archive_name, validate_release_archive
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def app_version():
+    source = (ROOT / "scripts" / "ui" / "main_window.py").read_text(encoding="utf-8")
+    match = re.search(r'^APP_VERSION\s*=\s*"([^"]+)"', source, re.MULTILINE)
+    if match is None:
+        raise RuntimeError("application version is unavailable")
+    return match.group(1)
+
+
+def static_package_smoke():
+    """Validate the exact ZIP that users would download and install."""
+    version = app_version()
+    artifact = ROOT / ".build" / "release" / release_archive_name(version)
+    validate_release_archive(artifact, expected_version=version)
+    return artifact
+
+
 def main():
-    manifest = json.loads((ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
-    app_source = (ROOT / "scripts" / "ui" / "main_window.py").read_text(encoding="utf-8")
-    app_version = re.search(r'^APP_VERSION\s*=\s*"([^"]+)"', app_source, re.MULTILINE).group(1)
-    manifest_base = manifest["version"].split("+", 1)[0]
-    assert manifest_base == app_version, (manifest_base, app_version)
-    assert manifest["author"]["name"] == "Zixuan Tang"
-    for required in ("start_codex_status_pet.cmd", "requirements.txt", "README.md", "scripts/codex_status_pet.py"):
-        assert (ROOT / required).is_file(), required
-    archive = ROOT / ".build" / "codex-windows-status-pet-smoke.zip"
-    archive.parent.mkdir(exist_ok=True)
-    with zipfile.ZipFile(archive, "w") as bundle:
-        for path in (ROOT / "scripts").rglob("*.py"):
-            bundle.write(path, path.relative_to(ROOT))
-        for path in (ROOT / ".codex-plugin").glob("*.json"):
-            bundle.write(path, path.relative_to(ROOT))
-        for name in ("start_codex_status_pet.cmd", "requirements.txt", "README.md", "README.zh-CN.md"):
-            bundle.write(ROOT / name, name)
-    assert archive.stat().st_size > 0
-    print(f"package smoke test passed: {archive}")
+    artifact = static_package_smoke()
+    print(f"package static smoke passed: {artifact}")
 
 
 if __name__ == "__main__":

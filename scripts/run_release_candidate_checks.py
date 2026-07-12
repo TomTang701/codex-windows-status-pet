@@ -28,7 +28,9 @@ def run(command):
 def release_candidate_commands(python=sys.executable):
     return {
         "quality": [python, str(ROOT / "scripts" / "run_quality_checks.py")],
-        "package_smoke": [python, str(ROOT / "scripts" / "package_smoke_test.py")],
+        "release_build": [python, str(ROOT / "scripts" / "build_release.py")],
+        "package_static": [python, str(ROOT / "scripts" / "package_smoke_test.py")],
+        "package_runtime": [python, str(ROOT / "scripts" / "packaged_runtime_smoke.py")],
         "compatibility_strict": [python, str(ROOT / "scripts" / "check_release_readiness.py"), "--strict"],
         "whitespace": ["git", "diff", "--check"],
     }

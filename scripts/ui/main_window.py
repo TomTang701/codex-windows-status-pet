@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.7.1"
+APP_VERSION = "0.8.0"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -66,6 +66,24 @@ def ensure_single_instance():
     global _single_instance_guard
     _single_instance_guard = SingleInstance()
     return _single_instance_guard.acquire()
+
+
+def notify_existing_instance():
+    """Explain why a windowed second launch exits without opening a window."""
+    try:
+        import ctypes
+
+        ctypes.windll.user32.MessageBoxW(
+            None,
+            "Codex Windows Status Pet is already running.\n"
+            "Close the existing instance before launching this copy.",
+            "Codex Windows Status Pet",
+            0x10,
+        )
+    except (AttributeError, OSError):
+        logging.getLogger("codex-status-pet").warning(
+            "an existing application instance prevented startup"
+        )
 
 
 class ActivityMonitor:
@@ -677,6 +695,7 @@ def run():
     configure_logging(Path.home() / ".codex" / "codex-windows-status-pet.log")
     enable_dpi_awareness()
     if not ensure_single_instance():
+        notify_existing_instance()
         raise SystemExit(0)
     try:
         app = Pet()

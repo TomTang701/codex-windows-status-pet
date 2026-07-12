@@ -14,6 +14,7 @@ SWP_NOMOVE = 0x0002
 SWP_NOZORDER = 0x0004
 SWP_NOACTIVATE = 0x0010
 SWP_FRAMECHANGED = 0x0020
+SINGLE_INSTANCE_MUTEX_NAME = "Local\\CodexWindowsStatusPet"
 
 
 def enable_dpi_awareness():
@@ -69,7 +70,7 @@ def ensure_overlay_toolwindow(widget_hwnd):
 
 
 class SingleInstance:
-    def __init__(self, name="Local\\CodexWindowsStatusPet"):
+    def __init__(self, name=SINGLE_INSTANCE_MUTEX_NAME):
         self.name = name
         self.handle = None
 
