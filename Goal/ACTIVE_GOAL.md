@@ -1,11 +1,22 @@
 # ACTIVE GOAL — v0.5.3 Windows Shell Identity Correctness
-> **Status:** ACTIVE
-> **Released baseline:** `v0.5.1`
-> **Scope:** one Windows shell-identity correctness release
+> **Status:** RELEASED / RECONCILED / STOPPED
+> **Released baseline:** `v0.5.3` at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`
+> **Scope:** completed Windows shell-identity correctness release
 > **Supported platform:** Windows 11 x64
-> **Next feature:** `v0.6.0 5H Battery Indicator and Layout Tightening` is DEFERRED until this Goal is fully released and reconciled
+> **Next feature:** `v0.6.0 5H Battery Indicator and Layout Tightening` is NOT STARTED and requires Tom's next direction
 > **Execution:** autonomous-first, evidence-first, systematic-debugging, Design Verification, TDD, verification-before-completion
 > **Remote workflow:** repository `AGENTS.md` standing authorization applies to routine GitHub operations inside this Goal
+---
+## Release closure
+
+- Pull request [#21](https://github.com/TomTang701/codex-windows-status-pet/pull/21) was squash-merged after exact-head Windows Quality CI passed.
+- Merged main commit: `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
+- Formal merged-main RC passed with zero blockers.
+- Tag [`v0.5.3`](https://github.com/TomTang701/codex-windows-status-pet/releases/tag/v0.5.3) and its GitHub Release target that merged-main commit.
+- A fresh root-launcher process on main measured a visible root HWND with `WS_EX_TOOLWINDOW=true`, `WS_EX_APPWINDOW=false`, and owner `0`.
+
+This Goal is closed. Do not implement or brainstorm v0.6.0 here.
+
 ---
 ## 0. Mission
 Restore the companion's intended Windows shell identity.
