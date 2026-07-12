@@ -1,21 +1,22 @@
-# ACTIVE VERSION BRIEF — v0.5.4 Position Persistence Investigation (Closed)
+# ACTIVE VERSION BRIEF — v0.5.5 Mixed-DPI Startup Position Recovery Correctness
 
 ## Released history
 
-- `v0.5.3` is the released product baseline and latest product version at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
+- `v0.5.3` remains the released product baseline and latest product version at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
 - `v0.5.2` remains a closed rendered-visibility investigation and has no product version, tag, or GitHub Release.
-- `v0.5.4` is a closed position-persistence investigation with no product tag or GitHub Release.
+- `v0.5.4` remains a closed position-persistence investigation with no product tag or GitHub Release.
+- `v0.5.5` is active only to investigate the new mixed-DPI secondary edge-recovery symptom.
 
-## Closed investigation outcome
+## Active outcome
 
-The reported restart position-loss symptom is no longer reproducible. The production-equivalent round trip preserved `(4143, 1182)` through persistence, normal tray Exit, loading, safe-position validation, and final root placement.
+Preserve saved positions that are legal using the target monitor's effective DPI, including secondary right/bottom edge positions, while still recovering genuinely invalid or disconnected positions.
 
-## Investigation conclusion
+## Investigation boundary
 
-No first coordinate divergence or valid RED was established. Design Verification therefore failed correctly, and no production persistence correction is justified. Tom confirmed that restarting the software no longer loses the window position.
+Tom's new physical 125% primary / 100% secondary evidence shows a spatially conditional startup shift near secondary right/bottom edges. The bootstrap-DPI metric mismatch is a strong hypothesis only; the current main must first fail a production-equivalent RED and show the first wrong coordinate boundary.
 
-v0.5.3 Shell Identity remains protected: the root HWND must retain `WS_EX_TOOLWINDOW=true` and `WS_EX_APPWINDOW=false`. No v0.6.0 feature work is in scope.
+v0.5.4's `(4143, 1182)` A-path remains valid historical evidence for its tested coordinate. v0.5.3 Shell Identity remains protected: the root HWND must retain `WS_EX_TOOLWINDOW=true` and `WS_EX_APPWINDOW=false`. No v0.6.0 feature work is in scope.
 
 ## Status
 
-`v0.5.4 CLOSED INVESTIGATION / NO PROVEN PRODUCTION DEFECT / NO PRODUCT RELEASE / v0.6.0 NOT STARTED`
+`v0.5.5 ACTIVE / ROOT-CAUSE VERIFICATION REQUIRED / v0.6.0 BLOCKED`
