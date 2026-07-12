@@ -194,6 +194,21 @@ class ConfigApiTests(unittest.TestCase):
             settings, _warnings = load_settings(path)
             self.assertTrue(settings["compact_when_idle"])
 
+    def test_language_and_manual_compact_are_additive_legacy_safe_settings(self):
+        missing, _warnings = normalize_settings({})
+        self.assertEqual(missing["language"], "en")
+        self.assertFalse(missing["compact"])
+        selected, _warnings = normalize_settings({"language": "zh-CN", "compact": "true"})
+        self.assertEqual(selected["language"], "zh-CN")
+        self.assertTrue(selected["compact"])
+        legacy, _warnings = normalize_settings({"compact_when_idle": True})
+        self.assertFalse(legacy["compact"])
+        invalid, warnings = normalize_settings({"language": "fr", "compact": "invalid"})
+        self.assertEqual(invalid["language"], "en")
+        self.assertFalse(invalid["compact"])
+        self.assertIn("language is invalid; English retained", warnings)
+        self.assertIn("compact is invalid; default retained", warnings)
+
     def test_utf8_bom_settings_file_is_accepted(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "settings.json"
