@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from api.activity_api import snapshot_activity
 from api.config_api import ConfigWriteProtectedError, CONFIG_SCHEMA_VERSION, DEFAULT_SETTINGS, backup_settings_path, load_settings, normalize_settings, restore_settings_backup, save_settings_atomic
+from api.status_snapshot_api import build_status_snapshot
 
 
 def stamp(seconds):
@@ -292,7 +293,35 @@ class ActivityApiTests(unittest.TestCase):
             ])
             result = snapshot_activity(Path(directory), stale_seconds=600, now=1000)
             self.assertEqual(result["active"], 1)
-            self.assertEqual(result["progress"], "活动对话 1 个")
+            self.assertEqual(result["activity_state"], "thinking")
+            self.assertEqual(result["progress_state"], "active_conversations")
+
+    def test_activity_snapshot_emits_semantic_state_not_localized_text(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.write_session(directory, [
+                {"timestamp": stamp(100), "type": "event_msg", "payload": {"type": "task_started"}},
+                {"timestamp": stamp(950), "type": "response_item", "payload": {"type": "reasoning"}},
+            ])
+            result = snapshot_activity(Path(directory), stale_seconds=600, now=1000)
+            self.assertEqual(result["active"], 1)
+            self.assertEqual(result["activity_state"], "thinking")
+            self.assertEqual(result["progress_state"], "active_conversations")
+            self.assertNotIn("detail", result)
+            self.assertNotIn("progress", result)
+
+    def test_same_real_activity_semantics_localize_at_snapshot_boundary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.write_session(directory, [
+                {"timestamp": stamp(100), "type": "event_msg", "payload": {"type": "task_started"}},
+                {"timestamp": stamp(950), "type": "response_item", "payload": {"type": "reasoning"}},
+            ])
+            activity = snapshot_activity(Path(directory), stale_seconds=600, now=1000)
+            english = build_status_snapshot(activity, {"rateLimits": {}}, language="en")
+            chinese = build_status_snapshot(activity, {"rateLimits": {}}, language="zh-CN")
+            self.assertEqual(english["rows"]["activity"], "Codex Thinking")
+            self.assertEqual(english["rows"]["progress"], "Active conversations 1")
+            self.assertEqual(chinese["rows"]["activity"], "Codex 思考中")
+            self.assertEqual(chinese["rows"]["progress"], "活动对话 1 个")
 
     def test_old_task_is_not_active(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -336,7 +365,7 @@ class ActivityApiTests(unittest.TestCase):
                 os.utime(path, (1000, 1000))
             result = snapshot_activity(root, now=1000)
             self.assertEqual(result["active"], 2)
-            self.assertEqual(result["progress"], "活动对话 2 个")
+            self.assertEqual(result["progress_state"], "active_conversations")
 
     def test_recently_completed_session_is_reported(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -345,7 +374,14 @@ class ActivityApiTests(unittest.TestCase):
                 {"timestamp": stamp(995), "type": "event_msg", "payload": {"type": "task_complete"}},
             ])
             result = snapshot_activity(Path(directory), now=1000)
-            self.assertEqual(result, {"active": 0, "detail": "已完成", "progress": "最近对话已完成"})
+            self.assertEqual(
+                result,
+                {
+                    "active": 0,
+                    "activity_state": "completed",
+                    "progress_state": "recent_conversation_completed",
+                },
+            )
 
     def test_file_stat_race_does_not_abort_directory_scan(self):
         with tempfile.TemporaryDirectory() as directory:

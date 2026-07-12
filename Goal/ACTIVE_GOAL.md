@@ -1,12 +1,12 @@
-# ACTIVE PROGRAM GOAL — Post-v0.6.3 Hygiene → v0.7.0 Bilingual UI and Manual Compact
+# ACTIVE PROGRAM GOAL – v0.7.1 Activity Localization and Compact Geometry Correctness
 
-> **Status:** RELEASED / RECONCILED / STOP
+> **Status:** APPROVED FOCUSED BUGFIX PROGRAM
 > **Program owner:** Tom
 > **Repository:** `TomTang701/codex-windows-status-pet`
-> **Released product:** `v0.7.0` at `46912952b200d8a296e94d1429e33c1484dc91b5`
-> **Final target:** achieved
-> **Execution model:** completed
-> **STOP:** achieved; do not begin another product version without Tom's next approved Goal
+> **Released baseline:** `v0.7.0` at `46912952b200d8a296e94d1429e33c1484dc91b5`
+> **Final target:** released and reconciled `v0.7.1`
+> **Execution model:** focused sequential bugfix release
+> **STOP:** only after v0.7.1 release, reconciliation, and final verification
 
 ## Program sequence
 
@@ -18,7 +18,7 @@ Phase A: documentation privacy and bilingual navigation
 → full regression and release gates
 → exact-head Windows CI
 → merged-main RC
-→ v0.7.0 tag and GitHub Release
+→ v0.7.1 tag and GitHub Release
 → final reconciliation
 → STOP
 ```
@@ -60,6 +60,19 @@ Phase A: documentation privacy and bilingual navigation
   Hide/Show, tray Show, Settings lifecycle, language preview, and restart.
 - Compact stays a complete ten-cell selected-source battery with no fallback.
 
+## v0.7.1 correctness contract
+
+- The activity source returns language-independent activity and progress states
+  plus a numeric active count. Only the presentation boundary localizes those
+  states for `en` or `zh-CN`; reverse translation is forbidden.
+- Persisted `x` and `y` remain canonical expanded-window coordinates. Compact
+  geometry is derived from them, and Compact drag validates the visible square
+  before converting it back to canonical coordinates for persistence.
+- General settings re-application preserves the current manual mode. While
+  Compact is active, lock, topmost, language, opacity, scale, row visibility,
+  and battery-source changes keep a compact square containing the complete
+  ten-cell battery.
+
 ## Protected contracts
 
 - Local official app-server quota authority, no token reader, no third-party
@@ -79,4 +92,4 @@ Phase A: documentation privacy and bilingual navigation
 - Review complete diff, unrelated changes, and credentials before remote writes.
 - Require exact-head Windows CI, squash merge, merged-main RC, annotated tag,
   GitHub Release, and final authoritative-state reconciliation.
-- v0.7.0 is released, tagged, and published after exact-head Windows CI and merged-main verification. STOP.
+- v0.7.1 is released, tagged, and published after exact-head Windows CI and merged-main verification. STOP.

@@ -2,6 +2,8 @@
 
 English: [English version](CONFIGURATION.md)
 
+> v0.7.1 同步说明：`x` 和 `y` 是规范的展开窗口虚拟桌面原点，可为负数或超出主显示器。Compact 可见位置从该原点派生；Compact 拖拽使用方形尺寸校验位置，并在保存前转换回展开窗口原点。坐标仍按既有规则规范化，真实离屏窗口仍会恢复到可见工作区。
+
 ## 位置和schema
 
 设置保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json`，当前使用schema版本 `1`。没有 `schema_version` 的旧文件按版本化前格式读取并在内存中规范化；保存时会写入当前schema。

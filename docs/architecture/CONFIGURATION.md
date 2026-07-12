@@ -42,7 +42,7 @@ For schema-1 downgrade compatibility, Save also persists derived `font_size`, `w
 
 A valid legacy file without `window_scale_percent` is migrated in memory by geometric-mean area inference: `sqrt((old_width * old_height) / (330 * 138))`, followed by clamp and quantization. Legacy font size and scale mode do not remain independent sources. Migration preserves position, opacity, colors, refresh interval, topmost, lock, and Compact preference, and does not write disk until the user saves.
 
-`x` and `y` are virtual-desktop coordinates and may be negative or beyond the primary display. Coordinates, opacity, colors, booleans, refresh interval, canonical scale, and legacy migration inputs are normalized before use.
+`x` and `y` are the canonical expanded-window virtual-desktop origin and may be negative or beyond the primary display. Compact visible coordinates are derived from that origin and Compact drag converts back to it before save. Coordinates, opacity, colors, booleans, refresh interval, canonical scale, and legacy migration inputs are normalized before use.
 
 ## Settings transaction
 

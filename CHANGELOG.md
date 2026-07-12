@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+## 0.7.1 - 2026-07-12
+
+- Replaced localized activity-source text with language-independent semantic states, then localized activity and conversation progress only at the presentation boundary.
+- Preserved manual Compact root geometry through every settings re-application and kept persisted coordinates canonical to the expanded window.
+- Fixed Compact drag to validate the visible square, preserve edge anchoring, and convert its visible position back to canonical expanded coordinates before persistence.
+
 ## 0.7.0 - 2026-07-12
 
 - Added persisted English and Simplified Chinese runtime UI with a transactional Settings language selector; Apply previews labels in place, Close restores the opening language, and Save persists it.

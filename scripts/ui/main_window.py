@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.7.0"
+APP_VERSION = "0.7.1"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -20,7 +20,7 @@ try:
     from api.display_api import dpi_for_window, monitor_for_point, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from api.diagnostic_summary_api import build_diagnostic_summary
     from api.display_mode_api import compact_size
-    from api.compact_state_api import compact_geometry
+    from api.compact_state_api import canonical_expanded_position, compact_geometry
     from api.settings_persistence_controller_api import SettingsPersistenceController
     from api.status_presentation_controller_api import StatusPresentationController
     from api.window_lifecycle_controller_api import WindowLifecycleController
@@ -44,7 +44,7 @@ except ModuleNotFoundError:
     from scripts.api.display_api import dpi_for_window, monitor_for_point, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from scripts.api.diagnostic_summary_api import build_diagnostic_summary
     from scripts.api.display_mode_api import compact_size
-    from scripts.api.compact_state_api import compact_geometry
+    from scripts.api.compact_state_api import canonical_expanded_position, compact_geometry
     from scripts.api.settings_persistence_controller_api import SettingsPersistenceController
     from scripts.api.status_presentation_controller_api import StatusPresentationController
     from scripts.api.window_lifecycle_controller_api import WindowLifecycleController
@@ -181,7 +181,7 @@ class Pet(tk.Tk):
             logging.getLogger("codex-status-pet").warning(warning)
         return result.settings
 
-    def safe_position(self, x, y):
+    def safe_position(self, x, y, width=None, height=None):
         """Preserve legal virtual-desktop coordinates and recover disconnected displays."""
         try:
             x, y = int(x), int(y)
@@ -189,8 +189,8 @@ class Pet(tk.Tk):
             return 30, 120
         fallback = virtual_desktop_bounds()
         if fallback:
-            left, top, width, height = fallback
-            fallback_area = (left, top, left + width, top + height)
+            left, top, desktop_width, desktop_height = fallback
+            fallback_area = (left, top, left + desktop_width, top + desktop_height)
         else:
             fallback_area = (0, 0, 1920, 1080)
         monitors = []
@@ -200,15 +200,17 @@ class Pet(tk.Tk):
         except (ImportError, AttributeError, OSError):
             pass
         metrics = getattr(self, "window_metrics", derive_window_metrics(self.settings.get("window_scale_percent")))
-        target_monitor = monitor_for_point(x, y, monitors)
-        recovery_metrics = metrics
-        if target_monitor is not None:
-            recovery_metrics = derive_window_metrics(
-                self.settings.get("window_scale_percent"),
-                dpi=target_monitor.get("dpi_x", self.window_dpi),
-            )
+        if width is None or height is None:
+            target_monitor = monitor_for_point(x, y, monitors)
+            recovery_metrics = metrics
+            if target_monitor is not None:
+                recovery_metrics = derive_window_metrics(
+                    self.settings.get("window_scale_percent"),
+                    dpi=target_monitor.get("dpi_x", self.window_dpi),
+                )
+            width, height = recovery_metrics.width, recovery_metrics.height
         recovered_x, recovered_y, recovered = recover_position(
-            x, y, recovery_metrics.width, recovery_metrics.height, monitors, fallback_area
+            x, y, int(width), int(height), monitors, fallback_area
         )
         if recovered:
             logging.getLogger("codex-status-pet").warning("saved window position was off-screen; recovered to (%s, %s)", recovered_x, recovered_y)
@@ -264,6 +266,7 @@ class Pet(tk.Tk):
         self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec("Segoe UI", metrics.text_font_size), wraplength=metrics.wraplength)
         if not self.compact:
             self._pack_expanded_content()
+        self._apply_current_mode_geometry()
         self.topmost_var.set(self.settings["topmost"])
         self.locked_var.set(self.settings["locked"])
         if hasattr(self, "compact_var"):
@@ -305,6 +308,26 @@ class Pet(tk.Tk):
         )
         self.battery.pack(side="right", padx=(0, metrics.horizontal_padding), pady=metrics.vertical_padding)
 
+    def _apply_current_mode_geometry(self):
+        """Apply root geometry from canonical settings in the current manual mode."""
+        x, y = self.settings["x"], self.settings["y"]
+        if self.compact:
+            size = compact_size(self.window_metrics.width, self.window_metrics.height)
+            work_area = work_area_for_point(x, y)
+            x, y = compact_geometry(
+                x,
+                y,
+                self.window_metrics.width,
+                self.window_metrics.height,
+                size,
+                work_area,
+            )
+            self.geometry(f"{size}x{size}+{x}+{y}")
+            return
+        self.geometry(
+            f"{self.window_metrics.width}x{self.window_metrics.height}+{x}+{y}"
+        )
+
     def set_compact(self, compact):
         compact = bool(compact)
         if compact == self.compact or self.closing:
@@ -322,12 +345,7 @@ class Pet(tk.Tk):
             self.battery.set_metrics(self.window_metrics.text_font_size, compact=False)
             self._pack_expanded_content()
             size = None
-        x, y = self.settings["x"], self.settings["y"]
-        if compact:
-            work_area = work_area_for_point(x, y)
-            x, y = compact_geometry(x, y, self.window_metrics.width, self.window_metrics.height, size, work_area)
-        geometry = f"{size}x{size}+{x}+{y}" if size else f"{self.window_metrics.width}x{self.window_metrics.height}+{x}+{y}"
-        self.geometry(geometry)
+        self._apply_current_mode_geometry()
 
     def set_manual_compact(self, compact):
         """Apply the only normal compact authority and persist it immediately."""
@@ -398,6 +416,23 @@ class Pet(tk.Tk):
         if not self.settings["locked"]:
             x = event.x_root - self._drag[0]
             y = event.y_root - self._drag[1]
+            if self.compact:
+                size = compact_size(self.window_metrics.width, self.window_metrics.height)
+                x, y = self.safe_position(x, y, size, size)
+                work_area = work_area_for_point(x, y)
+                canonical_x, canonical_y = canonical_expanded_position(
+                    x,
+                    y,
+                    self.window_metrics.width,
+                    self.window_metrics.height,
+                    size,
+                    work_area,
+                )
+                self.settings["x"], self.settings["y"] = self.safe_position(
+                    canonical_x, canonical_y
+                )
+                self._apply_current_mode_geometry()
+                return
             x, y = self.safe_position(x, y)
             self.geometry(f"+{x}+{y}")
             self.settings["x"], self.settings["y"] = x, y

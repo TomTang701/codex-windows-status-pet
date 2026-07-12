@@ -10,6 +10,8 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
+from api.display_api import work_area_for_point
+
 
 class DummyServer:
     def __init__(self, _queue):
@@ -444,6 +446,72 @@ class MenuInteractionTests(unittest.TestCase):
             app.update_idletasks()
             self.assertTrue(app.geometry().startswith("495x207"))
             self.assertEqual(app.window_metrics.scale_percent, 150)
+        finally:
+            self.destroy_app(app)
+
+    def test_settings_reapplication_preserves_compact_root_geometry(self):
+        app = self.module["Pet"]()
+        try:
+            app.set_compact(True)
+            app.update_idletasks()
+            settings_updates = (
+                {"locked": not app.settings["locked"]},
+                {"topmost": not app.settings["topmost"]},
+                {"language": "zh-CN"},
+                {"alpha": 0.5},
+                {"window_scale_percent": 150},
+                {"show_weekly": not app.settings["show_weekly"]},
+                {"battery_quota_source": "primary_5h"},
+            )
+            for update in settings_updates:
+                with self.subTest(update=update):
+                    app.apply_settings({**app.settings, **update})
+                    app.update_idletasks()
+                    size = app.winfo_width(), app.winfo_height()
+                    self.assertTrue(app.compact)
+                    self.assertEqual(size[0], size[1])
+        finally:
+            self.destroy_app(app)
+
+    def test_compact_drag_uses_compact_bounds_and_persists_canonical_position(self):
+        app = self.module["Pet"]()
+        app.save_settings = lambda **_kwargs: True
+        try:
+            with mock.patch.object(
+                self.module["_main_window"], "work_area_for_point", return_value=(0, 0, 1920, 1030)
+            ):
+                app.set_compact(True)
+                app.update_idletasks()
+                size = app.winfo_width()
+                expanded_width = app.window_metrics.width
+                for name, target_x, target_y in (
+                    ("right", 1920 - size, 120),
+                    ("bottom", 120, 1030 - size),
+                    ("bottom_right", 1920 - size, 1030 - size),
+                ):
+                    with self.subTest(anchor=name):
+                        safe_calls = []
+
+                        def safe_position(x, y, width=None, height=None):
+                            safe_calls.append((x, y, width, height))
+                            return x, y
+
+                        app.safe_position = safe_position
+                        app.start_drag(
+                            SimpleNamespace(x_root=app.winfo_rootx() + 10, y_root=app.winfo_rooty() + 10)
+                        )
+                        app.drag(SimpleNamespace(x_root=target_x + 10, y_root=target_y + 10))
+                        app.update_idletasks()
+                        self.assertTrue(app.compact)
+                        self.assertEqual((app.winfo_rootx(), app.winfo_rooty()), (target_x, target_y))
+                        self.assertEqual(
+                            (app.settings["x"], app.settings["y"]),
+                            (
+                                target_x - (expanded_width - size) if name in ("right", "bottom_right") else target_x,
+                                target_y - (app.window_metrics.height - size) if name in ("bottom", "bottom_right") else target_y,
+                            ),
+                        )
+                        self.assertIn((target_x, target_y, size, size), safe_calls)
         finally:
             self.destroy_app(app)
 

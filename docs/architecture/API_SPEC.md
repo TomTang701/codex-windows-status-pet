@@ -11,7 +11,7 @@ headless tests.
 | API | Module | Responsibility | Test boundary |
 |---|---|---|---|
 | Configuration API | `scripts/api/config_api.py` | Validate, normalize, load, protect incompatible sources, atomically save, back up, and restore settings. | Temporary JSON files; no Tk. |
-| Activity API | `scripts/api/activity_api.py` | Read Codex session JSONL and derive active/recent status with unchanged-file caching. | Synthetic JSONL directory; injectable clock and cache. |
+| Activity API | `scripts/api/activity_api.py` | Read Codex session JSONL and derive language-independent activity and progress states with unchanged-file caching. | Synthetic JSONL directory; injectable clock, cache, and semantic-state matrix. |
 | Runtime API | `scripts/api/runtime_api.py` | Own the named Windows single-instance mutex. | Windows mutex acquisition/release. |
 | Diagnostics API | `scripts/api/diagnostics_api.py` | Capture uncaught main-thread and worker exceptions when `pythonw.exe` hides the console. | Temporary log path and synthetic exception. |
 | Display API | `scripts/api/display_api.py` | Query virtual-desktop bounds/DPI and test coordinate intersection without clamping legal monitor coordinates. | Simulated 96/144/192 DPI and virtual bounds. |
@@ -20,8 +20,8 @@ headless tests.
 | Popup Geometry API | `scripts/api/display_api.py` | Select a monitor work area and place a popup fully inside it. | Four corners, secondary monitor, negative coordinates, and taskbar work areas. |
 | Quota Format API | `scripts/api/quota_format_api.py` | Select the earliest future credit expiry and format local `HH:MM M/D` text. | Invalid/past expiry values, missing dates, and no-leading-zero formatting. |
 | Quota Status API | `scripts/api/quota_status_api.py` | Classify valid quota windows as healthy, caution, critical, or unavailable. | Boundary percentages and malformed windows. |
-| Display Mode API | `scripts/api/display_mode_api.py` | Decide opt-in idle compaction and calculate compact geometry. | Opt-in, active, hovered, and malformed-size cases. |
-| Compact State API | `scripts/api/compact_state_api.py` | Delay idle compaction, expand on activity/hover, and preserve edge anchors. | Idle delay, activity, hover, blockers, and edge geometry. |
+| Display Mode API | `scripts/api/display_mode_api.py` | Calculate the manual Compact square size. | Malformed-size and supported-scale cases. |
+| Compact State API | `scripts/api/compact_state_api.py` | Convert between canonical expanded-window coordinates and derived Compact visible geometry while preserving edge anchors. | Normal, right-edge, bottom-edge, and bottom-right round trips. |
 | Window Recovery API | `scripts/api/window_recovery_api.py` | Preserve legal monitor coordinates, correct taskbar-partial windows, and recover off-screen windows to the nearest work area. | Negative/secondary coordinates, DPI rounding tolerance, taskbar coverage, disconnected displays, and clamping. |
 | Window Scale API | `scripts/api/window_scale_api.py` | Clamp/quantize one canonical percentage, derive immutable logical metrics, convert pixel metrics for an effective DPI while leaving Tk point fonts unchanged, and infer scale from legacy visual area. | All 25 scale steps, production-order DPI-aware mapped content fit, half-up steps, monotonicity, ratio tolerance, malformed values, and migration bounds. |
 | Quota Parse API | `scripts/api/quota_parse_api.py` | Normalize already-fetched local app-server data to approved quota fields, explicit camelCase/snake_case aliases, and bounded Reset Credit expiry containers without owning network or auth state. | Unknown/credential fields, invalid numbers, aliases, nested expiries, malformed input, and missing fields. |
@@ -54,7 +54,7 @@ headless tests.
 - Routine writes must preserve future-schema, malformed, non-object, and invalid source files byte-for-byte; only an explicit Restore Defaults then Save may authorize replacement.
 - A successful save keeps one previous valid settings file in the `.bak` sidecar; malformed current or backup files are never promoted or restored.
 - Configuration schema v1 is written on save; legacy files without a schema version are normalized, while unknown future versions fall back safely with a warning.
-- Activity API uses the latest session event as the inactivity clock, not only task start time.
+- Activity API uses the latest session event as the inactivity clock, not only task start time, and returns semantic activity/progress keys plus a numeric active count; presentation localizes those keys without reverse-translating text.
 - Runtime initialization requests per-monitor DPI awareness before creating Tk windows.
 - Runtime API never kills an unrelated process to obtain the mutex.
 - A settings Apply changes runtime preview only; only Save changes persisted settings.
@@ -67,6 +67,7 @@ headless tests.
 - The Tk main window composes controllers but does not directly own refresh generations/scheduling, compact decisions, persistence compatibility, or close-state transitions.
 - Tray and application shutdown operations are idempotent; repeated stop calls do not invoke a stopped backend again.
 - The overlay displays only the active conversation count; plan-step text is not part of the UI contract.
+- Persisted `x` and `y` are the expanded-window origin. Compact geometry is derived at render time, and Compact drag converts its validated visible-square position back to those canonical coordinates before persistence.
 - Status text uses a bounded label width so long diagnostics wrap instead of expanding past the overlay.
 - Status presentation has exactly five stable ordered rows: activity, progress, primary 5h, weekly, and Reset Credit; a blank row never shifts later identities.
 - Popup rectangles must be completely contained by the selected monitor work area.
