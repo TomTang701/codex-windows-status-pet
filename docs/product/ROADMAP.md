@@ -1,15 +1,15 @@
 # Codex Windows Status Pet Renewal Roadmap
 
 **Status:** Active roadmap
-**Released baseline:** `v0.5.0`
-**Active implementation scope:** `v0.5.1` runtime geometry reapplication stabilization
+**Released baseline:** `v0.5.1`
+**Active implementation scope:** `v0.6.0` Productization design
 
 ## Current state
 
-- **Released:** v0.3.2 through v0.5.0 are merged, tagged, and published; v0.5.0 removed four unjustified production boundaries.
-- **Verified baseline:** 137 core tests and 22 Tk UI tests pass on merged v0.5.0; exact-head Windows CI and merged-main RC passed with zero blockers and explicit limitations.
+- **Released:** v0.3.2 through v0.5.1 are merged, tagged, and published; v0.5.1 stabilizes long-lived runtime geometry reapplication.
+- **Verified baseline:** 137 core tests and 23 Tk UI tests pass on merged v0.5.1; exact-head Windows CI and merged-main RC passed with zero blockers and explicit limitations.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
-- **Current direction:** New v0.5.0 production evidence reopened runtime geometry correctness as the only active patch scope. v0.6.0 Productization design is paused until v0.5.1 fully closes.
+- **Current direction:** v0.5.1 is released and reconciled. v0.6.0 Productization design resumes; implementation scope must be established through its design gate.
 - **Environment limitations:** mixed-DPI physical hardware, alternate physical taskbar edges, and a separate clean Windows machine are not available and are not claimed as physical evidence.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 

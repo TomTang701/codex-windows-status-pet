@@ -1,20 +1,17 @@
 # Execution State
 
-- Goal status: `ACTIVE`
-- Active phase: `v0.5.1 release candidate verification`
-- Active version: `0.5.1`
-- Branch / base: `fix/v0.5.1-runtime-geometry` from `main` `bd11bb0f6ea29e2bd2aa9760d85228084abd336b`
-- Active skill: `test-driven-development`
-- Current design/spec: `docs/superpowers/specs/2026-07-11-v0.5.1-runtime-geometry-design.md`; `DESIGN VERIFIED`
-- Current plan: `docs/superpowers/plans/2026-07-11-v0.5.1-runtime-geometry.md`
-- Current task: run package/formal RC and complete standing-authorized remote release workflow
-- Production RED: cold start five-row fit can pass, then runtime settings/lock lifecycle changes expanded geometry and clips the final Reset Credit row
-- Automated RED: `test_toggle_preserves_cold_start_fit` fails on released behavior because the same `Pet` changes from `330x138` to `264x110` after `toggle_locked`
-- Existing verification gap: `dpi_content_probe.py` uses a fresh `Pet` per scale and isolated `apply_settings`; it does not cover long-lived transitions
-- Root cause: cold start derives geometry at pre-position DPI 120, runtime reapply derives at target DPI 96, and Tk point fonts retain process-global 120-DPI metrics; `show_window` preserves but does not initiate the failure
-- Design Verification: `PASS`
+- Goal status: `COMPLETE`
+- Completed version: `0.5.1`
+- Released main commit: `10de01410126a1877ac9406fc02e3bc583659df3`
+- Pull request: `#17`; exact-head `15d16f274cd4414307ad4f456b0998bb7c2bb488`
+- Windows CI: run `29176763952`; `quality` passed
+- Merged-main formal RC: `APPROVED`; Quality, package smoke, strict compatibility, and whitespace passed; zero blockers
+- Tag / Release: `v0.5.1`; `https://github.com/TomTang701/codex-windows-status-pet/releases/tag/v0.5.1`
+- Release branch: deleted locally and remotely
+- Root cause: startup and runtime settings reapplication used different HWND DPI contexts while point fonts retained process-global Tk scaling
+- Regression authority: one long-lived production-equivalent `Pet`, 15 lifecycle transitions, and all 25 scale steps at DPI 96/120
 - Human fact required: `None`
 - Blocker: `None`
-- v0.6.0 Productization: `PAUSED` until v0.5.1 is fully released and reconciled
-- Next exact action: run version/document checks, package smoke, formal RC, complete diff/secret review, then push PR and monitor exact-head CI
+- Next phase: `v0.6.0 Productization design resumed`
+- Next exact action: perform v0.6.0 productization brainstorming/design without changing the released v0.5.1 patch scope
 - Last updated: 2026-07-11
