@@ -20,6 +20,20 @@ def stamp(seconds):
 
 
 class ConfigApiTests(unittest.TestCase):
+    def test_battery_source_defaults_to_weekly_and_rejects_invalid_values(self):
+        for raw in (
+            {},
+            {"battery_quota_source": None},
+            {"battery_quota_source": "other"},
+            {"battery_quota_source": 0},
+        ):
+            settings, _warnings = normalize_settings(raw)
+            self.assertEqual(settings["battery_quota_source"], "weekly")
+        settings, _warnings = normalize_settings({"battery_quota_source": "primary_5h"})
+        self.assertEqual(settings["battery_quota_source"], "primary_5h")
+        _settings, warnings = normalize_settings({"battery_quota_source": "other"})
+        self.assertIn("battery_quota_source is invalid; weekly retained", warnings)
+
     def test_quota_row_visibility_defaults_and_normalizes_independently(self):
         settings, warnings = normalize_settings(
             {

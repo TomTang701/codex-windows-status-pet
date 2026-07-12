@@ -12,6 +12,95 @@ from tests.runtime_geometry_transition_probe import CONFIG, DummyServer, DummyTr
 
 
 class BatteryIntegrationTests(unittest.TestCase):
+    def test_compact_battery_uses_the_same_selected_primary_presentation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            path = home / ".codex" / "codex-windows-status-pet.json"
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps(CONFIG), encoding="utf-8")
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            try:
+                module = runpy.run_path(str(ROOT / "scripts" / "codex_status_pet.py"))
+                module["AppServer"] = DummyServer
+                module["TrayIcon3"] = DummyTray
+                app = module["Pet"]()
+                app.latest_quota = {
+                    "rateLimits": {
+                        "primary": {"usedPercent": 20},
+                        "secondary": {"usedPercent": 45},
+                    }
+                }
+                app.apply_settings({
+                    **app.settings,
+                    "battery_quota_source": "primary_5h",
+                })
+                app.render_status()
+                app.set_compact(True)
+                app.update_idletasks()
+                self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
+                self.assertEqual(app.battery.cells[7].cget("bg"), "#a3e635")
+                self.assertEqual(app.battery.cells[8].cget("bg"), "#374151")
+            finally:
+                if app is not None:
+                    app.application_controller.shutdown()
+                    for callback in app.tk.call("after", "info"):
+                        app.after_cancel(callback)
+                    app.topmost_var = None
+                    app.locked_var = None
+                    app.destroy()
+                    gc.collect()
+                Path.home = original_home
+
+    def test_apply_source_change_updates_battery_without_changing_row_visibility(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            path = home / ".codex" / "codex-windows-status-pet.json"
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps(CONFIG), encoding="utf-8")
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            try:
+                module = runpy.run_path(str(ROOT / "scripts" / "codex_status_pet.py"))
+                module["AppServer"] = DummyServer
+                module["TrayIcon3"] = DummyTray
+                app = module["Pet"]()
+                visible_ids = tuple(
+                    row_id for row_id, label in app.text.labels.items()
+                    if label.winfo_ismapped()
+                )
+                app.latest_quota = {
+                    "rateLimits": {
+                        "primary": {"usedPercent": 20},
+                        "secondary": {"usedPercent": 45},
+                    }
+                }
+                app.apply_settings({
+                    **app.settings,
+                    "battery_quota_source": "primary_5h",
+                })
+                app.render_status()
+                self.assertEqual(app.battery.cells[7].cget("bg"), "#a3e635")
+                self.assertEqual(
+                    tuple(
+                        row_id for row_id, label in app.text.labels.items()
+                        if label.winfo_ismapped()
+                    ),
+                    visible_ids,
+                )
+            finally:
+                if app is not None:
+                    app.application_controller.shutdown()
+                    for callback in app.tk.call("after", "info"):
+                        app.after_cancel(callback)
+                    app.topmost_var = None
+                    app.locked_var = None
+                    app.destroy()
+                    gc.collect()
+                Path.home = original_home
+
     def test_apply_settings_forwards_row_visibility_without_changing_battery_metrics(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)

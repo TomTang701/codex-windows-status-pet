@@ -2,9 +2,9 @@
 
 - Program Goal: `ACTIVE — v0.6.1 → v0.6.3 Quota Presentation Controls`
 - Released baseline: `v0.6.2` at `8b7c7fec2a864fa94601ed8235d04cb5cb716a03`
-- Active implementation version: `none — v0.6.2 reconciliation`
-- Active phase: `v0.6.2 released and reconciled; automatic v0.6.3 activation is next`
-- Current branch: `docs/v0.6.2-release-reconciliation`
+- Active implementation version: `v0.6.3`
+- Active phase: `v0.6.3 candidate prepared; release-gate verification and authorized PR workflow next`
+- Current branch: `feat/v0.6.3-battery-source-selector`
 - Recovery reason: `Codex execution interrupted unexpectedly.`
 - Recovered branch / HEAD: `feat/v0.6.2-quota-row-visibility` at `40d59c8b7d9f9f536299aacc67686ed7a70467eb`.
 - Main HEAD: `8b7c7fec2a864fa94601ed8235d04cb5cb716a03`.
@@ -15,8 +15,14 @@
 - Human fact required: `None`
 - v0.6.1 Hard Version Gate: `PASSED — PR #28 exact-head CI, merged main RC, tag, and Release target verified at 40d59c8.`
 - v0.6.2 Hard Version Gate: `PASSED — PR #29 exact-head Windows Quality at ff51ef0, squash merged at 8b7c7fe, merged-main gates rerun, v0.6.2 tag and GitHub Release target verified at 8b7c7fe, remote work branch deleted.`
+- v0.6.3 Design Verification: `PASSED — approved two-state selector, measured Tk Scale candidate, one source-selection boundary, no fallback, and row-visibility independence.`
 - Layout evidence: `real Tk 300x200 probe: five-row doubled center gaps 80; weekly-hidden four-row doubled center gaps 100; same frame dimensions.`
 - Matrix evidence: `8 visibility combinations x 25 scale steps passed at 96 DPI and simulated 120 DPI; hidden-row center spacing permits at most 1 physical-pixel Tk rounding difference.`
 - Local gate evidence: `Quality reconstructed from exact child commands: core 149 tests; UI groups 8, 24, and 10 tests; document, compile, dependency, sensitive-file, package-smoke, strict-readiness, and whitespace checks all exit 0. The monolithic runners exceed the terminal observation window, so their child gates were run in bounded groups.`
-- Next exact action: `create feat/v0.6.3-battery-source-selector from this reconciled main and begin the approved v0.6.3 design comparison.`
+- Task 1 evidence: `RED: missing battery_quota_source key and unsupported build_status_snapshot parameter; GREEN: config/status-snapshot focused tests plus 41 API/snapshot regressions.`
+- Task 2 evidence: `RED: primary selection still rendered weekly inactive cell; GREEN: Controller/MainWindow forward only battery_quota_source and 17 battery regressions pass.`
+- Task 3 evidence: `RED: no 0/1 source Scale; GREEN: Apply/Close transaction passes, real dialog measures 379x413, non-resizable and topmost.`
+- Task 4 evidence: `primary 80% / weekly 55% against all 8 row-visibility combinations and all 25 scale steps passes at DPI 96 and simulated DPI 120; compact selected-primary presentation passes.`
+- Candidate evidence: `core Quality 153 tests; UI source/settings/menu 26 tests; source matrices 96/120; legacy content-fit, mixed-DPI, position, runtime, and Shell groups all pass on the v0.6.3 candidate.`
+- Next exact action: `run package smoke, strict readiness, formal RC, complete diff and credential review, then push and open the v0.6.3 PR.`
 - Last updated: `2026-07-12`

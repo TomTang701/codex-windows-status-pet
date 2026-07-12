@@ -11,6 +11,42 @@ from api.status_rows_api import ROW_IDS
 
 
 class StatusSnapshotTests(unittest.TestCase):
+    def test_each_selected_source_uses_only_its_own_real_quota(self):
+        quota = {
+            "rateLimits": {
+                "primary": {"usedPercent": 20},
+                "secondary": {"usedPercent": 45},
+            }
+        }
+        expected = {
+            "primary_5h": (80, 8),
+            "weekly": (55, 6),
+        }
+        for source, (remaining, segments) in expected.items():
+            with self.subTest(source=source):
+                result = build_status_snapshot(
+                    {"active": 0}, quota, battery_quota_source=source
+                )
+                self.assertEqual(result["battery"]["remaining_percent"], remaining)
+                self.assertEqual(result["battery"]["lit_segments"], segments)
+
+    def test_selected_weekly_remains_available_when_primary_is_absent(self):
+        result = build_status_snapshot(
+            {"active": 0},
+            {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}},
+            battery_quota_source="weekly",
+        )
+        self.assertTrue(result["battery"]["available"])
+        self.assertEqual(result["battery"]["remaining_percent"], 55)
+
+    def test_selected_primary_battery_never_reads_weekly(self):
+        result = build_status_snapshot(
+            {"active": 0},
+            {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}},
+            battery_quota_source="primary_5h",
+        )
+        self.assertFalse(result["battery"]["available"])
+
     def test_weekly_only_window_keeps_5h_unavailable_and_drives_battery(self):
         reset = datetime(2030, 7, 12, 18, 40).astimezone().timestamp()
         result = build_status_snapshot(

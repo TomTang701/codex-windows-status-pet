@@ -10,8 +10,24 @@ class StatusPresentationController:
     def __init__(self):
         self.compact = CompactState()
 
-    def render(self, activity, quota, quota_state, font_color, compact_enabled, hovered, blocked):
-        snapshot = build_status_snapshot(activity, quota, quota_state, font_color)
+    def render(
+        self,
+        activity,
+        quota,
+        quota_state,
+        font_color,
+        compact_enabled,
+        hovered,
+        blocked,
+        battery_quota_source="weekly",
+    ):
+        snapshot = build_status_snapshot(
+            activity,
+            quota,
+            quota_state,
+            font_color,
+            battery_quota_source,
+        )
         should_compact = self.compact.update(
             compact_enabled, snapshot["active_count"], hovered, blocked
         )

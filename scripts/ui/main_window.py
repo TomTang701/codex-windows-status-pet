@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.6.2"
+APP_VERSION = "0.6.3"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -540,6 +540,7 @@ class Pet(tk.Tk):
             self.settings.get("compact_when_idle"),
             self.hovered,
             blocked,
+            self.settings["battery_quota_source"],
         )
         if should_be_compact != self.compact:
             self.set_compact(should_be_compact)

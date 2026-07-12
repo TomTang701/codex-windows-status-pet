@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.6.3 - 2026-07-12
+
+- Added a persisted two-state battery quota-source selector: left is the real 5-hour window and right is the real weekly window.
+- Defaulted missing, malformed, and unsupported source settings to weekly; the selected source is unavailable when its real quota is unavailable and never falls back to the other window.
+- Kept source selection independent from row visibility, and preserved one shared battery presentation for expanded and compact modes across all supported scale and DPI combinations.
+
 ## 0.6.2 - 2026-07-12
 
 - Added independent, persisted visibility controls for the 5-hour, weekly, and reset-credit rows while keeping activity and conversation progress visible.
