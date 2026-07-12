@@ -137,6 +137,26 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_manual_compact_survives_render_hide_show_and_settings_preview(self):
+        app = self.module["Pet"]()
+        app.save_settings = lambda **_kwargs: True
+        try:
+            app.set_manual_compact(True)
+            app.render_status()
+            app.hide_window()
+            app.show_window()
+            self.assertTrue(app.compact)
+            app.show_settings()
+            dialog = app.settings_dialog
+            language = next(widget for widget in self.descendants(dialog) if widget.winfo_class() == "TCombobox")
+            language.set("Simplified Chinese")
+            next(widget for widget in self.descendants(dialog) if widget.winfo_class() == "Button" and widget.cget("text") == "Apply").invoke()
+            self.assertTrue(app.compact)
+            next(widget for widget in self.descendants(dialog) if widget.winfo_class() == "Button" and widget.cget("text") == "Close").invoke()
+            self.assertTrue(app.compact)
+        finally:
+            self.destroy_app(app)
+
     def test_render_status_uses_persisted_runtime_language(self):
         app = self.module["Pet"]()
         try:

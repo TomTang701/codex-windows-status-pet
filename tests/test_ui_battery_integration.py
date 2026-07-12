@@ -12,6 +12,35 @@ from tests.runtime_geometry_transition_probe import CONFIG, DummyServer, DummyTr
 
 
 class BatteryIntegrationTests(unittest.TestCase):
+    def test_startup_restores_persisted_manual_compact_state(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            path = home / ".codex" / "codex-windows-status-pet.json"
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps({**CONFIG, "compact": True}), encoding="utf-8")
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            try:
+                module = runpy.run_path(str(ROOT / "scripts" / "codex_status_pet.py"))
+                module["AppServer"] = DummyServer
+                module["TrayIcon3"] = DummyTray
+                app = module["Pet"]()
+                app.update_idletasks()
+                self.assertTrue(app.compact)
+                self.assertFalse(app.text.winfo_ismapped())
+                self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
+            finally:
+                if app is not None:
+                    app.application_controller.shutdown()
+                    for callback in app.tk.call("after", "info"):
+                        app.after_cancel(callback)
+                    app.topmost_var = None
+                    app.locked_var = None
+                    app.destroy()
+                    gc.collect()
+                Path.home = original_home
+
     def test_compact_battery_uses_the_same_selected_primary_presentation(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)
