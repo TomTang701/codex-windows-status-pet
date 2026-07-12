@@ -111,8 +111,8 @@ class Pet(tk.Tk):
 
     @property
     def compact_state(self):
-        """Compatibility view; presentation ownership lives in its controller."""
-        return self.presentation_controller.compact
+        """Compatibility view for the explicit manual compact setting."""
+        return self.compact
 
     def __init__(self):
         super().__init__()
@@ -150,6 +150,7 @@ class Pet(tk.Tk):
         self.quota_state = QuotaState()
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
+        self.compact_var = tk.BooleanVar(value=self.settings["compact"])
         self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec("Segoe UI", self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.battery = BatteryView(self, bg=self.settings["background_color"])
         self._pack_expanded_content()
@@ -165,6 +166,7 @@ class Pet(tk.Tk):
             widget.bind("<ButtonRelease-1>", self.finish_drag)
         self._drag = (0, 0)
         self.apply_settings(self.settings)
+        self.set_compact(self.settings["compact"])
         self.tray = TrayIcon3(self.tray_actions, self.settings["language"])
         self.after(100, self.process_tray_actions)
         self.after(250, self.poll)
@@ -264,11 +266,11 @@ class Pet(tk.Tk):
             self._pack_expanded_content()
         self.topmost_var.set(self.settings["topmost"])
         self.locked_var.set(self.settings["locked"])
+        if hasattr(self, "compact_var"):
+            self.compact_var.set(self.settings["compact"])
 
     def _pointer_enter(self, _event=None):
         self.hovered = True
-        if self.compact:
-            self.set_compact(False)
 
     def _pointer_leave(self, _event=None):
         self.hovered = False
@@ -327,9 +329,15 @@ class Pet(tk.Tk):
         geometry = f"{size}x{size}+{x}+{y}" if size else f"{self.window_metrics.width}x{self.window_metrics.height}+{x}+{y}"
         self.geometry(geometry)
 
+    def set_manual_compact(self, compact):
+        """Apply the only normal compact authority and persist it immediately."""
+        compact = bool(compact)
+        self.settings["compact"] = compact
+        self.compact_var.set(compact)
+        self.set_compact(compact)
+        return self.save_settings()
+
     def show_window(self):
-        if self.compact:
-            self.set_compact(False)
         x, y = self.hidden_position if self.hidden else (self.settings["x"], self.settings["y"])
         x, y = self.safe_position(x, y)
         self.settings["x"], self.settings["y"] = x, y
@@ -383,8 +391,6 @@ class Pet(tk.Tk):
         self.attributes("-alpha", 0.0)
 
     def start_drag(self, event):
-        if self.compact:
-            self.set_compact(False)
         if not self.settings["locked"]:
             self._drag = (event.x_root - self.winfo_rootx(), event.y_root - self.winfo_rooty())
 
@@ -533,20 +539,14 @@ class Pet(tk.Tk):
         threading.Thread(target=worker, name="codex-quota-refresh", daemon=True).start()
 
     def render_status(self):
-        blocked = bool(getattr(self, "context_menu", None)) or bool(self.settings_dialog and self.settings_dialog.winfo_exists())
-        presentation, should_be_compact = self.presentation_controller.render(
+        presentation = self.presentation_controller.render(
             self.latest_activity,
             self.latest_quota,
             self.quota_state.state,
             self.settings["font_color"],
-            self.settings.get("compact_when_idle"),
-            self.hovered,
-            blocked,
             self.settings["battery_quota_source"],
             self.settings["language"],
         )
-        if should_be_compact != self.compact:
-            self.set_compact(should_be_compact)
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
         self.battery.configure_presentation(presentation["battery"])
 
@@ -594,7 +594,6 @@ class Pet(tk.Tk):
     def close(self):
         if not self.lifecycle.begin_close():
             return
-        self.presentation_controller.force_expanded()
         if hasattr(self, "application_controller"):
             self.application_controller.shutdown()
         try:

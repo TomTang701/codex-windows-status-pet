@@ -2,23 +2,16 @@
 
 from __future__ import annotations
 
-from .compact_state_api import CompactState
 from .status_snapshot_api import build_status_snapshot, build_tray_error_snapshot
 
 
 class StatusPresentationController:
-    def __init__(self):
-        self.compact = CompactState()
-
     def render(
         self,
         activity,
         quota,
         quota_state,
         font_color,
-        compact_enabled,
-        hovered,
-        blocked,
         battery_quota_source="weekly",
         language="zh-CN",
     ):
@@ -30,13 +23,7 @@ class StatusPresentationController:
             battery_quota_source,
             language,
         )
-        should_compact = self.compact.update(
-            compact_enabled, snapshot["active_count"], hovered, blocked
-        )
-        return snapshot, should_compact
-
-    def force_expanded(self):
-        self.compact.force_expanded()
+        return snapshot
 
     def render_tray_error(self, language="zh-CN"):
         return build_tray_error_snapshot(language)

@@ -74,7 +74,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
-            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Hide window", "Exit"])
+            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Compact", "Hide window", "Exit"])
             for removed in ("立即刷新", "复制诊断摘要", "恢复上次设置"):
                 self.assertNotIn(removed, labels)
         finally:
@@ -102,7 +102,38 @@ class MenuInteractionTests(unittest.TestCase):
             app.settings["language"] = "en"
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
-            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Hide window", "Exit"])
+            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Compact", "Hide window", "Exit"])
+        finally:
+            self.destroy_app(app)
+
+    def test_manual_compact_toggle_updates_visual_state_and_persists(self):
+        app = self.module["Pet"]()
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                app.settings_path = Path(directory) / "settings.json"
+                self.assertTrue(app.set_manual_compact(True))
+                self.assertTrue(app.compact)
+                self.assertTrue(app.settings["compact"])
+                self.assertTrue(app.load_settings()["compact"])
+                self.assertTrue(app.set_manual_compact(False))
+                self.assertFalse(app.compact)
+                self.assertFalse(app.load_settings()["compact"])
+        finally:
+            self.destroy_app(app)
+
+    def test_compact_menu_checkbox_toggles_without_menu_open_expansion(self):
+        app = self.module["Pet"]()
+        try:
+            app.settings_path = Path(tempfile.gettempdir()) / "codex-status-pet-menu-test.json"
+            app.set_manual_compact(True)
+            app.menu(SimpleNamespace(x_root=4200, y_root=200))
+            self.assertTrue(app.compact)
+            compact = next(item for item in self.menu_items(app.context_menu) if item.cget("text") == "Compact")
+            self.assertTrue(bool(app.compact_var.get()))
+            compact.invoke()
+            app.update_idletasks()
+            self.assertFalse(app.compact)
+            self.assertFalse(app.settings["compact"])
         finally:
             self.destroy_app(app)
 
@@ -403,7 +434,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             self.assertIs(app.refresh_controller, app.application_controller.refresh)
             self.assertIs(app.refresh_scheduler, app.application_controller.quota)
-            self.assertIs(app.compact_state, app.presentation_controller.compact)
+            self.assertIs(app.compact_state, app.compact)
             with tempfile.TemporaryDirectory() as directory:
                 replacement = Path(directory) / "settings.json"
                 app.settings_path = replacement

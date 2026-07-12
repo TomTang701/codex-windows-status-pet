@@ -15,8 +15,6 @@ except ModuleNotFoundError:
 
 def show_context_menu(owner, event):
     """Show and own the popup menu for a Pet-like owner object."""
-    if owner.compact:
-        owner.set_compact(False)
     old_menu = getattr(owner, "context_menu", None)
     if old_menu is not None:
         try:
@@ -58,6 +56,7 @@ def show_context_menu(owner, event):
     tk.Button(body, text=translate(language, "settings"), command=lambda: run_and_close(owner.show_settings), **button_options).pack(fill="x", padx=2, pady=1)
     tk.Checkbutton(body, text=translate(language, "always_on_top"), variable=owner.topmost_var, command=lambda: run_and_close(owner.toggle_topmost), **button_options).pack(fill="x", padx=2, pady=1)
     tk.Checkbutton(body, text=translate(language, "lock_position"), variable=owner.locked_var, command=lambda: run_and_close(owner.toggle_locked), **button_options).pack(fill="x", padx=2, pady=1)
+    tk.Checkbutton(body, text=translate(language, "compact"), variable=owner.compact_var, command=lambda: run_and_close(lambda: owner.set_manual_compact(owner.compact_var.get())), **button_options).pack(fill="x", padx=2, pady=1)
     tk.Frame(body, height=1, bg="#d1d5db").pack(fill="x", padx=2, pady=3)
     tk.Button(body, text=translate(language, "hide_window"), command=lambda: run_and_close(owner.hide_window), **button_options).pack(fill="x", padx=2, pady=1)
     tk.Button(body, text=translate(language, "exit"), command=lambda: run_and_close(owner.close), **button_options).pack(fill="x", padx=2, pady=1)

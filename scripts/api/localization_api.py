@@ -40,6 +40,7 @@ _TEXT = {
         "exit": "Exit",
         "show_window": "Show window",
         "open_settings": "Open settings",
+        "compact": "Compact",
     },
     "zh-CN": {
         "idle": "空闲",
@@ -75,6 +76,7 @@ _TEXT = {
         "exit": "退出",
         "show_window": "显示窗口",
         "open_settings": "打开设置",
+        "compact": "收缩",
     },
 }
 
