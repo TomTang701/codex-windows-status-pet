@@ -1,38 +1,31 @@
-# ACTIVE VERSION BRIEF — No Active Implementation Version
+# ACTIVE VERSION BRIEF — v0.5.1 Runtime Geometry Reapplication Stabilization
 
-## Released state
+## Outcome
 
-- Latest release: `v0.5.0` Lean-Core Simplification.
-- Phase 1: `v0.4.1` correctness stabilization — complete.
-- Phase 2: `v0.4.2` autonomous verification conversion — complete.
-- Phase 3: `v0.5.0` lean-core simplification — complete.
-- Phase 4: `PHASE 4 NOT NEEDED`.
-- Phase 5: productization decision complete; implementation not authorized by this Goal.
+One long-lived `Pet` keeps one coherent target-window-DPI expanded geometry and fully visible five-row content through every supported settings, lock, visibility, compact, restore, and monitor transition.
 
-## Phase 4 decision
+## Root cause and design
 
-The runtime has one coherent visible-state route:
+Released v0.5.0 derived cold-start and runtime reapplication geometry under different HWND monitor/DPI contexts while Tk point fonts retained process-global scaling. The verified minimum design positions the withdrawn HWND first, then derives physical geometry and explicit negative-pixel fonts from that target-window DPI. `Pet._sync_compatibility_metrics()` remains the sole runtime metric authority; no new subsystem or persisted physical dimensions were added.
 
-```text
-transport/activity result
-→ normalized domain/coordination state
-→ StatusPresentationController
-→ five-row snapshot/color
-→ StatusRows Tk adapter
-```
+## Required transition matrix
 
-`Pet` owns actual Tk geometry/visibility; `CompactState` owns delayed compact decisions. These are distinct responsibilities, not duplicate state ownership. Application refresh, settings persistence, lifecycle close state, and presentation each retain one owner. No direct emergency string/color renderer remains.
+Cold start/no action; open settings only; Close without changes; toggle lock; toggle lock then settings; opacity-only Apply; scale-change Apply; Save; draft scale then Close rollback; Restore Defaults; repeated settings open/close; Hide/Show; Compact/Expand; and the closest reproducible combined sequence.
 
-## Phase 5 decision
+## Regression contract
 
-| Question | Decision | Evidence |
-|---|---|---|
-| Is the lean core stable? | Yes | v0.5.0 exact-head CI and merged-main RC passed; 159 tests, zero blockers. |
-| Are supported-host routine checks automated? | Yes | v0.4.2 inventory and single RC path; no routine human visual gate for machine facts. |
-| Are active docs truthful and small? | Yes | active normative LOC reduced to 953; release procedure has one formal command. |
-| Is installation now the largest real usability problem? | Yes | the product still relies on a source checkout and root CMD launcher; there is no install/uninstall path, explicit startup choice, signed binary, or formal distributable. |
-| Would productization add more value than another stabilization release? | Yes | no known blocking correctness issue remains; installation/startup friction is the clearest remaining user-facing gap. |
+After every transition exactly five stable rows exist; requested heights fit allocations; all rows and the final row bottom stay inside the actual visible root/client boundary; approved single-line rows do not unexpectedly wrap; unchanged logical scale and DPI preserve expanded geometry; and a true DPI change ends with exact Window Scale API geometry and matching pixel fonts.
 
-## Boundary
+## Current evidence
 
-Do not automatically implement v0.6.0. A future productization Goal requires a separately approved design covering install/uninstall, explicit opt-in startup behavior, artifact format, clean-machine strategy, rollback, unsigned behavior, user documentation, and verification. Until then, remain on released v0.5.0.
+- Authoritative released-behavior RED: one `Pet` changed from `330x138` to `264x110` after `toggle_locked`.
+- Cross-monitor RED: reapplication moved the HWND to DPI 120 while retaining DPI 96 metrics.
+- GREEN: all 25 scale steps at DPI 96 and 120 fit all five rows.
+- GREEN: all 15 required production-equivalent lifecycle transitions report `fits: true`.
+- GREEN: routine Quality approved with 137 core tests and 23 Tk UI tests.
+
+## Status
+
+`DESIGN VERIFIED / IMPLEMENTATION GREEN / FORMAL RC APPROVED / REMOTE RECONCILIATION PENDING`
+
+The branch package and formal RC are approved. The patch is not complete until exact-head PR CI, squash merge, merged-main RC, tag `v0.5.1`, GitHub Release, branch cleanup, and active-state reconciliation are verified.

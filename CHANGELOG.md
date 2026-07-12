@@ -58,6 +58,11 @@
 - Fixed settings loading for UTF-8 BOM files commonly produced by Windows editors and PowerShell.
 - Added regression coverage for bottom-right popup placement, secondary monitors, and quota formatting.
 
+## 0.5.1 - 2026-07-11
+
+- Stabilized one long-lived overlay across settings, lock, visibility, compact, restore, and mixed-DPI monitor transitions by deriving geometry and pixel fonts from one positioned HWND DPI authority.
+- Added an automated production-equivalent regression covering all 25 scale steps at DPI 96 and 120 plus the complete runtime transition sequence that exposed the v0.5.0 clipping false positive.
+
 ## 0.5.0 - 2026-07-11
 
 - Deleted unused quota-domain model, historical free-resize, and historical resize-session modules whose only consumers were implementation-detail tests.

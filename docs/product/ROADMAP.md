@@ -2,14 +2,14 @@
 
 **Status:** Active roadmap
 **Released baseline:** `v0.5.0`
-**Active implementation scope:** None; productization requires a separate approved design
+**Active implementation scope:** `v0.5.1` runtime geometry reapplication stabilization
 
 ## Current state
 
 - **Released:** v0.3.2 through v0.5.0 are merged, tagged, and published; v0.5.0 removed four unjustified production boundaries.
 - **Verified baseline:** 137 core tests and 22 Tk UI tests pass on merged v0.5.0; exact-head Windows CI and merged-main RC passed with zero blockers and explicit limitations.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
-- **Current direction:** Phase 4 is not needed. Productization is the highest-value next opportunity, but no v0.6.0 implementation is active without a separate approved design.
+- **Current direction:** New v0.5.0 production evidence reopened runtime geometry correctness as the only active patch scope. v0.6.0 Productization design is paused until v0.5.1 fully closes.
 - **Environment limitations:** mixed-DPI physical hardware, alternate physical taskbar edges, and a separate clean Windows machine are not available and are not claimed as physical evidence.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 
@@ -41,7 +41,7 @@ Proceed only if duplicate runtime or presentation ownership remains after Phase 
 
 ### Phase 5 — v0.6.0 Productization Decision
 
-Decide whether installation is the largest remaining usability problem only after the lean core and supported-host automation are proven. Installer or startup productization requires a separately verified design and is not automatic.
+Paused pending v0.5.1 runtime geometry stabilization. After v0.5.1 fully closes, resume the existing decision that installer/startup productization requires a separately verified design and is not automatic.
 
 ## Protected direction
 

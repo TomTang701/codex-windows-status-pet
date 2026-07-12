@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.5.0"
+APP_VERSION = "0.5.1"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -114,6 +114,7 @@ class Pet(tk.Tk):
 
     def __init__(self):
         super().__init__()
+        self.withdraw()
         self.lifecycle = WindowLifecycleController()
         self.title("Codex Windows Status Pet")
         self.overrideredirect(True)
@@ -122,6 +123,9 @@ class Pet(tk.Tk):
         self.settings = self.load_settings()
         self._sync_compatibility_metrics(self.settings)
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
+        self.geometry(f"+{self.settings['x']}+{self.settings['y']}")
+        self.update_idletasks()
+        self._sync_compatibility_metrics(self.settings)
         self.configure(bg=self.settings["background_color"])
         self.geometry(f"{self.window_metrics.width}x{self.window_metrics.height}+{self.settings['x']}+{self.settings['y']}")
         self.hidden = False
@@ -144,8 +148,8 @@ class Pet(tk.Tk):
         self.quota_state = QuotaState()
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
-        self.face = tk.Label(self, text="\U0001f43e", font=("Segoe UI Emoji", self.window_metrics.face_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
-        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=("Segoe UI", self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self.face = tk.Label(self, text="\U0001f43e", font=self._font_spec("Segoe UI Emoji", self.window_metrics.face_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec("Segoe UI", self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self._pack_expanded_content()
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
@@ -164,6 +168,7 @@ class Pet(tk.Tk):
         self.after(250, self.poll)
         self.after(1000, self.refresh_activity)
         self.after(1000, self.refresh)
+        self.deiconify()
 
     def load_settings(self):
         result = self.settings_controller.load()
@@ -225,17 +230,22 @@ class Pet(tk.Tk):
 
     def apply_settings(self, settings):
         self.settings = dict(settings)
-        metrics = self._sync_compatibility_metrics(self.settings)
+        self.window_metrics = derive_window_metrics(
+            self.settings.get("window_scale_percent")
+        )
         if hasattr(self, "application_controller"):
             self.application_controller.set_quota_interval(self.settings["refresh_interval_seconds"])
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
+        self.geometry(f"+{self.settings['x']}+{self.settings['y']}")
+        self.update_idletasks()
+        metrics = self._sync_compatibility_metrics(self.settings)
         self.geometry(f"{metrics.width}x{metrics.height}+{self.settings['x']}+{self.settings['y']}")
         self.attributes("-alpha", self.settings["alpha"])
         self.attributes("-topmost", self.settings["topmost"])
         bg, fg = self.settings["background_color"], self.settings["font_color"]
         self.configure(bg=bg)
-        self.face.configure(bg=bg, fg=fg, font=("Segoe UI Emoji", metrics.face_font_size))
-        self.text.configure_rows(bg=bg, fg=fg, font=("Segoe UI", metrics.text_font_size), wraplength=metrics.wraplength)
+        self.face.configure(bg=bg, fg=fg, font=self._font_spec("Segoe UI Emoji", metrics.face_font_size))
+        self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec("Segoe UI", metrics.text_font_size), wraplength=metrics.wraplength)
         if not self.compact:
             self._pack_expanded_content()
         self.topmost_var.set(self.settings["topmost"])
@@ -251,8 +261,9 @@ class Pet(tk.Tk):
 
     def _sync_compatibility_metrics(self, settings):
         logical = derive_window_metrics(settings.get("window_scale_percent"))
+        self.window_dpi = dpi_for_window(self.winfo_id())
         display = derive_window_metrics(
-            logical.scale_percent, dpi=dpi_for_window(self.winfo_id())
+            logical.scale_percent, dpi=self.window_dpi
         )
         settings["window_scale_percent"] = logical.scale_percent
         settings["font_size"] = logical.text_font_size
@@ -261,6 +272,10 @@ class Pet(tk.Tk):
         settings["scale_mode"] = "proportional"
         self.window_metrics = display
         return display
+
+    def _font_spec(self, family, logical_point_size):
+        pixels = max(1, round(logical_point_size * self.window_dpi / 72.0))
+        return family, -pixels
 
     def _pack_expanded_content(self):
         metrics = self.window_metrics
