@@ -74,7 +74,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
-            self.assertEqual(labels, ["显示设置", "置顶", "锁定位置", "隐藏窗口", "退出"])
+            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Hide window", "Exit"])
             for removed in ("立即刷新", "复制诊断摘要", "恢复上次设置"):
                 self.assertNotIn(removed, labels)
         finally:
@@ -93,6 +93,16 @@ class MenuInteractionTests(unittest.TestCase):
                 app.text.labels["progress"].cget("fg"), "#fca5a5"
             )
             self.assertTrue(app.tray_restart_scheduled)
+        finally:
+            self.destroy_app(app)
+
+    def test_context_menu_uses_current_runtime_language_without_changing_actions(self):
+        app = self.module["Pet"]()
+        try:
+            app.settings["language"] = "en"
+            app.menu(SimpleNamespace(x_root=4200, y_root=200))
+            labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
+            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Hide window", "Exit"])
         finally:
             self.destroy_app(app)
 
@@ -124,7 +134,7 @@ class MenuInteractionTests(unittest.TestCase):
                 app.poll()
             logged.assert_not_called()
             values = app.text.row_values()
-            self.assertEqual(values["progress"], "额度暂不可用")
+            self.assertEqual(values["progress"], "Quota unavailable")
             self.assertNotIn("transport exploded", "\n".join(values.values()))
             self.assertEqual(app.quota_state.state, "unavailable")
         finally:
@@ -135,7 +145,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             popup = app.context_menu
-            settings = next(item for item in self.menu_items(popup) if item.cget("text") == "显示设置")
+            settings = next(item for item in self.menu_items(popup) if item.cget("text") == "Settings")
             settings.invoke()
             app.update_idletasks()
             self.assertIsNotNone(app.settings_dialog)
@@ -167,18 +177,18 @@ class MenuInteractionTests(unittest.TestCase):
                 and float(widget.cget("to")) == 1.0
             )
             self.assertEqual(float(source_scale.cget("resolution")), 1.0)
-            self.assertIn("透明度", texts)
-            self.assertIn("窗口大小", texts)
-            self.assertIn("电池显示内容", texts)
-            self.assertIn("5小时", texts)
-            self.assertIn("每周", texts)
+            self.assertIn("Opacity", texts)
+            self.assertIn("Window size", texts)
+            self.assertIn("Battery display content", texts)
+            self.assertIn("5-hour", texts)
+            self.assertIn("Weekly", texts)
             for removed in ("字体大小", "窗口大小 (宽, 高)", "−", "+", "等比例缩放"):
                 self.assertNotIn(removed, texts)
-            self.assertIn("默认位置 (X, Y)", texts)
-            self.assertIn("刷新间隔 (秒)", texts)
+            self.assertIn("Default position (X, Y)", texts)
+            self.assertIn("Refresh interval (seconds)", texts)
             for retained in (
-                "置顶", "锁定位置", "空闲时收缩", "字体颜色...", "背景颜色...",
-                "保存", "应用", "恢复默认值", "关闭",
+                "Always on top", "Lock position", "Font color...", "Background color...",
+                "Save", "Apply", "Restore Defaults", "Close",
             ):
                 self.assertIn(retained, texts)
         finally:
@@ -205,10 +215,10 @@ class MenuInteractionTests(unittest.TestCase):
                 for widget in widgets
                 if widget.winfo_class() == "Button"
             }
-            buttons["应用"].invoke()
+            buttons["Apply"].invoke()
             self.assertEqual(app.settings["window_scale_percent"], 150)
             self.assertEqual((app.settings["window_width"], app.settings["window_height"]), (495, 207))
-            buttons["恢复默认值"].invoke()
+            buttons["Restore Defaults"].invoke()
             self.assertEqual(int(scale.get()), 100)
         finally:
             self.destroy_app(app)
@@ -220,7 +230,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             popup = app.context_menu
-            hide = next(item for item in self.menu_items(popup) if item.cget("text") == "隐藏窗口")
+            hide = next(item for item in self.menu_items(popup) if item.cget("text") == "Hide window")
             hide.invoke()
             app.update_idletasks()
             self.assertEqual(calls, ["hide"])
@@ -265,8 +275,8 @@ class MenuInteractionTests(unittest.TestCase):
                     for widget in self.descendants(app.settings_dialog)
                     if widget.winfo_class() == "Button"
                 }
-                buttons["恢复默认值"].invoke()
-                buttons["保存"].invoke()
+                buttons["Restore Defaults"].invoke()
+                buttons["Save"].invoke()
                 app.update_idletasks()
                 result = app.settings_path.read_text(encoding="utf-8")
                 self.assertIn('"schema_version": 1', result)
@@ -291,7 +301,7 @@ class MenuInteractionTests(unittest.TestCase):
                     if widget.winfo_class() == "Button"
                 }
                 with mock.patch("ui.settings_dialog.messagebox.showwarning") as warning:
-                    buttons["保存"].invoke()
+                    buttons["Save"].invoke()
                 self.assertTrue(dialog.winfo_exists())
                 self.assertEqual(app.settings_path.read_text(encoding="utf-8"), "{damaged")
                 warning.assert_called_once()

@@ -165,7 +165,7 @@ class Pet(tk.Tk):
             widget.bind("<ButtonRelease-1>", self.finish_drag)
         self._drag = (0, 0)
         self.apply_settings(self.settings)
-        self.tray = TrayIcon3(self.tray_actions)
+        self.tray = TrayIcon3(self.tray_actions, self.settings["language"])
         self.after(100, self.process_tray_actions)
         self.after(250, self.poll)
         self.after(1000, self.refresh_activity)
@@ -245,6 +245,8 @@ class Pet(tk.Tk):
         )
         if hasattr(self, "application_controller"):
             self.application_controller.set_quota_interval(self.settings["refresh_interval_seconds"])
+        if hasattr(self, "tray") and hasattr(self.tray, "set_language"):
+            self.tray.set_language(self.settings["language"])
         self.settings["x"], self.settings["y"] = self.safe_position(self.settings["x"], self.settings["y"])
         self.geometry(f"+{self.settings['x']}+{self.settings['y']}")
         self.update_idletasks()
@@ -484,7 +486,7 @@ class Pet(tk.Tk):
         if self.closing:
             return
         try:
-            self.tray = TrayIcon3(self.tray_actions)
+            self.tray = TrayIcon3(self.tray_actions, self.settings["language"])
             self.tray_restart_scheduled = False
         except Exception:
             logging.getLogger("codex-status-pet").exception("notification-area icon restart failed")

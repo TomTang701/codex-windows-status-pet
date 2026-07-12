@@ -35,6 +35,11 @@ _TEXT = {
         "apply": "Apply",
         "restore_defaults": "Restore Defaults",
         "close": "Close",
+        "settings": "Settings",
+        "hide_window": "Hide window",
+        "exit": "Exit",
+        "show_window": "Show window",
+        "open_settings": "Open settings",
     },
     "zh-CN": {
         "idle": "空闲",
@@ -65,6 +70,11 @@ _TEXT = {
         "apply": "应用",
         "restore_defaults": "恢复默认值",
         "close": "关闭",
+        "settings": "显示设置",
+        "hide_window": "隐藏窗口",
+        "exit": "退出",
+        "show_window": "显示窗口",
+        "open_settings": "打开设置",
     },
 }
 

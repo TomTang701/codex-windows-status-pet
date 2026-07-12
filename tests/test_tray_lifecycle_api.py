@@ -5,10 +5,19 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
 from api.tray_lifecycle_api import is_known_action, requires_visible_overlay, should_schedule_restart
-from ui.tray_adapter import TrayIcon3
+from ui.tray_adapter import TrayIcon3, tray_menu_labels
 
 
 class TrayLifecycleTests(unittest.TestCase):
+    def test_tray_labels_are_localized_while_actions_remain_stable(self):
+        self.assertEqual(
+            tray_menu_labels("en"),
+            ("Show window", "Hide window", "Open settings", "Exit"),
+        )
+        self.assertEqual(
+            tray_menu_labels("zh-CN"),
+            ("显示窗口", "隐藏窗口", "打开设置", "退出"),
+        )
     def test_action_allowlist_and_visibility_policy(self):
         self.assertTrue(is_known_action("settings"))
         self.assertFalse(is_known_action("unexpected"))
@@ -36,3 +45,14 @@ class TrayLifecycleTests(unittest.TestCase):
         tray.stop()
         tray.stop()
         self.assertEqual(tray.icon.calls, 1)
+
+    def test_language_update_reuses_existing_tray_icon(self):
+        tray = TrayIcon3.__new__(TrayIcon3)
+
+        class FakeIcon:
+            menu = None
+
+        tray.icon = FakeIcon()
+        tray.set_language("zh-CN")
+        self.assertEqual(tray.language, "zh-CN")
+        self.assertIsNotNone(tray.icon.menu)
