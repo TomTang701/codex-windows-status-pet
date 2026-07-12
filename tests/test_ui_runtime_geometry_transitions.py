@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import gc
 import ctypes
+import itertools
 import json
 import runpy
 import sys
@@ -24,6 +25,82 @@ from scripts.api.window_scale_api import derive_window_metrics
 
 
 class RuntimeGeometryTransitionTests(unittest.TestCase):
+    def test_visibility_combinations_fit_all_scales_at_120_dpi(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            config_path = home / ".codex" / "codex-windows-status-pet.json"
+            config_path.parent.mkdir(parents=True)
+            config_path.write_text(json.dumps(CONFIG), encoding="utf-8")
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            dpi_patcher = None
+            try:
+                module = runpy.run_path(str(ROOT / "scripts" / "codex_status_pet.py"))
+                module["AppServer"] = DummyServer
+                module["TrayIcon3"] = DummyTray
+                main_window = sys.modules[module["Pet"].__mro__[1].__module__]
+                dpi_patcher = mock.patch.object(main_window, "dpi_for_window", return_value=120)
+                dpi_patcher.start()
+                app = module["Pet"]()
+                optional_ids = ("primary_5h", "weekly", "reset_credit")
+                for scale in range(80, 201, 5):
+                    for flags in itertools.product((False, True), repeat=3):
+                        with self.subTest(scale=scale, flags=flags):
+                            settings = dict(zip(
+                                ("show_primary_5h", "show_weekly", "show_reset_credit"),
+                                flags,
+                            ))
+                            app.apply_settings({
+                                **app.settings,
+                                **settings,
+                                "window_scale_percent": scale,
+                            })
+                            app.text.configure_rows(rows=ROWS)
+                            app.update_idletasks()
+                            visible_ids = tuple(
+                                row_id
+                                for row_id, label in app.text.labels.items()
+                                if label.winfo_ismapped()
+                            )
+                            expected_ids = ("activity", "progress") + tuple(
+                                row_id
+                                for row_id, enabled in zip(optional_ids, flags)
+                                if enabled
+                            )
+                            expected = derive_window_metrics(scale, dpi=120)
+                            self.assertEqual(visible_ids, expected_ids)
+                            self.assertEqual(
+                                (app.winfo_width(), app.winfo_height()),
+                                (expected.width, expected.height),
+                            )
+                            self.assertLessEqual(
+                                app.text.winfo_reqheight(), app.text.winfo_height()
+                            )
+                            self.assertTrue(all(
+                                label.winfo_y() + label.winfo_height()
+                                <= app.text.winfo_height()
+                                for label in app.text.labels.values()
+                                if label.winfo_ismapped()
+                            ))
+                            self.assertEqual(len(app.battery.cells), 10)
+                            self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
+            finally:
+                if app is not None:
+                    app.application_controller.shutdown()
+                    for callback in app.tk.call("after", "info"):
+                        try:
+                            app.after_cancel(callback)
+                        except Exception:
+                            pass
+                    app.topmost_var = None
+                    app.locked_var = None
+                    app.destroy()
+                    gc.collect()
+                if dpi_patcher is not None:
+                    dpi_patcher.stop()
+                Path.home = original_home
+
     def test_toggle_preserves_cold_start_fit(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)

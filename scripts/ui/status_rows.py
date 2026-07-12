@@ -27,8 +27,8 @@ class StatusRows(tk.Frame):
                 bg=bg,
                 wraplength=wraplength,
             )
-            label.pack(fill="x", anchor="w")
             self.labels[row_id] = label
+        self.set_visible_rows({})
         self.configure_rows(text=text)
 
     @property
@@ -52,6 +52,20 @@ class StatusRows(tk.Frame):
         if options:
             for label in self.labels.values():
                 label.configure(**options)
+
+    def set_visible_rows(self, settings):
+        visible = {
+            "activity": True,
+            "progress": True,
+            "primary_5h": bool(settings.get("show_primary_5h", True)),
+            "weekly": bool(settings.get("show_weekly", True)),
+            "reset_credit": bool(settings.get("show_reset_credit", True)),
+        }
+        for label in self.labels.values():
+            label.pack_forget()
+        for row_id in ROW_IDS:
+            if visible[row_id]:
+                self.labels[row_id].pack(fill="x", expand=True, anchor="w")
 
     def row_values(self):
         return {row_id: label.cget("text") for row_id, label in self.labels.items()}

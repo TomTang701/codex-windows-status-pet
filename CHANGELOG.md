@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.6.2 - 2026-07-12
+
+- Added independent, persisted visibility controls for the 5-hour, weekly, and reset-credit rows while keeping activity and conversation progress visible.
+- Hidden rows leave Tk layout management instead of showing blank values; every visible row evenly shares the unchanged text region.
+- Preserved truthful unavailable/stale row text, the classified weekly battery source, five stable row identities, the 10-cell battery, compact behavior, DPI recovery, Shell identity, and existing settings transactions.
+
 ## 0.6.1 - 2026-07-12
 
 - Classify official local quota windows by the safe `windowDurationMins` metadata instead of raw `primary`/`secondary` keys.

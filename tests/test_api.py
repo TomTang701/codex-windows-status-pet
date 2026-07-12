@@ -20,6 +20,20 @@ def stamp(seconds):
 
 
 class ConfigApiTests(unittest.TestCase):
+    def test_quota_row_visibility_defaults_and_normalizes_independently(self):
+        settings, warnings = normalize_settings(
+            {
+                "show_primary_5h": False,
+                "show_weekly": "off",
+                "show_reset_credit": 1,
+            }
+        )
+        self.assertFalse(settings["show_primary_5h"])
+        self.assertFalse(settings["show_weekly"])
+        self.assertTrue(settings["show_reset_credit"])
+        self.assertEqual(warnings, [])
+        self.assertTrue(DEFAULT_SETTINGS["show_primary_5h"])
+
     def test_invalid_values_fall_back_field_by_field(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "settings.json"
