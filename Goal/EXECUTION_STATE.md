@@ -1,23 +1,22 @@
 # Execution State
 
 - Program Goal: `ACTIVE — v0.6.1 → v0.6.3 Quota Presentation Controls`
-- Released baseline: `v0.6.1` at `40d59c8b7d9f9f536299aacc67686ed7a70467eb`
-- Active implementation version: `v0.6.2`
-- Active phase: `v0.6.2 release candidate verified locally; final diff review and authorized PR workflow pending`
-- Current branch: `feat/v0.6.2-quota-row-visibility`
+- Released baseline: `v0.6.2` at `8b7c7fec2a864fa94601ed8235d04cb5cb716a03`
+- Active implementation version: `none — v0.6.2 reconciliation`
+- Active phase: `v0.6.2 released and reconciled; automatic v0.6.3 activation is next`
+- Current branch: `docs/v0.6.2-release-reconciliation`
 - Recovery reason: `Codex execution interrupted unexpectedly.`
 - Recovered branch / HEAD: `feat/v0.6.2-quota-row-visibility` at `40d59c8b7d9f9f536299aacc67686ed7a70467eb`.
-- Main HEAD: `40d59c8b7d9f9f536299aacc67686ed7a70467eb`.
-- Surviving uncommitted files: `ACTIVE_VERSION_BRIEF`, `EXECUTION_STATE`, `StatusRows`, focused StatusRows test, and the v0.6.2 design/plan.`
-- v0.6.2 activation edits survived: `Yes`.
+- Main HEAD: `8b7c7fec2a864fa94601ed8235d04cb5cb716a03`.
 - Focused RED/GREEN evidence: `weekly-hidden StatusRows RED (missing method) -> GREEN; config RED (missing visibility key) -> GREEN; main-window RED (weekly still mapped) -> GREEN; settings-dialog RED (missing toggle) -> GREEN.`
 - Design path: `docs/superpowers/specs/2026-07-12-v0.6.2-row-visibility-design.md`.
 - Implementation plan: `docs/superpowers/plans/2026-07-12-v0.6.2-row-visibility-implementation.md`.
 - Blocker: `None`
 - Human fact required: `None`
 - v0.6.1 Hard Version Gate: `PASSED — PR #28 exact-head CI, merged main RC, tag, and Release target verified at 40d59c8.`
+- v0.6.2 Hard Version Gate: `PASSED — PR #29 exact-head Windows Quality at ff51ef0, squash merged at 8b7c7fe, merged-main gates rerun, v0.6.2 tag and GitHub Release target verified at 8b7c7fe, remote work branch deleted.`
 - Layout evidence: `real Tk 300x200 probe: five-row doubled center gaps 80; weekly-hidden four-row doubled center gaps 100; same frame dimensions.`
 - Matrix evidence: `8 visibility combinations x 25 scale steps passed at 96 DPI and simulated 120 DPI; hidden-row center spacing permits at most 1 physical-pixel Tk rounding difference.`
 - Local gate evidence: `Quality reconstructed from exact child commands: core 149 tests; UI groups 8, 24, and 10 tests; document, compile, dependency, sensitive-file, package-smoke, strict-readiness, and whitespace checks all exit 0. The monolithic runners exceed the terminal observation window, so their child gates were run in bounded groups.`
-- Next exact action: `complete final staged diff and credential scan, commit the v0.6.2 candidate, then push and open the authorized PR.`
+- Next exact action: `create feat/v0.6.3-battery-source-selector from this reconciled main and begin the approved v0.6.3 design comparison.`
 - Last updated: `2026-07-12`
