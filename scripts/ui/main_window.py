@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.5.1"
+APP_VERSION = "0.5.3"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -29,7 +29,7 @@ try:
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.quota_parse_api import parse_quota_payload
     from api.quota_state_api import QuotaState
-    from api.runtime_api import SingleInstance, enable_dpi_awareness
+    from api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from ui.context_menu import show_context_menu
     from ui.settings_dialog import show_settings_dialog
     from ui.status_rows import StatusRows
@@ -52,7 +52,7 @@ except ModuleNotFoundError:
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.quota_parse_api import parse_quota_payload
     from scripts.api.quota_state_api import QuotaState
-    from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness
+    from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from scripts.ui.context_menu import show_context_menu
     from scripts.ui.settings_dialog import show_settings_dialog
     from scripts.ui.status_rows import StatusRows
@@ -169,6 +169,7 @@ class Pet(tk.Tk):
         self.after(1000, self.refresh_activity)
         self.after(1000, self.refresh)
         self.deiconify()
+        ensure_overlay_toolwindow(self.winfo_id())
 
     def load_settings(self):
         result = self.settings_controller.load()
@@ -323,6 +324,7 @@ class Pet(tk.Tk):
         self.hidden = False
         self.state("normal")
         self.deiconify()
+        ensure_overlay_toolwindow(self.winfo_id())
         self.update_idletasks()
         self.attributes("-alpha", self.settings["alpha"])
         self.attributes("-topmost", True)

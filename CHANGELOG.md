@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.5.3 - 2026-07-11
+
+- Restored the overlay's Windows tool-window Shell identity after Tk's transparency lifecycle cleared it during the v0.5.1 startup sequence.
+- Kept the desktop overlay and notification-area companion visible and reachable while removing ordinary application-window identity from the real top-level HWND.
+- Added real-HWND regression coverage for cold start and settings, lock, Hide/Show, Compact/Expand, opacity, scale, and topmost transitions.
+
 - Reorganized documentation into governance, architecture, product, quality, operations, and archive layers with a manifest-driven bilingual gate.
 - Added repository, configuration, architecture, testing, release, security, installation, troubleshooting, and contribution guides.
 - Added a manifest validator to the automated release checks; the suite now passes 88 tests and 17 registered bilingual pairs.

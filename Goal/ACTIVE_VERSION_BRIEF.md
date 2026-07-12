@@ -1,23 +1,20 @@
-# CLOSED VERSION BRIEF — v0.5.2 Investigation Without Product Release
+# ACTIVE VERSION BRIEF — v0.5.3 Windows Shell Identity Correctness
 
-## Product baseline
+## Released history
 
-Released product remains `v0.5.1` at `10de01410126a1877ac9406fc02e3bc583659df3`.
+- `v0.5.1` remains the released product baseline at `10de01410126a1877ac9406fc02e3bc583659df3`.
+- `v0.5.2` remains a closed rendered-visibility investigation and has no product version, tag, or GitHub Release.
 
-No v0.5.2 product version, tag, or GitHub Release exists or is required.
+## Active outcome
 
-## Incident resolution
+Restore the overlay's intended Windows Shell identity: visible desktop overlay and tray icon, but absent from Task View, Alt+Tab, and the ordinary taskbar application surface.
 
-The clipped screenshot came from a stale process started before the v0.5.1 fix. Later disk and Git state were incorrectly used as evidence of the code already loaded in that process. After a provenance-correct restart, released v0.5.1 rendered all five real production rows completely and the reported product defect did not reproduce.
+## Investigation result
 
-## Verification decision
+The real root HWND comparison is complete. Both historical working and current windows have owner `0`; only the historical window retains `WS_EX_TOOLWINDOW`. The v0.5.1 lifecycle maps early, then Tk alpha processing clears that bit before the final `deiconify()`. v0.5.3 restores the evidence-required bit only after each native mapping boundary and keeps `WS_EX_APPWINDOW` absent.
 
-`DESIGN VERIFICATION = FAILED`
+The candidate has a real-HWND RED/GREEN and lifecycle regression coverage. It is awaiting the authorized remote release workflow; no battery feature is in scope.
 
-The required released-v0.5.1 RED could not be established. This failure correctly prohibits a production change and release; it is not an unresolved product blocker.
+## Status
 
-## Terminal status
-
-`CLOSED — NO RELEASE / NO PRODUCT DEFECT REPRODUCED`
-
-v0.6.0 Productization design is unblocked but not started. Further work requires Tom's next direction.
+`v0.5.3 RELEASE CANDIDATE / DESIGN VERIFIED / v0.6.0 BATTERY FEATURE DEFERRED`

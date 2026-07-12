@@ -26,6 +26,7 @@
 | v0.4.2 发布验证 | Quality、RC、兼容性、CI 和宿主事实分类 | 通过 | [2026-07-11 v0.4.2验证记录](test-records/2026-07-11-v0.4.2-autonomous-verification.md)；23 项事实均指定唯一权威检查，重复 CI/本地门禁已合并，UTF-8 安全输出受回归保护，162 项测试和正式 RC 通过且零阻塞。 |
 | v0.5.0 精简核心 | 过时兼容边界和额度解析路径 | 通过 | [2026-07-11 v0.5.0精简核心记录](test-records/2026-07-11-v0.5.0-lean-core.md)；删除四个生产模块，额度隐私/损坏行为转移到解析器权威契约，159 项行为/发布测试和正式 RC 通过且零阻塞。 |
 | v0.5.1 运行时几何 | 长生命周期设置/生命周期转换；DPI 96/120 下 80-200% | Windows 主机自动化通过 | [2026-07-11 v0.5.1 调查记录](test-records/2026-07-11-v0.5.1-runtime-geometry-investigation.md)；v0.5.0 的冷启动适配/运行时裁切转换已固化为 RED，统一的已定位 HWND DPI 权威使 50 个 DPI/缩放组合和 15 类生命周期转换中的五行内容全部适配。 |
+| v0.5.3 Shell 身份 | 桌面/托盘可见且没有普通应用窗口身份 | Windows 主机自动化通过 | [2026-07-11 v0.5.3 调查记录](test-records/2026-07-11-v0.5.3-shell-identity-investigation.md)；真实 root HWND RED/GREEN 证明 `WS_EX_TOOLWINDOW=true`、`WS_EX_APPWINDOW=false`、owner 为 `0`，并在生命周期中保持。启动器仍只有一个进程，Windows 应用清单不会将覆盖层枚举为普通应用窗口。 |
 | 依赖 | 捆绑运行时和回退依赖 | 已批准限制 / 非阻塞 | 全新 Python 3.12 venv 仅安装 `requirements.txt`，通过 127 项测试、Quality、打包 smoke 和重复启动 smoke；Windows CI 也通过。当前没有独立干净 Windows 机器，因此不声明已完成该实体测试。 |
 | 自动化 Quality | 文档一致性、编译和单元测试 | 通过 | `scripts/run_quality_checks.py` 已通过；Quality 明确不做发布就绪决定。 |
 | 启动器 | 根目录 `start_codex_status_pet.cmd`，重复启动 | 实体通过 | 2026-07-10 连续启动两次只产生一个实际 `pythonw.exe` 悬浮窗进程，没有常驻 CMD 窗口；进程计数已排除命令行自匹配。 |
