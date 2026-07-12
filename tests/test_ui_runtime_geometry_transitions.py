@@ -39,10 +39,12 @@ class RuntimeGeometryTransitionTests(unittest.TestCase):
                 module["AppServer"] = DummyServer
                 module["TrayIcon3"] = DummyTray
                 main_window = sys.modules[module["Pet"].__mro__[1].__module__]
+                simulated_target_dpi = 96
+
                 def mixed_dpi_window(hwnd):
                     rect = (ctypes.c_long * 4)()
                     ctypes.windll.user32.GetWindowRect(hwnd, ctypes.byref(rect))
-                    return 96 if rect[0] >= 2560 else 120
+                    return 120 if rect[0] == 0 else simulated_target_dpi
 
                 dpi_patcher = mock.patch.object(
                     main_window, "dpi_for_window", side_effect=mixed_dpi_window
@@ -70,6 +72,7 @@ class RuntimeGeometryTransitionTests(unittest.TestCase):
                     toggled["final_row_bottom"], toggled["visible_root_bottom"]
                 )
 
+                simulated_target_dpi = 120
                 app.apply_settings(
                     {
                         **app.settings,
@@ -87,6 +90,7 @@ class RuntimeGeometryTransitionTests(unittest.TestCase):
                 )
 
                 for x, y, dpi in ((30, 120, 120), (4151, 1248, 96)):
+                    simulated_target_dpi = dpi
                     for scale in range(80, 201, 5):
                         app.apply_settings(
                             {
