@@ -9,10 +9,18 @@ _TEXT = {
     "en": {
         "idle": "Idle",
         "activity": "Codex {detail}",
+        "quota_unavailable": "Quota unavailable",
+        "week": "Week",
+        "stale": "(quota stale)",
+        "tray_error": "Tray icon error",
     },
     "zh-CN": {
         "idle": "空闲",
         "activity": "Codex {detail}",
+        "quota_unavailable": "额度暂不可用",
+        "week": "周",
+        "stale": "（额度过期）",
+        "tray_error": "托盘图标异常",
     },
 }
 

@@ -541,6 +541,7 @@ class Pet(tk.Tk):
             self.hovered,
             blocked,
             self.settings["battery_quota_source"],
+            self.settings["language"],
         )
         if should_be_compact != self.compact:
             self.set_compact(should_be_compact)

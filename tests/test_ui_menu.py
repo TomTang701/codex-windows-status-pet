@@ -96,6 +96,18 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_render_status_uses_persisted_runtime_language(self):
+        app = self.module["Pet"]()
+        try:
+            app.settings["language"] = "en"
+            app.latest_activity = {"active": 0, "detail": "Idle", "progress": ""}
+            app.latest_quota = {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}}
+            app.render_status()
+            self.assertEqual(app.text.row_values()["activity"], "Codex Idle")
+            self.assertTrue(app.text.row_values()["weekly"].startswith("Week 55% /"))
+        finally:
+            self.destroy_app(app)
+
     def test_quota_transport_error_renders_unavailable_without_raw_exception(self):
         app = self.module["Pet"]()
         try:

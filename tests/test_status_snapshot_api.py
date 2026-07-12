@@ -155,3 +155,28 @@ class StatusSnapshotTests(unittest.TestCase):
         self.assertEqual(result["color"], "#fca5a5")
         self.assertNotIn("transport exploded", result["text"])
         self.assertEqual(tuple(result["rows"]), ROW_IDS)
+
+    def test_language_changes_visible_status_text_without_changing_row_or_battery_identity(self):
+        quota = {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}}
+        english = build_status_snapshot(
+            {"active": 0, "detail": "Idle", "progress": ""},
+            quota,
+            "unavailable",
+            "#ffffff",
+            language="en",
+        )
+        chinese = build_status_snapshot(
+            {"active": 0, "detail": "空闲", "progress": ""},
+            quota,
+            "unavailable",
+            "#ffffff",
+            language="zh-CN",
+        )
+        self.assertEqual(english["rows"]["activity"], "Codex Idle")
+        self.assertEqual(chinese["rows"]["activity"], "Codex 空闲")
+        self.assertEqual(english["rows"]["progress"], "Quota unavailable")
+        self.assertEqual(chinese["rows"]["progress"], "额度暂不可用")
+        self.assertTrue(english["rows"]["weekly"].startswith("Week 55% /"))
+        self.assertTrue(chinese["rows"]["weekly"].startswith("周 55% /"))
+        self.assertEqual(tuple(english["rows"]), ROW_IDS)
+        self.assertEqual(english["battery"], chinese["battery"])

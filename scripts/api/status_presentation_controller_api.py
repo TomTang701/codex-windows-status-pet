@@ -20,6 +20,7 @@ class StatusPresentationController:
         hovered,
         blocked,
         battery_quota_source="weekly",
+        language="zh-CN",
     ):
         snapshot = build_status_snapshot(
             activity,
@@ -27,6 +28,7 @@ class StatusPresentationController:
             quota_state,
             font_color,
             battery_quota_source,
+            language,
         )
         should_compact = self.compact.update(
             compact_enabled, snapshot["active_count"], hovered, blocked
@@ -36,5 +38,5 @@ class StatusPresentationController:
     def force_expanded(self):
         self.compact.force_expanded()
 
-    def render_tray_error(self):
-        return build_tray_error_snapshot()
+    def render_tray_error(self, language="zh-CN"):
+        return build_tray_error_snapshot(language)

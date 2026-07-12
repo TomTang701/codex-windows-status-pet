@@ -67,6 +67,16 @@ class ApplicationControllerTests(unittest.TestCase):
         self.assertEqual(tuple(result["rows"]), ROW_IDS)
         self.assertEqual(result["color"], "#fca5a5")
 
+    def test_presentation_controller_forwards_runtime_language_only_to_visible_text(self):
+        snapshot, _compact = StatusPresentationController().render(
+            {"active": 0, "detail": "Idle", "progress": ""},
+            {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}},
+            "ok", "#ffffff", False, False, False, language="en",
+        )
+        self.assertEqual(snapshot["rows"]["activity"], "Codex Idle")
+        self.assertTrue(snapshot["rows"]["weekly"].startswith("Week 55% /"))
+        self.assertEqual(snapshot["battery"]["remaining_percent"], 55)
+
     def test_settings_controller_preserves_future_schema_until_explicit_reset(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "settings.json"
