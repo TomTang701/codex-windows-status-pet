@@ -1,38 +1,33 @@
-# ACTIVE VERSION BRIEF — No Active Implementation Version
+# ACTIVE VERSION BRIEF — v0.5.1 Runtime Geometry Reapplication Stabilization
 
-## Released state
+## Outcome
 
-- Latest release: `v0.5.0` Lean-Core Simplification.
-- Phase 1: `v0.4.1` correctness stabilization — complete.
-- Phase 2: `v0.4.2` autonomous verification conversion — complete.
-- Phase 3: `v0.5.0` lean-core simplification — complete.
-- Phase 4: `PHASE 4 NOT NEEDED`.
-- Phase 5: productization decision complete; implementation not authorized by this Goal.
+One long-lived `Pet` must keep one coherent DPI-aware expanded geometry and fully visible five-row content through every supported settings, lock, visibility, compact, and restore transition.
 
-## Phase 4 decision
+## Current evidence
 
-The runtime has one coherent visible-state route:
+- Released v0.5.0 cold start can fit.
+- A later settings/lock/parameter lifecycle produces a visibly different expanded geometry and clips the final Reset Credit row.
+- The existing `dpi_content_probe.py` creates a fresh `Pet` per scale and therefore does not prove transition stability.
 
-```text
-transport/activity result
-→ normalized domain/coordination state
-→ StatusPresentationController
-→ five-row snapshot/color
-→ StatusRows Tk adapter
-```
+## Investigation focus
 
-`Pet` owns actual Tk geometry/visibility; `CompactState` owns delayed compact decisions. These are distinct responsibilities, not duplicate state ownership. Application refresh, settings persistence, lifecycle close state, and presentation each retain one owner. No direct emergency string/color renderer remains.
+- `Pet.__init__` calls `_sync_compatibility_metrics()` before saved monitor geometry is applied.
+- `_sync_compatibility_metrics()` derives display metrics from `dpi_for_window(self.winfo_id())`.
+- `apply_settings()` re-derives and reapplies full geometry; lock and all settings transaction outcomes can enter it.
+- `show_window()` applies position-only geometry around normal/deiconify/update lifecycle.
+- Settings opening/restoration calls `show_window()` and later `after_idle(ensure_visible)`.
 
-## Phase 5 decision
+High-priority hypothesis, not yet root cause: cold-start and runtime reapplication may derive the same logical scale under different HWND monitor/DPI contexts or geometry lifecycle stages.
 
-| Question | Decision | Evidence |
-|---|---|---|
-| Is the lean core stable? | Yes | v0.5.0 exact-head CI and merged-main RC passed; 159 tests, zero blockers. |
-| Are supported-host routine checks automated? | Yes | v0.4.2 inventory and single RC path; no routine human visual gate for machine facts. |
-| Are active docs truthful and small? | Yes | active normative LOC reduced to 953; release procedure has one formal command. |
-| Is installation now the largest real usability problem? | Yes | the product still relies on a source checkout and root CMD launcher; there is no install/uninstall path, explicit startup choice, signed binary, or formal distributable. |
-| Would productization add more value than another stabilization release? | Yes | no known blocking correctness issue remains; installation/startup friction is the clearest remaining user-facing gap. |
+## Required transition matrix
 
-## Boundary
+Cold start/no action; open settings only; Close without changes; toggle lock; toggle lock then settings; opacity-only Apply; scale-change Apply; Save; draft scale then Close rollback; Restore Defaults; repeated settings open/close; Hide/Show; Compact/Expand; and the closest reproducible combined sequence.
 
-Do not automatically implement v0.6.0. A future productization Goal requires a separately approved design covering install/uninstall, explicit opt-in startup behavior, artifact format, clean-machine strategy, rollback, unsigned behavior, user documentation, and verification. Until then, remain on released v0.5.0.
+## Regression contract
+
+After every transition exactly five stable rows exist; requested heights fit allocations; all rows and the final row bottom stay inside the actual visible root/client boundary; approved single-line rows do not unexpectedly wrap; unchanged logical scale does not silently produce incoherent expanded geometry unless monitor DPI truly changes; and a true DPI change ends with geometry/content fit matching target-window DPI.
+
+## Design status
+
+`PENDING` — systematic runtime evidence and a reproducible long-lived RED are required before design verification or production changes.
