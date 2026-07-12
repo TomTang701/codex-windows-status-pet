@@ -1,15 +1,15 @@
 # Codex Windows Status Pet Renewal Roadmap
 
 **Status:** Active roadmap
-**Released baseline:** `v0.5.1`
-**Active implementation scope:** `v0.5.3` Windows Shell Identity Correctness
+**Released baseline:** `v0.5.3`
+**Current implementation scope:** None; wait for Tom's next approved Goal
 
 ## Current state
 
-- **Released:** v0.3.2 through v0.5.1 are merged, tagged, and published; v0.5.1 stabilizes long-lived runtime geometry reapplication.
-- **Historical verification:** 137 core tests and 23 Tk UI tests passed on merged v0.5.1; exact-head Windows CI and merged-main RC passed. v0.5.2 remains a closed stale-process investigation without a product release.
+- **Released:** v0.3.2 through v0.5.3 are merged, tagged, and published. v0.5.3 restores the visible overlay's non-ordinary Windows Shell identity without changing tray reachability or geometry behavior.
+- **Historical verification:** v0.5.3 has real root-HWND RED/GREEN, full lifecycle identity coverage, exact-head Windows CI, and merged-main RC. v0.5.2 remains a closed stale-process investigation without a product release.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
-- **Current direction:** v0.5.3 investigates and corrects Windows Shell identity so the visible overlay/tray companion remains absent from Task View, Alt+Tab, and ordinary taskbar application identity. The v0.6.0 Battery Indicator and Layout Tightening feature is deferred until v0.5.3 is released.
+- **Current direction:** v0.5.3 is complete. The v0.6.0 5H Battery Indicator and Layout Tightening feature is not started; wait for Tom's next approved Goal before design or implementation.
 - **Environment limitations:** mixed-DPI physical hardware, alternate physical taskbar edges, and a separate clean Windows machine are not available and are not claimed as physical evidence.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 
