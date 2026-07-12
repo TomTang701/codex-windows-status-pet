@@ -2,6 +2,11 @@
 
 ## 未发布
 
+## 0.6.1 - 2026-07-12
+
+- 使用安全的官方 `windowDurationMins` 元数据分类额度窗口，不再依赖原始 `primary`/`secondary` 键名。
+- 缺失的 5 小时窗口保持可见的 unavailable；每周数据保留在每周行；电池只使用真实分类后的每周窗口，禁止 fallback。
+
 ## 0.6.0 - 2026-07-12
 
 - 在 expanded 模式中使用右侧、bottom-up、2×5 十格 5H 电池替换 paw；compact 模式使用同一完整电池。
