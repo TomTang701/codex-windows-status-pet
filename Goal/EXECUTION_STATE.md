@@ -1,10 +1,10 @@
 # Execution State
 
-- Program Goal: `COMPLETED — Post-v0.6.3 Hygiene → v0.7.0 Bilingual UI and Manual Compact`.
+- Program Goal: `ACTIVE — v0.7.1 Activity Localization and Compact Geometry Correctness`.
 - Latest released product: `v0.7.0` at `46912952b200d8a296e94d1429e33c1484dc91b5`.
-- Active implementation version: `None`.
-- Active phase: `release-state reconciliation`.
-- Current branch: `docs/v0.7.0-release-reconciliation` from released main.
+- Active implementation version: `v0.7.1`.
+- Active phase: `local verification complete; scoped PR and exact-head CI pending`.
+- Current branch: `fix/v0.7.1-activity-compact-correctness` from released main.
 - Blocker: `None`.
 - Human fact required: `None`.
 
@@ -23,5 +23,5 @@
 - v0.6.2: independent 5-hour, weekly, and reset-credit visibility with canonical, equal dynamic row distribution.
 - v0.6.3: persisted 5-hour/weekly battery selector, weekly default, no fallback, and source/row-visibility independence.
 - v0.7.0: Phase A privacy/navigation gates, bilingual runtime UI, Settings transactions, localized normal error/warning text, and persisted manual Compact are released. Legacy automatic Compact input is ignored and no longer controls runtime behavior.
-- Next action: `STOP — wait for Tom's next approved Goal.`
+- Next action: `commit the verified v0.7.1 candidate, push the scoped branch, and require exact-head Windows CI.`
 - Last updated: `2026-07-12`.

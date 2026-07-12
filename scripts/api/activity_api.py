@@ -19,7 +19,7 @@ def _event_timestamp(record, fallback):
 def _parse_file(path, now):
     started = None
     completed = None
-    last_phase = "思考中"
+    last_phase = "thinking"
     last_event_time = 0
     try:
         with path.open("r", encoding="utf-8", errors="ignore") as stream:
@@ -35,20 +35,20 @@ def _parse_file(path, now):
                     if event == "task_started":
                         started = event_time
                         completed = None
-                        last_phase = "思考中"
+                        last_phase = "thinking"
                     elif event == "task_complete":
                         completed = event_time
-                        last_phase = "已完成"
+                        last_phase = "completed"
                 elif record.get("type") == "response_item" and started and not completed:
                     item_type = record.get("payload", {}).get("type")
                     if item_type in ("function_call", "custom_tool_call"):
-                        last_phase = "调用工具"
+                        last_phase = "tool_call"
                     elif item_type in ("function_call_output", "custom_tool_call_output"):
-                        last_phase = "执行命令"
+                        last_phase = "command"
                     elif item_type == "message":
-                        last_phase = "输出中"
+                        last_phase = "output"
                     elif item_type == "reasoning":
-                        last_phase = "思考中"
+                        last_phase = "thinking"
     except OSError:
         return None
     return started, completed, last_phase, last_event_time
@@ -61,7 +61,7 @@ def snapshot_activity(sessions: Path, stale_seconds=600, now=None, cache=None):
     active = []
     recently_completed = []
     if not sessions.exists():
-        return {"active": 0, "detail": "空闲", "progress": ""}
+        return {"active": 0, "activity_state": "idle", "progress_state": "no_active_conversations"}
 
     files = []
     try:
@@ -73,7 +73,7 @@ def snapshot_activity(sessions: Path, stale_seconds=600, now=None, cache=None):
             except OSError:
                 continue
     except OSError:
-        return {"active": 0, "detail": "空闲", "progress": "会话目录不可读"}
+        return {"active": 0, "activity_state": "idle", "progress_state": "session_directory_unreadable"}
 
     current_paths = {str(path) for path, _ in files}
     for key in list(cache):
@@ -100,7 +100,7 @@ def snapshot_activity(sessions: Path, stale_seconds=600, now=None, cache=None):
     if active:
         active.sort(reverse=True)
         _, phase = active[0]
-        return {"active": len(active), "detail": phase, "progress": f"活动对话 {len(active)} 个"}
+        return {"active": len(active), "activity_state": phase, "progress_state": "active_conversations"}
     if recently_completed:
-        return {"active": 0, "detail": "已完成", "progress": "最近对话已完成"}
-    return {"active": 0, "detail": "空闲", "progress": "没有活动中的对话"}
+        return {"active": 0, "activity_state": "completed", "progress_state": "recent_conversation_completed"}
+    return {"active": 0, "activity_state": "idle", "progress_state": "no_active_conversations"}

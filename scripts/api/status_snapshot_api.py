@@ -97,9 +97,21 @@ def build_status_snapshot(
         color = font_color if tier == "healthy" else HEALTH_COLORS.get(tier, font_color)
     state_label = translate(language, "stale") if quota_state == "stale" else ""
     active_count = int(activity.get("active", 0) or 0)
+    activity_state = activity.get("activity_state")
+    progress_state = activity.get("progress_state")
+    detail = (
+        translate(language, activity_state)
+        if activity_state is not None
+        else activity.get("detail", translate(language, "idle"))
+    )
+    progress = (
+        translate(language, progress_state, count=active_count)
+        if progress_state is not None
+        else activity.get("progress", "")
+    )
     rows = StatusRowsSnapshot(
-        activity=translate(language, "activity", detail=activity.get("detail", translate(language, "idle"))) + state_label,
-        progress=translate(language, "quota_unavailable") if quota_state == "unavailable" else activity.get("progress", ""),
+        activity=translate(language, "activity", detail=detail) + state_label,
+        progress=translate(language, "quota_unavailable") if quota_state == "unavailable" else progress,
         primary_5h=f"5h {_percent_left(primary)} / {_short_time(primary.get('resetsAt'))}",
         weekly=quota_line(translate(language, "week"), _percent_left(secondary), secondary.get("resetsAt")),
         reset_credit=reset_credit_line(
