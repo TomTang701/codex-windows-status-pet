@@ -1,10 +1,10 @@
 # Execution State
 
 - Program Goal: `ACTIVE`
-- Active implementation version: `v0.5.5`
-- Released product baseline and latest product version: `v0.5.3` at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`
+- Active implementation version: `v0.6.0`
+- Released product baseline and latest product version: `v0.5.5` at `4662414c16e6892d02634dd5139b3ca93f281d37`
 - Historical v0.5.2: `CLOSED investigation / no product release`
-- Active phase: `v0.5.5 PR #24 exact-head CI admission correction`
+- Active phase: `v0.6.0 Design Verification passed; implementation planning next`
 - v0.5.4 investigation: `CLOSED historical investigation / no product release`
 - Current reported regression: `100% secondary near right/bottom edge saved position shifts inward on startup from 125% primary bootstrap`
 - Root cause: `withdrawn bootstrap HWND reports primary 120 DPI; safe_position uses inflated 120-DPI metrics to recover a 96-DPI-secondary legal edge coordinate before target DPI resync`
@@ -19,5 +19,5 @@
 - v0.6.0 5H Battery Indicator and Layout Tightening: `PENDING HARD VERSION GATE / NOT STARTED`
 - Human fact required: `None`
 - Blocker: `None`
-- Next exact action: adapt physical-topology tests to explicitly skip when required 125%/100% dual-monitor topology is unavailable, preserve real-host verification authority, push focused commit, require new exact-head CI
+- Next exact action: invoke writing-plans, then establish battery semantics and content-fit RED tests before minimum implementation
 - Last updated: 2026-07-12
