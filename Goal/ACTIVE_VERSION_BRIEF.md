@@ -9,12 +9,12 @@
 
 Restore the overlay's intended Windows Shell identity: visible desktop overlay and tray icon, but absent from Task View, Alt+Tab, and the ordinary taskbar application surface.
 
-## Investigation contract
+## Investigation result
 
-The root cause is unknown. `overrideredirect(True)`, the v0.5.1 withdrawn startup lifecycle, `WS_EX_TOOLWINDOW`, ownership, and `WS_EX_APPWINDOW` are hypotheses only until the real overlay HWND and historical working state are measured and compared.
+The real root HWND comparison is complete. Both historical working and current windows have owner `0`; only the historical window retains `WS_EX_TOOLWINDOW`. The v0.5.1 lifecycle maps early, then Tk alpha processing clears that bit before the final `deiconify()`. v0.5.3 restores the evidence-required bit only after each native mapping boundary and keeps `WS_EX_APPWINDOW` absent.
 
-No production style, owner, mapping-lifecycle, geometry, or font change is allowed until Design Verification records an evidence-derived shell-identity RED and one root-cause hypothesis.
+The candidate has a real-HWND RED/GREEN and lifecycle regression coverage. It is awaiting the authorized remote release workflow; no battery feature is in scope.
 
 ## Status
 
-`v0.5.3 ACTIVE / DESIGN VERIFICATION PENDING / v0.6.0 BATTERY FEATURE DEFERRED`
+`v0.5.3 RELEASE CANDIDATE / DESIGN VERIFIED / v0.6.0 BATTERY FEATURE DEFERRED`

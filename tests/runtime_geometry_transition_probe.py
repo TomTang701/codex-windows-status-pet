@@ -97,6 +97,17 @@ def _client_size(hwnd):
     return [rect[2] - rect[0], rect[3] - rect[1]]
 
 
+def _shell_identity(widget_hwnd):
+    user32 = ctypes.windll.user32
+    root = user32.GetAncestor(widget_hwnd, 2)
+    style = int(user32.GetWindowLongPtrW(root, -20)) & 0xFFFFFFFF
+    return {
+        "root_hwnd": int(root),
+        "toolwindow": bool(style & 0x00000080),
+        "appwindow": bool(style & 0x00040000),
+    }
+
+
 def _monitor_for(app):
     x, y = app.winfo_rootx(), app.winfo_rooty()
     for monitor in monitor_snapshot():
@@ -134,6 +145,7 @@ def capture(app, transition, stage):
             }
         )
     hwnd = app.winfo_id()
+    shell_identity = _shell_identity(hwnd)
     final = labels[-1]
     fit = (
         len(labels) == 5
@@ -162,6 +174,7 @@ def capture(app, transition, stage):
         "root_actual": [app.winfo_width(), app.winfo_height()],
         "root_requested": [app.winfo_reqwidth(), app.winfo_reqheight()],
         "client_size": _client_size(hwnd),
+        "shell_identity": shell_identity,
         "face_pack": _pack_info(app.face),
         "text_pack": _pack_info(app.text),
         "status_actual": [app.text.winfo_width(), app.text.winfo_height()],
