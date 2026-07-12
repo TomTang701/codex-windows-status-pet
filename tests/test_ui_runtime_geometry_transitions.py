@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import gc
+import ctypes
 import json
 import runpy
 import sys
@@ -19,6 +20,7 @@ from tests.runtime_geometry_transition_probe import (
     ROOT,
     capture,
 )
+from scripts.api.window_scale_api import derive_window_metrics
 
 
 class RuntimeGeometryTransitionTests(unittest.TestCase):
@@ -37,12 +39,10 @@ class RuntimeGeometryTransitionTests(unittest.TestCase):
                 module["AppServer"] = DummyServer
                 module["TrayIcon3"] = DummyTray
                 main_window = sys.modules[module["Pet"].__mro__[1].__module__]
-                dpi_calls = 0
-
-                def mixed_dpi_window(_hwnd):
-                    nonlocal dpi_calls
-                    dpi_calls += 1
-                    return 120 if dpi_calls <= 2 else 96
+                def mixed_dpi_window(hwnd):
+                    rect = (ctypes.c_long * 4)()
+                    ctypes.windll.user32.GetWindowRect(hwnd, ctypes.byref(rect))
+                    return 96 if rect[0] >= 2560 else 120
 
                 dpi_patcher = mock.patch.object(
                     main_window, "dpi_for_window", side_effect=mixed_dpi_window
@@ -69,6 +69,45 @@ class RuntimeGeometryTransitionTests(unittest.TestCase):
                 self.assertLessEqual(
                     toggled["final_row_bottom"], toggled["visible_root_bottom"]
                 )
+
+                app.apply_settings(
+                    {
+                        **app.settings,
+                        "x": 30,
+                        "y": 120,
+                        "window_scale_percent": 100,
+                    }
+                )
+                app.update_idletasks()
+                app.update()
+                self.assertEqual(app.window_dpi, 120)
+                self.assertEqual(
+                    (app.window_metrics.width, app.window_metrics.height),
+                    (412, 172),
+                )
+
+                for x, y, dpi in ((30, 120, 120), (4151, 1248, 96)):
+                    for scale in range(80, 201, 5):
+                        app.apply_settings(
+                            {
+                                **app.settings,
+                                "x": x,
+                                "y": y,
+                                "window_scale_percent": scale,
+                            }
+                        )
+                        app.update_idletasks()
+                        app.update()
+                        snapshot = capture(
+                            app, f"dpi_{dpi}_scale_{scale}", "after_update"
+                        )
+                        expected = derive_window_metrics(scale, dpi=dpi)
+                        self.assertEqual(app.window_dpi, dpi)
+                        self.assertEqual(
+                            snapshot["root_actual"],
+                            [expected.width, expected.height],
+                        )
+                        self.assertTrue(snapshot["fits"])
             finally:
                 if app is not None:
                     app.application_controller.shutdown()
