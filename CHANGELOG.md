@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.6.1 - 2026-07-12
+
+- Classify official local quota windows by the safe `windowDurationMins` metadata instead of raw `primary`/`secondary` keys.
+- Keep a missing 5-hour window visibly unavailable, keep weekly data on the weekly row, and use the truthfully classified weekly window for the battery without fallback.
+
 ## 0.6.0 - 2026-07-12
 
 - Replaced the paw with a right-side, bottom-up, 2×5 ten-segment 5H battery in expanded mode and the same complete battery in compact mode.

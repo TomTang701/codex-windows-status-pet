@@ -11,6 +11,23 @@ from api.status_rows_api import ROW_IDS
 
 
 class StatusSnapshotTests(unittest.TestCase):
+    def test_weekly_only_window_keeps_5h_unavailable_and_drives_battery(self):
+        reset = datetime(2030, 7, 12, 18, 40).astimezone().timestamp()
+        result = build_status_snapshot(
+            {"active": 0},
+            {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45, "resetsAt": reset}}},
+        )
+        self.assertEqual(result["rows"]["primary_5h"], "5h -- / --")
+        self.assertTrue(result["rows"]["weekly"].startswith("周 55% /"))
+        self.assertEqual(result["battery"]["remaining_percent"], 55)
+
+    def test_weekly_battery_never_falls_back_to_available_5h(self):
+        result = build_status_snapshot(
+            {"active": 0},
+            {"rateLimits": {"primary": {"usedPercent": 20}, "secondary": {}}},
+        )
+        self.assertFalse(result["battery"]["available"])
+
     def test_battery_presentation_uses_remaining_ceiling_segments(self):
         expected = {
             0: 0, 1: 1, 9: 1, 10: 1, 11: 2, 20: 2, 21: 3,
