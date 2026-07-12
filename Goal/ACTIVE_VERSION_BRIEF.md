@@ -2,6 +2,7 @@
 
 ## Released baseline
 
+- `v0.7.0` is released at `46912952b200d8a296e94d1429e33c1484dc91b5`.
 - `v0.6.3` is released at `7991c38ab19f05966025a46999c83852ea4c5b15`.
 - `v0.6.2` is the released quota-row visibility and dynamic-distribution correction at `8b7c7fec2a864fa94601ed8235d04cb5cb716a03`.
 - `v0.6.1` is the released quota-window identity correction at `40d59c8b7d9f9f536299aacc67686ed7a70467eb`.
@@ -19,6 +20,6 @@ v0.7.0 adds English and Simplified Chinese runtime UI with English as the persis
 - Five persistent row identities, the v0.6.0 ten-cell battery, mixed-DPI recovery, and Shell identity remain protected.
 - No positional, dictionary-order, `primary`, or `secondary` naming assumption determines window identity.
 
-## Active phase
+## Final phase
 
-`Phase B/C implementation complete on the release-candidate branch; formal regression, package smoke, Quality, RC, and remote release gates remain.`
+`Released and reconciled. No active implementation scope; STOP pending Tom's next approved Goal.`
