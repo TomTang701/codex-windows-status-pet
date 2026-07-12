@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import tkinter as tk
+from tkinter import ttk
 from tkinter import colorchooser, messagebox
 
 try:
@@ -15,6 +16,7 @@ try:
         parse_unsigned_integer,
     )
     from api.settings_session_api import SettingsSession
+    from api.localization_api import translate
     from api.window_scale_api import (
         MAX_WINDOW_SCALE_PERCENT,
         MIN_WINDOW_SCALE_PERCENT,
@@ -31,6 +33,7 @@ except ModuleNotFoundError:
         parse_unsigned_integer,
     )
     from scripts.api.settings_session_api import SettingsSession
+    from scripts.api.localization_api import translate
     from scripts.api.window_scale_api import (
         MAX_WINDOW_SCALE_PERCENT,
         MIN_WINDOW_SCALE_PERCENT,
@@ -57,6 +60,8 @@ def show_settings_dialog(owner):
     reset_authorized = False
     owner._settings_session = settings_session
     draft = settings_session.draft_settings
+    ui_language = draft["language"]
+    text = lambda key: translate(ui_language, key)
     body = tk.Frame(dialog, padx=14, pady=12)
     body.pack(fill="both", expand=True)
     alpha = tk.DoubleVar(value=draft["alpha"])
@@ -66,7 +71,12 @@ def show_settings_dialog(owner):
     refresh_interval = tk.StringVar(value=str(draft["refresh_interval_seconds"]))
     topmost = tk.BooleanVar(value=draft["topmost"])
     locked = tk.BooleanVar(value=draft["locked"])
-    compact_when_idle = tk.BooleanVar(value=draft["compact_when_idle"])
+    language_labels = {
+        "en": translate(ui_language, "english"),
+        "zh-CN": translate(ui_language, "simplified_chinese"),
+    }
+    language_by_label = {label: code for code, label in language_labels.items()}
+    language = tk.StringVar(value=language_labels[draft["language"]])
     show_primary_5h = tk.BooleanVar(value=draft["show_primary_5h"])
     show_weekly = tk.BooleanVar(value=draft["show_weekly"])
     show_reset_credit = tk.BooleanVar(value=draft["show_reset_credit"])
@@ -74,9 +84,10 @@ def show_settings_dialog(owner):
         value=0 if draft["battery_quota_source"] == "primary_5h" else 1
     )
 
-    tk.Label(body, text="透明度").grid(row=0, column=0, sticky="w")
+    dialog.title(text("settings_title"))
+    tk.Label(body, text=text("opacity")).grid(row=0, column=0, sticky="w")
     tk.Scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha).grid(row=0, column=1)
-    tk.Label(body, text="窗口大小").grid(row=1, column=0, sticky="w")
+    tk.Label(body, text=text("window_size")).grid(row=1, column=0, sticky="w")
     tk.Scale(
         body,
         from_=MIN_WINDOW_SCALE_PERCENT,
@@ -87,7 +98,7 @@ def show_settings_dialog(owner):
         variable=window_scale,
         label="%",
     ).grid(row=1, column=1)
-    tk.Label(body, text="默认位置 (X, Y)").grid(row=2, column=0, sticky="w")
+    tk.Label(body, text=text("default_position")).grid(row=2, column=0, sticky="w")
     position = tk.Frame(body)
     position.grid(row=2, column=1, sticky="w")
     digit_or_signed = (owner.register(is_signed_integer_candidate), "%P")
@@ -95,12 +106,11 @@ def show_settings_dialog(owner):
     tk.Entry(position, textvariable=position_x, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
     tk.Label(position, text=", ").pack(side="left")
     tk.Entry(position, textvariable=position_y, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
-    tk.Label(body, text="刷新间隔 (秒)").grid(row=3, column=0, sticky="w")
+    tk.Label(body, text=text("refresh_interval")).grid(row=3, column=0, sticky="w")
     tk.Entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only).grid(row=3, column=1, sticky="w")
-    tk.Checkbutton(body, text="置顶", variable=topmost).grid(row=4, column=0, sticky="w")
-    tk.Checkbutton(body, text="锁定位置", variable=locked).grid(row=4, column=1, sticky="w")
-    tk.Checkbutton(body, text="空闲时收缩", variable=compact_when_idle).grid(row=5, column=0, sticky="w")
-    tk.Label(body, text="电池显示内容").grid(row=6, column=0, sticky="w")
+    tk.Checkbutton(body, text=text("always_on_top"), variable=topmost).grid(row=4, column=0, sticky="w")
+    tk.Checkbutton(body, text=text("lock_position"), variable=locked).grid(row=4, column=1, sticky="w")
+    tk.Label(body, text=text("battery_content")).grid(row=6, column=0, sticky="w")
     source_control = tk.Frame(body)
     source_control.grid(row=6, column=1, sticky="w")
     tk.Scale(
@@ -113,11 +123,13 @@ def show_settings_dialog(owner):
         length=140,
         variable=battery_source,
     ).grid(row=0, column=0, columnspan=2)
-    tk.Label(source_control, text="5小时").grid(row=1, column=0, sticky="w")
-    tk.Label(source_control, text="每周").grid(row=1, column=1, sticky="e")
-    tk.Checkbutton(body, text="显示 5 小时额度", variable=show_primary_5h).grid(row=10, column=0, sticky="w")
-    tk.Checkbutton(body, text="显示周额度", variable=show_weekly).grid(row=10, column=1, sticky="w")
-    tk.Checkbutton(body, text="显示重置次数", variable=show_reset_credit).grid(row=11, column=0, sticky="w")
+    tk.Label(source_control, text=text("five_hour")).grid(row=1, column=0, sticky="w")
+    tk.Label(source_control, text=text("weekly")).grid(row=1, column=1, sticky="e")
+    tk.Label(body, text=text("language")).grid(row=7, column=0, sticky="w")
+    ttk.Combobox(body, textvariable=language, values=tuple(language_labels.values()), state="readonly", width=18).grid(row=7, column=1, sticky="w")
+    tk.Checkbutton(body, text=text("show_five_hour"), variable=show_primary_5h).grid(row=10, column=0, sticky="w")
+    tk.Checkbutton(body, text=text("show_weekly"), variable=show_weekly).grid(row=10, column=1, sticky="w")
+    tk.Checkbutton(body, text=text("show_reset_credit"), variable=show_reset_credit).grid(row=11, column=0, sticky="w")
 
     def choose_font():
         chosen = colorchooser.askcolor(color=draft["font_color"], parent=dialog)[1]
@@ -129,8 +141,8 @@ def show_settings_dialog(owner):
         if chosen:
             draft["background_color"] = chosen
 
-    tk.Button(body, text="字体颜色...", command=choose_font).grid(row=9, column=0, pady=(8, 0), sticky="w")
-    tk.Button(body, text="背景颜色...", command=choose_background).grid(row=9, column=1, pady=(8, 0), sticky="w")
+    tk.Button(body, text=text("font_color"), command=choose_font).grid(row=9, column=0, pady=(8, 0), sticky="w")
+    tk.Button(body, text=text("background_color"), command=choose_background).grid(row=9, column=1, pady=(8, 0), sticky="w")
 
     def sync_draft():
         try:
@@ -140,7 +152,7 @@ def show_settings_dialog(owner):
             draft["refresh_interval_seconds"] = parse_unsigned_integer(refresh_interval.get(), 1, 10)
             draft["topmost"] = bool(topmost.get())
             draft["locked"] = bool(locked.get())
-            draft["compact_when_idle"] = bool(compact_when_idle.get())
+            draft["language"] = language_by_label[language.get()]
             draft["show_primary_5h"] = bool(show_primary_5h.get())
             draft["show_weekly"] = bool(show_weekly.get())
             draft["show_reset_credit"] = bool(show_reset_credit.get())
@@ -193,7 +205,7 @@ def show_settings_dialog(owner):
         refresh_interval.set(draft["refresh_interval_seconds"])
         topmost.set(draft["topmost"])
         locked.set(draft["locked"])
-        compact_when_idle.set(draft["compact_when_idle"])
+        language.set(language_labels[draft["language"]])
         show_primary_5h.set(draft["show_primary_5h"])
         show_weekly.set(draft["show_weekly"])
         show_reset_credit.set(draft["show_reset_credit"])
@@ -203,10 +215,10 @@ def show_settings_dialog(owner):
 
     buttons = tk.Frame(body)
     buttons.grid(row=12, column=0, columnspan=2, pady=(14, 0))
-    tk.Button(buttons, text="保存", width=8, command=save_and_close).pack(side="left", padx=3)
-    tk.Button(buttons, text="应用", width=8, command=apply_draft).pack(side="left", padx=3)
-    tk.Button(buttons, text="恢复默认值", width=12, command=restore_defaults).pack(side="left", padx=3)
-    tk.Button(buttons, text="关闭", width=8, command=lambda: owner.close_settings(dialog)).pack(side="left", padx=3)
+    tk.Button(buttons, text=text("save"), width=8, command=save_and_close).pack(side="left", padx=3)
+    tk.Button(buttons, text=text("apply"), width=8, command=apply_draft).pack(side="left", padx=3)
+    tk.Button(buttons, text=text("restore_defaults"), width=12, command=restore_defaults).pack(side="left", padx=3)
+    tk.Button(buttons, text=text("close"), width=8, command=lambda: owner.close_settings(dialog)).pack(side="left", padx=3)
     dialog.protocol("WM_DELETE_WINDOW", lambda: owner.close_settings(dialog))
     dialog.update_idletasks()
     dialog_work_area = work_area_for_point(owner.winfo_rootx(), owner.winfo_rooty())
