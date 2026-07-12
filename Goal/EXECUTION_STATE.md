@@ -1,16 +1,23 @@
 # Execution State
 
-- Goal status: `COMPLETE / STOPPED`
-- Current implementation version: `none`
+- Program Goal: `ACTIVE`
+- Active implementation version: `v0.5.5`
 - Released product baseline and latest product version: `v0.5.3` at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`
 - Historical v0.5.2: `CLOSED investigation / no product release`
-- Active phase: `none — v0.5.4 investigation closure complete`
-- v0.5.4 investigation: `CLOSED / symptom no longer reproducible / no proven production defect / no production fix / no product release`
-- Root cause: `none proven`
-- Design Verification: `FAILED correctly — required current-source A-path RED was not established`
-- Production-code changes: `none for v0.5.4`
-- v0.6.0 5H Battery Indicator and Layout Tightening: `NOT STARTED`
+- Active phase: `v0.5.5 PR #24 exact-head CI admission correction`
+- v0.5.4 investigation: `CLOSED historical investigation / no product release`
+- Current reported regression: `100% secondary near right/bottom edge saved position shifts inward on startup from 125% primary bootstrap`
+- Root cause: `withdrawn bootstrap HWND reports primary 120 DPI; safe_position uses inflated 120-DPI metrics to recover a 96-DPI-secondary legal edge coordinate before target DPI resync`
+- Design Verification: `PASSED — current-main RED and first clamp boundary recorded`
+- Production-code changes: `target-monitor geometry authority correction implemented after current-main RED and focused GREEN`
+- PR #24: `OPEN`
+- Exact PR head: `979867fed0644681ecf22d5e866636593651ce76`
+- Windows Quality run #82: `FAILURE`
+- CI failure root cause: `GitHub Windows runner is single-monitor; physical-topology tests assume a right-side secondary monitor and four tests raise StopIteration`
+- Local physical 125% primary / 100% secondary RED/GREEN: `PASS`
+- CI classification: `environment-admission gap, not evidence that the production mixed-DPI correction failed`
+- v0.6.0 5H Battery Indicator and Layout Tightening: `PENDING HARD VERSION GATE / NOT STARTED`
 - Human fact required: `None`
 - Blocker: `None`
-- Next exact action: Wait for Tom's next approved Goal.
-- Last updated: 2026-07-11
+- Next exact action: adapt physical-topology tests to explicitly skip when required 125%/100% dual-monitor topology is unavailable, preserve real-host verification authority, push focused commit, require new exact-head CI
+- Last updated: 2026-07-12

@@ -1,318 +1,185 @@
-# CLOSED GOAL — v0.5.4 Position Persistence Investigation Closure
+# ACTIVE PROGRAM GOAL — v0.5.5 Release Completion → v0.6.0 Delivery
 
-> **Status:** CLOSURE REQUIRED / NO PRODUCT RELEASE
-> **Released baseline:** `v0.5.3`
-> **Investigation evidence commit:** `5d3e453 test: trace position persistence round trip`
-> **Scope:** close the position-persistence investigation after the reported symptom is no longer reproducible
-> **Production code changes:** FORBIDDEN unless new reproducible evidence establishes a defect
-> **Product release:** NO `v0.5.4` tag or GitHub Release
-> **Next feature:** `v0.6.0 5H Battery Indicator and Layout Tightening` remains NOT STARTED
-> **Execution:** evidence reconciliation → documentation closure → verification-before-completion → authorized GitHub workflow → STOP
+> **Status:** ACTIVE PROGRAM / SEQUENTIAL VERSION DELIVERY
+> **Program owner:** Tom
+> **Repository:** `TomTang701/codex-windows-status-pet`
+> **Current candidate branch:** `fix/v0.5.5-mixed-dpi-startup-position`
+> **Current candidate commit:** `ef72b48afaadee4c8b0bf377272d5a17e7fa70c6` (subsequent Program-governance and CI-admission commits must be reviewed as Phase A scope)
+> **Current released baseline:** `v0.5.3`
+> **Historical v0.5.4:** closed investigation / no product release
+> **Program final target:** released and reconciled `v0.6.0`
+> **Execution model:** one active implementation version at a time; multiple sequential phases are allowed inside this Program Goal
+> **STOP:** only after released/reconciled v0.6.0 and final verification
 
----
+## 0. Program mission
 
-## 0. Mission
-
-Close the v0.5.4 position-persistence investigation truthfully.
-
-Tom has now confirmed:
-
-> Restarting the software no longer loses the saved window position.
-
-The investigation already established that the complete tested persistence path preserves the same coordinate:
+Execute one continuous program from the v0.5.5 mixed-DPI startup-position candidate through the v0.6.0 product release. Do not stop after v0.5.5 or ask Tom to reactivate v0.6.0: this Program Goal is the approval for the sequential transition.
 
 ```text
-drag
-→ unlock
-→ wait for resumed polling
-→ tray Exit
-→ restart
-→ persisted JSON
-→ shutdown state
-→ load
-→ safe_position
-→ final window
+v0.5.5 candidate → PR → exact-head CI → merge → merged-main RC → tag / Release → v0.5.5 reconciliation
+→ HARD VERSION GATE → automatic v0.6.0 activation → brainstorming / design / Design Verification
+→ writing-plans → TDD → implementation → verification → PR / exact-head CI / merge / RC / tag / Release
+→ final reconciliation → STOP
 ```
 
-Observed coordinate:
+## 1. Program governance
 
-```text
-(4143, 1182)
-```
+The governing rule is: **one active implementation version at a time; multiple sequential version phases are allowed inside one approved Program Goal.**
 
-The coordinate remained consistent through the tested path.
+- While v0.5.5 is active, v0.6.0 implementation is forbidden.
+- After v0.5.5 is released and reconciled, v0.5.5 implementation is closed and v0.6.0 becomes the only active implementation version.
+- After v0.6.0 is released and reconciled, current implementation scope is none and the Program stops.
+- Do not mix v0.6.0 code into the v0.5.5 PR.
+- Follow repository `AGENTS.md`, the approved Superpowers workflows, scope control, identity checks, secret protection, and verification rules.
 
-No first coordinate divergence was found.
+## 2. Protected product core
 
-The required production-equivalent RED was not established.
+Preserve the following throughout the Program unless direct evidence proves an exact required change:
 
-Design Verification was correctly marked FAILED because there was no demonstrated defect against which a root-cause fix could be validated.
+- quota data from the local official Codex app-server JSON-RPC path; activity from approved local session metadata; no tokens, telemetry, third-party provider, backend, hosted service, or Codex-core modification;
+- Windows 11 x64, one companion instance, main-thread Tk ownership, bounded single-flight refresh, safe idempotent shutdown, and no persistent console;
+- transactional Settings Apply / Save / Close / Restore Defaults, proportional 80–200% `window_scale_percent`, configuration compatibility, Hide/Show, Compact/Expand, drag/lock, topmost, legal multi-monitor recovery, tray reachability, and restart persistence;
+- exactly five stable status-row identities: `activity`, `progress`, `primary_5h`, `weekly`, `reset_credit`;
+- Shell identity: visible overlay and tray, `WS_EX_TOOLWINDOW=true`, `WS_EX_APPWINDOW=false`, and no ordinary taskbar / Alt+Tab / Win+Tab application identity.
 
-The original user-visible symptom is now no longer reproducible.
+# PROGRAM PHASE A — v0.5.5 RELEASE COMPLETION
 
-Therefore:
+## 3. Phase A mission and candidate
 
-> **Do not manufacture a RED, do not invent a root cause, do not modify production persistence logic, and do not release v0.5.4.**
+Complete v0.5.5 mixed-DPI startup position recovery. The established root cause is that a withdrawn bootstrap HWND reports primary 120 DPI before saved-position recovery, inflates containment metrics for a legal 96-DPI secondary edge coordinate, and clamps it before target DPI becomes correct. The minimum correction uses geometry authority appropriate to the monitor targeted by the saved position. Do not redesign the production correction unless new evidence contradicts it.
 
-The correct outcome is investigation closure.
+Before remote writes inspect branch, exact HEAD, recent commits, remote, `gh auth status`, and Git author identity. If HEAD moved beyond the named candidate, inspect every added commit and verify it belongs to Phase A.
 
----
+## 4. Candidate verification and CI-admission rule
 
-## 1. Historical truth
-
-Preserve these facts:
-
-- `v0.5.3` remains the released product baseline.
-- The v0.5.4 position-persistence investigation was started because Tom reported restart position loss.
-- The running instance provenance was verified as the intended repository/runtime path and v0.5.3 baseline.
-- The complete tested A-path preserved coordinate `(4143, 1182)`.
-- No first coordinate divergence was identified.
-- The required RED was not established.
-- Design Verification therefore failed correctly.
-- No production code was modified for the alleged persistence defect.
-- Tom subsequently confirmed that restarting the software no longer loses the window position.
-- Commit `5d3e453` contains investigation and round-trip tracing evidence.
-
-Do not rewrite this investigation as a successful bug fix.
-
-Do not claim that production code corrected position persistence.
-
-Use the truthful classification:
-
-```text
-v0.5.4 position persistence
-= CLOSED INVESTIGATION
-= REPORTED SYMPTOM NO LONGER REPRODUCIBLE
-= NO PROVEN PRODUCTION DEFECT
-= NO PRODUCTION FIX
-= NO PRODUCT RELEASE
-```
-
----
-
-## 2. Required conclusion
-
-The investigation conclusion must state:
-
-> The reported restart position-loss symptom is no longer reproducible. Production-equivalent tracing preserved the same virtual-desktop coordinate through persistence, shutdown, loading, safe-position validation, and final window placement. No first divergence or valid RED was established, so no production correction is justified.
-
-Do not state:
-
-- fixed by v0.5.4;
-- persistence bug repaired;
-- root cause resolved;
-- regression test proves a historical production defect;
-- v0.5.4 is released.
-
-There is insufficient evidence for those claims.
-
----
-
-## 3. Preserve investigation evidence
-
-Preserve commit:
-
-```text
-5d3e453 test: trace position persistence round trip
-```
-
-Review its diff before closure.
-
-The investigation evidence may remain when it provides focused diagnostic or regression value and does not:
-
-- alter production behavior;
-- encode a false historical claim;
-- depend on temporary machine-specific state;
-- expose personal paths, secrets, tokens, or credentials;
-- create brittle release authority for a defect that was never reproduced.
-
-If part of the evidence is temporary diagnostic instrumentation unsuitable for the maintained repository, remove only that temporary portion with technical justification.
-
-Do not discard valid investigation evidence merely because the incident closes without a product release.
-
----
-
-## 4. Active-state reconciliation
-
-Reconcile the authoritative state documents.
-
-Inspect and update only the documents that currently claim v0.5.4 is active or release-bound, including as applicable:
-
-```text
-Goal/ACTIVE_GOAL.md
-Goal/ACTIVE_VERSION_BRIEF.md
-Goal/EXECUTION_STATE.md
-docs/product/ROADMAP.md
-paired Chinese roadmap/document when required
-```
-
-The final active state must communicate:
-
-```text
-released baseline = v0.5.3
-
-v0.5.4 position-persistence investigation
-= closed
-= symptom no longer reproducible
-= no proven production defect
-= no production release
-
-current implementation scope = none
-
-v0.6.0 5H Battery Indicator and Layout Tightening
-= not started
-= requires Tom's next approved Goal
-```
-
-Do not start v0.6.0 inside this Goal.
-
-Do not brainstorm or design v0.6.0 inside this Goal.
-
----
-
-## 5. Version and release rules
-
-Do not:
-
-- change `APP_VERSION` to `0.5.4`;
-- create a `v0.5.4` tag;
-- create a v0.5.4 GitHub Release;
-- publish binaries or packages as v0.5.4;
-- describe the investigation commit as a product release;
-- modify changelog/release history to imply v0.5.4 shipped.
-
-`v0.5.3` remains the latest released product baseline.
-
-The identifier `v0.5.4` may remain in investigation history where necessary to explain the closed incident.
-
----
-
-## 6. Required verification
-
-Before claiming closure:
-
-1. Inspect `git status`.
-2. Inspect the complete diff from the released/reconciled v0.5.3 main state through the investigation closure.
-3. Confirm no production persistence fix was introduced.
-4. Confirm `APP_VERSION` still represents `v0.5.3`.
-5. Run the focused position-persistence tests retained by the investigation.
-6. Run:
+Run fresh candidate gates:
 
 ```powershell
 python scripts/run_quality_checks.py
+python scripts/package_smoke_test.py
+python scripts/run_release_candidate_checks.py
+git diff main...HEAD --check
+git diff --stat main...HEAD
 ```
 
-7. Run documentation/state consistency checks provided by the repository.
-8. Search active authoritative documents for stale claims that:
-   - v0.5.4 is ACTIVE;
-   - v0.5.4 requires a production fix;
-   - v0.5.4 is release-bound;
-   - v0.6.0 has started.
-9. Review changed files for unrelated changes.
-10. Review changed files for secrets or credentials.
+Confirm mixed-DPI RED/GREEN evidence, legal secondary right/bottom/bottom-right preservation, invalid/off-screen recovery, Shell identity coverage, coherent 0.5.5 version surfaces, no v0.6.0 code, no unrelated changes/debug artifacts/secrets.
 
-A formal v0.5.4 release candidate is not required because no product release is being made.
+Physical-topology-dependent tests must explicitly skip, with a reason that names the unavailable required topology, when the host lacks the required 125% primary / 100% right-side-secondary topology. They must not convert a real logic assertion failure into a skip, and synthetic tests must not be presented as physical mixed-DPI evidence. Tom's real host remains the physical RED/GREEN authority.
 
-Do not run release machinery merely to simulate a release closure.
+If any CI or release gate fails, use `systematic-debugging`: read exact logs, identify one root cause, add a focused RED when behavior changes, implement the minimum correction, verify locally, push, and require CI for the new exact PR head SHA.
 
----
+## 5. PR, merge, and v0.5.5 release
 
-## 7. Git and GitHub closure
+Create or use one PR with base `main`, head `fix/v0.5.5-mixed-dpi-startup-position`, title `fix: preserve mixed dpi startup positions`, and a body stating summary, root cause, minimum correction, RED/GREEN evidence, Quality/package-smoke/RC, and explicit exclusion of v0.6.0.
 
-Follow repository `AGENTS.md` authorization and identity rules.
+Require repository required Windows CI for the exact PR head SHA. Review the complete PR diff for requirements, mixed-DPI correctness, off-screen recovery, Shell identity, version consistency, complexity, temporary files, secrets, and credentials. Only then squash merge according to repository practice.
 
-Before remote writes:
+On merged main, run fresh formal RC. Only when merged-main RC passes with zero blockers and version 0.5.5, create and verify tag `v0.5.5` and its GitHub Release targeting the verified merged-main commit. Release notes must describe the 120-DPI bootstrap containment cause, target-monitor geometry correction, retained invalid recovery, and edge/restart coverage. Never release v0.5.4.
+
+## 6. v0.5.5 reconciliation
+
+After the release exists, reconcile `Goal/ACTIVE_GOAL.md`, `Goal/ACTIVE_VERSION_BRIEF.md`, `Goal/EXECUTION_STATE.md`, roadmap pair, compatibility matrix pair, and changelog pair truthfully:
 
 ```text
-git remote -v
-gh auth status
-git config user.name
-git config user.email
+v0.5.3 = previous released baseline
+v0.5.4 = historical closed investigation / no product release
+v0.5.5 = released mixed-DPI startup position recovery patch
 ```
 
-Verify the intended Tom-owned GitHub account/repository is:
+Record PR number, exact-head CI SHA/result, merged-main SHA, merged-main RC, tag, and GitHub Release target. Run documentation/state consistency and Quality checks.
+
+# HARD VERSION GATE — v0.5.5 → v0.6.0
+
+## 7. Automatic transition requirements
+
+Do not begin v0.6.0 implementation until all are true:
 
 ```text
-TomTang701/codex-windows-status-pet
-GitHub username = tomtang701
+v0.5.5 PR merged
+v0.5.5 exact-head required CI passed
+v0.5.5 merged-main RC passed
+v0.5.5 tag exists and target verified
+v0.5.5 GitHub Release exists and target verified
+v0.5.5 authoritative state reconciled
+v0.5.5 closure checks passed
 ```
 
-Preserve valid local investigation history.
+When true, close Phase A, set released baseline to v0.5.5, automatically activate Phase B/v0.6.0, and create a dedicated v0.6.0 feature branch from verified reconciled main. Do not stop or ask Tom for another Goal.
 
-Create the minimum focused documentation/state reconciliation commit required to close the investigation.
+# PROGRAM PHASE B — v0.6.0 DESIGN
 
-Use a commit message consistent with repository history, for example:
+## 8. Product outcome
+
+Deliver **v0.6.0 5H Battery Indicator and Layout Tightening** inside the existing five-row presentation architecture. `primary_5h` remains one row; no sixth row. The work changes presentation only, never official quota authority or quota meaning.
+
+## 9. Mandatory brainstorming and evidence-based design
+
+Before production implementation invoke `brainstorming` and inspect real `primary_5h` data semantics, parser/quota state, StatusRows, presentation controller, color/unavailable behavior, WindowMetrics, pack/layout behavior, all scale steps, content-fit tests, settings/compact lifecycle, mixed-DPI geometry, and v0.4.1/v0.5.1/v0.5.3/v0.5.5 lessons.
+
+Compare at least these approaches:
+
+1. inline text battery using glyphs and percentage: smallest surface but must measure Windows glyph widths;
+2. composed battery row/widget: clearer visual proportion but larger DPI/layout surface;
+3. Unicode/emoji battery plus percentage: compact but low granularity and glyph-variation risk.
+
+Choose the smallest Windows 11/DPI-stable approach that clearly communicates the official 5H proportion without a row-rendering rewrite.
+
+Define and record the data contract:
 
 ```text
-docs: close v0.5.4 position persistence investigation
+raw official value → normalized bounded presentation value → battery fill meaning → percentage text meaning
 ```
 
-Use the repository's normal authorized GitHub workflow when permitted by `AGENTS.md`.
+Battery fill and text must have the same used/remaining semantics. Do not infer semantics from variable names, invent values, invert one representation, or render a fake full/empty state when quota is unavailable.
 
-Do not create a v0.5.4 product Release.
+Measure current padding, face/text gap, wrap length, requested/actual geometry, and all five rows before any layout change. Layout tightening must remove measured unnecessary whitespace while preserving every row, readability, reset-credit content, battery content, edge safety, and canonical scale behavior from 80 through 200 in 5% steps.
 
----
+## 10. Design Verification
 
-## 8. Completion report
+Write a concrete v0.6.0 design under the repository design path. It must define selected architecture, exact existing classes/functions in the data flow, semantics, unavailable/error/last-good behavior, exact measured layout adjustment, and regression boundaries for five rows, all scale steps, DPI 96/120, target-window coherence, lifecycle, mixed-DPI persistence, and Shell identity.
 
-The final report must contain:
+Answer: **Does the design improve 5H presentation and tighten layout with the smallest architecture-compatible change without weakening truthful quota semantics or geometry contracts?** If not, revise and do not implement. If yes, mark Design Verification PASSED and invoke `writing-plans`.
 
-### Conclusion
+# PROGRAM PHASE C — v0.6.0 IMPLEMENTATION
 
-State that v0.5.4 closed as an investigation without product release because the reported symptom is no longer reproducible and no RED/root-cause defect was established.
+## 11. Planning, TDD, and minimum implementation
 
-### Evidence
+After Design Verification passes, write an executable plan with exact paths/interfaces and RED for battery semantics/rendering plus content-fit/layout. Use `test-driven-development` for semantics, transformations, state transitions, deterministic helpers, and reproducible content-fit behavior. Do not create production behavior before an appropriate RED.
 
-Report:
+Prefer existing owners, confirmed from source, including `scripts/ui/status_rows.py`, `scripts/ui/main_window.py`, `scripts/api/status_presentation_controller_api.py`, `scripts/api/window_scale_api.py`, and current quota presentation/parsing owners. Do not create a manager, renderer framework, animation service, dependency, worker, or sixth row. Update Tk only on changed presentation data; no animation or unbounded canvas items.
 
-- the preserved `(4143, 1182)` round-trip evidence;
-- the absence of a first coordinate divergence;
-- Tom's confirmation that restart no longer loses position;
-- focused test result;
-- Quality result;
-- state-consistency result;
-- final diff review result.
+## 12. Required v0.6.0 regression matrix
 
-### Repository state
+Verify valid/lower/upper/middle 5H quota, unavailable, malformed, and transport-error last-good behavior; agreement of battery/text semantics; exactly five identities; every 5% scale from 80–200 with five rows/battery/reset-credit visible and unclipped; DPI 96/120 and existing broader DPI regression; startup/drag/tray exit/restart/mixed-DPI edge persistence/Hide/Show/Compact/Expand/settings Apply-Save-Close-Defaults/lock/topmost; and `WS_EX_TOOLWINDOW=true` / `WS_EX_APPWINDOW=false`.
 
-Report:
+Run focused tests, relevant UI/presentation/geometry/persistence/DPI/Shell tests, Quality, package smoke, formal RC, diff review, unrelated-change check, and secret scan. Candidate state requires all gates passing and zero release blockers.
+
+# PROGRAM PHASE D — v0.6.0 RELEASE
+
+## 13. Version, PR, merge, and release
+
+Only after Phase C is green, establish coherent 0.6.0 version/changelog surfaces truthfully and create a v0.6.0 PR from its dedicated branch. Require exact-head CI and final review. Merge only with candidate verification, exact-head CI, and review passing. On merged main run fresh formal RC, then create and verify `v0.6.0` tag and GitHub Release targeting the verified merged-main commit.
+
+Release notes must describe the battery indicator, what its proportion means, layout tightening, five-row preservation, truthful quota authority, mixed-DPI persistence preservation, and Shell identity preservation without claiming unsupported physical environments.
+
+# PROGRAM PHASE E — FINAL STATE RECONCILIATION
+
+## 14. Final repository truth and verification-before-completion
+
+After v0.6.0 Release exists, reconcile authoritative state so it says:
 
 ```text
-released baseline = v0.5.3
-v0.5.4 investigation = closed without release
+latest released product version = v0.6.0
+v0.5.4 = historical closed investigation / no release
+v0.5.5 = released mixed-DPI startup position recovery patch
+v0.6.0 = released 5H Battery Indicator and Layout Tightening
 current implementation scope = none
-v0.6.0 = not started
 ```
 
-### Remote state
+Record actual v0.5.5/v0.6.0 PRs, exact-head CI SHAs/results, merged-main SHAs, merged-main RCs, tags, and Release targets. Remove stale claims that v0.5.5 is active or v0.6.0 is blocked/not started. Run final Quality and state/document verification. Before completion prove v0.5.5/v0.6.0 releases and target identities, APP_VERSION 0.6.0, five stable rows, mixed-DPI regression, all-scale fit, Shell identity, reconciled state, clean worktree, complete history/diff review, and no secrets.
 
-Report actual commit / PR / merge results only when those actions were really performed.
+## 15. Human Interaction Admission Gate and STOP
 
-Do not claim release success.
+Ask Tom only when one exact material fact cannot be determined from source, tests, safe automation, Tk/Win32/process/filesystem/app-local inspection, or current physical-host evidence. First record the required fact, methods, observed evidence, insufficiency, blocker, and exact question in `EXECUTION_STATE.md`; then ask one concise factual question. After an answer resume this same Program.
 
----
-
-## 9. STOP condition
-
-After:
-
-```text
-investigation evidence reviewed
-→ active state reconciled
-→ required verification passed
-→ authorized closure workflow completed
-→ final evidence reported
-```
-
-STOP.
-
-Do not start:
-
-- v0.6.0 battery indicator;
-- layout tightening;
-- installer work;
-- startup integration;
-- unrelated refactoring;
-- another position-persistence correction.
-
-Wait for Tom's next approved Goal.
+STOP only after v0.5.5 is released/reconciled, the Hard Version Gate passes, v0.6.0 is designed, implemented, verified, merged, released, reconciled, and final evidence is reported. Do not begin v0.6.1, installer, auto-start, auto-update, or unrelated work.

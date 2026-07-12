@@ -10,14 +10,14 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.5.3"
+APP_VERSION = "0.5.5"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
     from api.application_controller_api import ApplicationController
     from api.config_api import ConfigWriteProtectedError
     from api.diagnostics_api import configure_logging
-    from api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
+    from api.display_api import dpi_for_window, monitor_for_point, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from api.diagnostic_summary_api import build_diagnostic_summary
     from api.display_mode_api import compact_size
     from api.compact_state_api import compact_geometry
@@ -40,7 +40,7 @@ except ModuleNotFoundError:
     from scripts.api.application_controller_api import ApplicationController
     from scripts.api.config_api import ConfigWriteProtectedError
     from scripts.api.diagnostics_api import configure_logging
-    from scripts.api.display_api import dpi_for_window, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
+    from scripts.api.display_api import dpi_for_window, monitor_for_point, monitor_snapshot, virtual_desktop_bounds, work_area_for_point
     from scripts.api.diagnostic_summary_api import build_diagnostic_summary
     from scripts.api.display_mode_api import compact_size
     from scripts.api.compact_state_api import compact_geometry
@@ -196,8 +196,15 @@ class Pet(tk.Tk):
         except (ImportError, AttributeError, OSError):
             pass
         metrics = getattr(self, "window_metrics", derive_window_metrics(self.settings.get("window_scale_percent")))
+        target_monitor = monitor_for_point(x, y, monitors)
+        recovery_metrics = metrics
+        if target_monitor is not None:
+            recovery_metrics = derive_window_metrics(
+                self.settings.get("window_scale_percent"),
+                dpi=target_monitor.get("dpi_x", self.window_dpi),
+            )
         recovered_x, recovered_y, recovered = recover_position(
-            x, y, metrics.width, metrics.height, monitors, fallback_area
+            x, y, recovery_metrics.width, recovery_metrics.height, monitors, fallback_area
         )
         if recovered:
             logging.getLogger("codex-status-pet").warning("saved window position was off-screen; recovered to (%s, %s)", recovered_x, recovered_y)

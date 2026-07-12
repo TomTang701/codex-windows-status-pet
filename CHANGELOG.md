@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 0.5.5 - 2026-07-12
+
+- Fixed mixed-DPI startup recovery so a saved position that is legal at its target monitor DPI is not clamped using the withdrawn bootstrap window's DPI.
+- Added production-equivalent Windows regressions for secondary right, bottom, bottom-right, and interior positions, primary-edge preservation, invalid-position recovery, and drag-to-edge restart persistence on a 125% primary / 100% secondary topology.
+
 ## 0.5.3 - 2026-07-11
 
 - Restored the overlay's Windows tool-window Shell identity after Tk's transparency lifecycle cleared it during the v0.5.1 startup sequence.

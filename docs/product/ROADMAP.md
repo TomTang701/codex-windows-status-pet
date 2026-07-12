@@ -2,15 +2,15 @@
 
 **Status:** Active roadmap
 **Released baseline:** `v0.5.3`
-**Current implementation scope:** None; wait for Tom's next approved Goal
+**Active implementation scope:** `v0.5.5` Mixed-DPI Startup Position Recovery Correctness
 
 ## Current state
 
 - **Released:** v0.3.2 through v0.5.3 are merged, tagged, and published. v0.5.3 restores the visible overlay's non-ordinary Windows Shell identity without changing tray reachability or geometry behavior.
 - **Historical verification:** v0.5.3 has real root-HWND RED/GREEN, full lifecycle identity coverage, exact-head Windows CI, and merged-main RC. v0.5.2 remains a closed stale-process investigation without a product release.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
-- **Current direction:** v0.5.4 is closed as an investigation: the reported position-loss symptom is no longer reproducible, no production defect or fix was proven, and no product release was created. v0.6.0 5H Battery Indicator and Layout Tightening is not started and requires Tom's next approved Goal.
-- **Environment limitations:** mixed-DPI physical hardware, alternate physical taskbar edges, and a separate clean Windows machine are not available and are not claimed as physical evidence.
+- **Current direction:** v0.5.4 remains a closed no-release investigation. v0.5.5 has a production-equivalent mixed-DPI RED, a proven bootstrap-DPI root cause, and a GREEN candidate that preserves legal secondary right/bottom-edge positions using target-monitor containment metrics. Formal release gates remain required; v0.6.0 5H Battery Indicator and Layout Tightening is blocked and not started.
+- **Environment limitations:** alternate physical taskbar edges and a separate clean Windows machine are not available and are not claimed as physical evidence. The 125% primary / 100% secondary mixed-DPI topology is now covered by production-equivalent Windows automation for v0.5.5.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 
 ## Product objective
