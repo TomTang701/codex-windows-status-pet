@@ -26,7 +26,7 @@ class BatteryIntegrationTests(unittest.TestCase):
                 module["AppServer"] = DummyServer
                 module["TrayIcon3"] = DummyTray
                 app = module["Pet"]()
-                app.latest_quota = {"rateLimits": {"primary": {"usedPercent": 22}}}
+                app.latest_quota = {"rateLimits": {"secondary": {"usedPercent": 22}}}
                 app.render_status()
                 app.set_compact(True)
                 app.update_idletasks()
@@ -64,7 +64,7 @@ class BatteryIntegrationTests(unittest.TestCase):
                 module["AppServer"] = DummyServer
                 module["TrayIcon3"] = DummyTray
                 app = module["Pet"]()
-                app.latest_quota = {"rateLimits": {"primary": {"usedPercent": 22}}}
+                app.latest_quota = {"rateLimits": {"secondary": {"usedPercent": 22}}}
                 app.render_status()
                 app.update_idletasks()
                 app.update()

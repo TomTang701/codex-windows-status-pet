@@ -1,31 +1,24 @@
-# ACTIVE VERSION BRIEF — v0.6.0 Released
+# ACTIVE VERSION BRIEF — v0.6.1 Quota Window Identity Correctness
 
-## Released history
+## Released baseline
 
-- `v0.5.3` remains a released Shell-identity baseline at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
-- `v0.5.2` remains a closed rendered-visibility investigation and has no product version, tag, or GitHub Release.
-- `v0.5.4` remains a closed position-persistence investigation and has no product tag or GitHub Release.
-- `v0.5.5` is the released mixed-DPI startup-position recovery patch at `4662414c16e6892d02634dd5139b3ca93f281d37`.
-- `v0.6.0` is the latest released product at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`.
+- `v0.6.0` is the verified released segmented-battery baseline at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`.
+- `v0.5.5` remains the released mixed-DPI startup-position recovery patch.
+- `v0.5.4` remains a closed position-persistence investigation with no product release.
 
-## Released outcome
+## Active outcome
 
-v0.6.0 replaces the paw with a truthful ten-cell, 2×5 5H battery. Expanded mode retains the five stable status rows at left and shows the battery at right. Compact mode shows the complete same battery only. The battery consumes the established quota presentation result, so it does not create a second quota-semantics authority.
+Investigate and correct quota-window identity only from safe official local app-server evidence. The companion must keep real 5-hour and weekly quota values on their truthful rows; a missing enabled 5-hour window must render as `5h -- / --`.
+
+The v0.6.n default battery source is the truthfully classified weekly window. If weekly is unavailable, the battery is unavailable; it must not fall back to 5-hour data. The user-selectable source control is deferred to v0.6.3.
 
 ## Protected contracts
 
-- Exactly five row identities remain: `activity`, `progress`, `primary_5h`, `weekly`, and `reset_credit`.
-- `primary_5h` remains visible in expanded mode and continues to present the truthful remaining percentage and reset time.
-- The visible battery surface retains right-click, pointer, drag, compact, and lifecycle interactions.
-- v0.5.5 target-monitor-DPI startup recovery and v0.5.3 Shell identity remain regression-protected.
+- Official local `codex app-server --stdio` remains the sole quota authority.
+- No `auth.json`, access-token, third-party endpoint, or arbitrary unknown-field propagation.
+- Five persistent row identities, the v0.6.0 ten-cell battery, mixed-DPI recovery, and Shell identity remain protected.
+- No positional, dictionary-order, `primary`, or `secondary` naming assumption may determine window identity without exact safe official evidence.
 
-## Release evidence
+## Current phase
 
-- v0.6.0 PR: [#25](https://github.com/TomTang701/codex-windows-status-pet/pull/25), merged at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`.
-- Exact-head Windows CI: passed for `8670b0f82ef272a24df870d4756aea71c2182b80`.
-- Merged-main formal RC: passed at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`.
-- Tag and Release: [`v0.6.0`](https://github.com/TomTang701/codex-windows-status-pet/releases/tag/v0.6.0) target `b7915d86a5007d76a62a7870ad248b9230fe0f4a`.
-
-## Status
-
-`PROGRAM COMPLETE / STOPPED / NO NEW IMPLEMENTATION SCOPE`
+`PROGRAM ACTIVE / v0.6.1 ROOT-CAUSE INVESTIGATION / NO PRODUCTION CORRECTION YET`

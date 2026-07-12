@@ -20,11 +20,17 @@ def _window(value):
     result = {}
     used = _first(value, "usedPercent", "used_percent")
     reset = _first(value, "resetsAt", "resets_at")
+    duration = _first(value, "windowDurationMins", "window_duration_mins")
     if isinstance(used, (int, float)) and not isinstance(used, bool):
         result["usedPercent"] = used
     if isinstance(reset, (int, float, str)) and not isinstance(reset, bool):
         result["resetsAt"] = reset
+    if isinstance(duration, int) and not isinstance(duration, bool):
+        result["windowDurationMins"] = duration
     return result
+
+
+_WINDOW_SLOT_BY_DURATION_MINUTES = {300: "primary", 10080: "secondary"}
 
 
 _EXPIRY_NAMES = ("expiresAt", "expires_at", "resetsAt", "resets_at", "resetAt", "reset_at")
@@ -60,11 +66,11 @@ def parse_quota_payload(payload):
     limits = _first(payload, "rateLimits", "rate_limits")
     parsed_limits = {}
     if isinstance(limits, dict):
-        for source, target in (("primary", "primary"), ("secondary", "secondary"), ("weekly", "secondary")):
-            if target not in parsed_limits:
-                window = _window(_first(limits, source))
-                if window:
-                    parsed_limits[target] = window
+        for value in limits.values():
+            window = _window(value)
+            target = _WINDOW_SLOT_BY_DURATION_MINUTES.get(window.get("windowDurationMins"))
+            if target and target not in parsed_limits:
+                parsed_limits[target] = window
     credits = _first(payload, "rateLimitResetCredits", "rate_limit_reset_credits")
     parsed_credits = {}
     if isinstance(credits, dict):

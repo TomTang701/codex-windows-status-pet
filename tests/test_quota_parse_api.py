@@ -8,9 +8,39 @@ from api.quota_parse_api import parse_quota_payload
 
 
 class QuotaParseTests(unittest.TestCase):
+    def test_two_windows_are_classified_by_duration_when_raw_keys_are_reversed(self):
+        result = parse_quota_payload({"rateLimits": {
+            "primary": {"usedPercent": 30, "windowDurationMins": 10080},
+            "secondary": {"usedPercent": 10, "windowDurationMins": 300},
+        }})
+        self.assertEqual(result["rateLimits"]["primary"]["usedPercent"], 10)
+        self.assertEqual(result["rateLimits"]["secondary"]["usedPercent"], 30)
+
+    def test_unknown_or_malformed_duration_never_populates_a_quota_slot(self):
+        result = parse_quota_payload({"rateLimits": {
+            "primary": {"usedPercent": 10, "windowDurationMins": 60},
+            "secondary": {"usedPercent": 20, "windowDurationMins": "10080"},
+        }})
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(result["rateLimits"], {})
+
+    def test_weekly_duration_primary_is_classified_as_weekly_not_5h(self):
+        result = parse_quota_payload({
+            "rateLimits": {
+                "primary": {"usedPercent": 45, "resetsAt": 1893456000, "windowDurationMins": 10080},
+                "secondary": None,
+            },
+        })
+        self.assertNotIn("primary", result["rateLimits"])
+        self.assertEqual(result["rateLimits"]["secondary"], {
+            "usedPercent": 45,
+            "resetsAt": 1893456000,
+            "windowDurationMins": 10080,
+        })
+
     def test_approved_local_fields_are_normalized_and_unknown_fields_are_dropped(self):
         result = parse_quota_payload({
-            "rateLimits": {"primary": {"usedPercent": 20}},
+            "rateLimits": {"primary": {"usedPercent": 20, "windowDurationMins": 300}},
             "rateLimitResetCredits": {"availableCount": 4},
             "unexpected": "ignored",
         })
@@ -24,20 +54,20 @@ class QuotaParseTests(unittest.TestCase):
 
     def test_only_approved_fields_are_normalized(self):
         result = parse_quota_payload({
-            "rateLimits": {"primary": {"usedPercent": 20, "secret": "drop"}},
+            "rateLimits": {"primary": {"usedPercent": 20, "windowDurationMins": 300, "secret": "drop"}},
             "rateLimitResetCredits": {"availableCount": 4, "secret": "drop"},
             "token": "must-not-propagate",
         })
-        self.assertEqual(result["rateLimits"]["primary"], {"usedPercent": 20})
+        self.assertEqual(result["rateLimits"]["primary"], {"usedPercent": 20, "windowDurationMins": 300})
         self.assertEqual(result["rateLimitResetCredits"], {"availableCount": 4})
         self.assertNotIn("token", result)
 
     def test_snake_case_aliases_and_invalid_numbers(self):
         result = parse_quota_payload({
-            "rate_limits": {"primary": {"used_percent": "bad", "resets_at": 123}},
+            "rate_limits": {"primary": {"used_percent": "bad", "resets_at": 123, "window_duration_mins": 300}},
             "rate_limit_reset_credits": {"available_count": 2, "resetAt": ["2030-01-01T00:00:00Z"]},
         })
-        self.assertEqual(result["rateLimits"]["primary"], {"resetsAt": 123})
+        self.assertEqual(result["rateLimits"]["primary"], {"resetsAt": 123, "windowDurationMins": 300})
         self.assertEqual(result["rateLimitResetCredits"]["resetsAt"], ["2030-01-01T00:00:00Z"])
 
     def test_reset_credit_expiry_shapes_are_normalized(self):
