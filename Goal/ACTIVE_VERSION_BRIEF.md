@@ -1,21 +1,21 @@
-# ACTIVE VERSION BRIEF — v0.5.3 Windows Shell Identity Correctness (Released)
+# ACTIVE VERSION BRIEF — v0.5.4 Position Persistence Correctness
 
 ## Released history
 
-- `v0.5.1` remains the previous released product baseline at `10de01410126a1877ac9406fc02e3bc583659df3`.
+- `v0.5.3` is the released product baseline at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
 - `v0.5.2` remains a closed rendered-visibility investigation and has no product version, tag, or GitHub Release.
-- `v0.5.3` is released at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`, via PR #21, tag `v0.5.3`, and the matching GitHub Release.
+- `v0.5.4` is the active position-persistence correctness patch; it has no product tag or GitHub Release yet.
 
-## Released outcome
+## Active outcome
 
-Restore the overlay's intended Windows Shell identity: visible desktop overlay and tray icon, but absent from Task View, Alt+Tab, and the ordinary taskbar application surface.
+Restore durable overlay position persistence through drag, normal tray Exit, and restart, while preserving legal topology recovery.
 
-## Investigation result
+## Investigation boundary
 
-The real root HWND comparison is complete. Both historical working and current windows have owner `0`; only the historical window retains `WS_EX_TOOLWINDOW`. The v0.5.1 lifecycle maps early, then Tk alpha processing clears that bit before the final `deiconify()`. v0.5.3 restores the evidence-required bit only after each native mapping boundary and keeps `WS_EX_APPWINDOW` absent.
+The root cause is unknown. The exact A-path coordinates must be traced from the stable post-drag root through runtime state, JSON after `finish_drag`, normal tray Exit, raw Pet B load, `safe_position`, and Pet B's final root. No production position fix is permitted before the first divergence and Design Verification.
 
-The release has a real-HWND RED/GREEN and lifecycle regression coverage, exact-head CI, merged-main RC, a semantic tag, and a matching GitHub Release. No battery feature is in scope.
+v0.5.3 Shell Identity remains protected: the root HWND must retain `WS_EX_TOOLWINDOW=true` and `WS_EX_APPWINDOW=false`. No battery feature is in scope.
 
 ## Status
 
-`v0.5.3 RELEASED / DESIGN VERIFIED / v0.6.0 BATTERY FEATURE NOT STARTED`
+`v0.5.4 ACTIVE / DESIGN VERIFICATION PENDING / v0.6.0 BATTERY FEATURE DEFERRED`

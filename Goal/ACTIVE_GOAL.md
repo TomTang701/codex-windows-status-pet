@@ -1,537 +1,554 @@
-# ACTIVE GOAL — v0.5.3 Windows Shell Identity Correctness
-> **Status:** RELEASED / RECONCILED / STOPPED
-> **Released baseline:** `v0.5.3` at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`
-> **Scope:** completed Windows shell-identity correctness release
+# ACTIVE GOAL — v0.5.4 Position Persistence Correctness
+> **Status:** ACTIVE
+> **Repository:** `TomTang701/codex-windows-status-pet`
+> **Released baseline:** `v0.5.3`
+> **Scope:** one position-persistence correctness release
 > **Supported platform:** Windows 11 x64
-> **Next feature:** `v0.6.0 5H Battery Indicator and Layout Tightening` is NOT STARTED and requires Tom's next direction
+> **Next product direction:** `v0.6.0 5H Battery Indicator and Layout Tightening` remains deferred until this Goal is released and reconciled
 > **Execution:** autonomous-first, evidence-first, systematic-debugging, Design Verification, TDD, verification-before-completion
-> **Remote workflow:** repository `AGENTS.md` standing authorization applies to routine GitHub operations inside this Goal
----
-## Release closure
-
-- Pull request [#21](https://github.com/TomTang701/codex-windows-status-pet/pull/21) was squash-merged after exact-head Windows Quality CI passed.
-- Merged main commit: `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
-- Formal merged-main RC passed with zero blockers.
-- Tag [`v0.5.3`](https://github.com/TomTang701/codex-windows-status-pet/releases/tag/v0.5.3) and its GitHub Release target that merged-main commit.
-- A fresh root-launcher process on main measured a visible root HWND with `WS_EX_TOOLWINDOW=true`, `WS_EX_APPWINDOW=false`, and owner `0`.
-
-This Goal is closed. Do not implement or brainstorm v0.6.0 here.
-
+> **Remote workflow:** repository-root `AGENTS.md` standing authorization applies to routine GitHub workflow inside this Goal
 ---
 ## 0. Mission
-Restore the companion's intended Windows shell identity.
-The Codex Windows Status Pet is a desktop overlay plus notification-area companion. It is not a normal task-switchable application window.
-Required visible behavior:
+Restore durable overlay position persistence across a normal user exit and restart.
+Confirmed production symptom:
 ```text
-desktop overlay = visible
-notification-area / tray icon = visible
-Win+Tab / Task View = Codex Status Pet absent
-Alt+Tab = Codex Status Pet absent
-ordinary taskbar application button = absent
+user drags the overlay to a new legal position
+→ releases the mouse
+→ exits through the tray menu
+→ launches the app again
+→ overlay returns to the default/original position
 ```
-This identity must remain stable through all supported overlay lifecycle transitions.
-The product outcome is:
-> **The overlay remains visible and tray-reachable while its main overlay HWND is consistently excluded from ordinary Windows task-switching and taskbar application identity.**
-This Goal fixes only shell identity.
-Do not implement the battery indicator, layout tightening, installer, auto-update, or unrelated UI redesign here.
+Tom confirmed the authoritative reproduction is the normal tray Exit path.
+Tom also confirmed:
+```text
+opacity persists across restart
+Window Size persists across restart
+position does not persist across restart
+```
+The v0.5.4 product outcome is:
+> **A legal stable root position chosen by dragging survives mouse release, normal tray Exit, and the next launch unchanged unless display topology genuinely requires position recovery.**
+The real stable post-drag root coordinates are the round-trip truth source.
+Default rule:
+> **Trace the real coordinates through runtime state, persistence, close, load, recovery, and startup. Find the first divergence. Fix one root cause.**
+Do not solve this by adding another blind save.
+Do not begin the battery feature.
 ---
-## 1. Historical truth and version selection
-
-The released product baseline remains `v0.5.1`.
-
-The prior `v0.5.2` rendered-visibility work was an investigation closed without a product release. Repository documents already use `v0.5.2` as that incident identifier.
-
-Therefore the next actual product patch version is:
-
+## 1. Historical truth
+Preserve repository history:
 ```text
-v0.5.3
+v0.5.1 = released runtime geometry stabilization
+v0.5.2 = closed rendered-visibility investigation; no product release
+v0.5.3 = released Windows Shell Identity correctness patch
+v0.5.4 = active Position Persistence correctness patch
+v0.6.0 battery feature = deferred
 ```
-
-Do not rewrite the historical v0.5.2 investigation.
-
-Do not create a v0.5.2 product tag or Release.
-
-At Goal activation, reconcile the active-state documents to show:
-
-```text
-released baseline = v0.5.1
-active implementation = v0.5.3 Shell Identity Correctness
-v0.5.2 = historical closed investigation without product release
-v0.6.0 battery feature = deferred until v0.5.3 closes
-```
-
-Update only the authoritative active state that must change:
-
+Do not reopen or rewrite the v0.5.2 investigation.
+Do not alter the v0.5.3 shell-identity historical record.
+At Goal activation reconcile:
 - `Goal/ACTIVE_GOAL.md`
 - `Goal/ACTIVE_VERSION_BRIEF.md`
 - `Goal/EXECUTION_STATE.md`
 - `docs/product/ROADMAP.md`
-- paired Chinese roadmap when the English canonical roadmap changes
+- required paired Chinese copies
+Record v0.5.4 as the only active implementation version.
+Avoid duplicating volatile PR, CI, and current-head facts across long-lived active documents.
 ---
-## 2. Production evidence
-
-Tom reports a new regression:
-
-> The overlay previously did not appear as content in Windows Task View / Win+Tab, but it now appears again.
-
-The intended product identity is confirmed:
-
-```text
-desktop overlay visible
-tray icon visible
-Win+Tab absent
-Alt+Tab absent
-taskbar application button absent
-```
-
-Current `Pet` still calls `overrideredirect(True)`, but this alone is not accepted as proof of shell exclusion.
-
-Released v0.5.1 also changed the startup mapping lifecycle to include:
-
-```text
-Tk root creation
-→ withdraw
-→ position for target-monitor DPI
-→ create/configure widgets
-→ deiconify
-```
-
-This lifecycle change is a high-priority investigation direction, not a proven root cause.
-
-Do not change production code until the actual main HWND shell identity has been measured and compared with a known-working historical state or equivalent working window contract.
----
-## 3. Protected product core
-
-Preserve unless exact root-cause evidence proves a protected behavior must change.
-
+## 2. Protected product core
 ### Data and privacy
-
-- Quota data continues to use the local official Codex app-server path.
-- Activity continues to use approved local Codex session metadata.
-- Do not read `auth.json` or access tokens.
-- Do not add telemetry, a backend, hosted services, or third-party quota providers.
-- Do not expose prompt, response, session content, token, or credential data.
-
-### Runtime
-
-- Windows 11 x64 remains the supported baseline.
-- One companion instance only.
-- A second launch must not kill unrelated processes.
-- Tk work remains on the Tk main thread.
-- Background workers must not call Tk directly.
-- Refresh remains bounded and single-flight.
-- Shutdown remains safe and idempotent.
-- No persistent console is required.
-
-### User-visible behavior
-
 Preserve:
-
-- exactly five stable status-row identities;
-- truthful activity/quota presentation;
-- settings Apply / Save / Close / Restore Defaults semantics;
-- canonical 80–200% Window Size scaling;
+- local official Codex app-server as the quota source;
+- approved local Codex session metadata for activity;
+- no `auth.json` or token reading;
+- no telemetry;
+- no backend or hosted service;
+- no third-party quota provider;
+- no prompt, response, session-content, token, or credential exposure.
+### Runtime
+Preserve:
+- Windows 11 x64 supported baseline;
+- single companion instance;
+- second launch does not kill unrelated processes;
+- all Tk work on the Tk main thread;
+- workers never call Tk directly;
+- bounded single-flight refresh;
+- safe idempotent shutdown;
+- no persistent console requirement.
+### User-visible behavior
+Preserve:
+- exactly five stable row identities:
+  - `activity`
+  - `progress`
+  - `primary_5h`
+  - `weekly`
+  - `reset_credit`
+- truthful quota/activity presentation;
+- 80–200% canonical Window Size scaling;
+- Apply / Save / Close / Restore Defaults semantics;
 - Hide/Show;
 - Compact/Expand;
 - drag/lock;
 - topmost;
-- legal multi-monitor position recovery;
-- tray reachability;
-- restart persistence;
-- v0.5.1 target-window-DPI geometry and font authority.
-
-The shell-identity correction must not reintroduce the v0.5.0 geometry regression.
+- legal multi-monitor coordinates;
+- restart persistence for settings that already work;
+- v0.5.1 target-window-DPI geometry/font authority;
+- v0.5.3 Windows Shell Identity.
+### v0.5.3 Shell Identity
+The released shell contract remains protected:
+```text
+desktop overlay = visible
+tray = visible
+Win+Tab / Task View = absent
+Alt+Tab = absent
+ordinary taskbar application button = absent
+```
+The current verified real root HWND identity remains:
+```text
+WS_EX_TOOLWINDOW = true
+WS_EX_APPWINDOW = false
+```
+Do not modify shell-identity behavior unless exact position evidence proves it participates in the first coordinate divergence.
 ---
-## 4. Required workflow
-
-Route this Goal as:
-
+## 3. Required workflow
+Route the Goal exactly as:
 ```text
 using-superpowers
 → systematic-debugging
-→ shell identity evidence collection
-→ historical/working pattern comparison
-→ one root-cause hypothesis
-→ compare 2–3 minimum fixes
+→ exact A-path reproduction
+→ coordinate data-flow trace
+→ first coordinate divergence
+→ one primary root-cause hypothesis
+→ compare evidence-relevant minimum fixes
 → DESIGN VERIFICATION
 → writing-plans
 → test-driven-development
 → minimum root-cause fix
 → verification-before-completion
-→ routine authorized GitHub release workflow
+→ authorized GitHub release workflow
 → active-state reconciliation
 → STOP
 ```
-
 Iron rule:
-
-> **NO SHELL-STYLE FIX BEFORE ROOT-CAUSE INVESTIGATION.**
-
-Do not assume `withdraw`, `deiconify`, `overrideredirect`, `WS_EX_TOOLWINDOW`, ownership, or `WS_EX_APPWINDOW` is the root cause before measuring the real HWND.
+> **NO POSITION FIX BEFORE THE FIRST DIVERGENCE IS IDENTIFIED.**
+Do not invoke `writing-plans` for production implementation until Design Verification passes.
+Do not assume in advance that the root cause is:
+- missing `save_settings()`;
+- `hidden_position`;
+- `expanded_position`;
+- `safe_position()`;
+- `recover_position()`;
+- Settings Session;
+- v0.5.3 shell identity;
+- a DPI issue.
+Measure first.
 ---
-## 5. Phase 1 — prove exact running provenance
-
-Autonomously inspect the currently running overlay.
-
-Record:
-
-- PID;
-- process executable;
-- full CommandLine;
-- loaded source path where safely inspectable;
-- running-source relationship to current repository main;
-- current application version;
-- process start time;
-- repository branch and HEAD for the running source;
-- working-tree state;
-- HWND used by the visible overlay;
-- Tk root mapped/withdrawn state;
-- current monitor/work area;
-- effective `GetDpiForWindow`;
-- outer window rect;
-- client rect.
-
-Do not infer running code identity only from the current on-disk `APP_VERSION`.
-
-Use the stale-process lesson from the closed v0.5.2 investigation:
-
+## 4. Exact A-path reproduction
+The authoritative reproduction must match Tom's confirmed path:
 ```text
-on-disk version != proof of already-loaded process code
+Pet A starts
+→ drag the visible overlay to a different legal position
+→ allow the Tk root geometry to stabilize
+→ release the mouse
+→ normal tray Exit
+→ launch Pet B using the same settings file
+→ observe final stable root position
 ```
-
-If the running process is not provenance-correct for current released v0.5.1/main behavior, establish that before shell diagnosis.
+Do not use:
+- Task Manager termination;
+- forced process kill;
+- direct `destroy()` as a substitute for tray Exit;
+- Settings-dialog position editing;
+- manually injected final coordinates as the authoritative reproduction.
+A test may invoke the same tray dispatch/close path programmatically, but it must exercise the production route:
+```text
+tray action "exit"
+→ process_tray_actions()
+→ close()
+→ save_settings()
+→ destroy()
+```
+The target coordinate must:
+- differ materially from the initial/default coordinate;
+- be known legal under the unchanged test topology;
+- not require recovery.
+Prefer a known legal secondary-monitor coordinate on the supported Windows host when available.
 ---
-## 6. Phase 2 — measure the actual Windows shell identity
-
-For the visible main overlay HWND, record before and after relevant lifecycle transitions:
-
-- HWND;
-- top-level root HWND relationship;
-- parent from `GetParent`;
-- owner relationship where available;
-- `GWL_STYLE`;
-- `GWL_EXSTYLE`;
-- `WS_EX_TOOLWINDOW` present/absent;
-- `WS_EX_APPWINDOW` present/absent;
-- visibility from `IsWindowVisible`;
-- iconic/minimized state;
-- enabled state;
-- cloak state when safely queryable;
-- title/class name;
-- Tk `overrideredirect` state;
-- mapped/withdrawn state.
-
-Do not rely on one source-level setting.
-
-The measured contract is about the real Win32 window Windows Shell classifies.
-
-Capture the same identity snapshot at minimum for:
-
+## 5. Round-trip truth source
+The truth source is:
+> **Pet A's actual stable root coordinates after the drag completes.**
+After dragging and settling, record:
 ```text
-cold start after stable mapping
-settings open
-settings Close
-settings Apply
-settings Save
-Restore Defaults
-lock
-unlock
-Hide
-Show
-Compact
-Expand
-scale reapply
-target-DPI reapply
+expected_x = Pet A winfo_rootx()
+expected_y = Pet A winfo_rooty()
 ```
-
-Identify the exact first transition, if any, where shell identity changes.
+These are authoritative.
+Every later relevant boundary must preserve `(expected_x, expected_y)`:
+```text
+runtime settings after drag
+JSON after finish_drag
+settings immediately before normal close
+JSON after normal close
+Pet B raw loaded settings
+Pet B safe_position input
+Pet B safe_position output
+Pet B final stable root
+```
+Exception:
+```text
+display topology genuinely makes the saved coordinates invalid
+→ recovery is allowed
+```
+The authoritative RED must use unchanged topology and a known-valid coordinate so recovery is not expected.
 ---
-## 7. Phase 3 — compare against a working pattern
-
-Find the last repository revision or exact historical runtime state for which the overlay was known not to appear in ordinary task switching.
-
-Use Git history and repository evidence.
-
-Compare the complete relevant window lifecycle and HWND state, not only one line.
-
-At minimum compare:
-
+## 6. Required coordinate trace
+Produce a machine-readable trace or directly assertable equivalent.
+At minimum capture:
 ```text
-root creation order
-overrideredirect timing
-withdraw timing
-initial geometry
-update_idletasks timing
-deiconify timing
-show_window behavior
-state("normal")
-focus_force
-lift
-temporary topmost handling
-owner/parent state
-GWL_STYLE
-GWL_EXSTYLE
+boundary
+actual_root_x
+actual_root_y
+settings_x
+settings_y
+persisted_json_x
+persisted_json_y
+safe_position_input_x
+safe_position_input_y
+safe_position_output_x
+safe_position_output_y
+window_metrics_width
+window_metrics_height
+effective_dpi
+monitor identity
+monitor work area
 ```
-
-Produce an evidence table:
-
+Required boundary sequence:
 ```text
-fact
-→ known-working state
-→ current failing state
-→ exact difference
-→ why the difference can or cannot affect shell classification
+Pet A initial
+after drag actual root
+after drag settings
+after finish_drag JSON
+before close settings
+after close JSON
+Pet B raw loaded settings
+Pet B before safe_position
+Pet B after safe_position
+Pet B final root
 ```
-
-Do not treat chronology alone as causation.
+Identify:
+> **The first exact state, persistence, recovery, or startup-lifecycle boundary where the intended final root coordinates stop being preserved.**
+Do not report only:
+```text
+position persistence is broken
+```
+Name the exact first divergence.
 ---
-## 8. Phase 4 — reproduce and define RED
-
-The RED must be against current released/current-main behavior before the fix.
-
-A source assertion such as:
-
+## 7. Primary root-cause tree
+Follow the shortest real reproduction.
+### A. Runtime position ownership
+This class applies only if:
 ```text
-overrideredirect == True
+actual stable root after drag = expected
+but runtime position state diverges before persistence
 ```
-
-is not sufficient.
-
-The RED must inspect the effective Win32 shell identity of the actual overlay HWND.
-
-Create the smallest reliable contract that current behavior violates for the same reason the window is exposed to ordinary shell switching.
-
-Candidate measurable contract:
-
+Inspect:
+- `Pet.start_drag()`
+- `Pet.drag()`
+- `Pet.finish_drag()`
+- actual root geometry
+- `settings["x"]`
+- `settings["y"]`
+- `hidden_position`
+- `expanded_position`
+- lifecycle callbacks occurring between drag settlement and save
+Do not blindly synchronize every position variable after every geometry call.
+Identify:
 ```text
-overlay HWND exists
-→ overlay is visible
-→ tray remains available
-→ effective shell-exclusion identity is present
-→ ordinary application-window identity is absent
-→ lifecycle transition
-→ the same exclusion identity remains present
+authoritative position owner
+→ exact stale consumer
+→ first overwrite
 ```
-
-The exact style/owner assertions must follow Phase 2 evidence.
-
-Do not hard-code `WS_EX_TOOLWINDOW` as the RED unless the evidence establishes it as the correct authority.
-
-### Task View / Win+Tab evidence
-
-Because Windows Task View does not expose a simple documented public enumeration contract equivalent to a unit-test API, use this priority:
-
+### B. Persistence handoff
+This class applies only if:
 ```text
-1. Win32 shell-identity contract
-2. safe UI Automation inspection of Task View / task switcher if available
-3. safe app-local host automation that can identify this app without capturing unrelated desktop content
-4. one exact maintainer physical fact only if the Human Interaction Admission Gate passes
+runtime settings x/y = expected
+but finish_drag persisted JSON differs
 ```
-
-Do not build against undocumented internal Shell COM interfaces merely to avoid one honest physical limitation.
-
-Do not capture or persist unrelated desktop content, application previews, prompts, or private windows.
-
-If one human fact is truly required, record:
-
+Inspect:
+- `Pet.save_settings()`
+- `SettingsPersistenceController.save()`
+- `save_settings_atomic()`
+- the exact dictionary passed into persistence
+- write-protection result
+- final JSON
+Do not declare generic configuration persistence broken.
+Opacity and Window Size already survive restart under the confirmed production path.
+### C. Close-time overwrite
+This class applies only if:
 ```text
-Human fact required:
-Methods attempted:
-Observed evidence:
-Why automation is insufficient:
-Why the fact blocks v0.5.3:
-Exact factual question:
+JSON after finish_drag = expected
+but normal tray Exit changes runtime state or final JSON
 ```
-
-Ask only one factual question.
+Inspect:
+- tray `exit` dispatch;
+- `process_tray_actions()`;
+- `Pet.close()`;
+- callbacks scheduled between `finish_drag()` and `close()`;
+- settings immediately before close;
+- close-time persistence input.
+### D. Startup recovery authority
+This class applies only if:
+```text
+normal-close JSON = expected
+Pet B raw load = expected
+but safe_position output differs
+```
+Inspect:
+- provisional window metrics;
+- target-window DPI;
+- monitor/work-area snapshot;
+- `Pet.safe_position()`;
+- `recover_position()`;
+- containment/intersection logic.
+A legal saved position under unchanged topology must not be misclassified as invalid.
+Do not disable recovery globally.
+### E. Startup geometry/lifecycle reapplication
+This class applies only if:
+```text
+safe_position output = expected
+but final Pet B root differs
+```
+Inspect every startup position/geometry boundary:
+```text
+withdraw
+→ initial settings load
+→ provisional metric derivation
+→ safe_position
+→ position-only geometry
+→ update_idletasks
+→ target-DPI metric sync
+→ full geometry
+→ apply_settings
+→ deiconify
+→ ensure_overlay_toolwindow
+→ scheduled callbacks
+→ final stable root
+```
+Record every geometry call and caller that can change position.
+Do not modify shell identity simply because `deiconify()` is nearby.
 ---
-## 9. Root-cause hypothesis and considered fixes
-
-Before production code changes, state exactly one primary root-cause hypothesis.
-
-It must explain:
-
+## 8. Settings Session is secondary only
+The confirmed A-path does not open Settings.
+Therefore:
+> **Settings Session is not a primary root-cause branch.**
+Do not investigate Settings Session during the first root-cause trace unless:
 ```text
-why the current main overlay becomes shell-visible
-why the prior known-working state did not
-which measured HWND property or lifecycle transition differs
-why existing tests did not catch it
-why the new RED fails
+the exact A-path cannot reproduce the defect
 ```
-
-Compare 2–3 minimum approaches supported by evidence.
-
-Candidate approaches may include:
-
-### A. Explicit overlay extended-style identity
-
-Apply the evidence-required extended styles to the actual Tk root HWND and clear a conflicting ordinary application style if present.
-
-### B. Correct owner-window relationship
-
-Use a stable owner relationship only if evidence proves the missing/changed ownership causes shell classification.
-
-### C. Reapply shell identity at the proven lifecycle boundary
-
-If Tk or Windows recreates/resets effective shell identity after a specific mapping/state transition, reapply the existing identity at that exact boundary.
-
-Do not combine A, B, and C speculatively.
-
-Choose the smallest solution that addresses the measured root cause.
+or:
+```text
+runtime evidence proves a settings dialog/session participates in the actual failing sequence
+```
+Settings Open/Close/Apply/Save/Defaults remains a final regression surface.
+Do not use an unobserved Settings Session theory to justify the production fix.
 ---
-## 10. Design Verification Gate
-
-Before modifying production behavior, record:
-
+## 9. Authoritative RED
+Build one production-equivalent round-trip regression against released/current pre-fix behavior.
+Required logical sequence:
+```text
+Pet A
+→ start
+→ drag through production drag handlers to legal X,Y
+→ settle
+→ actual stable root = expected_x, expected_y
+→ finish_drag
+→ JSON x/y = expected_x, expected_y
+→ queue/process normal tray Exit
+→ JSON x/y remains expected_x, expected_y
+Pet B
+→ uses same settings file
+→ raw loaded x/y = expected_x, expected_y
+→ safe_position input = expected_x, expected_y
+→ safe_position output = expected_x, expected_y
+→ final stable root = expected_x, expected_y
+```
+The current implementation must fail this test before the production fix for the same underlying reason Tom observed.
+Insufficient REDs:
+```text
+save_settings() was called
+normalize_settings preserves x/y
+manual JSON x/y survives load
+safe_position pure test only
+drag method changes settings only
+```
+These may be supporting tests but cannot replace the authoritative round trip.
+The RED quality question is:
+> **Would this exact test have blocked the build before Tom observed “drag → tray Exit → restart → default position”?**
+If the answer is not demonstrably Yes:
+```text
+DESIGN VERIFICATION = FAILED
+→ return to reproduction and tracing
+```
+---
+## 10. Candidate minimum fixes
+Compare only candidates relevant to the first measured divergence.
+### Candidate 1 — runtime position handoff
+Use only when runtime state is the first divergence.
+Correct the authoritative position owner/consumer boundary.
+Reject:
+```text
+sync settings, hidden_position, expanded_position after every geometry call
+```
+unless evidence proves each is a required owner.
+### Candidate 2 — persistence input/timing
+Use only when persistence receives stale coordinates.
+Correct the source state or exact handoff timing.
+Reject repeated saves used as compensation.
+### Candidate 3 — recovery/startup authority
+Use only when persisted/load coordinates are correct and startup changes them.
+Correct the exact metric, DPI, topology, recovery, or geometry-lifecycle authority.
+Reject:
+- disabling recovery;
+- hard-coding Tom's monitor coordinates;
+- suppressing `safe_position()` globally.
+### Selection rule
+> **Choose the smallest candidate that fixes the first divergence and makes the full authoritative RED green.**
+Do not combine candidates speculatively.
+---
+## 11. Design Verification Gate
+Before production behavior changes, record:
 ```text
 DESIGN VERIFIED
-
-Problem evidence: PASS
-Running provenance: PASS
-Current HWND shell identity measured: PASS
-Known-working/current comparison: PASS
-Root-cause hypothesis: PASS
-Observable contract: PASS
-Lifecycle failure path: PASS
-RED definition: PASS
-2–3 minimum approaches compared: PASS
+Exact A-path reproduction: PASS
+Stable post-drag root coordinates captured: PASS
+Full drag→Exit→restart RED: PASS
+First divergence from intended final root coordinates identified at an exact state/persistence/lifecycle boundary: PASS
+One primary root-cause hypothesis: PASS
+Minimum candidates compared against evidence: PASS
 Recommended minimum fix: PASS
+Observable round-trip contract: PASS
+v0.5.1 geometry authority protected: PASS
+v0.5.3 Shell Identity protected: PASS
+Recovery contract protected: PASS
+Regression surface: PASS
 Scope bounded: PASS
 Human verification required: NONE / exact admitted fact
 ```
-
-The design must answer:
-
-> **Would this RED have blocked the current build before Tom saw the Win+Tab regression?**
-
-If the answer is not demonstrably yes:
-
+Explicitly answer:
+> **Would this exact RED have blocked the current build before Tom observed the production position-reset symptom?**
+Required answer:
+```text
+Yes
+```
+If not demonstrably Yes:
 ```text
 DESIGN VERIFICATION = FAILED
 → return to investigation
 ```
-
-Do not implement.
+Do not modify production behavior.
+After `DESIGN VERIFIED`, write the exact implementation plan using `writing-plans`.
 ---
-## 11. Implementation constraints
-
+## 12. Implementation constraints
 After Design Verification:
-
 ```text
 RED
-→ minimum root-cause fix
+→ one minimum root-cause fix
 → GREEN
-→ focused cleanup only if directly required
+→ focused cleanup only when directly required
 ```
-
 Forbidden:
-
-- battery indicator work;
+- blind extra save;
+- synchronizing every position variable everywhere;
+- disabling position recovery;
+- changing default position to hide the bug;
+- hard-coded production monitor coordinates;
+- broad settings refactor;
+- battery indicator;
 - paw replacement;
 - layout tightening;
+- compact battery geometry;
+- Shell Identity redesign;
 - installer/productization;
 - auto-update;
-- new UI framework;
-- general Window Manager subsystem;
-- broad main-window refactor;
-- arbitrary style flags without measured evidence;
-- undocumented Shell COM dependencies;
-- killing generic Python processes;
-- changing five-row text to hide the issue;
-- unrelated branch cleanup.
-
-Prefer the existing Windows/runtime or Tk owner of the proven behavior.
-
-A new production abstraction requires evidence that the existing owner cannot safely own the fix.
+- UI framework replacement;
+- unrelated lean-core work;
+- unrelated historical branch cleanup.
+Prefer the existing owner of the proven failing boundary.
+A new production module/controller/manager requires evidence that the current owner cannot safely own the correction.
 ---
-## 12. Required regression surface
-
-The shell-identity contract must remain stable across:
-
+## 13. Required regression surface
+### Exact defect
+Verify:
 ```text
-cold start
-settings open
-settings Close without change
-opacity-only Apply
-scale-change Apply
-Save
-draft change → Close rollback
-Restore Defaults
-lock
-unlock
-Hide
-Show
-Compact
-Expand
-repeated settings open/close
-80–200% scale reapplication
-DPI 96 supported path
-DPI 120 automated path
-relevant combined sequence
+drag
+→ finish_drag
+→ persisted JSON
+→ normal tray Exit
+→ persisted JSON
+→ new Pet
+→ safe_position
+→ final stable root
 ```
-
-After each relevant transition, verify:
-
-- one main overlay HWND;
-- overlay visibility state is correct;
-- shell-exclusion identity remains correct;
-- no ordinary app-window identity appears;
-- five stable rows remain intact when expanded;
-- v0.5.1 geometry/content-fit contract remains green;
-- Compact/Expand returns to authoritative expanded geometry;
-- tray remains reachable;
-- single-instance behavior remains unchanged.
+### Position behavior
+Cover:
+- legal primary-monitor coordinate;
+- known legal secondary-monitor coordinate when supported;
+- large legal secondary coordinate remains legal;
+- invalid/off-screen coordinate still recovers;
+- negative virtual-coordinate recovery contracts remain correct;
+- drag while unlocked changes position;
+- drag while locked does not change persisted position.
+### Lifecycle
+Cover:
+- cold start;
+- normal tray Exit;
+- restart;
+- Hide/Show;
+- Compact/Expand;
+- lock/unlock;
+- settings Open/Close;
+- opacity-only Apply;
+- scale Apply;
+- Save;
+- draft change → Close rollback;
+- Restore Defaults;
+- repeated settings cycles.
+### Scale and DPI
+Preserve:
+- Window Size 80–200%;
+- DPI 96 supported path;
+- automated DPI 120 path;
+- v0.5.1 long-lived geometry transition contract;
+- five rows fully visible in expanded mode.
+### Shell identity
+Run the v0.5.3 real-HWND shell identity regression.
+Preserve:
+```text
+TOOLWINDOW = true
+APPWINDOW = false
+```
+and the named shell exclusion contract.
 ---
-## 13. Required verification
-
-### Focused RED/GREEN
-
-Preserve evidence showing:
-
-```text
-released/current pre-fix behavior = RED
-v0.5.3 candidate = GREEN
-```
-
-The RED and GREEN must use the same authoritative shell-identity observable.
-
-### Windows host identity verification
-
-Verify on Windows 11 x64:
-
-```text
-desktop overlay visible
-tray icon present
-ordinary taskbar app button absent
-Alt+Tab app entry absent
-Win+Tab / Task View app content absent
-```
-
-Automate these facts when safely practical.
-
-For any unavoidable physical-only Task View fact, follow the Human Interaction Admission Gate exactly.
-
-### Existing correctness
-
-Run fresh:
-
-- v0.5.1 long-lived runtime geometry transition checks;
-- all supported relevant scale checks;
-- five-row content-fit checks;
-- settings lifecycle tests;
+## 14. Required verification
+All evidence must be fresh.
+### Focused
+Run:
+- authoritative drag→Exit→restart RED/GREEN;
+- first-divergence trace;
+- root-cause-specific focused tests.
+### Existing product regression
+Run:
+- v0.5.1 long-lived runtime geometry transitions;
+- five-row content-fit;
+- settings lifecycle;
 - Hide/Show;
 - Compact/Expand;
 - tray/menu;
+- lock/drag;
 - single instance;
-- shutdown.
-
+- shutdown;
+- v0.5.3 real-HWND Shell Identity suite.
 ### Repository gates
-
 Run fresh:
-
 ```text
-focused shell-identity tests
-relevant Tk/Win32 integration
 python scripts/run_quality_checks.py
 python scripts/package_smoke_test.py
 python scripts/run_release_candidate_checks.py
@@ -542,125 +559,111 @@ sensitive-file / secret scan
 version-source consistency
 document parity / manifest / links where affected
 ```
-
-Do not claim completion from old output.
+Do not reuse prior v0.5.3 completion output as v0.5.4 evidence.
 ---
-## 14. GitHub and release workflow
-
-Repository `AGENTS.md` standing authorization applies to routine verified GitHub operations within this active Goal.
-
-After the required verification passes:
-
+## 15. Version and documentation scope
+The patch version is exactly:
 ```text
-verify repository / remote / account
-→ push verified v0.5.3 branch
+0.5.4
+```
+After runtime GREEN, update version-bearing sources controlled by the repository version checker.
+Update only directly affected documentation:
+- `CHANGELOG.md`
+- `CHANGELOG.zh-CN.md`
+- `docs/quality/COMPATIBILITY_MATRIX.md`
+- `docs/quality/COMPATIBILITY_MATRIX.zh-CN.md`
+- a focused v0.5.4 investigation/test record
+- active Goal/version/execution state
+- roadmap and required paired copy
+The investigation/design/implementation records must not claim the root cause before evidence proves it.
+Do not document battery behavior as implemented.
+---
+## 16. GitHub and release workflow
+After fresh verification passes, use repository `AGENTS.md` standing authorization:
+```text
+verify repository / remote / GitHub identity
+→ push verified v0.5.4 branch
 → create PR
-→ monitor exact-head Windows CI
-→ investigate evidence-backed CI failures
-→ focused fix cycle if required
-→ rerun required verification
 → verify exact PR head
+→ monitor Windows Quality CI
+→ investigate failures using systematic-debugging
+→ focused TDD correction if required
+→ rerun required verification
 → squash merge
 → synchronize main
 → verify merged main
-→ rerun merged-main formal RC
-→ create/push v0.5.3 tag
+→ run merged-main formal RC
+→ create and push annotated v0.5.4 tag
 → create GitHub Release
-→ verify tag/Release target
-→ delete completed merged v0.5.3 branch
+→ verify tag and Release target
+→ delete completed merged v0.5.4 branch
 → active-state reconciliation
 ```
-
-Do not request repeated permission for normal branch push, PR, CI monitoring, verified correction push, squash merge, main verification, tag/Release, or merged branch cleanup inside this Goal.
-
+Do not repeatedly request normal Goal-scoped GitHub authorization.
 High-risk exclusions in repository `AGENTS.md` remain separately permissioned.
 ---
-## 15. Release-state reconciliation
-
-After v0.5.3 is actually merged, verified, tagged, and released, update only authoritative files whose facts changed:
-
-- `Goal/ACTIVE_GOAL.md`
-- `Goal/ACTIVE_VERSION_BRIEF.md`
-- `Goal/EXECUTION_STATE.md`
-- `docs/product/ROADMAP.md`
-- paired Chinese documents where required
-- version sources
-- changelog
-- compatibility/testing documentation directly affected by shell identity
-
-Final truth:
-
+## 17. Release-state reconciliation
+After v0.5.4 is actually merged, verified, tagged, and released, reconcile the authoritative state.
+Final truth must be:
 ```text
-v0.5.1 = previous released baseline
-v0.5.2 = closed historical investigation without product release
-v0.5.3 = released Shell Identity Correctness patch
-Win+Tab / Alt+Tab / ordinary taskbar exclusion = named verification contract
-v0.6.0 battery feature = not started
+v0.5.3 = previous released Shell Identity correctness baseline
+v0.5.4 = released Position Persistence correctness patch
+drag → normal tray Exit → restart position round trip = named verified contract
+v0.6.0 Battery Indicator and Layout Tightening = NOT STARTED
 ```
-
-Do not document battery behavior as implemented.
+Update only files whose facts or contracts changed.
+Do not begin v0.6.0 during reconciliation.
 ---
-## 16. Completion criteria
-
+## 18. Completion criteria
 This Goal is COMPLETE only when all are true.
-
 ### Root cause
-
-- current real HWND identity was measured;
-- known-working/current evidence was compared;
-- one root cause is documented;
-- the selected fix addresses that root cause rather than a guessed flag.
-
-### Shell identity
-
-- desktop overlay remains visible;
-- tray remains visible/reachable;
-- ordinary taskbar application button is absent;
-- Alt+Tab application entry is absent;
-- Win+Tab / Task View application content is absent.
-
-### Lifecycle
-
-- supported settings, lock, visibility, compact, scale, and DPI transitions preserve shell identity.
-
+- exact A-path is reproduced;
+- stable post-drag root coordinates are captured;
+- the first coordinate divergence is identified;
+- one root-cause hypothesis explains the full symptom;
+- the selected fix corrects the first divergence.
+### Position persistence
+Under unchanged legal display topology:
+```text
+drag to X,Y
+→ release
+→ normal tray Exit
+→ restart
+→ final stable root = X,Y
+```
+### Recovery
+- invalid/off-screen positions still recover;
+- legal multi-monitor positions remain legal;
+- no hard-coded topology assumption is introduced.
 ### Regression safety
-
-- v0.5.1 geometry authority remains green;
+- opacity persistence remains correct;
+- Window Size persistence remains correct;
+- settings transaction semantics remain correct;
 - five expanded rows remain fully visible;
-- no protected runtime/data/privacy behavior changes;
-- no new unnecessary dependency or subsystem is added.
-
+- v0.5.1 geometry authority remains green;
+- v0.5.3 Shell Identity remains green;
+- tray, single instance, and shutdown remain correct.
 ### Release
-
-- focused RED/GREEN evidence exists;
-- fresh Quality, package smoke, and formal RC pass;
+- authoritative RED/GREEN evidence exists;
+- fresh Quality passes;
+- package smoke passes;
+- formal RC passes;
 - exact-head CI succeeds;
-- v0.5.3 is squash-merged;
+- v0.5.4 is squash-merged;
 - merged main is verified;
-- v0.5.3 tag and GitHub Release target the verified commit;
+- v0.5.4 tag and GitHub Release target the verified commit;
 - completed merged branch is deleted;
 - active state is reconciled.
 ---
-## 17. Mandatory stop condition
-
-After v0.5.3 release and active-state reconciliation:
-
+## 19. Mandatory stop condition
+After v0.5.4 release and active-state reconciliation:
 > **STOP.**
-
-Do not begin implementing the battery feature.
-
-Do not create the v0.6.0 battery branch.
-
-Do not change paw rendering.
-
-Do not change compact geometry for battery.
-
-Set the final `EXECUTION_STATE` next action to:
-
+Do not begin battery implementation.
+Do not create a v0.6.0 branch.
+Set final `Goal/EXECUTION_STATE.md` next action to exactly:
 ```text
 Wait for Tom to start the approved v0.6.0 5H Battery Indicator and Layout Tightening Goal.
 ```
 ---
 ## Final operating principle
-
-> **Prove the real HWND identity, find the exact shell-classification difference, fix one root cause, keep the overlay out of ordinary Windows switching surfaces, release v0.5.3, reconcile, and stop.**
+> **Use the stable post-drag root coordinates as truth. Trace them through normal tray Exit and restart. Find the first divergence. Fix one root cause. Preserve recovery, geometry, and Shell identity. Release v0.5.4, reconcile, and stop.**
