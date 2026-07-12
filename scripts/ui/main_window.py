@@ -168,6 +168,7 @@ class Pet(tk.Tk):
         self.apply_settings(self.settings)
         self.set_compact(self.settings["compact"])
         self.tray = TrayIcon3(self.tray_actions, self.settings["language"])
+        self._sync_tray_menu()
         self.after(100, self.process_tray_actions)
         self.after(250, self.poll)
         self.after(1000, self.refresh_activity)
@@ -271,6 +272,19 @@ class Pet(tk.Tk):
         self.locked_var.set(self.settings["locked"])
         if hasattr(self, "compact_var"):
             self.compact_var.set(self.settings["compact"])
+        self._sync_tray_menu()
+
+    def _sync_tray_menu(self):
+        """Push a plain Tk-owned menu snapshot to the tray adapter."""
+        tray = getattr(self, "tray", None)
+        if tray is not None and hasattr(tray, "set_menu_state"):
+            tray.set_menu_state(
+                self.settings["language"],
+                visible=not self.hidden,
+                topmost=self.settings["topmost"],
+                locked=self.settings["locked"],
+                compact=self.settings["compact"],
+            )
 
     def _pointer_enter(self, _event=None):
         self.hovered = True
@@ -353,6 +367,7 @@ class Pet(tk.Tk):
         self.settings["compact"] = compact
         self.compact_var.set(compact)
         self.set_compact(compact)
+        self._sync_tray_menu()
         return self.save_settings()
 
     def show_window(self):
@@ -367,6 +382,7 @@ class Pet(tk.Tk):
         ensure_overlay_toolwindow(self.winfo_id())
         self.update_idletasks()
         self.attributes("-alpha", self.settings["alpha"])
+        self._sync_tray_menu()
         self.attributes("-topmost", True)
         self.lift()
         self.focus_force()
@@ -407,6 +423,7 @@ class Pet(tk.Tk):
             self.save_settings()
         self.hidden = True
         self.attributes("-alpha", 0.0)
+        self._sync_tray_menu()
 
     def start_drag(self, event):
         if not self.settings["locked"]:
@@ -506,6 +523,14 @@ class Pet(tk.Tk):
                 elif action == "settings":
                     self.show_window()
                     self.show_settings()
+                elif action == "topmost":
+                    self.topmost_var.set(not self.settings["topmost"])
+                    self.toggle_topmost()
+                elif action == "lock":
+                    self.locked_var.set(not self.settings["locked"])
+                    self.toggle_locked()
+                elif action == "compact":
+                    self.set_manual_compact(not self.settings["compact"])
                 elif action == "exit":
                     self.close()
                 elif action == "tray_error":

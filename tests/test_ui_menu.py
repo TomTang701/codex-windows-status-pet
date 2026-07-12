@@ -4,6 +4,7 @@ import tempfile
 import unittest
 import gc
 import logging
+import json
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -23,7 +24,10 @@ class DummyServer:
 
 class DummyTray:
     def __init__(self, _actions):
-        pass
+        self.menu_states = []
+
+    def set_menu_state(self, language, **state):
+        self.menu_states.append((language, state))
 
     def stop(self):
         pass
@@ -129,6 +133,50 @@ class MenuInteractionTests(unittest.TestCase):
                 self.assertTrue(app.set_manual_compact(False))
                 self.assertFalse(app.compact)
                 self.assertFalse(app.load_settings()["compact"])
+        finally:
+            self.destroy_app(app)
+
+    def test_overlay_context_menu_consumes_shared_menu_model(self):
+        app = self.module["Pet"]()
+        try:
+            with mock.patch("ui.context_menu.build_menu_items", wraps=__import__("api.menu_model_api", fromlist=["build_menu_items"]).build_menu_items) as model:
+                app.menu(SimpleNamespace(x_root=4200, y_root=200))
+            model.assert_called_once_with(
+                "en", visible=True,
+                topmost=app.settings["topmost"], locked=app.settings["locked"],
+                compact=app.settings["compact"],
+            )
+        finally:
+            self.destroy_app(app)
+
+    def test_main_window_pushes_live_menu_state_to_tray(self):
+        app = self.module["Pet"]()
+        calls = []
+        app.tray.set_menu_state = lambda language, **state: calls.append((language, state))
+        app.save_settings = lambda **_kwargs: True
+        try:
+            app.apply_settings({**app.settings, "topmost": False, "locked": True})
+            app.set_manual_compact(True)
+            app.hide_window()
+            self.assertEqual(
+                calls[-1],
+                ("en", {"visible": False, "topmost": False, "locked": True, "compact": True}),
+            )
+            app.show_window()
+            self.assertEqual(calls[-1][1]["visible"], True)
+        finally:
+            self.destroy_app(app)
+
+    def test_new_tray_receives_initial_live_menu_state(self):
+        settings_path = Path(self._home.name) / ".codex" / "codex-windows-status-pet.json"
+        settings_path.parent.mkdir(parents=True)
+        settings_path.write_text(json.dumps({"topmost": False, "compact": True}), encoding="utf-8")
+        app = self.module["Pet"]()
+        try:
+            self.assertEqual(
+                app.tray._menu_state,
+                {"visible": True, "topmost": False, "locked": False, "compact": True},
+            )
         finally:
             self.destroy_app(app)
 

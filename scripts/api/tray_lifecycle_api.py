@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 
-TRAY_ACTIONS = frozenset({"show", "hide", "settings", "tray_menu", "exit", "tray_error"})
+TRAY_ACTIONS = frozenset({
+    "show", "hide", "settings", "topmost", "lock", "compact",
+    "tray_menu", "exit", "tray_error",
+})
 
 
 def is_known_action(action):
