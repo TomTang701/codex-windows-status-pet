@@ -17,6 +17,22 @@ from scripts.api.window_scale_api import derive_window_metrics
 from tests.runtime_geometry_transition_probe import CONFIG, DummyServer, DummyTray, ROOT
 
 
+def topology_from_monitors(monitors):
+    """Return the physical topology required by the mixed-DPI host suite.
+
+    These tests are physical-host evidence, not a synthetic monitor simulation.
+    A host that lacks the measured topology is therefore not a failing product
+    assertion and must report why it cannot supply that evidence.
+    """
+    primary = next((item for item in monitors if item["work"][0] == 0), None)
+    secondary = next((item for item in monitors if item["work"][0] > 0), None)
+    if primary is None or secondary is None or primary.get("dpi_x") != 120 or secondary.get("dpi_x") != 96:
+        raise unittest.SkipTest(
+            "required 125% primary / 100% right-side secondary topology unavailable"
+        )
+    return primary, secondary
+
+
 class MixedDpiStartupPositionTests(unittest.TestCase):
     @staticmethod
     def destroy_app(app):
@@ -35,12 +51,7 @@ class MixedDpiStartupPositionTests(unittest.TestCase):
 
     def mixed_dpi_topology(self):
         enable_dpi_awareness()
-        monitors = monitor_snapshot()
-        primary = next(item for item in monitors if item["work"][0] == 0)
-        secondary = next(item for item in monitors if item["work"][0] > 0)
-        self.assertEqual(primary["dpi_x"], 120)
-        self.assertEqual(secondary["dpi_x"], 96)
-        return primary, secondary
+        return topology_from_monitors(monitor_snapshot())
 
     def start_saved_position(self, saved, scale=85):
         with tempfile.TemporaryDirectory() as directory:

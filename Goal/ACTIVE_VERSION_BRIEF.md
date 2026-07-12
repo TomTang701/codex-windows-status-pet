@@ -1,11 +1,11 @@
-# ACTIVE VERSION BRIEF — v0.5.5 Mixed-DPI Startup Position Recovery Correctness
+# ACTIVE PROGRAM VERSION BRIEF – v0.5.5 Release Completion → v0.6.0 Delivery
 
 ## Released history
 
 - `v0.5.3` remains the released product baseline and latest product version at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
 - `v0.5.2` remains a closed rendered-visibility investigation and has no product version, tag, or GitHub Release.
 - `v0.5.4` remains a closed position-persistence investigation with no product tag or GitHub Release.
-- `v0.5.5` is active only to investigate the new mixed-DPI secondary edge-recovery symptom.
+- `v0.5.5` is the active implementation version and its release candidate is under PR review; v0.6.0 begins automatically only after the Program Goal hard version gate.
 
 ## Active outcome
 
@@ -19,4 +19,4 @@ v0.5.4's `(4143, 1182)` A-path remains valid historical evidence for its tested 
 
 ## Status
 
-`v0.5.5 ACTIVE / GREEN CANDIDATE / v0.6.0 BLOCKED`
+`PROGRAM ACTIVE / v0.5.5 CI-ADMISSION CORRECTION / v0.6.0 PENDING HARD VERSION GATE`
