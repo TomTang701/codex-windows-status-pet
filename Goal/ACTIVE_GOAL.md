@@ -1,12 +1,12 @@
-# ACTIVE GOAL — v0.5.5 Mixed-DPI Startup Position Recovery Correctness
+# ACTIVE PROGRAM GOAL – v0.5.5 Release Completion → v0.6.0 Delivery
 
-> **Status:** ACTIVE / ROOT-CAUSE VERIFICATION REQUIRED
+> **Status:** ACTIVE PROGRAM / SEQUENTIAL VERSION DELIVERY
 > **Released baseline:** `v0.5.3`
 > **Historical v0.5.4:** closed position-persistence investigation without product release
 > **New production evidence date:** `2026-07-12`
-> **Scope:** one mixed-DPI startup position-recovery correctness defect
+> **Scope:** v0.5.5 release completion followed by v0.6.0 battery and layout delivery
 > **Target product version:** `v0.5.5` only if the defect is reproduced, root cause is proven, the minimum fix passes verification, and release gates succeed
-> **v0.6.0:** BLOCKED / NOT STARTED
+> **v0.6.0:** automatically activates only after the v0.5.5 hard version gate
 > **Execution:** systematic-debugging → production-equivalent RED → root-cause proof → Design Verification → writing-plans → TDD → minimum fix → verification-before-completion → authorized release workflow → state reconciliation → STOP
 
 ---
