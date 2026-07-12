@@ -1,666 +1,318 @@
-# ACTIVE GOAL — v0.5.3 Windows Shell Identity Correctness
-> **Status:** RELEASED / RECONCILED / STOPPED
-> **Released baseline:** `v0.5.3` at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`
-> **Scope:** completed Windows shell-identity correctness release
-> **Supported platform:** Windows 11 x64
-> **Next feature:** `v0.6.0 5H Battery Indicator and Layout Tightening` is NOT STARTED and requires Tom's next direction
-> **Execution:** autonomous-first, evidence-first, systematic-debugging, Design Verification, TDD, verification-before-completion
-> **Remote workflow:** repository `AGENTS.md` standing authorization applies to routine GitHub operations inside this Goal
----
-## Release closure
+# CLOSED GOAL — v0.5.4 Position Persistence Investigation Closure
 
-- Pull request [#21](https://github.com/TomTang701/codex-windows-status-pet/pull/21) was squash-merged after exact-head Windows Quality CI passed.
-- Merged main commit: `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
-- Formal merged-main RC passed with zero blockers.
-- Tag [`v0.5.3`](https://github.com/TomTang701/codex-windows-status-pet/releases/tag/v0.5.3) and its GitHub Release target that merged-main commit.
-- A fresh root-launcher process on main measured a visible root HWND with `WS_EX_TOOLWINDOW=true`, `WS_EX_APPWINDOW=false`, and owner `0`.
-
-This Goal is closed. Do not implement or brainstorm v0.6.0 here.
+> **Status:** CLOSURE REQUIRED / NO PRODUCT RELEASE
+> **Released baseline:** `v0.5.3`
+> **Investigation evidence commit:** `5d3e453 test: trace position persistence round trip`
+> **Scope:** close the position-persistence investigation after the reported symptom is no longer reproducible
+> **Production code changes:** FORBIDDEN unless new reproducible evidence establishes a defect
+> **Product release:** NO `v0.5.4` tag or GitHub Release
+> **Next feature:** `v0.6.0 5H Battery Indicator and Layout Tightening` remains NOT STARTED
+> **Execution:** evidence reconciliation → documentation closure → verification-before-completion → authorized GitHub workflow → STOP
 
 ---
+
 ## 0. Mission
-Restore the companion's intended Windows shell identity.
-The Codex Windows Status Pet is a desktop overlay plus notification-area companion. It is not a normal task-switchable application window.
-Required visible behavior:
+
+Close the v0.5.4 position-persistence investigation truthfully.
+
+Tom has now confirmed:
+
+> Restarting the software no longer loses the saved window position.
+
+The investigation already established that the complete tested persistence path preserves the same coordinate:
+
 ```text
-desktop overlay = visible
-notification-area / tray icon = visible
-Win+Tab / Task View = Codex Status Pet absent
-Alt+Tab = Codex Status Pet absent
-ordinary taskbar application button = absent
+drag
+→ unlock
+→ wait for resumed polling
+→ tray Exit
+→ restart
+→ persisted JSON
+→ shutdown state
+→ load
+→ safe_position
+→ final window
 ```
-This identity must remain stable through all supported overlay lifecycle transitions.
-The product outcome is:
-> **The overlay remains visible and tray-reachable while its main overlay HWND is consistently excluded from ordinary Windows task-switching and taskbar application identity.**
-This Goal fixes only shell identity.
-Do not implement the battery indicator, layout tightening, installer, auto-update, or unrelated UI redesign here.
+
+Observed coordinate:
+
+```text
+(4143, 1182)
+```
+
+The coordinate remained consistent through the tested path.
+
+No first coordinate divergence was found.
+
+The required production-equivalent RED was not established.
+
+Design Verification was correctly marked FAILED because there was no demonstrated defect against which a root-cause fix could be validated.
+
+The original user-visible symptom is now no longer reproducible.
+
+Therefore:
+
+> **Do not manufacture a RED, do not invent a root cause, do not modify production persistence logic, and do not release v0.5.4.**
+
+The correct outcome is investigation closure.
+
 ---
-## 1. Historical truth and version selection
 
-The released product baseline remains `v0.5.1`.
+## 1. Historical truth
 
-The prior `v0.5.2` rendered-visibility work was an investigation closed without a product release. Repository documents already use `v0.5.2` as that incident identifier.
+Preserve these facts:
 
-Therefore the next actual product patch version is:
+- `v0.5.3` remains the released product baseline.
+- The v0.5.4 position-persistence investigation was started because Tom reported restart position loss.
+- The running instance provenance was verified as the intended repository/runtime path and v0.5.3 baseline.
+- The complete tested A-path preserved coordinate `(4143, 1182)`.
+- No first coordinate divergence was identified.
+- The required RED was not established.
+- Design Verification therefore failed correctly.
+- No production code was modified for the alleged persistence defect.
+- Tom subsequently confirmed that restarting the software no longer loses the window position.
+- Commit `5d3e453` contains investigation and round-trip tracing evidence.
+
+Do not rewrite this investigation as a successful bug fix.
+
+Do not claim that production code corrected position persistence.
+
+Use the truthful classification:
 
 ```text
-v0.5.3
+v0.5.4 position persistence
+= CLOSED INVESTIGATION
+= REPORTED SYMPTOM NO LONGER REPRODUCIBLE
+= NO PROVEN PRODUCTION DEFECT
+= NO PRODUCTION FIX
+= NO PRODUCT RELEASE
 ```
 
-Do not rewrite the historical v0.5.2 investigation.
-
-Do not create a v0.5.2 product tag or Release.
-
-At Goal activation, reconcile the active-state documents to show:
-
-```text
-released baseline = v0.5.1
-active implementation = v0.5.3 Shell Identity Correctness
-v0.5.2 = historical closed investigation without product release
-v0.6.0 battery feature = deferred until v0.5.3 closes
-```
-
-Update only the authoritative active state that must change:
-
-- `Goal/ACTIVE_GOAL.md`
-- `Goal/ACTIVE_VERSION_BRIEF.md`
-- `Goal/EXECUTION_STATE.md`
-- `docs/product/ROADMAP.md`
-- paired Chinese roadmap when the English canonical roadmap changes
 ---
-## 2. Production evidence
 
-Tom reports a new regression:
+## 2. Required conclusion
 
-> The overlay previously did not appear as content in Windows Task View / Win+Tab, but it now appears again.
+The investigation conclusion must state:
 
-The intended product identity is confirmed:
+> The reported restart position-loss symptom is no longer reproducible. Production-equivalent tracing preserved the same virtual-desktop coordinate through persistence, shutdown, loading, safe-position validation, and final window placement. No first divergence or valid RED was established, so no production correction is justified.
 
-```text
-desktop overlay visible
-tray icon visible
-Win+Tab absent
-Alt+Tab absent
-taskbar application button absent
-```
+Do not state:
 
-Current `Pet` still calls `overrideredirect(True)`, but this alone is not accepted as proof of shell exclusion.
+- fixed by v0.5.4;
+- persistence bug repaired;
+- root cause resolved;
+- regression test proves a historical production defect;
+- v0.5.4 is released.
 
-Released v0.5.1 also changed the startup mapping lifecycle to include:
+There is insufficient evidence for those claims.
 
-```text
-Tk root creation
-→ withdraw
-→ position for target-monitor DPI
-→ create/configure widgets
-→ deiconify
-```
-
-This lifecycle change is a high-priority investigation direction, not a proven root cause.
-
-Do not change production code until the actual main HWND shell identity has been measured and compared with a known-working historical state or equivalent working window contract.
 ---
-## 3. Protected product core
 
-Preserve unless exact root-cause evidence proves a protected behavior must change.
+## 3. Preserve investigation evidence
 
-### Data and privacy
+Preserve commit:
 
-- Quota data continues to use the local official Codex app-server path.
-- Activity continues to use approved local Codex session metadata.
-- Do not read `auth.json` or access tokens.
-- Do not add telemetry, a backend, hosted services, or third-party quota providers.
-- Do not expose prompt, response, session content, token, or credential data.
+```text
+5d3e453 test: trace position persistence round trip
+```
 
-### Runtime
+Review its diff before closure.
 
-- Windows 11 x64 remains the supported baseline.
-- One companion instance only.
-- A second launch must not kill unrelated processes.
-- Tk work remains on the Tk main thread.
-- Background workers must not call Tk directly.
-- Refresh remains bounded and single-flight.
-- Shutdown remains safe and idempotent.
-- No persistent console is required.
+The investigation evidence may remain when it provides focused diagnostic or regression value and does not:
 
-### User-visible behavior
+- alter production behavior;
+- encode a false historical claim;
+- depend on temporary machine-specific state;
+- expose personal paths, secrets, tokens, or credentials;
+- create brittle release authority for a defect that was never reproduced.
 
-Preserve:
+If part of the evidence is temporary diagnostic instrumentation unsuitable for the maintained repository, remove only that temporary portion with technical justification.
 
-- exactly five stable status-row identities;
-- truthful activity/quota presentation;
-- settings Apply / Save / Close / Restore Defaults semantics;
-- canonical 80–200% Window Size scaling;
-- Hide/Show;
-- Compact/Expand;
-- drag/lock;
-- topmost;
-- legal multi-monitor position recovery;
-- tray reachability;
-- restart persistence;
-- v0.5.1 target-window-DPI geometry and font authority.
+Do not discard valid investigation evidence merely because the incident closes without a product release.
 
-The shell-identity correction must not reintroduce the v0.5.0 geometry regression.
 ---
-## 4. Required workflow
 
-Route this Goal as:
+## 4. Active-state reconciliation
+
+Reconcile the authoritative state documents.
+
+Inspect and update only the documents that currently claim v0.5.4 is active or release-bound, including as applicable:
 
 ```text
-using-superpowers
-→ systematic-debugging
-→ shell identity evidence collection
-→ historical/working pattern comparison
-→ one root-cause hypothesis
-→ compare 2–3 minimum fixes
-→ DESIGN VERIFICATION
-→ writing-plans
-→ test-driven-development
-→ minimum root-cause fix
-→ verification-before-completion
-→ routine authorized GitHub release workflow
-→ active-state reconciliation
-→ STOP
+Goal/ACTIVE_GOAL.md
+Goal/ACTIVE_VERSION_BRIEF.md
+Goal/EXECUTION_STATE.md
+docs/product/ROADMAP.md
+paired Chinese roadmap/document when required
 ```
 
-Iron rule:
+The final active state must communicate:
 
-> **NO SHELL-STYLE FIX BEFORE ROOT-CAUSE INVESTIGATION.**
+```text
+released baseline = v0.5.3
 
-Do not assume `withdraw`, `deiconify`, `overrideredirect`, `WS_EX_TOOLWINDOW`, ownership, or `WS_EX_APPWINDOW` is the root cause before measuring the real HWND.
+v0.5.4 position-persistence investigation
+= closed
+= symptom no longer reproducible
+= no proven production defect
+= no production release
+
+current implementation scope = none
+
+v0.6.0 5H Battery Indicator and Layout Tightening
+= not started
+= requires Tom's next approved Goal
+```
+
+Do not start v0.6.0 inside this Goal.
+
+Do not brainstorm or design v0.6.0 inside this Goal.
+
 ---
-## 5. Phase 1 — prove exact running provenance
 
-Autonomously inspect the currently running overlay.
+## 5. Version and release rules
 
-Record:
+Do not:
 
-- PID;
-- process executable;
-- full CommandLine;
-- loaded source path where safely inspectable;
-- running-source relationship to current repository main;
-- current application version;
-- process start time;
-- repository branch and HEAD for the running source;
-- working-tree state;
-- HWND used by the visible overlay;
-- Tk root mapped/withdrawn state;
-- current monitor/work area;
-- effective `GetDpiForWindow`;
-- outer window rect;
-- client rect.
+- change `APP_VERSION` to `0.5.4`;
+- create a `v0.5.4` tag;
+- create a v0.5.4 GitHub Release;
+- publish binaries or packages as v0.5.4;
+- describe the investigation commit as a product release;
+- modify changelog/release history to imply v0.5.4 shipped.
 
-Do not infer running code identity only from the current on-disk `APP_VERSION`.
+`v0.5.3` remains the latest released product baseline.
 
-Use the stale-process lesson from the closed v0.5.2 investigation:
+The identifier `v0.5.4` may remain in investigation history where necessary to explain the closed incident.
 
-```text
-on-disk version != proof of already-loaded process code
-```
-
-If the running process is not provenance-correct for current released v0.5.1/main behavior, establish that before shell diagnosis.
 ---
-## 6. Phase 2 — measure the actual Windows shell identity
 
-For the visible main overlay HWND, record before and after relevant lifecycle transitions:
+## 6. Required verification
 
-- HWND;
-- top-level root HWND relationship;
-- parent from `GetParent`;
-- owner relationship where available;
-- `GWL_STYLE`;
-- `GWL_EXSTYLE`;
-- `WS_EX_TOOLWINDOW` present/absent;
-- `WS_EX_APPWINDOW` present/absent;
-- visibility from `IsWindowVisible`;
-- iconic/minimized state;
-- enabled state;
-- cloak state when safely queryable;
-- title/class name;
-- Tk `overrideredirect` state;
-- mapped/withdrawn state.
+Before claiming closure:
 
-Do not rely on one source-level setting.
+1. Inspect `git status`.
+2. Inspect the complete diff from the released/reconciled v0.5.3 main state through the investigation closure.
+3. Confirm no production persistence fix was introduced.
+4. Confirm `APP_VERSION` still represents `v0.5.3`.
+5. Run the focused position-persistence tests retained by the investigation.
+6. Run:
 
-The measured contract is about the real Win32 window Windows Shell classifies.
-
-Capture the same identity snapshot at minimum for:
-
-```text
-cold start after stable mapping
-settings open
-settings Close
-settings Apply
-settings Save
-Restore Defaults
-lock
-unlock
-Hide
-Show
-Compact
-Expand
-scale reapply
-target-DPI reapply
-```
-
-Identify the exact first transition, if any, where shell identity changes.
----
-## 7. Phase 3 — compare against a working pattern
-
-Find the last repository revision or exact historical runtime state for which the overlay was known not to appear in ordinary task switching.
-
-Use Git history and repository evidence.
-
-Compare the complete relevant window lifecycle and HWND state, not only one line.
-
-At minimum compare:
-
-```text
-root creation order
-overrideredirect timing
-withdraw timing
-initial geometry
-update_idletasks timing
-deiconify timing
-show_window behavior
-state("normal")
-focus_force
-lift
-temporary topmost handling
-owner/parent state
-GWL_STYLE
-GWL_EXSTYLE
-```
-
-Produce an evidence table:
-
-```text
-fact
-→ known-working state
-→ current failing state
-→ exact difference
-→ why the difference can or cannot affect shell classification
-```
-
-Do not treat chronology alone as causation.
----
-## 8. Phase 4 — reproduce and define RED
-
-The RED must be against current released/current-main behavior before the fix.
-
-A source assertion such as:
-
-```text
-overrideredirect == True
-```
-
-is not sufficient.
-
-The RED must inspect the effective Win32 shell identity of the actual overlay HWND.
-
-Create the smallest reliable contract that current behavior violates for the same reason the window is exposed to ordinary shell switching.
-
-Candidate measurable contract:
-
-```text
-overlay HWND exists
-→ overlay is visible
-→ tray remains available
-→ effective shell-exclusion identity is present
-→ ordinary application-window identity is absent
-→ lifecycle transition
-→ the same exclusion identity remains present
-```
-
-The exact style/owner assertions must follow Phase 2 evidence.
-
-Do not hard-code `WS_EX_TOOLWINDOW` as the RED unless the evidence establishes it as the correct authority.
-
-### Task View / Win+Tab evidence
-
-Because Windows Task View does not expose a simple documented public enumeration contract equivalent to a unit-test API, use this priority:
-
-```text
-1. Win32 shell-identity contract
-2. safe UI Automation inspection of Task View / task switcher if available
-3. safe app-local host automation that can identify this app without capturing unrelated desktop content
-4. one exact maintainer physical fact only if the Human Interaction Admission Gate passes
-```
-
-Do not build against undocumented internal Shell COM interfaces merely to avoid one honest physical limitation.
-
-Do not capture or persist unrelated desktop content, application previews, prompts, or private windows.
-
-If one human fact is truly required, record:
-
-```text
-Human fact required:
-Methods attempted:
-Observed evidence:
-Why automation is insufficient:
-Why the fact blocks v0.5.3:
-Exact factual question:
-```
-
-Ask only one factual question.
----
-## 9. Root-cause hypothesis and considered fixes
-
-Before production code changes, state exactly one primary root-cause hypothesis.
-
-It must explain:
-
-```text
-why the current main overlay becomes shell-visible
-why the prior known-working state did not
-which measured HWND property or lifecycle transition differs
-why existing tests did not catch it
-why the new RED fails
-```
-
-Compare 2–3 minimum approaches supported by evidence.
-
-Candidate approaches may include:
-
-### A. Explicit overlay extended-style identity
-
-Apply the evidence-required extended styles to the actual Tk root HWND and clear a conflicting ordinary application style if present.
-
-### B. Correct owner-window relationship
-
-Use a stable owner relationship only if evidence proves the missing/changed ownership causes shell classification.
-
-### C. Reapply shell identity at the proven lifecycle boundary
-
-If Tk or Windows recreates/resets effective shell identity after a specific mapping/state transition, reapply the existing identity at that exact boundary.
-
-Do not combine A, B, and C speculatively.
-
-Choose the smallest solution that addresses the measured root cause.
----
-## 10. Design Verification Gate
-
-Before modifying production behavior, record:
-
-```text
-DESIGN VERIFIED
-
-Problem evidence: PASS
-Running provenance: PASS
-Current HWND shell identity measured: PASS
-Known-working/current comparison: PASS
-Root-cause hypothesis: PASS
-Observable contract: PASS
-Lifecycle failure path: PASS
-RED definition: PASS
-2–3 minimum approaches compared: PASS
-Recommended minimum fix: PASS
-Scope bounded: PASS
-Human verification required: NONE / exact admitted fact
-```
-
-The design must answer:
-
-> **Would this RED have blocked the current build before Tom saw the Win+Tab regression?**
-
-If the answer is not demonstrably yes:
-
-```text
-DESIGN VERIFICATION = FAILED
-→ return to investigation
-```
-
-Do not implement.
----
-## 11. Implementation constraints
-
-After Design Verification:
-
-```text
-RED
-→ minimum root-cause fix
-→ GREEN
-→ focused cleanup only if directly required
-```
-
-Forbidden:
-
-- battery indicator work;
-- paw replacement;
-- layout tightening;
-- installer/productization;
-- auto-update;
-- new UI framework;
-- general Window Manager subsystem;
-- broad main-window refactor;
-- arbitrary style flags without measured evidence;
-- undocumented Shell COM dependencies;
-- killing generic Python processes;
-- changing five-row text to hide the issue;
-- unrelated branch cleanup.
-
-Prefer the existing Windows/runtime or Tk owner of the proven behavior.
-
-A new production abstraction requires evidence that the existing owner cannot safely own the fix.
----
-## 12. Required regression surface
-
-The shell-identity contract must remain stable across:
-
-```text
-cold start
-settings open
-settings Close without change
-opacity-only Apply
-scale-change Apply
-Save
-draft change → Close rollback
-Restore Defaults
-lock
-unlock
-Hide
-Show
-Compact
-Expand
-repeated settings open/close
-80–200% scale reapplication
-DPI 96 supported path
-DPI 120 automated path
-relevant combined sequence
-```
-
-After each relevant transition, verify:
-
-- one main overlay HWND;
-- overlay visibility state is correct;
-- shell-exclusion identity remains correct;
-- no ordinary app-window identity appears;
-- five stable rows remain intact when expanded;
-- v0.5.1 geometry/content-fit contract remains green;
-- Compact/Expand returns to authoritative expanded geometry;
-- tray remains reachable;
-- single-instance behavior remains unchanged.
----
-## 13. Required verification
-
-### Focused RED/GREEN
-
-Preserve evidence showing:
-
-```text
-released/current pre-fix behavior = RED
-v0.5.3 candidate = GREEN
-```
-
-The RED and GREEN must use the same authoritative shell-identity observable.
-
-### Windows host identity verification
-
-Verify on Windows 11 x64:
-
-```text
-desktop overlay visible
-tray icon present
-ordinary taskbar app button absent
-Alt+Tab app entry absent
-Win+Tab / Task View app content absent
-```
-
-Automate these facts when safely practical.
-
-For any unavoidable physical-only Task View fact, follow the Human Interaction Admission Gate exactly.
-
-### Existing correctness
-
-Run fresh:
-
-- v0.5.1 long-lived runtime geometry transition checks;
-- all supported relevant scale checks;
-- five-row content-fit checks;
-- settings lifecycle tests;
-- Hide/Show;
-- Compact/Expand;
-- tray/menu;
-- single instance;
-- shutdown.
-
-### Repository gates
-
-Run fresh:
-
-```text
-focused shell-identity tests
-relevant Tk/Win32 integration
+```powershell
 python scripts/run_quality_checks.py
-python scripts/package_smoke_test.py
-python scripts/run_release_candidate_checks.py
-git diff --check
-complete diff review
-unrelated-change check
-sensitive-file / secret scan
-version-source consistency
-document parity / manifest / links where affected
 ```
 
-Do not claim completion from old output.
+7. Run documentation/state consistency checks provided by the repository.
+8. Search active authoritative documents for stale claims that:
+   - v0.5.4 is ACTIVE;
+   - v0.5.4 requires a production fix;
+   - v0.5.4 is release-bound;
+   - v0.6.0 has started.
+9. Review changed files for unrelated changes.
+10. Review changed files for secrets or credentials.
+
+A formal v0.5.4 release candidate is not required because no product release is being made.
+
+Do not run release machinery merely to simulate a release closure.
+
 ---
-## 14. GitHub and release workflow
 
-Repository `AGENTS.md` standing authorization applies to routine verified GitHub operations within this active Goal.
+## 7. Git and GitHub closure
 
-After the required verification passes:
+Follow repository `AGENTS.md` authorization and identity rules.
+
+Before remote writes:
 
 ```text
-verify repository / remote / account
-→ push verified v0.5.3 branch
-→ create PR
-→ monitor exact-head Windows CI
-→ investigate evidence-backed CI failures
-→ focused fix cycle if required
-→ rerun required verification
-→ verify exact PR head
-→ squash merge
-→ synchronize main
-→ verify merged main
-→ rerun merged-main formal RC
-→ create/push v0.5.3 tag
-→ create GitHub Release
-→ verify tag/Release target
-→ delete completed merged v0.5.3 branch
-→ active-state reconciliation
+git remote -v
+gh auth status
+git config user.name
+git config user.email
 ```
 
-Do not request repeated permission for normal branch push, PR, CI monitoring, verified correction push, squash merge, main verification, tag/Release, or merged branch cleanup inside this Goal.
-
-High-risk exclusions in repository `AGENTS.md` remain separately permissioned.
----
-## 15. Release-state reconciliation
-
-After v0.5.3 is actually merged, verified, tagged, and released, update only authoritative files whose facts changed:
-
-- `Goal/ACTIVE_GOAL.md`
-- `Goal/ACTIVE_VERSION_BRIEF.md`
-- `Goal/EXECUTION_STATE.md`
-- `docs/product/ROADMAP.md`
-- paired Chinese documents where required
-- version sources
-- changelog
-- compatibility/testing documentation directly affected by shell identity
-
-Final truth:
+Verify the intended Tom-owned GitHub account/repository is:
 
 ```text
-v0.5.1 = previous released baseline
-v0.5.2 = closed historical investigation without product release
-v0.5.3 = released Shell Identity Correctness patch
-Win+Tab / Alt+Tab / ordinary taskbar exclusion = named verification contract
-v0.6.0 battery feature = not started
+TomTang701/codex-windows-status-pet
+GitHub username = tomtang701
 ```
 
-Do not document battery behavior as implemented.
----
-## 16. Completion criteria
+Preserve valid local investigation history.
 
-This Goal is COMPLETE only when all are true.
+Create the minimum focused documentation/state reconciliation commit required to close the investigation.
 
-### Root cause
-
-- current real HWND identity was measured;
-- known-working/current evidence was compared;
-- one root cause is documented;
-- the selected fix addresses that root cause rather than a guessed flag.
-
-### Shell identity
-
-- desktop overlay remains visible;
-- tray remains visible/reachable;
-- ordinary taskbar application button is absent;
-- Alt+Tab application entry is absent;
-- Win+Tab / Task View application content is absent.
-
-### Lifecycle
-
-- supported settings, lock, visibility, compact, scale, and DPI transitions preserve shell identity.
-
-### Regression safety
-
-- v0.5.1 geometry authority remains green;
-- five expanded rows remain fully visible;
-- no protected runtime/data/privacy behavior changes;
-- no new unnecessary dependency or subsystem is added.
-
-### Release
-
-- focused RED/GREEN evidence exists;
-- fresh Quality, package smoke, and formal RC pass;
-- exact-head CI succeeds;
-- v0.5.3 is squash-merged;
-- merged main is verified;
-- v0.5.3 tag and GitHub Release target the verified commit;
-- completed merged branch is deleted;
-- active state is reconciled.
----
-## 17. Mandatory stop condition
-
-After v0.5.3 release and active-state reconciliation:
-
-> **STOP.**
-
-Do not begin implementing the battery feature.
-
-Do not create the v0.6.0 battery branch.
-
-Do not change paw rendering.
-
-Do not change compact geometry for battery.
-
-Set the final `EXECUTION_STATE` next action to:
+Use a commit message consistent with repository history, for example:
 
 ```text
-Wait for Tom to start the approved v0.6.0 5H Battery Indicator and Layout Tightening Goal.
+docs: close v0.5.4 position persistence investigation
 ```
----
-## Final operating principle
 
-> **Prove the real HWND identity, find the exact shell-classification difference, fix one root cause, keep the overlay out of ordinary Windows switching surfaces, release v0.5.3, reconcile, and stop.**
+Use the repository's normal authorized GitHub workflow when permitted by `AGENTS.md`.
+
+Do not create a v0.5.4 product Release.
+
+---
+
+## 8. Completion report
+
+The final report must contain:
+
+### Conclusion
+
+State that v0.5.4 closed as an investigation without product release because the reported symptom is no longer reproducible and no RED/root-cause defect was established.
+
+### Evidence
+
+Report:
+
+- the preserved `(4143, 1182)` round-trip evidence;
+- the absence of a first coordinate divergence;
+- Tom's confirmation that restart no longer loses position;
+- focused test result;
+- Quality result;
+- state-consistency result;
+- final diff review result.
+
+### Repository state
+
+Report:
+
+```text
+released baseline = v0.5.3
+v0.5.4 investigation = closed without release
+current implementation scope = none
+v0.6.0 = not started
+```
+
+### Remote state
+
+Report actual commit / PR / merge results only when those actions were really performed.
+
+Do not claim release success.
+
+---
+
+## 9. STOP condition
+
+After:
+
+```text
+investigation evidence reviewed
+→ active state reconciled
+→ required verification passed
+→ authorized closure workflow completed
+→ final evidence reported
+```
+
+STOP.
+
+Do not start:
+
+- v0.6.0 battery indicator;
+- layout tightening;
+- installer work;
+- startup integration;
+- unrelated refactoring;
+- another position-persistence correction.
+
+Wait for Tom's next approved Goal.

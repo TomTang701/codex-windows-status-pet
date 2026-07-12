@@ -9,7 +9,7 @@
 - **Released:** v0.3.2 through v0.5.3 are merged, tagged, and published. v0.5.3 restores the visible overlay's non-ordinary Windows Shell identity without changing tray reachability or geometry behavior.
 - **Historical verification:** v0.5.3 has real root-HWND RED/GREEN, full lifecycle identity coverage, exact-head Windows CI, and merged-main RC. v0.5.2 remains a closed stale-process investigation without a product release.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
-- **Current direction:** v0.5.3 is complete. The v0.6.0 5H Battery Indicator and Layout Tightening feature is not started; wait for Tom's next approved Goal before design or implementation.
+- **Current direction:** v0.5.4 is closed as an investigation: the reported position-loss symptom is no longer reproducible, no production defect or fix was proven, and no product release was created. v0.6.0 5H Battery Indicator and Layout Tightening is not started and requires Tom's next approved Goal.
 - **Environment limitations:** mixed-DPI physical hardware, alternate physical taskbar edges, and a separate clean Windows machine are not available and are not claimed as physical evidence.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 
