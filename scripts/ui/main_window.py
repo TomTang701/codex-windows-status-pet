@@ -540,6 +540,7 @@ class Pet(tk.Tk):
             self.settings.get("compact_when_idle"),
             self.hovered,
             blocked,
+            self.settings["battery_quota_source"],
         )
         if should_be_compact != self.compact:
             self.set_compact(should_be_compact)

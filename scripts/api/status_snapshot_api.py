@@ -67,7 +67,13 @@ def battery_presentation(window):
             for index, color in enumerate(BATTERY_SEGMENT_COLORS, start=1)
         ),
     }
-def build_status_snapshot(activity, quota, quota_state="loading", font_color="#e5e7eb"):
+def build_status_snapshot(
+    activity,
+    quota,
+    quota_state="loading",
+    font_color="#e5e7eb",
+    battery_quota_source="weekly",
+):
     """Build only approved display text; raw quota/activity payloads never escape."""
     activity = activity if isinstance(activity, dict) else {}
     quota = quota if isinstance(quota, dict) else {}
@@ -98,10 +104,11 @@ def build_status_snapshot(activity, quota, quota_state="loading", font_color="#e
             earliest_future_expiry(credit_items),
         ),
     )
+    selected_window = primary if battery_quota_source == "primary_5h" else secondary
     return {
         "text": rows.as_text(),
         "rows": rows.as_dict(),
-        "battery": battery_presentation(secondary),
+        "battery": battery_presentation(selected_window),
         "color": color,
         "active_count": active_count,
         "quota_tier": tier,

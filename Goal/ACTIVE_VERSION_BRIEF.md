@@ -1,4 +1,4 @@
-# ACTIVE VERSION BRIEF — v0.6.2 Release Reconciliation
+# ACTIVE VERSION BRIEF — v0.6.3 Battery Quota Source Selector
 
 ## Released baseline
 
@@ -10,9 +10,9 @@
 
 ## Active outcome
 
-v0.6.2 added independent visibility settings for 5-hour, weekly, and reset-credit rows. Activity and progress remain visible; enabled rows retain truthful unavailable text, while disabled persistent labels leave the layout and all visible rows evenly share the unchanged text region.
+Add a two-state persisted battery source selector. It selects either the real 5-hour or real weekly quota for the existing ten-cell battery while keeping weekly as the default and never falling back. The three v0.6.2 row-visibility settings remain layout-only and independent.
 
-The v0.6.n default battery source remains the truthfully classified weekly window. If weekly is unavailable, the battery is unavailable; it must not fall back to 5-hour data. The approved next phase is v0.6.3: a two-state source selector with `weekly` as its missing/malformed default.
+The v0.6.n default battery source is the truthfully classified weekly window. If the selected source is unavailable, the battery is unavailable; it must not fall back to the other quota window.
 
 ## Protected contracts
 
@@ -23,4 +23,4 @@ The v0.6.n default battery source remains the truthfully classified weekly windo
 
 ## Current phase
 
-`PROGRAM ACTIVE / v0.6.2 RELEASED / v0.6.3 ACTIVATION NEXT`
+`PROGRAM ACTIVE / v0.6.3 DESIGN VERIFIED / IMPLEMENTATION PLAN NEXT`

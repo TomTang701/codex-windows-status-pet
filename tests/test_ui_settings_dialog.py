@@ -16,6 +16,63 @@ def _widgets(root):
 
 
 class SettingsDialogTests(unittest.TestCase):
+    def test_source_scale_apply_close_and_defaults_are_transactional(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            path = home / ".codex" / "codex-windows-status-pet.json"
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps(CONFIG), encoding="utf-8")
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            try:
+                module = runpy.run_path(str(ROOT / "scripts" / "codex_status_pet.py"))
+                module["AppServer"] = DummyServer
+                module["TrayIcon3"] = DummyTray
+                app = module["Pet"]()
+                app.latest_quota = {
+                    "rateLimits": {
+                        "primary": {"usedPercent": 20},
+                        "secondary": {"usedPercent": 45},
+                    }
+                }
+                app.show_settings()
+                app.update()
+                source_scale = next(
+                    (
+                        widget
+                        for widget in _widgets(app.settings_dialog)
+                        if isinstance(widget, tk.Scale)
+                        and float(widget.cget("from")) == 0
+                        and float(widget.cget("to")) == 1
+                    ),
+                    None,
+                )
+                self.assertIsNotNone(source_scale)
+                source_scale.set(0)
+                next(
+                    widget
+                    for widget in _widgets(app.settings_dialog)
+                    if isinstance(widget, tk.Button) and widget.cget("text") == "应用"
+                ).invoke()
+                self.assertEqual(app.settings["battery_quota_source"], "primary_5h")
+                next(
+                    widget
+                    for widget in _widgets(app.settings_dialog)
+                    if isinstance(widget, tk.Button) and widget.cget("text") == "关闭"
+                ).invoke()
+                self.assertEqual(app.settings["battery_quota_source"], "weekly")
+            finally:
+                if app is not None:
+                    app.application_controller.shutdown()
+                    for callback in app.tk.call("after", "info"):
+                        app.after_cancel(callback)
+                    app.topmost_var = None
+                    app.locked_var = None
+                    app.destroy()
+                    gc.collect()
+                Path.home = original_home
+
     def test_save_persists_visibility_and_restore_defaults_reenables_every_row(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)

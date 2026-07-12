@@ -61,6 +61,7 @@ DEFAULT_SETTINGS = {
     "show_primary_5h": True,
     "show_weekly": True,
     "show_reset_credit": True,
+    "battery_quota_source": "weekly",
 }
 
 
@@ -181,6 +182,11 @@ def normalize_settings(raw):
         settings[key] = _bool_value(raw.get(key, settings[key]), settings[key])
         if key in raw and settings[key] == DEFAULT_SETTINGS[key] and raw[key] not in (True, False, 0, 1, "true", "false", "1", "0", "yes", "no", "on", "off"):
             warnings.append(f"{key} is invalid; default retained")
+    source = raw.get("battery_quota_source", settings["battery_quota_source"])
+    if source in {"primary_5h", "weekly"}:
+        settings["battery_quota_source"] = source
+    elif "battery_quota_source" in raw:
+        warnings.append("battery_quota_source is invalid; weekly retained")
     if "window_scale_percent" in raw:
         candidate = raw.get("window_scale_percent")
         if _valid_numeric_scale(candidate):

@@ -135,7 +135,7 @@ class MenuInteractionTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             self.destroy_app(app)
 
-    def test_settings_dialog_has_exactly_two_scales_and_no_legacy_size_controls(self):
+    def test_settings_dialog_has_two_existing_scales_and_one_discrete_source_scale(self):
         app = self.module["Pet"]()
         try:
             app.show_settings()
@@ -143,9 +143,23 @@ class MenuInteractionTests(unittest.TestCase):
             widgets = self.descendants(app.settings_dialog)
             scales = [widget for widget in widgets if widget.winfo_class() == "Scale"]
             texts = [widget.cget("text") for widget in widgets if "text" in widget.keys()]
-            self.assertEqual(len(scales), 2)
+            self.assertEqual(len(scales), 3)
+            self.assertEqual(
+                len([widget for widget in scales if float(widget.cget("to")) == 200.0]),
+                1,
+            )
+            source_scale = next(
+                widget
+                for widget in scales
+                if float(widget.cget("from")) == 0.0
+                and float(widget.cget("to")) == 1.0
+            )
+            self.assertEqual(float(source_scale.cget("resolution")), 1.0)
             self.assertIn("透明度", texts)
             self.assertIn("窗口大小", texts)
+            self.assertIn("电池显示内容", texts)
+            self.assertIn("5小时", texts)
+            self.assertIn("每周", texts)
             for removed in ("字体大小", "窗口大小 (宽, 高)", "−", "+", "等比例缩放"):
                 self.assertNotIn(removed, texts)
             self.assertIn("默认位置 (X, Y)", texts)

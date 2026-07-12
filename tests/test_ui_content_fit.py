@@ -158,6 +158,58 @@ class ContentFitTests(unittest.TestCase):
             finally:
                 self.destroy_app(app)
 
+    def test_both_battery_sources_remain_independent_of_visibility_at_all_scales(self):
+        optional_ids = ("primary_5h", "weekly", "reset_credit")
+        sources = (
+            ("primary_5h", "#a3e635", "#374151"),
+            ("weekly", "#facc15", "#374151"),
+        )
+        for scale in range(80, 201, 5):
+            app = self.new_app(scale)
+            try:
+                app.latest_quota = {
+                    "rateLimits": {
+                        "primary": {"usedPercent": 20},
+                        "secondary": {"usedPercent": 45},
+                    }
+                }
+                for source, last_lit, first_unlit in sources:
+                    for flags in itertools.product((False, True), repeat=3):
+                        with self.subTest(scale=scale, source=source, flags=flags):
+                            settings = dict(zip(
+                                ("show_primary_5h", "show_weekly", "show_reset_credit"),
+                                flags,
+                            ))
+                            app.apply_settings({
+                                **app.settings,
+                                **settings,
+                                "battery_quota_source": source,
+                            })
+                            app.render_status()
+                            app.update_idletasks()
+                            visible_ids = tuple(
+                                row_id
+                                for row_id, label in app.text.labels.items()
+                                if label.winfo_ismapped()
+                            )
+                            expected_ids = ("activity", "progress") + tuple(
+                                row_id
+                                for row_id, enabled in zip(optional_ids, flags)
+                                if enabled
+                            )
+                            self.assertEqual(visible_ids, expected_ids)
+                            if source == "primary_5h":
+                                self.assertEqual(app.battery.cells[7].cget("bg"), last_lit)
+                                self.assertEqual(app.battery.cells[8].cget("bg"), first_unlit)
+                            else:
+                                self.assertEqual(app.battery.cells[5].cget("bg"), last_lit)
+                                self.assertEqual(app.battery.cells[6].cget("bg"), first_unlit)
+                            self.assertLessEqual(
+                                app.text.winfo_reqheight(), app.text.winfo_height()
+                            )
+            finally:
+                self.destroy_app(app)
+
     def test_supported_scales_keep_all_ten_compact_cells_inside_root(self):
         for scale in range(80, 201, 5):
             with self.subTest(scale=scale):
