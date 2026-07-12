@@ -3,7 +3,7 @@
 - Program Goal: `ACTIVE — v0.6.1 → v0.6.3 Quota Presentation Controls`
 - Released baseline: `v0.6.2` at `8b7c7fec2a864fa94601ed8235d04cb5cb716a03`
 - Active implementation version: `v0.6.3`
-- Active phase: `v0.6.3 Tasks 1–4 GREEN; broader Quality and release preparation next`
+- Active phase: `v0.6.3 candidate prepared; release-gate verification and authorized PR workflow next`
 - Current branch: `feat/v0.6.3-battery-source-selector`
 - Recovery reason: `Codex execution interrupted unexpectedly.`
 - Recovered branch / HEAD: `feat/v0.6.2-quota-row-visibility` at `40d59c8b7d9f9f536299aacc67686ed7a70467eb`.
@@ -23,5 +23,6 @@
 - Task 2 evidence: `RED: primary selection still rendered weekly inactive cell; GREEN: Controller/MainWindow forward only battery_quota_source and 17 battery regressions pass.`
 - Task 3 evidence: `RED: no 0/1 source Scale; GREEN: Apply/Close transaction passes, real dialog measures 379x413, non-resizable and topmost.`
 - Task 4 evidence: `primary 80% / weekly 55% against all 8 row-visibility combinations and all 25 scale steps passes at DPI 96 and simulated DPI 120; compact selected-primary presentation passes.`
-- Next exact action: `run full v0.6.3 Quality/lifecycle groups, complete diff and credential review, then prepare the v0.6.3 candidate version.`
+- Candidate evidence: `core Quality 153 tests; UI source/settings/menu 26 tests; source matrices 96/120; legacy content-fit, mixed-DPI, position, runtime, and Shell groups all pass on the v0.6.3 candidate.`
+- Next exact action: `run package smoke, strict readiness, formal RC, complete diff and credential review, then push and open the v0.6.3 PR.`
 - Last updated: `2026-07-12`

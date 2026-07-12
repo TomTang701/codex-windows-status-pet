@@ -23,4 +23,4 @@ The v0.6.n default battery source is the truthfully classified weekly window. If
 
 ## Current phase
 
-`PROGRAM ACTIVE / v0.6.3 DESIGN VERIFIED / IMPLEMENTATION PLAN NEXT`
+`PROGRAM ACTIVE / v0.6.3 RELEASE CANDIDATE VERIFICATION`
