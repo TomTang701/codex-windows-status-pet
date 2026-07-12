@@ -89,6 +89,16 @@ def work_area_for_point(x, y, monitors=None):
     return 0, 0, 1920, 1080
 
 
+def monitor_for_point(x, y, monitors=None):
+    """Return the monitor whose work area contains a virtual-desktop point."""
+    monitors = monitor_snapshot() if monitors is None else monitors
+    for monitor in monitors:
+        left, top, right, bottom = monitor.get("work", ())
+        if left <= x < right and top <= y < bottom:
+            return monitor
+    return None
+
+
 def monitor_snapshot():
     """Return monitor rectangles and legacy monitor DPI values for diagnostics."""
     try:

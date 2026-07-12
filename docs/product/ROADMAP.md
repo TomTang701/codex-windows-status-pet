@@ -9,8 +9,8 @@
 - **Released:** v0.3.2 through v0.5.3 are merged, tagged, and published. v0.5.3 restores the visible overlay's non-ordinary Windows Shell identity without changing tray reachability or geometry behavior.
 - **Historical verification:** v0.5.3 has real root-HWND RED/GREEN, full lifecycle identity coverage, exact-head Windows CI, and merged-main RC. v0.5.2 remains a closed stale-process investigation without a product release.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
-- **Current direction:** v0.5.4 remains a closed no-release investigation. v0.5.5 investigates the new physical mixed-DPI startup shift affecting legal secondary right/bottom edge positions; no production fix is authorized until the current main fails a real RED and the first wrong boundary is proven. v0.6.0 5H Battery Indicator and Layout Tightening is blocked and not started.
-- **Environment limitations:** mixed-DPI physical hardware, alternate physical taskbar edges, and a separate clean Windows machine are not available and are not claimed as physical evidence.
+- **Current direction:** v0.5.4 remains a closed no-release investigation. v0.5.5 has a production-equivalent mixed-DPI RED, a proven bootstrap-DPI root cause, and a GREEN candidate that preserves legal secondary right/bottom-edge positions using target-monitor containment metrics. Formal release gates remain required; v0.6.0 5H Battery Indicator and Layout Tightening is blocked and not started.
+- **Environment limitations:** alternate physical taskbar edges and a separate clean Windows machine are not available and are not claimed as physical evidence. The 125% primary / 100% secondary mixed-DPI topology is now covered by production-equivalent Windows automation for v0.5.5.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 
 ## Product objective

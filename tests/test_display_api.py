@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
-from api.display_api import place_popup, rectangle_intersects_virtual_desktop, scale_for_dpi, work_area_for_point
+from api.display_api import monitor_for_point, place_popup, rectangle_intersects_virtual_desktop, scale_for_dpi, work_area_for_point
 
 
 class DisplayApiTests(unittest.TestCase):
@@ -39,6 +39,15 @@ class DisplayApiTests(unittest.TestCase):
             {"work": [2560, 0, 4480, 1080]},
         ]
         self.assertEqual(work_area_for_point(2200, 500, monitors), (0, 0, 1920, 1080))
+
+    def test_monitor_for_point_returns_only_the_containing_monitor(self):
+        monitors = [
+            {"name": "primary", "work": [0, 0, 2560, 1380], "dpi_x": 120},
+            {"name": "secondary", "work": [2560, 354, 4480, 1386], "dpi_x": 96},
+        ]
+
+        self.assertEqual(monitor_for_point(4200, 1269, monitors)["name"], "secondary")
+        self.assertIsNone(monitor_for_point(2200, 1400, monitors))
 
 
 if __name__ == "__main__":

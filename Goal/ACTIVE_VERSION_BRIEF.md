@@ -13,10 +13,10 @@ Preserve saved positions that are legal using the target monitor's effective DPI
 
 ## Investigation boundary
 
-Tom's new physical 125% primary / 100% secondary evidence shows a spatially conditional startup shift near secondary right/bottom edges. The bootstrap-DPI metric mismatch is a strong hypothesis only; the current main must first fail a production-equivalent RED and show the first wrong coordinate boundary.
+The current-main production-equivalent RED proved that a withdrawn bootstrap root reports 120 DPI before recovery, applies `350x146` metrics to legal secondary saved `(4200,1269)`, and clamps it to `(4130,1240)`. The minimum fix now uses the saved point's target-monitor geometry authority for recovery containment only. Physical Windows GREEN coverage preserves secondary right, bottom, bottom-right, and interior coordinates plus drag-to-edge restart persistence, without weakening invalid-position recovery.
 
 v0.5.4's `(4143, 1182)` A-path remains valid historical evidence for its tested coordinate. v0.5.3 Shell Identity remains protected: the root HWND must retain `WS_EX_TOOLWINDOW=true` and `WS_EX_APPWINDOW=false`. No v0.6.0 feature work is in scope.
 
 ## Status
 
-`v0.5.5 ACTIVE / ROOT-CAUSE VERIFICATION REQUIRED / v0.6.0 BLOCKED`
+`v0.5.5 ACTIVE / GREEN CANDIDATE / v0.6.0 BLOCKED`
