@@ -1,5 +1,7 @@
 # Codex Windows Status Pet 工程开发总规范
 
+English: [English version](ENGINEERING_STANDARD.md)
+
 > **Document-Version:** 1.0.0  
 > **Status:** 当前生效的中文翻译副本
 > **Canonical-Language:** English  

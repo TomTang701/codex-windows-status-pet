@@ -1,5 +1,7 @@
 # 测试
 
+English: [English version](TESTING.md)
+
 ## 必需层级
 
 按需使用Unit、Contract、Integration、UI-contract、Platform、Physical、Packaging和Soak测试。模拟通过不得记录为实体证据。

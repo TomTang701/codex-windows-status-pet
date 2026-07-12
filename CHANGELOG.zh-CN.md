@@ -1,5 +1,7 @@
 # 更新日志
 
+English: [English version](CHANGELOG.md)
+
 ## 未发布
 
 ## 0.6.3 - 2026-07-12

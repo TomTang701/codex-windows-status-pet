@@ -1,5 +1,7 @@
 # Codex Windows 状态宠物——产品评审
 
+English: [English version](PRODUCT_OVERVIEW.md)
+
 ## 当前定位
 
 这是一个面向重度 Codex 用户、低干扰的外部状态伴侣。它提供活动对话状态、额度窗口、重置次数、设置和托盘恢复路径，不修改 Codex 核心文件，也不向内置宠物注入文字。

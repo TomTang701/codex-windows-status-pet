@@ -37,6 +37,8 @@ def quality_commands(python=sys.executable):
         "document_manifest": [python, str(ROOT / "scripts" / "check_doc_manifest.py")],
         "document_governance": [python, str(ROOT / "scripts" / "check_doc_governance.py")],
         "document_links": [python, str(ROOT / "scripts" / "check_doc_links.py")],
+        "document_privacy": [python, str(ROOT / "scripts" / "check_doc_privacy.py")],
+        "document_navigation": [python, str(ROOT / "scripts" / "check_doc_navigation.py")],
         "version_sources": [python, str(ROOT / "scripts" / "check_version_sources.py")],
         "sensitive_files": [python, str(ROOT / "scripts" / "check_sensitive_files.py")],
         "dependencies": [python, str(ROOT / "scripts" / "check_dependencies.py")],

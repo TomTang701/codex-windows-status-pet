@@ -1,5 +1,7 @@
 # 仓库结构
 
+English: [English version](REPOSITORY_STRUCTURE.md)
+
 本文档说明项目文件的归属。配置值属于 `CONFIGURATION.md`；运行时API契约属于 `API_SPEC.md`。
 
 ## 顶层结构

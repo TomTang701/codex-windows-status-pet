@@ -1,5 +1,7 @@
 # Testing
 
+简体中文: [中文版本](TESTING.zh-CN.md)
+
 ## Required layers
 
 Use Unit, Contract, Integration, UI-contract, Platform, Physical, Packaging, and Soak tests as appropriate. Simulation must never be recorded as physical evidence.

@@ -1,5 +1,7 @@
 # Release
 
+简体中文: [中文版本](RELEASE.zh-CN.md)
+
 ## Gates
 
 Routine `run_quality_checks.py` provides fast automated code-health feedback and never approves a release. `run_release_candidate_checks.py` is the single formal automated release command; it executes Quality, package smoke, strict compatibility readiness, and whitespace exactly once and reports passes, blockers, and limitations separately. The canonical fact classification and authority are recorded in `docs/quality/verification-inventory.json`.

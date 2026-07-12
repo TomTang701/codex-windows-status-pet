@@ -1,5 +1,7 @@
 # Configuration
 
+简体中文: [中文版本](CONFIGURATION.zh-CN.md)
+
 ## Location and schema
 
 Settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json` and use schema version `1`. A legacy file without `schema_version` is read as the pre-version format and normalized in memory; a save writes the current schema.

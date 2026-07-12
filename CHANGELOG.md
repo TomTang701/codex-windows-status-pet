@@ -1,5 +1,7 @@
 # Changelog
 
+简体中文: [中文版本](CHANGELOG.zh-CN.md)
+
 ## Unreleased
 
 ## 0.6.3 - 2026-07-12

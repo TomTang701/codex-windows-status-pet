@@ -1,5 +1,7 @@
 # 配置
 
+English: [English version](CONFIGURATION.md)
+
 ## 位置和schema
 
 设置保存在 `%USERPROFILE%\.codex\codex-windows-status-pet.json`，当前使用schema版本 `1`。没有 `schema_version` 的旧文件按版本化前格式读取并在内存中规范化；保存时会写入当前schema。

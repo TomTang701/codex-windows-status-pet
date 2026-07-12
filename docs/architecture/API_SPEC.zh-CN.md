@@ -1,5 +1,7 @@
 # API 与测试边界规范
 
+English: [English version](API_SPEC.md)
+
 ## 目的
 
 将 Windows 伴侣拆成多个可独立测试的 API，使配置、会话状态、单实例和诊断问题可以在不启动 Tk 或托盘的情况下单独调试。
