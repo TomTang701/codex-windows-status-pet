@@ -4,7 +4,7 @@
 - Active implementation version: `v0.6.0`
 - Released product baseline and latest product version: `v0.5.5` at `4662414c16e6892d02634dd5139b3ca93f281d37`
 - Historical v0.5.2: `CLOSED investigation / no product release`
-- Active phase: `Phase C TDD active; Task 1 battery semantics GREEN and Task 2 BatteryView GREEN`
+- Active phase: `v0.6.0 candidate verification complete; PR preparation next`
 - v0.5.4 investigation: `CLOSED historical investigation / no product release`
 - Current reported regression: `100% secondary near right/bottom edge saved position shifts inward on startup from 125% primary bootstrap`
 - Root cause: `withdrawn bootstrap HWND reports primary 120 DPI; safe_position uses inflated 120-DPI metrics to recover a 96-DPI-secondary legal edge coordinate before target DPI resync`
@@ -15,10 +15,10 @@
 - v0.6.0 corrected Design Verification: `PASSED — Tom-approved 2×5 / 10-cell segmented battery; paw removed; compact battery-only`
 - Active implementation plan: `docs/superpowers/plans/2026-07-12-v0.6.0-battery-visual.md`
 - Task 1 evidence: `battery_presentation pure semantics GREEN in commit 0d1c963`
-- Task 2 evidence: `BatteryView 2×5 / ten persistent cells focused GREEN; integration not yet implemented`
+- Task 2 evidence: `BatteryView integration GREEN: paw absent, expanded five rows + right battery, compact battery-only, interactions migrated, all 25 scales and DPI probe pass`
 - Current blocker: `None`
 - v0.6.0 5H Battery Indicator and Layout Tightening: `ACTIVE / Phase C TDD`
 - Human fact required: `None`
 - Blocker: `None`
-- Next exact action: establish and run the focused main-window expanded integration RED, then integrate BatteryView as the interactive right-side visual while preserving five text rows and no paw
+- Next exact action: complete final candidate diff/secret review, commit/push v0.6.0 candidate, create PR, and require exact-head Windows CI
 - Last updated: 2026-07-12

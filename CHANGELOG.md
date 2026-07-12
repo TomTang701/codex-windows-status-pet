@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.6.0 - 2026-07-12
+
+- Replaced the paw with a right-side, bottom-up, 2×5 ten-segment 5H battery in expanded mode and the same complete battery in compact mode.
+- Kept the five stable text rows and truthful remaining-quota text; battery fill uses the same remaining percentage, ceiling segment count, and fixed red/orange/yellow/light-green/strong-green position bands.
+- Preserved mixed-DPI position recovery, Shell identity, lifecycle interactions, and all supported window-scale content-fit contracts.
+
 ## 0.5.5 - 2026-07-12
 
 - Fixed mixed-DPI startup recovery so a saved position that is legal at its target monitor DPI is not clamped using the withdrawn bootstrap window's DPI.
