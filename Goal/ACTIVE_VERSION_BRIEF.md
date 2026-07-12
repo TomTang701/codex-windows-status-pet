@@ -1,31 +1,24 @@
-# ACTIVE VERSION BRIEF — v0.5.1 Runtime Geometry Reapplication Stabilization
+# ACTIVE VERSION BRIEF — v0.5.2 Rendered Content Visibility Contract Correction
 
-## Outcome
+## Historical truth
 
-One long-lived `Pet` keeps one coherent target-window-DPI expanded geometry and fully visible five-row content through every supported settings, lock, visibility, compact, restore, and monitor transition.
+- v0.5.1 remains released from commit `10de01410126a1877ac9406fc02e3bc583659df3` through PR #17.
+- PR #18 reconciled main at `71c2719fca0ac4cfe3fa9ce1ffb6d675fe074fa8`.
+- The then-current Quality, Tk, DPI/scale, lifecycle, and RC contracts passed.
+- New production screenshot evidence invalidates only the v0.5.1 rendered-visibility completion claim; it does not rewrite release history.
 
-## Root cause and design
+## Active incident
 
-Released v0.5.0 derived cold-start and runtime reapplication geometry under different HWND monitor/DPI contexts while Tk point fonts retained process-global scaling. The verified minimum design positions the withdrawn HWND first, then derives physical geometry and explicit negative-pixel fonts from that target-window DPI. `Pet._sync_compatibility_metrics()` remains the sole runtime metric authority; no new subsystem or persisted physical dimensions were added.
+The released application can visibly clip the fifth `reset_credit` row at the expanded client bottom even though the previous authority reported 50 DPI/scale combinations and 15 lifecycle transitions fitted.
 
-## Required transition matrix
+Incident root cause: the supplied screenshot came from a process started before the v0.5.1 fix; current disk version/HEAD was incorrectly used as proof of the already-running process's loaded code. A released-v0.5.1 rendered defect is not reproduced.
 
-Cold start/no action; open settings only; Close without changes; toggle lock; toggle lock then settings; opacity-only Apply; scale-change Apply; Save; draft scale then Close rollback; Restore Defaults; repeated settings open/close; Hide/Show; Compact/Expand; and the closest reproducible combined sequence.
+## Required outcome
 
-## Regression contract
-
-After every transition exactly five stable rows exist; requested heights fit allocations; all rows and the final row bottom stay inside the actual visible root/client boundary; approved single-line rows do not unexpectedly wrap; unchanged logical scale and DPI preserve expanded geometry; and a true DPI change ends with exact Window Scale API geometry and matching pixel fonts.
-
-## Current evidence
-
-- Authoritative released-behavior RED: one `Pet` changed from `330x138` to `264x110` after `toggle_locked`.
-- Cross-monitor RED: reapplication moved the HWND to DPI 120 while retaining DPI 96 metrics.
-- GREEN: all 25 scale steps at DPI 96 and 120 fit all five rows.
-- GREEN: all 15 required production-equivalent lifecycle transitions report `fits: true`.
-- GREEN: routine Quality approved with 137 core tests and 23 Tk UI tests.
+Identify the exact false-positive mechanism, reproduce released v0.5.1 through the real production presentation route with a rendered-boundary RED, correct one root cause, replace the insufficient authority, and release v0.5.2.
 
 ## Status
 
-`RELEASED / RECONCILED`
+`v0.5.2 INVESTIGATION ACTIVE / DESIGN VERIFICATION FAILED / v0.6.0 BLOCKED`
 
-PR #17 passed exact-head Windows Quality, squash-merged as `10de014`, and passed merged-main formal RC. Tag and GitHub Release `v0.5.1` target `10de014`; the patch branch is deleted. v0.6.0 Productization design is resumed without expanding this completed patch scope.
+No production geometry, DPI-order, font, padding, or height modification is permitted. The required released-v0.5.1 RED is unavailable: after an evidence-backed restart, the released code renders the fifth row completely.
