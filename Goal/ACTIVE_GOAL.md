@@ -1,12 +1,12 @@
 # ACTIVE PROGRAM GOAL — Post-v0.6.3 Hygiene → v0.7.0 Bilingual UI and Manual Compact
 
-> **Status:** APPROVED PROGRAM / SEQUENTIAL DELIVERY
+> **Status:** RELEASED / RECONCILED / STOP
 > **Program owner:** Tom
 > **Repository:** `TomTang701/codex-windows-status-pet`
-> **Released baseline:** `v0.6.3` at `7991c38ab19f05966025a46999c83852ea4c5b15`
-> **Final target:** released and reconciled `v0.7.0`
-> **Execution model:** Phase A maintenance gate, then one v0.7.0 product release
-> **STOP:** only after v0.7.0 release, reconciliation, and final verification
+> **Released product:** `v0.7.0` at `46912952b200d8a296e94d1429e33c1484dc91b5`
+> **Final target:** achieved
+> **Execution model:** completed
+> **STOP:** achieved; do not begin another product version without Tom's next approved Goal
 
 ## Program sequence
 
@@ -79,4 +79,4 @@ Phase A: documentation privacy and bilingual navigation
 - Review complete diff, unrelated changes, and credentials before remote writes.
 - Require exact-head Windows CI, squash merge, merged-main RC, annotated tag,
   GitHub Release, and final authoritative-state reconciliation.
-- Do not start another product version after v0.7.0; record STOP.
+- v0.7.0 is released, tagged, and published after exact-head Windows CI and merged-main verification. STOP.
