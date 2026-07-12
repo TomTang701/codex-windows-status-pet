@@ -1,15 +1,15 @@
 # ACTIVE PROGRAM GOAL — v0.5.5 Release Completion → v0.6.0 Delivery
 
-> **Status:** FINAL RECONCILIATION / NO ACTIVE IMPLEMENTATION SCOPE
+> **Status:** PROGRAM COMPLETE / STOPPED / NO ACTIVE IMPLEMENTATION SCOPE
 > **Program owner:** Tom
 > **Repository:** `TomTang701/codex-windows-status-pet`
-> **Current reconciliation branch:** `docs/v0.6.0-release-state`
+> **Final reconciliation:** merged to `main` at `cb209c4f9e192daa4d63f90928b86a3e93e9636f`
 > **Latest released product:** `v0.6.0` at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`
 > **Previous released baseline:** `v0.5.5` at `4662414c16e6892d02634dd5139b3ca93f281d37`
 > **Historical v0.5.4:** closed investigation / no product release
 > **Program final target:** released and reconciled `v0.6.0`
 > **Execution model:** one active implementation version at a time; multiple sequential phases are allowed inside this Program Goal
-> **STOP:** after this documentation-only reconciliation is merged and main is verified
+> **STOP:** satisfied; wait for Tom's next approved direction
 
 ## 0. Program mission
 
@@ -191,4 +191,4 @@ STOP only after v0.5.5 is released/reconciled, the Hard Version Gate passes, v0.
 - v0.6.0 PR [#25](https://github.com/TomTang701/codex-windows-status-pet/pull/25) merged at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`; exact-head Windows CI passed at `8670b0f82ef272a24df870d4756aea71c2182b80`.
 - Merged-main formal RC passed at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`; [`v0.6.0`](https://github.com/TomTang701/codex-windows-status-pet/releases/tag/v0.6.0) tag and GitHub Release target that same commit.
 - v0.5.4 remains historical `CLOSED INVESTIGATION / NO PRODUCT RELEASE`; no v0.5.4 tag or Release exists.
-- Remaining work is documentation-state reconciliation only. No production runtime code change is authorized or required.
+- Final reconciliation merged at `cb209c4f9e192daa4d63f90928b86a3e93e9636f`; main verification completed. No production runtime code change is authorized or required.
