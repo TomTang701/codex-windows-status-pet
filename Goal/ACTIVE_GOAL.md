@@ -1,12 +1,12 @@
 # ACTIVE PROGRAM GOAL – v0.7.1 Activity Localization and Compact Geometry Correctness
 
-> **Status:** APPROVED FOCUSED BUGFIX PROGRAM
+> **Status:** RELEASED / RECONCILED / STOP
 > **Program owner:** Tom
 > **Repository:** `TomTang701/codex-windows-status-pet`
-> **Released baseline:** `v0.7.0` at `46912952b200d8a296e94d1429e33c1484dc91b5`
-> **Final target:** released and reconciled `v0.7.1`
-> **Execution model:** focused sequential bugfix release
-> **STOP:** only after v0.7.1 release, reconciliation, and final verification
+> **Released product:** `v0.7.1` at `e45c457361d0ac3592e7d1e20671bc54f690661e`
+> **Final target:** achieved
+> **Execution model:** completed
+> **STOP:** achieved; do not begin another product version without Tom's next approved Goal
 
 ## Program sequence
 
@@ -92,4 +92,4 @@ Phase A: documentation privacy and bilingual navigation
 - Review complete diff, unrelated changes, and credentials before remote writes.
 - Require exact-head Windows CI, squash merge, merged-main RC, annotated tag,
   GitHub Release, and final authoritative-state reconciliation.
-- v0.7.1 is released, tagged, and published after exact-head Windows CI and merged-main verification. STOP.
+- v0.7.1 is released, tagged, and published after exact-head Windows CI and merged-main verification. STOP achieved.

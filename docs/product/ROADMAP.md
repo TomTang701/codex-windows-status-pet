@@ -2,9 +2,9 @@
 
 简体中文: [中文版本](ROADMAP.zh-CN.md)
 
-**Status:** v0.7.1 active correctness candidate
-**Latest released product:** `v0.7.0`
-**Active implementation scope:** v0.7.1 activity-localization and manual-Compact geometry correctness
+**Status:** v0.7.1 released and reconciled
+**Latest released product:** `v0.7.1`
+**Active implementation scope:** None; wait for the next approved Goal
 
 ## Current state
 
@@ -17,6 +17,7 @@
 - **Released battery source selector:** v0.6.3 adds a persisted two-state 5-hour/weekly battery source selector. Weekly remains the default, selected-source unavailability remains unavailable, and there is no fallback; it is independent of row visibility.
 - **Released bilingual and Compact direction:** v0.7.0 enforces documentation path privacy and manifest-managed bilingual navigation, adds English/Simplified Chinese runtime UI, and replaces automatic compaction with persisted manual Compact.
 - **Active v0.7.1 direction:** session metadata remains semantic until the presentation localization boundary; every manual-Compact settings re-application retains a Compact root; and Compact drag validates visible-square geometry before persisting canonical expanded-window coordinates.
+- **Released v0.7.1 correction:** English activity rows now localize semantic session state at the presentation boundary, Compact remains square through settings re-application, and Compact drag persists canonical expanded-window coordinates after visible-square validation.
 - **Environment limitations:** alternate physical taskbar edges and a separate clean Windows machine are not available and are not claimed as physical evidence. The 125% primary / 100% secondary mixed-DPI topology is now covered by production-equivalent Windows automation for v0.5.5.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 
