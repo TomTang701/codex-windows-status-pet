@@ -301,14 +301,11 @@ class MenuInteractionTests(unittest.TestCase):
             self.assertEqual(app.window_metrics.scale_percent, 150)
             self.assertTrue(app.geometry().startswith("495x207"))
             text_font = tkfont.Font(root=app, font=next(iter(app.text.labels.values())).cget("font"))
-            face_font = tkfont.Font(root=app, font=app.face.cget("font"))
             self.assertEqual(text_font.cget("size"), 15)
-            self.assertEqual(face_font.cget("size"), 42)
             for label in app.text.labels.values():
                 self.assertEqual(int(label.cget("wraplength")), 390)
-            padx = tuple(int(value) for value in app.tk.splitlist(app.face.pack_info()["padx"]))
-            self.assertEqual(padx, (18, 8))
-            self.assertEqual(int(app.face.pack_info()["pady"]), 15)
+            self.assertEqual(len(app.battery.cells), 10)
+            self.assertEqual(app.battery.winfo_manager(), "pack")
         finally:
             self.destroy_app(app)
 

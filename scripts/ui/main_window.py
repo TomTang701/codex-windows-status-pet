@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.5.5"
+APP_VERSION = "0.6.0"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -31,6 +31,7 @@ try:
     from api.quota_state_api import QuotaState
     from api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from ui.context_menu import show_context_menu
+    from ui.battery_view import BatteryView
     from ui.settings_dialog import show_settings_dialog
     from ui.status_rows import StatusRows
     from ui.tray_adapter import TrayIcon3
@@ -54,6 +55,7 @@ except ModuleNotFoundError:
     from scripts.api.quota_state_api import QuotaState
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from scripts.ui.context_menu import show_context_menu
+    from scripts.ui.battery_view import BatteryView
     from scripts.ui.settings_dialog import show_settings_dialog
     from scripts.ui.status_rows import StatusRows
     from scripts.ui.tray_adapter import TrayIcon3
@@ -148,13 +150,13 @@ class Pet(tk.Tk):
         self.quota_state = QuotaState()
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
-        self.face = tk.Label(self, text="\U0001f43e", font=self._font_spec("Segoe UI Emoji", self.window_metrics.face_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec("Segoe UI", self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self.battery = BatteryView(self, bg=self.settings["background_color"])
         self._pack_expanded_content()
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
         self.bind("<Leave>", self._pointer_leave)
-        for widget in (self.face, *self.text.event_widgets):
+        for widget in (*self.text.event_widgets, *self.battery.event_widgets):
             widget.bind("<Button-3>", self.menu)
             widget.bind("<Enter>", self._pointer_enter)
             widget.bind("<Leave>", self._pointer_leave)
@@ -252,7 +254,8 @@ class Pet(tk.Tk):
         self.attributes("-topmost", self.settings["topmost"])
         bg, fg = self.settings["background_color"], self.settings["font_color"]
         self.configure(bg=bg)
-        self.face.configure(bg=bg, fg=fg, font=self._font_spec("Segoe UI Emoji", metrics.face_font_size))
+        self.battery.configure(bg=bg)
+        self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec("Segoe UI", metrics.text_font_size), wraplength=metrics.wraplength)
         if not self.compact:
             self._pack_expanded_content()
@@ -287,18 +290,15 @@ class Pet(tk.Tk):
 
     def _pack_expanded_content(self):
         metrics = self.window_metrics
-        self.face.pack_forget()
-        self.face.pack(
-            side="left",
-            padx=(metrics.horizontal_padding, metrics.face_text_gap),
-            pady=metrics.vertical_padding,
-        )
+        self.battery.pack_forget()
         self.text.pack(
             side="left",
             fill="both",
             expand=True,
+            padx=(metrics.horizontal_padding, metrics.face_text_gap),
             pady=metrics.vertical_padding,
         )
+        self.battery.pack(side="right", padx=(0, metrics.horizontal_padding), pady=metrics.vertical_padding)
 
     def set_compact(self, compact):
         compact = bool(compact)
@@ -307,10 +307,14 @@ class Pet(tk.Tk):
         self.compact = compact
         if compact:
             self.text.pack_forget()
-            self.face.pack_forget()
-            self.face.pack(expand=True, padx=8, pady=8)
+            self.battery.pack_forget()
+            self.battery.set_compact(True)
+            self.battery.set_metrics(self.window_metrics.text_font_size, compact=True)
+            self.battery.pack(expand=True, padx=8, pady=8)
             size = compact_size(self.window_metrics.width, self.window_metrics.height)
         else:
+            self.battery.set_compact(False)
+            self.battery.set_metrics(self.window_metrics.text_font_size, compact=False)
             self._pack_expanded_content()
             size = None
         x, y = self.settings["x"], self.settings["y"]
@@ -539,6 +543,7 @@ class Pet(tk.Tk):
         if should_be_compact != self.compact:
             self.set_compact(should_be_compact)
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
+        self.battery.configure_presentation(presentation["battery"])
 
     def poll(self):
         if self.closing:

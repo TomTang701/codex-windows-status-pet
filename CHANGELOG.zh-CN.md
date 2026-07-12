@@ -2,6 +2,12 @@
 
 ## 未发布
 
+## 0.6.0 - 2026-07-12
+
+- 在 expanded 模式中使用右侧、bottom-up、2×5 十格 5H 电池替换 paw；compact 模式使用同一完整电池。
+- 保持五个稳定文字行和真实 remaining quota 文本；电池填充与文字使用相同的 remaining 百分比、ceil segment count 以及固定 red/orange/yellow/light-green/strong-green 位置色带。
+- 保留 mixed-DPI position recovery、Shell identity、生命周期交互和全部支持窗口缩放档位的内容适配契约。
+
 ## 0.5.5 - 2026-07-12
 
 - 修复混合 DPI 启动恢复：在目标显示器 DPI 下合法的保存位置，不再使用 withdrawn bootstrap 窗口的 DPI 尺寸被错误向内夹紧。

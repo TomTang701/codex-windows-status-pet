@@ -5,12 +5,41 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
-from api.status_snapshot_api import build_status_snapshot
+from api.status_snapshot_api import battery_presentation, build_status_snapshot
 from api.quota_parse_api import parse_quota_payload
 from api.status_rows_api import ROW_IDS
 
 
 class StatusSnapshotTests(unittest.TestCase):
+    def test_battery_presentation_uses_remaining_ceiling_segments(self):
+        expected = {
+            0: 0, 1: 1, 9: 1, 10: 1, 11: 2, 20: 2, 21: 3,
+            60: 6, 61: 7, 70: 7, 71: 8, 78: 8, 80: 8,
+            81: 9, 90: 9, 91: 10, 100: 10,
+        }
+        for remaining, segments in expected.items():
+            with self.subTest(remaining=remaining):
+                result = battery_presentation({"usedPercent": 100 - remaining})
+                self.assertTrue(result["available"])
+                self.assertEqual(result["remaining_percent"], remaining)
+                self.assertEqual(result["lit_segments"], segments)
+
+    def test_battery_presentation_has_ten_ordered_fixed_color_cells(self):
+        result = battery_presentation({"usedPercent": 22})
+        self.assertEqual(len(result["segments"]), 10)
+        self.assertEqual([segment["index"] for segment in result["segments"]], list(range(1, 11)))
+        self.assertEqual([segment["lit"] for segment in result["segments"]], [True] * 8 + [False] * 2)
+        self.assertEqual(len({segment["color"] for segment in result["segments"][0:2]}), 1)
+        self.assertEqual(len({segment["color"] for segment in result["segments"][2:4]}), 1)
+        self.assertEqual(len({segment["color"] for segment in result["segments"][4:6]}), 1)
+        self.assertEqual(len({segment["color"] for segment in result["segments"][6:8]}), 1)
+        self.assertEqual(len({segment["color"] for segment in result["segments"][8:10]}), 1)
+        self.assertNotEqual(result["segments"][6]["color"], result["segments"][8]["color"])
+
+    def test_battery_presentation_distinguishes_unavailable_from_known_empty(self):
+        self.assertFalse(battery_presentation({})["available"])
+        self.assertEqual(battery_presentation({"usedPercent": 100})["lit_segments"], 0)
+
     def test_snapshot_formats_only_display_fields(self):
         result = build_status_snapshot(
             {"detail": "工具调用", "progress": "活动对话 1 个", "active": 1},

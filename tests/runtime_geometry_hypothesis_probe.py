@@ -69,9 +69,7 @@ def main():
                 settle(app, records, "target_dpi_baseline")
 
                 metrics = app.window_metrics
-                app.face.configure(
-                    font=("Segoe UI Emoji", -round(metrics.face_font_size * target_dpi / 72.0))
-                )
+                app.battery.set_metrics(metrics.text_font_size)
                 app.text.configure_rows(
                     font=("Segoe UI", -round(metrics.text_font_size * target_dpi / 72.0)),
                     wraplength=metrics.wraplength,

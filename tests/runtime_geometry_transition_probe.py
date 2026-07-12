@@ -175,7 +175,7 @@ def capture(app, transition, stage):
         "root_requested": [app.winfo_reqwidth(), app.winfo_reqheight()],
         "client_size": _client_size(hwnd),
         "shell_identity": shell_identity,
-        "face_pack": _pack_info(app.face),
+        "battery_pack": _pack_info(app.battery),
         "text_pack": _pack_info(app.text),
         "status_actual": [app.text.winfo_width(), app.text.winfo_height()],
         "status_requested": [app.text.winfo_reqwidth(), app.text.winfo_reqheight()],

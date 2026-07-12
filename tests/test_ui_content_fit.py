@@ -89,11 +89,41 @@ class ContentFitTests(unittest.TestCase):
                             app.text.winfo_height(),
                             row_id,
                         )
+                    self.assertEqual(len(app.battery.cells), 10)
+                    self.assertTrue(all(
+                        cell.winfo_ismapped()
+                        and cell.winfo_x() >= 0
+                        and cell.winfo_y() >= 0
+                        and cell.winfo_x() + cell.winfo_width() <= app.winfo_width()
+                        and cell.winfo_y() + cell.winfo_height() <= app.winfo_height()
+                        for cell in app.battery.cells
+                    ))
                     reset = app.text.labels["reset_credit"]
                     self.assertLessEqual(reset.winfo_reqwidth(), reset.winfo_width())
                     self.assertLessEqual(
                         reset.winfo_x() + reset.winfo_width(), app.text.winfo_width()
                     )
+                finally:
+                    self.destroy_app(app)
+
+    def test_supported_scales_keep_all_ten_compact_cells_inside_root(self):
+        for scale in range(80, 201, 5):
+            with self.subTest(scale=scale):
+                app = self.new_app(scale)
+                try:
+                    app.set_compact(True)
+                    app.update_idletasks()
+                    app.update()
+                    self.assertFalse(app.text.winfo_ismapped())
+                    self.assertEqual(len(app.battery.cells), 10)
+                    self.assertTrue(all(
+                        cell.winfo_ismapped()
+                        and cell.winfo_x() >= 0
+                        and cell.winfo_y() >= 0
+                        and cell.winfo_x() + cell.winfo_width() <= app.winfo_width()
+                        and cell.winfo_y() + cell.winfo_height() <= app.winfo_height()
+                        for cell in app.battery.cells
+                    ))
                 finally:
                     self.destroy_app(app)
 

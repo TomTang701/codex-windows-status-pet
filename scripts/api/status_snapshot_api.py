@@ -15,10 +15,17 @@ except ModuleNotFoundError:
 
 
 ERROR_COLOR = "#fca5a5"
+BATTERY_SEGMENT_COLORS = (
+    "#ef4444", "#ef4444",
+    "#f97316", "#f97316",
+    "#facc15", "#facc15",
+    "#a3e635", "#a3e635",
+    "#22c55e", "#22c55e",
+)
 
 
 def _percent_left(window):
-    if not isinstance(window, dict):
+    if not isinstance(window, dict) or "usedPercent" not in window:
         return "--"
     try:
         used = int(window.get("usedPercent", 0))
@@ -36,6 +43,30 @@ def _short_time(epoch):
         return "--"
 
 
+def battery_presentation(window):
+    """Return one truthful remaining-quota state for expanded and compact battery views."""
+    remaining = _percent_left(window)
+    if remaining == "--":
+        return {
+            "available": False,
+            "remaining_percent": None,
+            "lit_segments": None,
+            "segments": tuple(
+                {"index": index, "lit": False, "color": color}
+                for index, color in enumerate(BATTERY_SEGMENT_COLORS, start=1)
+            ),
+        }
+    value = int(remaining[:-1])
+    lit_segments = 0 if value == 0 else min(10, (value + 9) // 10)
+    return {
+        "available": True,
+        "remaining_percent": value,
+        "lit_segments": lit_segments,
+        "segments": tuple(
+            {"index": index, "lit": index <= lit_segments, "color": color}
+            for index, color in enumerate(BATTERY_SEGMENT_COLORS, start=1)
+        ),
+    }
 def build_status_snapshot(activity, quota, quota_state="loading", font_color="#e5e7eb"):
     """Build only approved display text; raw quota/activity payloads never escape."""
     activity = activity if isinstance(activity, dict) else {}
@@ -70,6 +101,7 @@ def build_status_snapshot(activity, quota, quota_state="loading", font_color="#e
     return {
         "text": rows.as_text(),
         "rows": rows.as_dict(),
+        "battery": battery_presentation(primary),
         "color": color,
         "active_count": active_count,
         "quota_tier": tier,
