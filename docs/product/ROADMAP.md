@@ -2,14 +2,14 @@
 
 **Status:** Active roadmap
 **Released baseline:** `v0.5.1`
-**Active implementation scope:** None; waiting for Tom's next product direction
+**Active implementation scope:** `v0.5.3` Windows Shell Identity Correctness
 
 ## Current state
 
 - **Released:** v0.3.2 through v0.5.1 are merged, tagged, and published; v0.5.1 stabilizes long-lived runtime geometry reapplication.
-- **Historical verification:** 137 core tests and 23 Tk UI tests passed on merged v0.5.1; exact-head Windows CI and merged-main RC passed. The later screenshot incident was traced to a stale pre-v0.5.1 in-memory process, not a reproduced defect in released v0.5.1.
+- **Historical verification:** 137 core tests and 23 Tk UI tests passed on merged v0.5.1; exact-head Windows CI and merged-main RC passed. v0.5.2 remains a closed stale-process investigation without a product release.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
-- **Current direction:** The v0.5.2 investigation is closed without a product release or production change. v0.6.0 Productization design is unblocked but not started; wait for Tom's next direction.
+- **Current direction:** v0.5.3 investigates and corrects Windows Shell identity so the visible overlay/tray companion remains absent from Task View, Alt+Tab, and ordinary taskbar application identity. The v0.6.0 Battery Indicator and Layout Tightening feature is deferred until v0.5.3 is released.
 - **Environment limitations:** mixed-DPI physical hardware, alternate physical taskbar edges, and a separate clean Windows machine are not available and are not claimed as physical evidence.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 
