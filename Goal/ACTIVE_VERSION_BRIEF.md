@@ -1,24 +1,23 @@
-# ACTIVE VERSION BRIEF — v0.5.2 Rendered Content Visibility Contract Correction
+# CLOSED VERSION BRIEF — v0.5.2 Investigation Without Product Release
 
-## Historical truth
+## Product baseline
 
-- v0.5.1 remains released from commit `10de01410126a1877ac9406fc02e3bc583659df3` through PR #17.
-- PR #18 reconciled main at `71c2719fca0ac4cfe3fa9ce1ffb6d675fe074fa8`.
-- The then-current Quality, Tk, DPI/scale, lifecycle, and RC contracts passed.
-- New production screenshot evidence invalidates only the v0.5.1 rendered-visibility completion claim; it does not rewrite release history.
+Released product remains `v0.5.1` at `10de01410126a1877ac9406fc02e3bc583659df3`.
 
-## Active incident
+No v0.5.2 product version, tag, or GitHub Release exists or is required.
 
-The released application can visibly clip the fifth `reset_credit` row at the expanded client bottom even though the previous authority reported 50 DPI/scale combinations and 15 lifecycle transitions fitted.
+## Incident resolution
 
-Incident root cause: the supplied screenshot came from a process started before the v0.5.1 fix; current disk version/HEAD was incorrectly used as proof of the already-running process's loaded code. A released-v0.5.1 rendered defect is not reproduced.
+The clipped screenshot came from a stale process started before the v0.5.1 fix. Later disk and Git state were incorrectly used as evidence of the code already loaded in that process. After a provenance-correct restart, released v0.5.1 rendered all five real production rows completely and the reported product defect did not reproduce.
 
-## Required outcome
+## Verification decision
 
-Identify the exact false-positive mechanism, reproduce released v0.5.1 through the real production presentation route with a rendered-boundary RED, correct one root cause, replace the insufficient authority, and release v0.5.2.
+`DESIGN VERIFICATION = FAILED`
 
-## Status
+The required released-v0.5.1 RED could not be established. This failure correctly prohibits a production change and release; it is not an unresolved product blocker.
 
-`v0.5.2 INVESTIGATION ACTIVE / DESIGN VERIFICATION FAILED / v0.6.0 BLOCKED`
+## Terminal status
 
-No production geometry, DPI-order, font, padding, or height modification is permitted. The required released-v0.5.1 RED is unavailable: after an evidence-backed restart, the released code renders the fifth row completely.
+`CLOSED — NO RELEASE / NO PRODUCT DEFECT REPRODUCED`
+
+v0.6.0 Productization design is unblocked but not started. Further work requires Tom's next direction.
