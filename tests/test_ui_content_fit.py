@@ -1,4 +1,5 @@
 import gc
+import itertools
 import json
 import runpy
 import subprocess
@@ -105,6 +106,57 @@ class ContentFitTests(unittest.TestCase):
                     )
                 finally:
                     self.destroy_app(app)
+
+    def test_all_visibility_combinations_fit_each_supported_scale(self):
+        optional_ids = ("primary_5h", "weekly", "reset_credit")
+        for scale in range(80, 201, 5):
+            app = self.new_app(scale)
+            try:
+                for flags in itertools.product((False, True), repeat=3):
+                    with self.subTest(scale=scale, flags=flags):
+                        settings = dict(zip(
+                            ("show_primary_5h", "show_weekly", "show_reset_credit"),
+                            flags,
+                        ))
+                        metrics_before = app.window_metrics
+                        app.apply_settings({**app.settings, **settings})
+                        app.text.configure_rows(rows=APPROVED_ROWS)
+                        app.update_idletasks()
+                        visible_ids = tuple(
+                            row_id
+                            for row_id, label in app.text.labels.items()
+                            if label.winfo_ismapped()
+                        )
+                        expected_ids = ("activity", "progress") + tuple(
+                            row_id
+                            for row_id, enabled in zip(optional_ids, flags)
+                            if enabled
+                        )
+                        centers = tuple(
+                            2 * app.text.labels[row_id].winfo_y()
+                            + app.text.labels[row_id].winfo_height()
+                            for row_id in visible_ids
+                        )
+                        self.assertEqual(visible_ids, expected_ids)
+                        self.assertEqual(app.window_metrics, metrics_before)
+                        self.assertLessEqual(
+                            app.text.winfo_reqheight(), app.text.winfo_height()
+                        )
+                        self.assertTrue(all(
+                            label.winfo_y() + label.winfo_height()
+                            <= app.text.winfo_height()
+                            for label in app.text.labels.values()
+                            if label.winfo_ismapped()
+                        ))
+                        gaps = tuple(
+                            right - left
+                            for left, right in zip(centers, centers[1:])
+                        )
+                        self.assertLessEqual(max(gaps, default=0) - min(gaps, default=0), 2)
+                        self.assertEqual(len(app.battery.cells), 10)
+                        self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
+            finally:
+                self.destroy_app(app)
 
     def test_supported_scales_keep_all_ten_compact_cells_inside_root(self):
         for scale in range(80, 201, 5):

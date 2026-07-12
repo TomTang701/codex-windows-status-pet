@@ -12,6 +12,37 @@ from tests.runtime_geometry_transition_probe import CONFIG, DummyServer, DummyTr
 
 
 class BatteryIntegrationTests(unittest.TestCase):
+    def test_apply_settings_forwards_row_visibility_without_changing_battery_metrics(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            path = home / ".codex" / "codex-windows-status-pet.json"
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps(CONFIG), encoding="utf-8")
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            try:
+                module = runpy.run_path(str(ROOT / "scripts" / "codex_status_pet.py"))
+                module["AppServer"] = DummyServer
+                module["TrayIcon3"] = DummyTray
+                app = module["Pet"]()
+                before = app.window_metrics
+                app.apply_settings({**app.settings, "show_weekly": False})
+                app.update_idletasks()
+                self.assertFalse(app.text.labels["weekly"].winfo_ismapped())
+                self.assertEqual(app.window_metrics, before)
+                self.assertEqual(len(app.battery.cells), 10)
+            finally:
+                if app is not None:
+                    app.application_controller.shutdown()
+                    for callback in app.tk.call("after", "info"):
+                        app.after_cancel(callback)
+                    app.topmost_var = None
+                    app.locked_var = None
+                    app.destroy()
+                    gc.collect()
+                Path.home = original_home
+
     def test_compact_mode_shows_only_the_complete_ten_cell_battery(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)

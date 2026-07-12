@@ -67,6 +67,9 @@ def show_settings_dialog(owner):
     topmost = tk.BooleanVar(value=draft["topmost"])
     locked = tk.BooleanVar(value=draft["locked"])
     compact_when_idle = tk.BooleanVar(value=draft["compact_when_idle"])
+    show_primary_5h = tk.BooleanVar(value=draft["show_primary_5h"])
+    show_weekly = tk.BooleanVar(value=draft["show_weekly"])
+    show_reset_credit = tk.BooleanVar(value=draft["show_reset_credit"])
 
     tk.Label(body, text="透明度").grid(row=0, column=0, sticky="w")
     tk.Scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha).grid(row=0, column=1)
@@ -94,6 +97,9 @@ def show_settings_dialog(owner):
     tk.Checkbutton(body, text="置顶", variable=topmost).grid(row=4, column=0, sticky="w")
     tk.Checkbutton(body, text="锁定位置", variable=locked).grid(row=4, column=1, sticky="w")
     tk.Checkbutton(body, text="空闲时收缩", variable=compact_when_idle).grid(row=5, column=0, sticky="w")
+    tk.Checkbutton(body, text="显示 5 小时额度", variable=show_primary_5h).grid(row=7, column=0, sticky="w")
+    tk.Checkbutton(body, text="显示周额度", variable=show_weekly).grid(row=7, column=1, sticky="w")
+    tk.Checkbutton(body, text="显示重置次数", variable=show_reset_credit).grid(row=8, column=0, sticky="w")
 
     def choose_font():
         chosen = colorchooser.askcolor(color=draft["font_color"], parent=dialog)[1]
@@ -117,6 +123,9 @@ def show_settings_dialog(owner):
             draft["topmost"] = bool(topmost.get())
             draft["locked"] = bool(locked.get())
             draft["compact_when_idle"] = bool(compact_when_idle.get())
+            draft["show_primary_5h"] = bool(show_primary_5h.get())
+            draft["show_weekly"] = bool(show_weekly.get())
+            draft["show_reset_credit"] = bool(show_reset_credit.get())
             metrics = derive_window_metrics(window_scale.get())
             draft["window_scale_percent"] = metrics.scale_percent
             draft["font_size"] = metrics.text_font_size
@@ -164,9 +173,12 @@ def show_settings_dialog(owner):
         topmost.set(draft["topmost"])
         locked.set(draft["locked"])
         compact_when_idle.set(draft["compact_when_idle"])
+        show_primary_5h.set(draft["show_primary_5h"])
+        show_weekly.set(draft["show_weekly"])
+        show_reset_credit.set(draft["show_reset_credit"])
 
     buttons = tk.Frame(body)
-    buttons.grid(row=7, column=0, columnspan=2, pady=(14, 0))
+    buttons.grid(row=9, column=0, columnspan=2, pady=(14, 0))
     tk.Button(buttons, text="保存", width=8, command=save_and_close).pack(side="left", padx=3)
     tk.Button(buttons, text="应用", width=8, command=apply_draft).pack(side="left", padx=3)
     tk.Button(buttons, text="恢复默认值", width=12, command=restore_defaults).pack(side="left", padx=3)

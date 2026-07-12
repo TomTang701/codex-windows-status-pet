@@ -1,16 +1,23 @@
 # Execution State
 
 - Program Goal: `ACTIVE — v0.6.1 → v0.6.3 Quota Presentation Controls`
-- Released baseline: `v0.6.0` at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`
-- Active implementation version: `v0.6.1`
-- Active phase: `v0.6.1 TDD regression expansion after root-cause proof and initial GREEN`
-- Current branch: `feat/v0.6.1-quota-window-identity`
-- Current symptom: `a weekly-only official window can appear on the companion 5h row while weekly is unavailable.`
-- Safe evidence: `live app-server primary.windowDurationMins = 10080 (weekly); secondary = null; parser drops windowDurationMins.`
-- Root-cause hypothesis: `raw primary/secondary assumptions plus dropped duration metadata misclassify a weekly-only primary window.`
-- Design Verification: `PASSED — safe duration classification preserves parser/presentation ownership.`
-- Focused RED/GREEN: `PASSED — weekly-only raw primary (10080) classifies to weekly; weekly-only battery has no 5h fallback.`
+- Released baseline: `v0.6.1` at `40d59c8b7d9f9f536299aacc67686ed7a70467eb`
+- Active implementation version: `v0.6.2`
+- Active phase: `v0.6.2 release candidate verified locally; final diff review and authorized PR workflow pending`
+- Current branch: `feat/v0.6.2-quota-row-visibility`
+- Recovery reason: `Codex execution interrupted unexpectedly.`
+- Recovered branch / HEAD: `feat/v0.6.2-quota-row-visibility` at `40d59c8b7d9f9f536299aacc67686ed7a70467eb`.
+- Main HEAD: `40d59c8b7d9f9f536299aacc67686ed7a70467eb`.
+- Surviving uncommitted files: `ACTIVE_VERSION_BRIEF`, `EXECUTION_STATE`, `StatusRows`, focused StatusRows test, and the v0.6.2 design/plan.`
+- v0.6.2 activation edits survived: `Yes`.
+- Focused RED/GREEN evidence: `weekly-hidden StatusRows RED (missing method) -> GREEN; config RED (missing visibility key) -> GREEN; main-window RED (weekly still mapped) -> GREEN; settings-dialog RED (missing toggle) -> GREEN.`
+- Design path: `docs/superpowers/specs/2026-07-12-v0.6.2-row-visibility-design.md`.
+- Implementation plan: `docs/superpowers/plans/2026-07-12-v0.6.2-row-visibility-implementation.md`.
 - Blocker: `None`
 - Human fact required: `None`
-- Next exact action: `add both-window, absent, unknown-duration, malformed, and stale/last-good identity regressions before broader v0.6.1 verification.`
+- v0.6.1 Hard Version Gate: `PASSED — PR #28 exact-head CI, merged main RC, tag, and Release target verified at 40d59c8.`
+- Layout evidence: `real Tk 300x200 probe: five-row doubled center gaps 80; weekly-hidden four-row doubled center gaps 100; same frame dimensions.`
+- Matrix evidence: `8 visibility combinations x 25 scale steps passed at 96 DPI and simulated 120 DPI; hidden-row center spacing permits at most 1 physical-pixel Tk rounding difference.`
+- Local gate evidence: `Quality reconstructed from exact child commands: core 149 tests; UI groups 8, 24, and 10 tests; document, compile, dependency, sensitive-file, package-smoke, strict-readiness, and whitespace checks all exit 0. The monolithic runners exceed the terminal observation window, so their child gates were run in bounded groups.`
+- Next exact action: `complete final staged diff and credential scan, commit the v0.6.2 candidate, then push and open the authorized PR.`
 - Last updated: `2026-07-12`

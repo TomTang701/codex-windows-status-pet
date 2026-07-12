@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.6.1"
+APP_VERSION = "0.6.2"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -256,6 +256,7 @@ class Pet(tk.Tk):
         self.configure(bg=bg)
         self.battery.configure(bg=bg)
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
+        self.text.set_visible_rows(self.settings)
         self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec("Segoe UI", metrics.text_font_size), wraplength=metrics.wraplength)
         if not self.compact:
             self._pack_expanded_content()

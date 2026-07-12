@@ -58,6 +58,9 @@ DEFAULT_SETTINGS = {
     "window_scale_percent": DEFAULT_WINDOW_METRICS.scale_percent,
     "refresh_interval_seconds": 5,
     "compact_when_idle": False,
+    "show_primary_5h": True,
+    "show_weekly": True,
+    "show_reset_credit": True,
 }
 
 
@@ -167,7 +170,14 @@ def normalize_settings(raw):
         warnings.append("refresh_interval_seconds is invalid; default retained")
     settings["refresh_interval_seconds"] = parsed
 
-    for key in ("topmost", "locked", "compact_when_idle"):
+    for key in (
+        "topmost",
+        "locked",
+        "compact_when_idle",
+        "show_primary_5h",
+        "show_weekly",
+        "show_reset_credit",
+    ):
         settings[key] = _bool_value(raw.get(key, settings[key]), settings[key])
         if key in raw and settings[key] == DEFAULT_SETTINGS[key] and raw[key] not in (True, False, 0, 1, "true", "false", "1", "0", "yes", "no", "on", "off"):
             warnings.append(f"{key} is invalid; default retained")

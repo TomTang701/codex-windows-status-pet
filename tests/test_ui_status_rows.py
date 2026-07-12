@@ -11,6 +11,48 @@ from ui.status_rows import StatusRows
 
 
 class StatusRowsUiTests(unittest.TestCase):
+    def _visible_ids(self):
+        return tuple(
+            row_id
+            for row_id, label in self.rows.labels.items()
+            if label.winfo_ismapped()
+        )
+
+    def _visible_centers_x2(self):
+        return tuple(
+            2 * label.winfo_y() + label.winfo_height()
+            for label in self.rows.labels.values()
+            if label.winfo_ismapped()
+        )
+
+    def test_hiding_weekly_removes_only_its_persistent_label_from_layout(self):
+        self.rows.pack(fill="both", expand=True)
+        self.root.deiconify()
+        self.root.geometry("300x200")
+        self.root.update_idletasks()
+        self.rows.set_visible_rows({"show_primary_5h": True, "show_weekly": False, "show_reset_credit": True})
+        self.root.update_idletasks()
+        self.assertEqual(tuple(self.rows.labels), ROW_IDS)
+        self.assertFalse(self.rows.labels["weekly"].winfo_ismapped())
+        self.assertTrue(all(self.rows.labels[row_id].winfo_ismapped() for row_id in ("activity", "progress", "primary_5h", "reset_credit")))
+
+    def test_hiding_weekly_evenly_redistributes_the_same_text_region(self):
+        self.rows.pack(fill="both", expand=True)
+        self.root.deiconify()
+        self.root.geometry("300x200")
+        self.root.update()
+        before = (self.rows.winfo_width(), self.rows.winfo_height())
+        self.rows.set_visible_rows({"show_weekly": False})
+        self.root.update_idletasks()
+        centers = self._visible_centers_x2()
+        self.assertEqual(
+            self._visible_ids(),
+            ("activity", "progress", "primary_5h", "reset_credit"),
+        )
+        self.assertEqual((self.rows.winfo_width(), self.rows.winfo_height()), before)
+        self.assertEqual(len(centers), 4)
+        self.assertEqual(len(set(right - left for left, right in zip(centers, centers[1:]))), 1)
+
     def setUp(self):
         self.root = tk.Tk()
         self.root.withdraw()
