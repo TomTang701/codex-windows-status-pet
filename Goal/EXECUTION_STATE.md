@@ -1,10 +1,10 @@
 # Execution State
 
-- Program Goal: `ACTIVE — v0.7.1 Activity Localization and Compact Geometry Correctness`.
-- Latest released product: `v0.7.0` at `46912952b200d8a296e94d1429e33c1484dc91b5`.
-- Active implementation version: `v0.7.1`.
-- Active phase: `local verification complete; scoped PR and exact-head CI pending`.
-- Current branch: `fix/v0.7.1-activity-compact-correctness` from released main.
+- Program Goal: `COMPLETED — v0.7.1 Activity Localization and Compact Geometry Correctness`.
+- Latest released product: `v0.7.1` at `e45c457361d0ac3592e7d1e20671bc54f690661e`.
+- Active implementation version: `None`.
+- Active phase: `release-state reconciliation`.
+- Current branch: `docs/v0.7.1-release-reconciliation` from released main.
 - Blocker: `None`.
 - Human fact required: `None`.
 
@@ -23,5 +23,6 @@
 - v0.6.2: independent 5-hour, weekly, and reset-credit visibility with canonical, equal dynamic row distribution.
 - v0.6.3: persisted 5-hour/weekly battery selector, weekly default, no fallback, and source/row-visibility independence.
 - v0.7.0: Phase A privacy/navigation gates, bilingual runtime UI, Settings transactions, localized normal error/warning text, and persisted manual Compact are released. Legacy automatic Compact input is ignored and no longer controls runtime behavior.
-- Next action: `commit the verified v0.7.1 candidate, push the scoped branch, and require exact-head Windows CI.`
+- v0.7.1: language-independent activity semantics localize only at presentation; manual Compact survives settings re-application; Compact drag validates visible-square bounds and persists canonical expanded coordinates. PR #35 exact-head Windows Quality passed; tag and GitHub Release target are `e45c457361d0ac3592e7d1e20671bc54f690661e`.
+- Next action: `STOP — wait for Tom's next approved Goal.`
 - Last updated: `2026-07-12`.

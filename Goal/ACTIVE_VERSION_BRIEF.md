@@ -1,8 +1,9 @@
 # ACTIVE VERSION BRIEF – v0.7.1 Activity Localization and Compact Geometry Correctness
 
-## Released baseline
+## Released product
 
-- `v0.7.0` is released at `46912952b200d8a296e94d1429e33c1484dc91b5`.
+- `v0.7.1` is released at `e45c457361d0ac3592e7d1e20671bc54f690661e`.
+- `v0.7.0` is the previous release at `46912952b200d8a296e94d1429e33c1484dc91b5`.
 - `v0.6.3` is released at `7991c38ab19f05966025a46999c83852ea4c5b15`.
 - `v0.6.2` is the released quota-row visibility and dynamic-distribution correction at `8b7c7fec2a864fa94601ed8235d04cb5cb716a03`.
 - `v0.6.1` is the released quota-window identity correction at `40d59c8b7d9f9f536299aacc67686ed7a70467eb`.
@@ -20,6 +21,6 @@ v0.7.1 makes activity state language-independent until presentation, preserves C
 - Five persistent row identities, the v0.6.0 ten-cell battery, mixed-DPI recovery, and Shell identity remain protected.
 - No positional, dictionary-order, `primary`, or `secondary` naming assumption determines window identity.
 
-## Active phase
+## Final phase
 
-`Local focused regression, documentation, package smoke, and strict-readiness gates are complete; scoped PR and exact-head Windows CI remain.`
+`Released and reconciled. No active implementation scope; STOP pending Tom's next approved Goal.`
