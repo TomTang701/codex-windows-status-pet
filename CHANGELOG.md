@@ -1,6 +1,14 @@
 # Changelog
 
+简体中文: [中文版本](CHANGELOG.zh-CN.md)
+
 ## Unreleased
+
+## 0.7.0 - 2026-07-12
+
+- Added persisted English and Simplified Chinese runtime UI with a transactional Settings language selector; Apply previews labels in place, Close restores the opening language, and Save persists it.
+- Added a persisted manual Compact menu control. Automatic idle, hover, activity, refresh, and render-driven compaction are removed; compact remains a complete selected-source ten-cell battery.
+- Added tracked-document privacy and manifest navigation checks, and removed the retired automatic-compact setting from persisted output while safely ignoring legacy input.
 
 ## 0.6.3 - 2026-07-12
 

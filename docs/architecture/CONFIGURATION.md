@@ -1,5 +1,7 @@
 # Configuration
 
+简体中文: [中文版本](CONFIGURATION.zh-CN.md)
+
 ## Location and schema
 
 Settings are stored at `%USERPROFILE%\.codex\codex-windows-status-pet.json` and use schema version `1`. A legacy file without `schema_version` is read as the pre-version format and normalized in memory; a save writes the current schema.
@@ -24,9 +26,15 @@ Future-schema, unreadable, malformed, non-object, and field-invalid source files
   "window_height": 138,
   "scale_mode": "proportional",
   "refresh_interval_seconds": 5,
-  "compact_when_idle": false
+  "language": "en",
+  "compact": false
 }
 ```
+
+`language` accepts only `en` and `zh-CN`; English is the default. `compact` is
+the only persisted Compact authority. The retired `compact_when_idle` input is
+ignored, so it cannot activate Compact automatically. The Settings language
+selector previews on Apply, rolls back with Close, and persists with Save.
 
 `window_scale_percent` is the canonical expanded-size source. It is clamped to 80–200%, quantized to 5% steps, and defaults to 100%. Window width/height, text font size, paw font size, wrapping, and required spacing derive from the same pure Window Scale API result.
 

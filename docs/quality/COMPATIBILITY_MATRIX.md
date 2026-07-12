@@ -1,5 +1,7 @@
 # Windows Compatibility Matrix
 
+简体中文: [中文版本](COMPATIBILITY_MATRIX.zh-CN.md)
+
 **Status:** Living test record  
 **Rule:** A simulated or headless result never replaces a physical Windows result.
 

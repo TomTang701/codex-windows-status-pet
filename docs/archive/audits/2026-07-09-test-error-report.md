@@ -52,7 +52,7 @@ to disappear because it runs through `pythonw.exe` without a console.
 | ERR-024 | P3 | Version consistency | The manifest version is `0.1.0+...`, the app-server client advertises `0.2.0`, and the changelog documents `0.2.0`. | `.codex-plugin/plugin.json`, `scripts/codex_status_pet.py:101`, and `CHANGELOG.md` disagree. | Support, cache invalidation, and bug reports can refer to different versions for the same binary. |
 | ERR-025 | P3 | Documentation drift | `PRODUCT_REVIEW.md` still describes plan `N/M` display even though the runtime no longer displays plan steps. | `PRODUCT_REVIEW.md:5,13,20` conflicts with current `README.md` and `scripts/codex_status_pet.py`. | Users and maintainers can rely on a feature that no longer exists. |
 | ERR-026 | P3 | Dead implementation | Two older tray implementations (`TrayIcon`, `TrayIcon2`) remain beside the active `TrayIcon3`. | `scripts/codex_status_pet.py:236-451` is not used by `Pet`, which constructs `TrayIcon3` at `:512`. | Future fixes may be applied to the wrong class; audit and maintenance cost increase. |
-| ERR-027 | P3 | Launcher portability | The PowerShell launcher contains a hardcoded profile path for `tangz`, unlike the CMD launcher which uses `%USERPROFILE%`. | `scripts/start_pet.ps1:3-5`. | Other Windows users, renamed profiles, or copied installations cannot use the fallback launcher reliably. |
+| ERR-027 | P3 | Launcher portability | The PowerShell launcher contains a hardcoded profile path, unlike the CMD launcher which uses `%USERPROFILE%`. | `scripts/start_pet.ps1:3-5`. | Other Windows users, renamed profiles, or copied installations cannot use the fallback launcher reliably. |
 
 ## Test execution record
 

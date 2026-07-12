@@ -1,5 +1,7 @@
 # 故障排除
 
+English: [English version](TROUBLESHOOTING.md)
+
 - **看不到窗口：** 使用托盘Show；设置界面也提供屏幕外坐标恢复。
 - **托盘图标重复：** 先通过托盘关闭已有实例，再次启动；命名mutex会拒绝第二个实例。
 - **没有额度：** Activity保持独立；检查脱敏日志和app-server状态，不要暴露凭据。

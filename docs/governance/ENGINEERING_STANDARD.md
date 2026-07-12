@@ -1,5 +1,7 @@
 # Codex Windows Status Pet Engineering Standard
 
+简体中文: [中文版本](ENGINEERING_STANDARD.zh-CN.md)
+
 > **Document-Version:** 1.0.0  
 > **Status:** Active canonical standard
 > **Canonical-Language:** English  

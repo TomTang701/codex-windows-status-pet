@@ -47,8 +47,19 @@ class ContentFitTests(unittest.TestCase):
     def new_app(self, scale):
         app = self.module["Pet"]()
         app.apply_settings(
-            {**app.settings, "window_scale_percent": scale, "x": 100, "y": 100}
+            {
+                **app.settings,
+                "window_scale_percent": scale,
+                "x": 100,
+                "y": 100,
+                "compact": False,
+                "show_primary_5h": True,
+                "show_weekly": True,
+                "show_reset_credit": True,
+            }
         )
+        for callback in app.tk.call("after", "info"):
+            app.after_cancel(callback)
         return app
 
     @staticmethod

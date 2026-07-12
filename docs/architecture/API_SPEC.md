@@ -1,5 +1,7 @@
 # API and Test Boundary Specification
 
+简体中文: [中文版本](API_SPEC.zh-CN.md)
+
 ## Purpose
 
 The Windows companion is split into small, testable APIs so failures can be isolated without

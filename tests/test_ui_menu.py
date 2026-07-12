@@ -34,6 +34,15 @@ class MenuInteractionTests(unittest.TestCase):
         cls.module["AppServer"] = DummyServer
         cls.module["TrayIcon3"] = DummyTray
 
+    def setUp(self):
+        self._home = tempfile.TemporaryDirectory()
+        self._original_home = Path.home
+        Path.home = classmethod(lambda cls: Path(self._home.name))
+
+    def tearDown(self):
+        Path.home = self._original_home
+        self._home.cleanup()
+
     @staticmethod
     def menu_items(popup):
         body = popup.winfo_children()[0]
@@ -74,7 +83,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
-            self.assertEqual(labels, ["显示设置", "置顶", "锁定位置", "隐藏窗口", "退出"])
+            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Compact", "Hide window", "Exit"])
             for removed in ("立即刷新", "复制诊断摘要", "恢复上次设置"):
                 self.assertNotIn(removed, labels)
         finally:
@@ -96,6 +105,79 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_context_menu_uses_current_runtime_language_without_changing_actions(self):
+        app = self.module["Pet"]()
+        try:
+            app.settings["language"] = "en"
+            app.menu(SimpleNamespace(x_root=4200, y_root=200))
+            labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
+            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Compact", "Hide window", "Exit"])
+        finally:
+            self.destroy_app(app)
+
+    def test_manual_compact_toggle_updates_visual_state_and_persists(self):
+        app = self.module["Pet"]()
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                app.settings_path = Path(directory) / "settings.json"
+                self.assertTrue(app.set_manual_compact(True))
+                self.assertTrue(app.compact)
+                self.assertTrue(app.settings["compact"])
+                self.assertTrue(app.load_settings()["compact"])
+                self.assertTrue(app.set_manual_compact(False))
+                self.assertFalse(app.compact)
+                self.assertFalse(app.load_settings()["compact"])
+        finally:
+            self.destroy_app(app)
+
+    def test_compact_menu_checkbox_toggles_without_menu_open_expansion(self):
+        app = self.module["Pet"]()
+        try:
+            app.settings_path = Path(tempfile.gettempdir()) / "codex-status-pet-menu-test.json"
+            app.set_manual_compact(True)
+            app.menu(SimpleNamespace(x_root=4200, y_root=200))
+            self.assertTrue(app.compact)
+            compact = next(item for item in self.menu_items(app.context_menu) if item.cget("text") == "Compact")
+            self.assertTrue(bool(app.compact_var.get()))
+            compact.invoke()
+            app.update_idletasks()
+            self.assertFalse(app.compact)
+            self.assertFalse(app.settings["compact"])
+        finally:
+            self.destroy_app(app)
+
+    def test_manual_compact_survives_render_hide_show_and_settings_preview(self):
+        app = self.module["Pet"]()
+        app.save_settings = lambda **_kwargs: True
+        try:
+            app.set_manual_compact(True)
+            app.render_status()
+            app.hide_window()
+            app.show_window()
+            self.assertTrue(app.compact)
+            app.show_settings()
+            dialog = app.settings_dialog
+            language = next(widget for widget in self.descendants(dialog) if widget.winfo_class() == "TCombobox")
+            language.set("Simplified Chinese")
+            next(widget for widget in self.descendants(dialog) if widget.winfo_class() == "Button" and widget.cget("text") == "Apply").invoke()
+            self.assertTrue(app.compact)
+            next(widget for widget in self.descendants(dialog) if widget.winfo_class() == "Button" and widget.cget("text") == "关闭").invoke()
+            self.assertTrue(app.compact)
+        finally:
+            self.destroy_app(app)
+
+    def test_render_status_uses_persisted_runtime_language(self):
+        app = self.module["Pet"]()
+        try:
+            app.settings["language"] = "en"
+            app.latest_activity = {"active": 0, "detail": "Idle", "progress": ""}
+            app.latest_quota = {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}}
+            app.render_status()
+            self.assertEqual(app.text.row_values()["activity"], "Codex Idle")
+            self.assertTrue(app.text.row_values()["weekly"].startswith("Week 55% /"))
+        finally:
+            self.destroy_app(app)
+
     def test_quota_transport_error_renders_unavailable_without_raw_exception(self):
         app = self.module["Pet"]()
         try:
@@ -112,7 +194,7 @@ class MenuInteractionTests(unittest.TestCase):
                 app.poll()
             logged.assert_not_called()
             values = app.text.row_values()
-            self.assertEqual(values["progress"], "额度暂不可用")
+            self.assertEqual(values["progress"], "Quota unavailable")
             self.assertNotIn("transport exploded", "\n".join(values.values()))
             self.assertEqual(app.quota_state.state, "unavailable")
         finally:
@@ -123,7 +205,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             popup = app.context_menu
-            settings = next(item for item in self.menu_items(popup) if item.cget("text") == "显示设置")
+            settings = next(item for item in self.menu_items(popup) if item.cget("text") == "Settings")
             settings.invoke()
             app.update_idletasks()
             self.assertIsNotNone(app.settings_dialog)
@@ -155,18 +237,18 @@ class MenuInteractionTests(unittest.TestCase):
                 and float(widget.cget("to")) == 1.0
             )
             self.assertEqual(float(source_scale.cget("resolution")), 1.0)
-            self.assertIn("透明度", texts)
-            self.assertIn("窗口大小", texts)
-            self.assertIn("电池显示内容", texts)
-            self.assertIn("5小时", texts)
-            self.assertIn("每周", texts)
+            self.assertIn("Opacity", texts)
+            self.assertIn("Window size", texts)
+            self.assertIn("Battery display content", texts)
+            self.assertIn("5-hour", texts)
+            self.assertIn("Weekly", texts)
             for removed in ("字体大小", "窗口大小 (宽, 高)", "−", "+", "等比例缩放"):
                 self.assertNotIn(removed, texts)
-            self.assertIn("默认位置 (X, Y)", texts)
-            self.assertIn("刷新间隔 (秒)", texts)
+            self.assertIn("Default position (X, Y)", texts)
+            self.assertIn("Refresh interval (seconds)", texts)
             for retained in (
-                "置顶", "锁定位置", "空闲时收缩", "字体颜色...", "背景颜色...",
-                "保存", "应用", "恢复默认值", "关闭",
+                "Always on top", "Lock position", "Font color...", "Background color...",
+                "Save", "Apply", "Restore Defaults", "Close",
             ):
                 self.assertIn(retained, texts)
         finally:
@@ -193,10 +275,10 @@ class MenuInteractionTests(unittest.TestCase):
                 for widget in widgets
                 if widget.winfo_class() == "Button"
             }
-            buttons["应用"].invoke()
+            buttons["Apply"].invoke()
             self.assertEqual(app.settings["window_scale_percent"], 150)
             self.assertEqual((app.settings["window_width"], app.settings["window_height"]), (495, 207))
-            buttons["恢复默认值"].invoke()
+            buttons["Restore Defaults"].invoke()
             self.assertEqual(int(scale.get()), 100)
         finally:
             self.destroy_app(app)
@@ -208,7 +290,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             popup = app.context_menu
-            hide = next(item for item in self.menu_items(popup) if item.cget("text") == "隐藏窗口")
+            hide = next(item for item in self.menu_items(popup) if item.cget("text") == "Hide window")
             hide.invoke()
             app.update_idletasks()
             self.assertEqual(calls, ["hide"])
@@ -253,8 +335,8 @@ class MenuInteractionTests(unittest.TestCase):
                     for widget in self.descendants(app.settings_dialog)
                     if widget.winfo_class() == "Button"
                 }
-                buttons["恢复默认值"].invoke()
-                buttons["保存"].invoke()
+                buttons["Restore Defaults"].invoke()
+                buttons["Save"].invoke()
                 app.update_idletasks()
                 result = app.settings_path.read_text(encoding="utf-8")
                 self.assertIn('"schema_version": 1', result)
@@ -279,7 +361,7 @@ class MenuInteractionTests(unittest.TestCase):
                     if widget.winfo_class() == "Button"
                 }
                 with mock.patch("ui.settings_dialog.messagebox.showwarning") as warning:
-                    buttons["保存"].invoke()
+                    buttons["Save"].invoke()
                 self.assertTrue(dialog.winfo_exists())
                 self.assertEqual(app.settings_path.read_text(encoding="utf-8"), "{damaged")
                 warning.assert_called_once()
@@ -381,7 +463,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             self.assertIs(app.refresh_controller, app.application_controller.refresh)
             self.assertIs(app.refresh_scheduler, app.application_controller.quota)
-            self.assertIs(app.compact_state, app.presentation_controller.compact)
+            self.assertIs(app.compact_state, app.compact)
             with tempfile.TemporaryDirectory() as directory:
                 replacement = Path(directory) / "settings.json"
                 app.settings_path = replacement

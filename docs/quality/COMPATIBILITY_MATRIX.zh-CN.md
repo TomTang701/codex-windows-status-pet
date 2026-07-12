@@ -1,5 +1,7 @@
 # Windows 兼容性矩阵
 
+English: [English version](COMPATIBILITY_MATRIX.md)
+
 **状态：** 持续维护的测试记录  
 **规则：** 模拟测试或无界面测试不能替代实体 Windows 测试结果。
 

@@ -1,5 +1,7 @@
 # Codex Windows Status Pet — Product Review
 
+简体中文: [中文版本](PRODUCT_OVERVIEW.zh-CN.md)
+
 ## Current positioning
 
 This is a low-distraction external status companion for heavy Codex users. It provides active

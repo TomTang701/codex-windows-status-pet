@@ -1,5 +1,7 @@
 # Repository Structure
 
+简体中文: [中文版本](REPOSITORY_STRUCTURE.zh-CN.md)
+
 This document describes where project files belong. Configuration values belong in `CONFIGURATION.md`; runtime API contracts belong in `API_SPEC.md`.
 
 ## Top-level layout

@@ -1,5 +1,7 @@
 # Architecture
 
+简体中文: [中文版本](ARCHITECTURE.zh-CN.md)
+
 ## Layers
 
 ```text

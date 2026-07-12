@@ -57,7 +57,8 @@ DEFAULT_SETTINGS = {
     "scale_mode": "proportional",
     "window_scale_percent": DEFAULT_WINDOW_METRICS.scale_percent,
     "refresh_interval_seconds": 5,
-    "compact_when_idle": False,
+    "language": "en",
+    "compact": False,
     "show_primary_5h": True,
     "show_weekly": True,
     "show_reset_credit": True,
@@ -174,7 +175,7 @@ def normalize_settings(raw):
     for key in (
         "topmost",
         "locked",
-        "compact_when_idle",
+        "compact",
         "show_primary_5h",
         "show_weekly",
         "show_reset_credit",
@@ -182,6 +183,11 @@ def normalize_settings(raw):
         settings[key] = _bool_value(raw.get(key, settings[key]), settings[key])
         if key in raw and settings[key] == DEFAULT_SETTINGS[key] and raw[key] not in (True, False, 0, 1, "true", "false", "1", "0", "yes", "no", "on", "off"):
             warnings.append(f"{key} is invalid; default retained")
+    language = raw.get("language", settings["language"])
+    if language in {"en", "zh-CN"}:
+        settings["language"] = language
+    elif "language" in raw:
+        warnings.append("language is invalid; English retained")
     source = raw.get("battery_quota_source", settings["battery_quota_source"])
     if source in {"primary_5h", "weekly"}:
         settings["battery_quota_source"] = source

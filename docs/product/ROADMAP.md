@@ -1,8 +1,10 @@
 # Codex Windows Status Pet Renewal Roadmap
 
-**Status:** Completed program / no active implementation scope
+简体中文: [中文版本](ROADMAP.zh-CN.md)
+
+**Status:** Active approved program
 **Latest released product:** `v0.6.3`
-**Active implementation scope:** None
+**Active implementation scope:** Phase A documentation maintenance, then v0.7.0 Bilingual UI and Manual Compact
 
 ## Current state
 
@@ -13,6 +15,7 @@
 - **Released quota identity:** v0.6.1 classifies official quota windows by safe duration metadata, retains absent windows as unavailable, and keeps the default battery on the classified weekly source without fallback.
 - **Released row visibility:** v0.6.2 adds optional 5-hour, weekly, and reset-credit text-row visibility with equal dynamic distribution in the unchanged text region.
 - **Released battery source selector:** v0.6.3 adds a persisted two-state 5-hour/weekly battery source selector. Weekly remains the default, selected-source unavailability remains unavailable, and there is no fallback; it is independent of row visibility.
+- **Approved next direction:** v0.7.0 first enforces documentation path privacy and manifest-managed bilingual navigation, then adds English/Simplified Chinese runtime UI and a persisted manual Compact control. It is not released.
 - **Environment limitations:** alternate physical taskbar edges and a separate clean Windows machine are not available and are not claimed as physical evidence. The 125% primary / 100% secondary mixed-DPI topology is now covered by production-equivalent Windows automation for v0.5.5.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 

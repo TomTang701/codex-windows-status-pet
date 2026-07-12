@@ -8,10 +8,12 @@ try:
     from api.quota_format_api import quota_line, reset_credit_line, earliest_future_expiry
     from api.quota_status_api import HEALTH_COLORS, health_tier
     from api.status_rows_api import StatusRowsSnapshot
+    from api.localization_api import translate
 except ModuleNotFoundError:
     from scripts.api.quota_format_api import quota_line, reset_credit_line, earliest_future_expiry
     from scripts.api.quota_status_api import HEALTH_COLORS, health_tier
     from scripts.api.status_rows_api import StatusRowsSnapshot
+    from scripts.api.localization_api import translate
 
 
 ERROR_COLOR = "#fca5a5"
@@ -73,6 +75,7 @@ def build_status_snapshot(
     quota_state="loading",
     font_color="#e5e7eb",
     battery_quota_source="weekly",
+    language="zh-CN",
 ):
     """Build only approved display text; raw quota/activity payloads never escape."""
     activity = activity if isinstance(activity, dict) else {}
@@ -92,16 +95,21 @@ def build_status_snapshot(
         color = ERROR_COLOR
     else:
         color = font_color if tier == "healthy" else HEALTH_COLORS.get(tier, font_color)
-    state_label = "（额度过期）" if quota_state == "stale" else ""
+    state_label = translate(language, "stale") if quota_state == "stale" else ""
     active_count = int(activity.get("active", 0) or 0)
     rows = StatusRowsSnapshot(
-        activity=f"Codex {activity.get('detail', '空闲')}{state_label}",
-        progress="额度暂不可用" if quota_state == "unavailable" else activity.get("progress", ""),
+        activity=translate(language, "activity", detail=activity.get("detail", translate(language, "idle"))) + state_label,
+        progress=translate(language, "quota_unavailable") if quota_state == "unavailable" else activity.get("progress", ""),
         primary_5h=f"5h {_percent_left(primary)} / {_short_time(primary.get('resetsAt'))}",
-        weekly=quota_line("周", _percent_left(secondary), secondary.get("resetsAt")),
+        weekly=quota_line(translate(language, "week"), _percent_left(secondary), secondary.get("resetsAt")),
         reset_credit=reset_credit_line(
             credits.get("availableCount", "--") if isinstance(credits, dict) else "--",
             earliest_future_expiry(credit_items),
+            translate(
+                language,
+                "reset_credit",
+                count=credits.get("availableCount", "--") if isinstance(credits, dict) else "--",
+            ),
         ),
     )
     selected_window = primary if battery_quota_source == "primary_5h" else secondary
@@ -116,9 +124,9 @@ def build_status_snapshot(
     }
 
 
-def build_tray_error_snapshot():
+def build_tray_error_snapshot(language="zh-CN"):
     """Return the approved five-row presentation for tray failure."""
-    rows = StatusRowsSnapshot("Codex", "托盘图标异常", "", "", "")
+    rows = StatusRowsSnapshot("Codex", translate(language, "tray_error"), "", "", "")
     return {
         "text": rows.as_text(),
         "rows": rows.as_dict(),

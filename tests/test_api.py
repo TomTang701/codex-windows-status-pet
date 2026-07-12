@@ -187,12 +187,29 @@ class ConfigApiTests(unittest.TestCase):
                 save_settings_atomic(path, result.settings)
             self.assertEqual(path.read_text(encoding="utf-8"), original)
 
-    def test_compact_setting_uses_strict_boolean_normalization(self):
+    def test_legacy_auto_compact_input_is_ignored(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "settings.json"
             path.write_text(json.dumps({"compact_when_idle": "true"}), encoding="utf-8")
             settings, _warnings = load_settings(path)
-            self.assertTrue(settings["compact_when_idle"])
+            self.assertNotIn("compact_when_idle", settings)
+            self.assertFalse(settings["compact"])
+
+    def test_language_and_manual_compact_are_additive_legacy_safe_settings(self):
+        missing, _warnings = normalize_settings({})
+        self.assertEqual(missing["language"], "en")
+        self.assertFalse(missing["compact"])
+        selected, _warnings = normalize_settings({"language": "zh-CN", "compact": "true"})
+        self.assertEqual(selected["language"], "zh-CN")
+        self.assertTrue(selected["compact"])
+        legacy, _warnings = normalize_settings({"compact_when_idle": True})
+        self.assertFalse(legacy["compact"])
+        self.assertNotIn("compact_when_idle", legacy)
+        invalid, warnings = normalize_settings({"language": "fr", "compact": "invalid"})
+        self.assertEqual(invalid["language"], "en")
+        self.assertFalse(invalid["compact"])
+        self.assertIn("language is invalid; English retained", warnings)
+        self.assertIn("compact is invalid; default retained", warnings)
 
     def test_utf8_bom_settings_file_is_accepted(self):
         with tempfile.TemporaryDirectory() as directory:

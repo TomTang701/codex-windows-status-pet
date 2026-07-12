@@ -47,18 +47,15 @@ class ApplicationControllerTests(unittest.TestCase):
         self.assertTrue(lifecycle.begin_close())
         self.assertFalse(lifecycle.begin_close())
 
-    def test_presentation_controller_preserves_rows_and_compact_behavior(self):
+    def test_presentation_controller_preserves_rows_without_auto_compact_behavior(self):
         controller = StatusPresentationController()
-        snapshot, compact = controller.render(
+        snapshot = controller.render(
             {"active": 1, "detail": "输出中", "progress": "活动对话 1 个"},
             {"rateLimits": {}, "rateLimitResetCredits": {"availableCount": 5}},
-            "ok", "#ffffff", True, False, False,
+            "ok", "#ffffff",
         )
         self.assertEqual(snapshot["rows"]["reset_credit"], "重置 5 次")
-        self.assertFalse(compact)
-        controller.compact.compact = True
-        controller.force_expanded()
-        self.assertFalse(controller.compact.compact)
+        self.assertFalse(hasattr(controller, "compact"))
 
     def test_presentation_controller_builds_approved_tray_error_rows(self):
         result = StatusPresentationController().render_tray_error()
@@ -66,6 +63,25 @@ class ApplicationControllerTests(unittest.TestCase):
         self.assertEqual(result["rows"]["progress"], "托盘图标异常")
         self.assertEqual(tuple(result["rows"]), ROW_IDS)
         self.assertEqual(result["color"], "#fca5a5")
+
+    def test_presentation_controller_forwards_runtime_language_only_to_visible_text(self):
+        snapshot = StatusPresentationController().render(
+            {"active": 0, "detail": "Idle", "progress": ""},
+            {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}},
+            "ok", "#ffffff", language="en",
+        )
+        self.assertEqual(snapshot["rows"]["activity"], "Codex Idle")
+        self.assertTrue(snapshot["rows"]["weekly"].startswith("Week 55% /"))
+        self.assertEqual(snapshot["battery"]["remaining_percent"], 55)
+
+    def test_presentation_controller_never_decides_manual_compact_state(self):
+        controller = StatusPresentationController()
+        snapshot = controller.render(
+            {"active": 0, "detail": "Idle", "progress": ""},
+            {"rateLimits": {}}, "ok", "#ffffff", language="en",
+        )
+        self.assertEqual(snapshot["rows"]["activity"], "Codex Idle")
+        self.assertFalse(hasattr(controller, "compact"))
 
     def test_settings_controller_preserves_future_schema_until_explicit_reset(self):
         with tempfile.TemporaryDirectory() as directory:
