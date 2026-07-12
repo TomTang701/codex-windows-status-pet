@@ -2,23 +2,11 @@
 
 ## Outcome
 
-One long-lived `Pet` must keep one coherent DPI-aware expanded geometry and fully visible five-row content through every supported settings, lock, visibility, compact, and restore transition.
+One long-lived `Pet` keeps one coherent target-window-DPI expanded geometry and fully visible five-row content through every supported settings, lock, visibility, compact, restore, and monitor transition.
 
-## Current evidence
+## Root cause and design
 
-- Released v0.5.0 cold start can fit.
-- A later settings/lock/parameter lifecycle produces a visibly different expanded geometry and clips the final Reset Credit row.
-- The existing `dpi_content_probe.py` creates a fresh `Pet` per scale and therefore does not prove transition stability.
-
-## Investigation focus
-
-- `Pet.__init__` calls `_sync_compatibility_metrics()` before saved monitor geometry is applied.
-- `_sync_compatibility_metrics()` derives display metrics from `dpi_for_window(self.winfo_id())`.
-- `apply_settings()` re-derives and reapplies full geometry; lock and all settings transaction outcomes can enter it.
-- `show_window()` applies position-only geometry around normal/deiconify/update lifecycle.
-- Settings opening/restoration calls `show_window()` and later `after_idle(ensure_visible)`.
-
-High-priority hypothesis, not yet root cause: cold-start and runtime reapplication may derive the same logical scale under different HWND monitor/DPI contexts or geometry lifecycle stages.
+Released v0.5.0 derived cold-start and runtime reapplication geometry under different HWND monitor/DPI contexts while Tk point fonts retained process-global scaling. The verified minimum design positions the withdrawn HWND first, then derives physical geometry and explicit negative-pixel fonts from that target-window DPI. `Pet._sync_compatibility_metrics()` remains the sole runtime metric authority; no new subsystem or persisted physical dimensions were added.
 
 ## Required transition matrix
 
@@ -26,8 +14,18 @@ Cold start/no action; open settings only; Close without changes; toggle lock; to
 
 ## Regression contract
 
-After every transition exactly five stable rows exist; requested heights fit allocations; all rows and the final row bottom stay inside the actual visible root/client boundary; approved single-line rows do not unexpectedly wrap; unchanged logical scale does not silently produce incoherent expanded geometry unless monitor DPI truly changes; and a true DPI change ends with geometry/content fit matching target-window DPI.
+After every transition exactly five stable rows exist; requested heights fit allocations; all rows and the final row bottom stay inside the actual visible root/client boundary; approved single-line rows do not unexpectedly wrap; unchanged logical scale and DPI preserve expanded geometry; and a true DPI change ends with exact Window Scale API geometry and matching pixel fonts.
 
-## Design status
+## Current evidence
 
-`PENDING` — systematic runtime evidence and a reproducible long-lived RED are required before design verification or production changes.
+- Authoritative released-behavior RED: one `Pet` changed from `330x138` to `264x110` after `toggle_locked`.
+- Cross-monitor RED: reapplication moved the HWND to DPI 120 while retaining DPI 96 metrics.
+- GREEN: all 25 scale steps at DPI 96 and 120 fit all five rows.
+- GREEN: all 15 required production-equivalent lifecycle transitions report `fits: true`.
+- GREEN: routine Quality approved with 137 core tests and 23 Tk UI tests.
+
+## Status
+
+`DESIGN VERIFIED / IMPLEMENTATION GREEN / FORMAL RC APPROVED / REMOTE RECONCILIATION PENDING`
+
+The branch package and formal RC are approved. The patch is not complete until exact-head PR CI, squash merge, merged-main RC, tag `v0.5.1`, GitHub Release, branch cleanup, and active-state reconciliation are verified.
