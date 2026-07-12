@@ -26,6 +26,6 @@ After every transition exactly five stable rows exist; requested heights fit all
 
 ## Status
 
-`DESIGN VERIFIED / IMPLEMENTATION GREEN / FORMAL RC APPROVED / REMOTE RECONCILIATION PENDING`
+`RELEASED / RECONCILED`
 
-The branch package and formal RC are approved. The patch is not complete until exact-head PR CI, squash merge, merged-main RC, tag `v0.5.1`, GitHub Release, branch cleanup, and active-state reconciliation are verified.
+PR #17 passed exact-head Windows Quality, squash-merged as `10de014`, and passed merged-main formal RC. Tag and GitHub Release `v0.5.1` target `10de014`; the patch branch is deleted. v0.6.0 Productization design is resumed without expanding this completed patch scope.

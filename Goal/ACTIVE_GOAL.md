@@ -1,6 +1,6 @@
 # ACTIVE GOAL — v0.5.1 Runtime Geometry Reapplication Stabilization
 
-> **Status:** ACTIVE
+> **Status:** COMPLETE — released as `v0.5.1`; v0.6.0 Productization design may resume
 > **Repository:** `TomTang701/codex-windows-status-pet`
 > **Scope:** one correctness patch release; no productization or unrelated refactor
 > **Authority:** repository `AGENTS.md`, protected-core contracts, systematic debugging, Design Verification, TDD, and verification-before-completion remain mandatory. The repository standing authorization covers routine GitHub workflow operations within this Goal; listed high-risk operations remain separately permissioned.
