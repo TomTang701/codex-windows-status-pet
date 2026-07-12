@@ -1,15 +1,15 @@
 # ACTIVE PROGRAM GOAL — v0.5.5 Release Completion → v0.6.0 Delivery
 
-> **Status:** ACTIVE PROGRAM / SEQUENTIAL VERSION DELIVERY
+> **Status:** FINAL RECONCILIATION / NO ACTIVE IMPLEMENTATION SCOPE
 > **Program owner:** Tom
 > **Repository:** `TomTang701/codex-windows-status-pet`
-> **Current candidate branch:** `fix/v0.5.5-mixed-dpi-startup-position`
-> **Current candidate commit:** `ef72b48afaadee4c8b0bf377272d5a17e7fa70c6` (subsequent Program-governance and CI-admission commits must be reviewed as Phase A scope)
-> **Current released baseline:** `v0.5.3`
+> **Current reconciliation branch:** `docs/v0.6.0-release-state`
+> **Latest released product:** `v0.6.0` at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`
+> **Previous released baseline:** `v0.5.5` at `4662414c16e6892d02634dd5139b3ca93f281d37`
 > **Historical v0.5.4:** closed investigation / no product release
 > **Program final target:** released and reconciled `v0.6.0`
 > **Execution model:** one active implementation version at a time; multiple sequential phases are allowed inside this Program Goal
-> **STOP:** only after released/reconciled v0.6.0 and final verification
+> **STOP:** after this documentation-only reconciliation is merged and main is verified
 
 ## 0. Program mission
 
@@ -183,3 +183,12 @@ Record actual v0.5.5/v0.6.0 PRs, exact-head CI SHAs/results, merged-main SHAs, m
 Ask Tom only when one exact material fact cannot be determined from source, tests, safe automation, Tk/Win32/process/filesystem/app-local inspection, or current physical-host evidence. First record the required fact, methods, observed evidence, insufficiency, blocker, and exact question in `EXECUTION_STATE.md`; then ask one concise factual question. After an answer resume this same Program.
 
 STOP only after v0.5.5 is released/reconciled, the Hard Version Gate passes, v0.6.0 is designed, implemented, verified, merged, released, reconciled, and final evidence is reported. Do not begin v0.6.1, installer, auto-start, auto-update, or unrelated work.
+
+## 16. Recorded release facts (2026-07-12)
+
+- v0.5.5 PR [#24](https://github.com/TomTang701/codex-windows-status-pet/pull/24) merged; exact-head Windows CI #83 passed at `94df8ed`; merged main and tag/Release target `4662414c16e6892d02634dd5139b3ca93f281d37`.
+- v0.6.0 design, written plan, focused RED/GREEN cycles, all-scale/DPI fit coverage, lifecycle regressions, Quality, package smoke, and formal RC completed before PR.
+- v0.6.0 PR [#25](https://github.com/TomTang701/codex-windows-status-pet/pull/25) merged at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`; exact-head Windows CI passed at `8670b0f82ef272a24df870d4756aea71c2182b80`.
+- Merged-main formal RC passed at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`; [`v0.6.0`](https://github.com/TomTang701/codex-windows-status-pet/releases/tag/v0.6.0) tag and GitHub Release target that same commit.
+- v0.5.4 remains historical `CLOSED INVESTIGATION / NO PRODUCT RELEASE`; no v0.5.4 tag or Release exists.
+- Remaining work is documentation-state reconciliation only. No production runtime code change is authorized or required.
