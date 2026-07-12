@@ -1,21 +1,21 @@
-# ACTIVE VERSION BRIEF — v0.5.4 Position Persistence Correctness
+# ACTIVE VERSION BRIEF — v0.5.4 Position Persistence Investigation (Closed)
 
 ## Released history
 
-- `v0.5.3` is the released product baseline at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
+- `v0.5.3` is the released product baseline and latest product version at `b6a53e85b004d0bd707e7e7e4f03c5ad09a1a5cf`.
 - `v0.5.2` remains a closed rendered-visibility investigation and has no product version, tag, or GitHub Release.
-- `v0.5.4` is the active position-persistence correctness patch; it has no product tag or GitHub Release yet.
+- `v0.5.4` is a closed position-persistence investigation with no product tag or GitHub Release.
 
-## Active outcome
+## Closed investigation outcome
 
-Restore durable overlay position persistence through drag, normal tray Exit, and restart, while preserving legal topology recovery.
+The reported restart position-loss symptom is no longer reproducible. The production-equivalent round trip preserved `(4143, 1182)` through persistence, normal tray Exit, loading, safe-position validation, and final root placement.
 
-## Investigation boundary
+## Investigation conclusion
 
-The root cause is unknown. The exact A-path coordinates must be traced from the stable post-drag root through runtime state, JSON after `finish_drag`, normal tray Exit, raw Pet B load, `safe_position`, and Pet B's final root. No production position fix is permitted before the first divergence and Design Verification.
+No first coordinate divergence or valid RED was established. Design Verification therefore failed correctly, and no production persistence correction is justified. Tom confirmed that restarting the software no longer loses the window position.
 
-v0.5.3 Shell Identity remains protected: the root HWND must retain `WS_EX_TOOLWINDOW=true` and `WS_EX_APPWINDOW=false`. No battery feature is in scope.
+v0.5.3 Shell Identity remains protected: the root HWND must retain `WS_EX_TOOLWINDOW=true` and `WS_EX_APPWINDOW=false`. No v0.6.0 feature work is in scope.
 
 ## Status
 
-`v0.5.4 ACTIVE / DESIGN VERIFICATION PENDING / v0.6.0 BATTERY FEATURE DEFERRED`
+`v0.5.4 CLOSED INVESTIGATION / NO PROVEN PRODUCTION DEFECT / NO PRODUCT RELEASE / v0.6.0 NOT STARTED`
