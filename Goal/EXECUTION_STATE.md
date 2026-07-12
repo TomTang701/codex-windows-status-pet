@@ -19,5 +19,5 @@
 - v0.6.0 5H Battery Indicator and Layout Tightening: `PENDING HARD VERSION GATE / NOT STARTED`
 - Human fact required: `None`
 - Blocker: `None`
-- Next exact action: invoke writing-plans, then establish battery semantics and content-fit RED tests before minimum implementation
+- Next exact action: execute TDD Task 1: establish remaining-to-ceil-segment and fixed-color RED tests before minimum battery presentation implementation
 - Last updated: 2026-07-12
