@@ -1,18 +1,18 @@
 # Codex Windows Status Pet Renewal Roadmap
 
-**Status:** Active approved program
-**Latest released product:** `v0.6.2`
-**Active implementation scope:** `v0.6.3` Battery Quota Source Selector
+**Status:** Completed program / no active implementation scope
+**Latest released product:** `v0.6.3`
+**Active implementation scope:** None
 
 ## Current state
 
-- **Released:** v0.3.2 through v0.6.2 are merged, tagged, and published. v0.6.2 is the latest product release.
+- **Released:** v0.3.2 through v0.6.3 are merged, tagged, and published. v0.6.3 is the latest product release.
 - **Historical verification:** v0.5.3 has real root-HWND RED/GREEN, full lifecycle identity coverage, exact-head Windows CI, and merged-main RC. v0.5.2 remains a closed stale-process investigation without a product release.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
 - **Released direction:** v0.5.4 remains a closed no-release investigation. v0.5.5 is the released mixed-DPI startup recovery patch. v0.6.0 is the released 5H Battery Indicator and Layout Tightening: it replaces the paw with a truthful 2×5 ten-cell battery while preserving five rows, compact battery-only behavior, mixed-DPI recovery, and Shell identity.
 - **Released quota identity:** v0.6.1 classifies official quota windows by safe duration metadata, retains absent windows as unavailable, and keeps the default battery on the classified weekly source without fallback.
 - **Released row visibility:** v0.6.2 adds optional 5-hour, weekly, and reset-credit text-row visibility with equal dynamic distribution in the unchanged text region.
-- **Approved next direction:** v0.6.3 adds a two-state battery source selector with weekly as default and no fallback. It is not released.
+- **Released battery source selector:** v0.6.3 adds a persisted two-state 5-hour/weekly battery source selector. Weekly remains the default, selected-source unavailability remains unavailable, and there is no fallback; it is independent of row visibility.
 - **Environment limitations:** alternate physical taskbar edges and a separate clean Windows machine are not available and are not claimed as physical evidence. The 125% primary / 100% secondary mixed-DPI topology is now covered by production-equivalent Windows automation for v0.5.5.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 
