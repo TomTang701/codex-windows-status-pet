@@ -21,4 +21,4 @@ v0.7.0 adds English and Simplified Chinese runtime UI with English as the persis
 
 ## Active phase
 
-`PHASE A — documentation privacy and bilingual navigation maintenance gate`
+`Phase B/C implementation complete on the release-candidate branch; formal regression, package smoke, Quality, RC, and remote release gates remain.`

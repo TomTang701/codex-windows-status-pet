@@ -1,32 +1,6 @@
-"""Time-aware compact/expanded state decisions."""
+"""Compact geometry helpers."""
 
 from __future__ import annotations
-
-import time
-
-
-class CompactState:
-    def __init__(self, idle_delay_seconds=3.0, clock=None):
-        self.idle_delay_seconds = max(0.0, float(idle_delay_seconds))
-        self.clock = clock or time.monotonic
-        self.idle_since = None
-        self.compact = False
-
-    def update(self, enabled, active_count, hovered=False, blocked=False, now=None):
-        now = self.clock() if now is None else float(now)
-        if not enabled or int(active_count or 0) > 0 or hovered or blocked:
-            self.idle_since = None
-            self.compact = False
-            return self.compact
-        if self.idle_since is None:
-            self.idle_since = now
-        if now - self.idle_since >= self.idle_delay_seconds:
-            self.compact = True
-        return self.compact
-
-    def force_expanded(self):
-        self.idle_since = None
-        self.compact = False
 
 
 def compact_geometry(x, y, expanded_width, expanded_height, compact_size, work_area, margin=8):

@@ -61,7 +61,9 @@ def show_settings_dialog(owner):
     owner._settings_session = settings_session
     draft = settings_session.draft_settings
     ui_language = draft["language"]
-    text = lambda key: translate(ui_language, key)
+
+    def text(key):
+        return translate(ui_language, key)
     body = tk.Frame(dialog, padx=14, pady=12)
     body.pack(fill="both", expand=True)
     alpha = tk.DoubleVar(value=draft["alpha"])
@@ -85,9 +87,15 @@ def show_settings_dialog(owner):
     )
 
     dialog.title(text("settings_title"))
-    tk.Label(body, text=text("opacity")).grid(row=0, column=0, sticky="w")
+    translated_widgets = []
+
+    def translated(widget, key):
+        translated_widgets.append((widget, key))
+        return widget
+
+    translated(tk.Label(body, text=text("opacity")), "opacity").grid(row=0, column=0, sticky="w")
     tk.Scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha).grid(row=0, column=1)
-    tk.Label(body, text=text("window_size")).grid(row=1, column=0, sticky="w")
+    translated(tk.Label(body, text=text("window_size")), "window_size").grid(row=1, column=0, sticky="w")
     tk.Scale(
         body,
         from_=MIN_WINDOW_SCALE_PERCENT,
@@ -98,7 +106,7 @@ def show_settings_dialog(owner):
         variable=window_scale,
         label="%",
     ).grid(row=1, column=1)
-    tk.Label(body, text=text("default_position")).grid(row=2, column=0, sticky="w")
+    translated(tk.Label(body, text=text("default_position")), "default_position").grid(row=2, column=0, sticky="w")
     position = tk.Frame(body)
     position.grid(row=2, column=1, sticky="w")
     digit_or_signed = (owner.register(is_signed_integer_candidate), "%P")
@@ -106,11 +114,11 @@ def show_settings_dialog(owner):
     tk.Entry(position, textvariable=position_x, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
     tk.Label(position, text=", ").pack(side="left")
     tk.Entry(position, textvariable=position_y, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
-    tk.Label(body, text=text("refresh_interval")).grid(row=3, column=0, sticky="w")
+    translated(tk.Label(body, text=text("refresh_interval")), "refresh_interval").grid(row=3, column=0, sticky="w")
     tk.Entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only).grid(row=3, column=1, sticky="w")
-    tk.Checkbutton(body, text=text("always_on_top"), variable=topmost).grid(row=4, column=0, sticky="w")
-    tk.Checkbutton(body, text=text("lock_position"), variable=locked).grid(row=4, column=1, sticky="w")
-    tk.Label(body, text=text("battery_content")).grid(row=6, column=0, sticky="w")
+    translated(tk.Checkbutton(body, text=text("always_on_top"), variable=topmost), "always_on_top").grid(row=4, column=0, sticky="w")
+    translated(tk.Checkbutton(body, text=text("lock_position"), variable=locked), "lock_position").grid(row=4, column=1, sticky="w")
+    translated(tk.Label(body, text=text("battery_content")), "battery_content").grid(row=6, column=0, sticky="w")
     source_control = tk.Frame(body)
     source_control.grid(row=6, column=1, sticky="w")
     tk.Scale(
@@ -123,13 +131,14 @@ def show_settings_dialog(owner):
         length=140,
         variable=battery_source,
     ).grid(row=0, column=0, columnspan=2)
-    tk.Label(source_control, text=text("five_hour")).grid(row=1, column=0, sticky="w")
-    tk.Label(source_control, text=text("weekly")).grid(row=1, column=1, sticky="e")
-    tk.Label(body, text=text("language")).grid(row=7, column=0, sticky="w")
-    ttk.Combobox(body, textvariable=language, values=tuple(language_labels.values()), state="readonly", width=18).grid(row=7, column=1, sticky="w")
-    tk.Checkbutton(body, text=text("show_five_hour"), variable=show_primary_5h).grid(row=10, column=0, sticky="w")
-    tk.Checkbutton(body, text=text("show_weekly"), variable=show_weekly).grid(row=10, column=1, sticky="w")
-    tk.Checkbutton(body, text=text("show_reset_credit"), variable=show_reset_credit).grid(row=11, column=0, sticky="w")
+    translated(tk.Label(source_control, text=text("five_hour")), "five_hour").grid(row=1, column=0, sticky="w")
+    translated(tk.Label(source_control, text=text("weekly")), "weekly").grid(row=1, column=1, sticky="e")
+    translated(tk.Label(body, text=text("language")), "language").grid(row=7, column=0, sticky="w")
+    language_combo = ttk.Combobox(body, textvariable=language, values=tuple(language_labels.values()), state="readonly", width=18)
+    language_combo.grid(row=7, column=1, sticky="w")
+    translated(tk.Checkbutton(body, text=text("show_five_hour"), variable=show_primary_5h), "show_five_hour").grid(row=10, column=0, sticky="w")
+    translated(tk.Checkbutton(body, text=text("show_weekly"), variable=show_weekly), "show_weekly").grid(row=10, column=1, sticky="w")
+    translated(tk.Checkbutton(body, text=text("show_reset_credit"), variable=show_reset_credit), "show_reset_credit").grid(row=11, column=0, sticky="w")
 
     def choose_font():
         chosen = colorchooser.askcolor(color=draft["font_color"], parent=dialog)[1]
@@ -141,8 +150,8 @@ def show_settings_dialog(owner):
         if chosen:
             draft["background_color"] = chosen
 
-    tk.Button(body, text=text("font_color"), command=choose_font).grid(row=9, column=0, pady=(8, 0), sticky="w")
-    tk.Button(body, text=text("background_color"), command=choose_background).grid(row=9, column=1, pady=(8, 0), sticky="w")
+    translated(tk.Button(body, text=text("font_color"), command=choose_font), "font_color").grid(row=9, column=0, pady=(8, 0), sticky="w")
+    translated(tk.Button(body, text=text("background_color"), command=choose_background), "background_color").grid(row=9, column=1, pady=(8, 0), sticky="w")
 
     def sync_draft():
         try:
@@ -166,14 +175,35 @@ def show_settings_dialog(owner):
             draft["window_height"] = metrics.height
             draft["scale_mode"] = "proportional"
         except (TypeError, ValueError):
-            messagebox.showerror("设置无效", "坐标和刷新间隔必须填写合法数字。", parent=dialog)
+            messagebox.showerror(
+                text("invalid_settings_title"),
+                text("invalid_settings_message"),
+                parent=dialog,
+            )
             return False
         return True
+
+    def refresh_language_widgets(selected_language):
+        nonlocal ui_language, language_labels, language_by_label
+        ui_language = selected_language
+        dialog.title(text("settings_title"))
+        for widget, key in translated_widgets:
+            widget.configure(text=text(key))
+        language_labels = {
+            "en": text("english"),
+            "zh-CN": text("simplified_chinese"),
+        }
+        language_by_label = {
+            label: code for code, label in language_labels.items()
+        }
+        language_combo.configure(values=tuple(language_labels.values()))
+        language.set(language_labels[draft["language"]])
 
     def apply_draft():
         if not sync_draft():
             return False
         owner.apply_settings(settings_session.apply())
+        refresh_language_widgets(draft["language"])
         return True
 
     def save_and_close():
@@ -182,8 +212,8 @@ def show_settings_dialog(owner):
             return
         if not owner.save_settings(allow_unsafe_overwrite=reset_authorized):
             messagebox.showwarning(
-                "配置受保护",
-                "原配置不兼容或已损坏。若要替换它，请先选择“恢复默认值”，再保存。",
+                text("protected_settings_title"),
+                text("protected_settings_message"),
                 parent=dialog,
             )
             return
@@ -205,7 +235,7 @@ def show_settings_dialog(owner):
         refresh_interval.set(draft["refresh_interval_seconds"])
         topmost.set(draft["topmost"])
         locked.set(draft["locked"])
-        language.set(language_labels[draft["language"]])
+        refresh_language_widgets(draft["language"])
         show_primary_5h.set(draft["show_primary_5h"])
         show_weekly.set(draft["show_weekly"])
         show_reset_credit.set(draft["show_reset_credit"])
@@ -215,10 +245,10 @@ def show_settings_dialog(owner):
 
     buttons = tk.Frame(body)
     buttons.grid(row=12, column=0, columnspan=2, pady=(14, 0))
-    tk.Button(buttons, text=text("save"), width=8, command=save_and_close).pack(side="left", padx=3)
-    tk.Button(buttons, text=text("apply"), width=8, command=apply_draft).pack(side="left", padx=3)
-    tk.Button(buttons, text=text("restore_defaults"), width=12, command=restore_defaults).pack(side="left", padx=3)
-    tk.Button(buttons, text=text("close"), width=8, command=lambda: owner.close_settings(dialog)).pack(side="left", padx=3)
+    translated(tk.Button(buttons, text=text("save"), width=8, command=save_and_close), "save").pack(side="left", padx=3)
+    translated(tk.Button(buttons, text=text("apply"), width=8, command=apply_draft), "apply").pack(side="left", padx=3)
+    translated(tk.Button(buttons, text=text("restore_defaults"), width=12, command=restore_defaults), "restore_defaults").pack(side="left", padx=3)
+    translated(tk.Button(buttons, text=text("close"), width=8, command=lambda: owner.close_settings(dialog)), "close").pack(side="left", padx=3)
     dialog.protocol("WM_DELETE_WINDOW", lambda: owner.close_settings(dialog))
     dialog.update_idletasks()
     dialog_work_area = work_area_for_point(owner.winfo_rootx(), owner.winfo_rooty())

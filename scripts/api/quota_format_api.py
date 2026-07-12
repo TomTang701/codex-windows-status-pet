@@ -71,7 +71,8 @@ def quota_line(label, value, reset_at):
     return f"{label} {value} / {suffix}"
 
 
-def reset_credit_line(count, expiration):
+def reset_credit_line(count, expiration, text=None):
+    text = text or f"重置 {count} 次"
     if expiration is None:
-        return f"重置 {count} 次"
-    return f"重置 {count} 次 / {local_time_date(expiration)}"
+        return text
+    return f"{text} / {local_time_date(expiration)}"

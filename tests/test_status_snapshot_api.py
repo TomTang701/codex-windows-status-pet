@@ -157,7 +157,10 @@ class StatusSnapshotTests(unittest.TestCase):
         self.assertEqual(tuple(result["rows"]), ROW_IDS)
 
     def test_language_changes_visible_status_text_without_changing_row_or_battery_identity(self):
-        quota = {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}}
+        quota = {
+            "rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}},
+            "rateLimitResetCredits": {"availableCount": 5},
+        }
         english = build_status_snapshot(
             {"active": 0, "detail": "Idle", "progress": ""},
             quota,
@@ -178,5 +181,7 @@ class StatusSnapshotTests(unittest.TestCase):
         self.assertEqual(chinese["rows"]["progress"], "额度暂不可用")
         self.assertTrue(english["rows"]["weekly"].startswith("Week 55% /"))
         self.assertTrue(chinese["rows"]["weekly"].startswith("周 55% /"))
+        self.assertTrue(english["rows"]["reset_credit"].startswith("Reset 5 times"))
+        self.assertTrue(chinese["rows"]["reset_credit"].startswith("重置 5 次"))
         self.assertEqual(tuple(english["rows"]), ROW_IDS)
         self.assertEqual(english["battery"], chinese["battery"])

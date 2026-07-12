@@ -105,6 +105,11 @@ def build_status_snapshot(
         reset_credit=reset_credit_line(
             credits.get("availableCount", "--") if isinstance(credits, dict) else "--",
             earliest_future_expiry(credit_items),
+            translate(
+                language,
+                "reset_credit",
+                count=credits.get("availableCount", "--") if isinstance(credits, dict) else "--",
+            ),
         ),
     )
     selected_window = primary if battery_quota_source == "primary_5h" else secondary

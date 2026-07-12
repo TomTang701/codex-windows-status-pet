@@ -13,11 +13,11 @@ Supported platform: Windows 11 x64. Windows 10 is Deferred, Not claimed, and Non
 - Renders activity, active-conversation count, 5h quota, weekly quota, and Reset Credit as five independent stable rows without exposing plan-step details.
 - Supports multiple monitors and preserves user-supplied virtual-desktop coordinates.
 - Keeps the context menu fully inside the active monitor work area, including bottom-right edges.
-- Settings: opacity, one proportional Window Size slider (80–200%), font color, background color, default X/Y position, always-on-top, position lock, independent 5h/weekly/reset-credit row visibility, battery quota source, and a digit-only 1–10 second refresh interval.
+- Settings: English/Simplified Chinese language selection, opacity, one proportional Window Size slider (80–200%), font color, background color, default X/Y position, always-on-top, position lock, independent 5h/weekly/reset-credit row visibility, battery quota source, and a digit-only 1–10 second refresh interval.
 - The battery source can be 5h or weekly; weekly is the default and an unavailable selected source never falls back to the other quota window.
 - Weekly quota and the earliest future reset-credit expiry use local `HH:MM M/D` formatting without leading zeroes.
 - Settings actions: Save, Apply, Restore Defaults, and Close.
-- Notification-area menu: show, hide, open settings, and exit.
+- Context menu: localized Settings, topmost, lock, and persisted manual Compact controls. Notification-area menu: show, hide, open settings, and exit.
 - Uses `pythonw.exe`; no persistent command prompt window is required.
 - The repository launcher starts the companion on demand; it does not install an automatic sign-in entry.
 

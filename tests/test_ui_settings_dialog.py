@@ -4,6 +4,7 @@ import runpy
 import tempfile
 import tkinter as tk
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from tests.runtime_geometry_transition_probe import CONFIG, DummyServer, DummyTray, ROOT
@@ -16,6 +17,45 @@ def _widgets(root):
 
 
 class SettingsDialogTests(unittest.TestCase):
+    def test_invalid_settings_warning_uses_current_dialog_language(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            path = home / ".codex" / "codex-windows-status-pet.json"
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps(CONFIG), encoding="utf-8")
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            try:
+                module = runpy.run_path(str(ROOT / "scripts" / "codex_status_pet.py"))
+                module["AppServer"] = DummyServer
+                module["TrayIcon3"] = DummyTray
+                app = module["Pet"]()
+                app.show_settings()
+                app.update()
+                entries = [
+                    widget for widget in _widgets(app.settings_dialog)
+                    if widget.winfo_class() == "Entry"
+                ]
+                entries[-1].delete(0, "end")
+                self.assertEqual(entries[-1].get(), "")
+                with patch("ui.settings_dialog.messagebox.showerror") as showerror:
+                    next(
+                        widget for widget in _widgets(app.settings_dialog)
+                        if isinstance(widget, tk.Button) and widget.cget("text") == "Apply"
+                    ).invoke()
+                self.assertEqual(showerror.call_args.args[0], "Invalid settings")
+            finally:
+                if app is not None:
+                    app.application_controller.shutdown()
+                    for callback in app.tk.call("after", "info"):
+                        app.after_cancel(callback)
+                    app.topmost_var = None
+                    app.locked_var = None
+                    app.destroy()
+                    gc.collect()
+                Path.home = original_home
+
     def test_language_dropdown_is_readonly_and_apply_preview_close_restores(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)
@@ -44,9 +84,17 @@ class SettingsDialogTests(unittest.TestCase):
                     if isinstance(widget, tk.Button) and widget.cget("text") == "Apply"
                 ).invoke()
                 self.assertEqual(app.settings["language"], "zh-CN")
+                self.assertEqual(app.settings_dialog.title(), "Codex 宠物设置")
+                self.assertEqual(language.get(), "简体中文")
+                self.assertTrue(
+                    any(
+                        isinstance(widget, tk.Button) and widget.cget("text") == "应用"
+                        for widget in _widgets(app.settings_dialog)
+                    )
+                )
                 next(
                     widget for widget in _widgets(app.settings_dialog)
-                    if isinstance(widget, tk.Button) and widget.cget("text") == "Close"
+                    if isinstance(widget, tk.Button) and widget.cget("text") == "关闭"
                 ).invoke()
                 self.assertEqual(app.settings["language"], "en")
             finally:

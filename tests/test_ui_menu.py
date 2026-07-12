@@ -34,6 +34,15 @@ class MenuInteractionTests(unittest.TestCase):
         cls.module["AppServer"] = DummyServer
         cls.module["TrayIcon3"] = DummyTray
 
+    def setUp(self):
+        self._home = tempfile.TemporaryDirectory()
+        self._original_home = Path.home
+        Path.home = classmethod(lambda cls: Path(self._home.name))
+
+    def tearDown(self):
+        Path.home = self._original_home
+        self._home.cleanup()
+
     @staticmethod
     def menu_items(popup):
         body = popup.winfo_children()[0]
@@ -152,7 +161,7 @@ class MenuInteractionTests(unittest.TestCase):
             language.set("Simplified Chinese")
             next(widget for widget in self.descendants(dialog) if widget.winfo_class() == "Button" and widget.cget("text") == "Apply").invoke()
             self.assertTrue(app.compact)
-            next(widget for widget in self.descendants(dialog) if widget.winfo_class() == "Button" and widget.cget("text") == "Close").invoke()
+            next(widget for widget in self.descendants(dialog) if widget.winfo_class() == "Button" and widget.cget("text") == "关闭").invoke()
             self.assertTrue(app.compact)
         finally:
             self.destroy_app(app)

@@ -26,9 +26,12 @@ English: [English version](CONFIGURATION.md)
   "window_height": 138,
   "scale_mode": "proportional",
   "refresh_interval_seconds": 5,
-  "compact_when_idle": false
+  "language": "en",
+  "compact": false
 }
 ```
+
+`language` 只接受 `en` 和 `zh-CN`，默认值为英文。`compact` 是唯一可持久化的 Compact 状态来源。旧的 `compact_when_idle` 输入会被忽略，因此不能再自动进入 Compact。设置语言选择器在 Apply 时预览，在 Close 时回滚，在 Save 时持久化。
 
 `window_scale_percent` 是展开状态尺寸的规范来源。它会限制在 80–200%，按 5% 步长量化，默认值为 100%。窗口宽高、文字字体、爪印字体、换行长度和必要间距都由同一个纯 Window Scale API 结果推导。
 

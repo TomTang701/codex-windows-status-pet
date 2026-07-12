@@ -18,6 +18,7 @@ class LocalizationApiTests(unittest.TestCase):
 
     def test_key_and_placeholder_contract_is_visible(self):
         self.assertEqual(translate("en", "activity", detail="Running"), "Codex Running")
+        self.assertEqual(translate("en", "reset_credit", count=5), "Reset 5 times")
         self.assertEqual(translate("zh-CN", "activity", detail="运行中"), "Codex 运行中")
         with self.assertRaises(KeyError):
             translate("en", "missing-key")

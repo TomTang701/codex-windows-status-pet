@@ -68,8 +68,19 @@ def main():
         app = module["Pet"]()
         try:
             app.apply_settings(
-                {**app.settings, "window_scale_percent": scale, "x": 100, "y": 100}
+                {
+                    **app.settings,
+                    "window_scale_percent": scale,
+                    "x": 100,
+                    "y": 100,
+                    "compact": False,
+                    "show_primary_5h": True,
+                    "show_weekly": True,
+                    "show_reset_credit": True,
+                }
             )
+            for callback in app.tk.call("after", "info"):
+                app.after_cancel(callback)
             app.text.configure_rows(rows=ROWS)
             app.update()
             effective_dpi = dpi_for_window(app.winfo_id())

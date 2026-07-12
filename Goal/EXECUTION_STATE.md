@@ -2,9 +2,9 @@
 
 - Program Goal: `ACTIVE — Post-v0.6.3 Hygiene → v0.7.0 Bilingual UI and Manual Compact`
 - Latest released product: `v0.6.3` at `7991c38ab19f05966025a46999c83852ea4c5b15`.
-- Active implementation version: `v0.7.0` (Phase A maintenance only; runtime implementation not started).
-- Active phase: `documentation privacy and bilingual navigation maintenance gate`.
-- Current branch: `main` at post-v0.6.3 reconciliation `0241919a1f8b223ce8f66d9810d9e434171c45b5`.
+- Active implementation version: `v0.7.0`.
+- Active phase: `release-candidate verification and release preparation`.
+- Current branch: `feat/v0.7.0-bilingual-ui-manual-compact` at `b676752` before the current release-candidate changes.
 - Blocker: `None`.
 - Human fact required: `None`.
 
@@ -21,5 +21,7 @@
 - v0.6.1: truthful quota-window identity with missing windows unavailable and weekly default battery source without fallback.
 - v0.6.2: independent 5-hour, weekly, and reset-credit visibility with canonical, equal dynamic row distribution.
 - v0.6.3: persisted 5-hour/weekly battery selector, weekly default, no fallback, and source/row-visibility independence.
-- Next action: `complete Phase A document fixes and maintenance gate, then create the v0.7.0 feature branch and begin runtime-language TDD.`
+- Phase A: privacy/navigation gates are implemented and passed. Phase B/C: language normalization, translated runtime/menu/tray UI, in-place Settings language preview/rollback, and persisted manual Compact are implemented with focused RED/GREEN evidence.
+- Current candidate updates: old automatic-Compact configuration output and state APIs are removed; legacy input is ignored; reset-credit text is localized; version sources and release documentation are being reconciled to `0.7.0`.
+- Next action: `run the full v0.7.0 regression matrix, Quality child gates, package smoke, and formal RC; then complete diff/security review and the authorized GitHub release workflow.`
 - Last updated: `2026-07-12`.
