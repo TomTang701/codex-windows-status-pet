@@ -2,14 +2,14 @@
 
 **Status:** Active roadmap
 **Released baseline:** `v0.5.1`
-**Active implementation scope:** `v0.5.2` rendered-content visibility contract correction
+**Active implementation scope:** None; waiting for Tom's next product direction
 
 ## Current state
 
 - **Released:** v0.3.2 through v0.5.1 are merged, tagged, and published; v0.5.1 stabilizes long-lived runtime geometry reapplication.
-- **Historical verification:** 137 core tests and 23 Tk UI tests passed on merged v0.5.1; exact-head Windows CI and merged-main RC passed under their then-current contracts. New production evidence invalidates the rendered-visibility completion claim those contracts supported.
+- **Historical verification:** 137 core tests and 23 Tk UI tests passed on merged v0.5.1; exact-head Windows CI and merged-main RC passed. The later screenshot incident was traced to a stale pre-v0.5.1 in-memory process, not a reproduced defect in released v0.5.1.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
-- **Current direction:** v0.5.2 audits and corrects the rendered-visibility authority and the remaining fifth-row clipping defect. Root cause is unknown and under investigation; v0.6.0 Productization is blocked.
+- **Current direction:** The v0.5.2 investigation is closed without a product release or production change. v0.6.0 Productization design is unblocked but not started; wait for Tom's next direction.
 - **Environment limitations:** mixed-DPI physical hardware, alternate physical taskbar edges, and a separate clean Windows machine are not available and are not claimed as physical evidence.
 - **Explicitly excluded:** token readers, third-party quota endpoints, telemetry, hosted services, and modifications to Codex core or built-in pet files.
 

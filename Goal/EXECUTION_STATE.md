@@ -1,20 +1,17 @@
 # Execution State
 
-- Goal status: `ACTIVE`
-- Active version: `0.5.2`
-- Released baseline: `v0.5.1` at `10de01410126a1877ac9406fc02e3bc583659df3`
-- Reconciled main baseline: `71c2719fca0ac4cfe3fa9ce1ffb6d675fe074fa8`
-- Branch: `fix/v0.5.2-rendered-visibility`
-- Active phase: `Design Verification failed; provenance-correct investigation exhausted`
-- New production evidence: fifth `reset_credit` row is visibly clipped at the expanded window bottom
-- v0.5.1 rendered-visibility completion claim: `INVALIDATED BY NEW PRODUCTION EVIDENCE`
-- Previous verification authority: `Tk allocation is an incomplete rendered-glyph authority, but it did not cause this screenshot discrepancy`
-- Incident root cause: `PID 7164 started before the v0.5.1 fix and was mislabeled from later on-disk source state`
-- Released-v0.5.1 defect: `NOT REPRODUCED after verified restart`; live HWND client capture shows all five real rows
-- Design Verification: `FAILED — mandatory released-v0.5.1 RED cannot be demonstrated`
-- Production-code changes: `PROHIBITED until Design Verification passes`
-- v0.6.0 Productization: `BLOCKED`
-- Human fact required: `None`
+- Goal status: `COMPLETE`
+- Investigation status: `CLOSED — NO RELEASE / NO PRODUCT DEFECT REPRODUCED`
+- Released product baseline: `v0.5.1` at `10de01410126a1877ac9406fc02e3bc583659df3`
+- Screenshot incident: `RESOLVED — stale pre-fix process / incorrect version attribution`
+- Released v0.5.1 product defect reproduced: `No`
+- Production code change required: `No`
+- v0.5.2 product version: `Not created`
+- v0.5.2 tag / GitHub Release: `None`
+- Design Verification: `FAILED — required released-v0.5.1 RED could not be established`
+- Historical evidence: PR #19, the v0.5.2 investigation record, and failed Design Verification record are preserved
 - Blocker: `None`
-- Next exact action: do not implement or release; wait for provenance-correct evidence that demonstrably fails released v0.5.1, or for Tom to revise the v0.5.2 Goal based on the stale-process finding
+- v0.6.0 Productization design: `UNBLOCKED / NOT STARTED`
+- Production implementation authorization: `None without Tom's next direction`
+- Next exact action: `Wait for Tom to review the incident resolution and choose the next product direction.`
 - Last updated: 2026-07-11
