@@ -17,6 +17,22 @@ from api.release_artifact_api import RELEASE_ROOT_NAME, validate_release_archive
 
 WM_CLOSE = 0x0010
 WINDOWS_GUI_SUBSYSTEM = 2
+TH32CS_SNAPPROCESS = 0x00000002
+
+
+class _ProcessEntry(ctypes.Structure):
+    _fields_ = [
+        ("dwSize", ctypes.c_ulong),
+        ("cntUsage", ctypes.c_ulong),
+        ("th32ProcessID", ctypes.c_ulong),
+        ("th32DefaultHeapID", ctypes.c_size_t),
+        ("th32ModuleID", ctypes.c_ulong),
+        ("cntThreads", ctypes.c_ulong),
+        ("th32ParentProcessID", ctypes.c_ulong),
+        ("pcPriClassBase", ctypes.c_long),
+        ("dwFlags", ctypes.c_ulong),
+        ("szExeFile", ctypes.c_wchar * 260),
+    ]
 
 
 def pe_subsystem(executable):
@@ -31,7 +47,47 @@ def pe_subsystem(executable):
     return struct.unpack_from("<H", data, subsystem_offset)[0]
 
 
-def _window_handles_for_process(process_id):
+def process_tree_ids(root_process_id, processes):
+    """Return one process and every descendant from (pid, parent_pid) rows."""
+    descendants = {int(root_process_id)}
+    changed = True
+    while changed:
+        changed = False
+        for process_id, parent_process_id in processes:
+            if parent_process_id in descendants and process_id not in descendants:
+                descendants.add(process_id)
+                changed = True
+    return frozenset(descendants)
+
+
+def _process_rows():
+    if sys.platform != "win32":
+        raise RuntimeError("packaged runtime smoke requires Windows")
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    snapshot = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+    invalid = ctypes.c_void_p(-1).value
+    if snapshot == invalid:
+        raise OSError(ctypes.get_last_error(), "CreateToolhelp32Snapshot failed")
+    try:
+        entry = _ProcessEntry()
+        entry.dwSize = ctypes.sizeof(entry)
+        rows = []
+        if not kernel32.Process32FirstW(snapshot, ctypes.byref(entry)):
+            raise OSError(ctypes.get_last_error(), "Process32FirstW failed")
+        while True:
+            rows.append((int(entry.th32ProcessID), int(entry.th32ParentProcessID)))
+            if not kernel32.Process32NextW(snapshot, ctypes.byref(entry)):
+                break
+        return tuple(rows)
+    finally:
+        kernel32.CloseHandle(snapshot)
+
+
+def _process_tree_ids(root_process_id):
+    return process_tree_ids(root_process_id, _process_rows())
+
+
+def _window_handles_for_processes(process_ids):
     """Return top-level Windows owned by one test process."""
     if sys.platform != "win32":
         raise RuntimeError("packaged runtime smoke requires Windows")
@@ -43,7 +99,7 @@ def _window_handles_for_process(process_id):
     def collect(handle, _parameter):
         owner = ctypes.c_ulong()
         user32.GetWindowThreadProcessId(handle, ctypes.byref(owner))
-        if owner.value == process_id:
+        if owner.value in process_ids:
             handles.append(handle)
         return True
 
@@ -61,7 +117,7 @@ def _wait_until(predicate, *, seconds, message):
 
 
 def _request_normal_close(process_id):
-    handles = _window_handles_for_process(process_id)
+    handles = _window_handles_for_processes(_process_tree_ids(process_id))
     if not handles:
         raise RuntimeError(f"no application window was found for process {process_id}")
     user32 = ctypes.WinDLL("user32", use_last_error=True)
@@ -94,7 +150,7 @@ def packaged_runtime_smoke():
             _wait_until(lambda: first.poll() is None, seconds=10, message="first packaged process exited during startup")
             duplicate = subprocess.Popen([str(executable)])
             _wait_until(
-                lambda: bool(_window_handles_for_process(duplicate.pid)),
+                lambda: bool(_window_handles_for_processes(_process_tree_ids(duplicate.pid))),
                 seconds=10,
                 message="duplicate launch did not show its existing-instance notice",
             )

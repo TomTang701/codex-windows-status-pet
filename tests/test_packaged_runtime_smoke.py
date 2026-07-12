@@ -10,10 +10,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
-from packaged_runtime_smoke import pe_subsystem
+from packaged_runtime_smoke import pe_subsystem, process_tree_ids
 
 
 class PackagedRuntimeSmokeTests(unittest.TestCase):
+    def test_process_tree_includes_pyinstaller_gui_child_but_not_siblings(self):
+        processes = ((100, 1), (101, 100), (102, 101), (200, 1))
+        self.assertEqual(process_tree_ids(100, processes), frozenset({100, 101, 102}))
+
     def test_pe_subsystem_reads_windows_gui_and_rejects_malformed_headers(self):
         with tempfile.TemporaryDirectory() as directory:
             executable = Path(directory) / "CodexStatusPet.exe"
