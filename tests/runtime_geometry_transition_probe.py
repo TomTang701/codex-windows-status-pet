@@ -219,7 +219,7 @@ def settle(app, records, transition):
 
 def close_dialog(app):
     if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
-        find_widget(app.settings_dialog, tk.Button, "关闭").invoke()
+        find_widget(app.settings_dialog, tk.Button, "Close").invoke()
         app.update_idletasks()
         app.update()
 
@@ -295,7 +295,7 @@ def main():
                 app.show_settings()
                 scales = find_scales(app.settings_dialog)
                 scales[0].set(0.45)
-                find_widget(app.settings_dialog, tk.Button, "应用").invoke()
+                find_widget(app.settings_dialog, tk.Button, "Apply").invoke()
                 settle(app, records, transition["name"])
                 close_dialog(app)
 
@@ -303,11 +303,11 @@ def main():
                 app.show_settings()
                 scales = find_scales(app.settings_dialog)
                 scales[1].set(100)
-                find_widget(app.settings_dialog, tk.Button, "应用").invoke()
+                find_widget(app.settings_dialog, tk.Button, "Apply").invoke()
                 settle(app, records, transition["name"])
 
                 transition["name"] = "save"
-                find_widget(app.settings_dialog, tk.Button, "保存").invoke()
+                find_widget(app.settings_dialog, tk.Button, "Save").invoke()
                 settle(app, records, transition["name"])
 
                 transition["name"] = "draft_scale_close_rollback"
@@ -318,8 +318,8 @@ def main():
 
                 transition["name"] = "restore_defaults"
                 app.show_settings()
-                find_widget(app.settings_dialog, tk.Button, "恢复默认值").invoke()
-                find_widget(app.settings_dialog, tk.Button, "应用").invoke()
+                find_widget(app.settings_dialog, tk.Button, "Restore Defaults").invoke()
+                find_widget(app.settings_dialog, tk.Button, "Apply").invoke()
                 settle(app, records, transition["name"])
                 close_dialog(app)
 
@@ -344,7 +344,7 @@ def main():
                 app.toggle_locked()
                 app.show_settings()
                 find_scales(app.settings_dialog)[0].set(0.55)
-                find_widget(app.settings_dialog, tk.Button, "应用").invoke()
+                find_widget(app.settings_dialog, tk.Button, "Apply").invoke()
                 close_dialog(app)
                 app.hide_window()
                 app.show_window()
