@@ -101,6 +101,7 @@ def build_status_snapshot(activity, quota, quota_state="loading", font_color="#e
     return {
         "text": rows.as_text(),
         "rows": rows.as_dict(),
+        "battery": battery_presentation(primary),
         "color": color,
         "active_count": active_count,
         "quota_tier": tier,

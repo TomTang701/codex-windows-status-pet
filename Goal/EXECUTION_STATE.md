@@ -4,20 +4,21 @@
 - Active implementation version: `v0.6.0`
 - Released product baseline and latest product version: `v0.5.5` at `4662414c16e6892d02634dd5139b3ca93f281d37`
 - Historical v0.5.2: `CLOSED investigation / no product release`
-- Active phase: `v0.6.0 Design Verification passed; implementation planning next`
+- Active phase: `Phase C TDD active; Task 1 battery semantics GREEN and Task 2 BatteryView GREEN`
 - v0.5.4 investigation: `CLOSED historical investigation / no product release`
 - Current reported regression: `100% secondary near right/bottom edge saved position shifts inward on startup from 125% primary bootstrap`
 - Root cause: `withdrawn bootstrap HWND reports primary 120 DPI; safe_position uses inflated 120-DPI metrics to recover a 96-DPI-secondary legal edge coordinate before target DPI resync`
 - Design Verification: `PASSED — current-main RED and first clamp boundary recorded`
 - Production-code changes: `target-monitor geometry authority correction implemented after current-main RED and focused GREEN`
-- PR #24: `OPEN`
-- Exact PR head: `979867fed0644681ecf22d5e866636593651ce76`
-- Windows Quality run #82: `FAILURE`
-- CI failure root cause: `GitHub Windows runner is single-monitor; physical-topology tests assume a right-side secondary monitor and four tests raise StopIteration`
-- Local physical 125% primary / 100% secondary RED/GREEN: `PASS`
-- CI classification: `environment-admission gap, not evidence that the production mixed-DPI correction failed`
-- v0.6.0 5H Battery Indicator and Layout Tightening: `PENDING HARD VERSION GATE / NOT STARTED`
+- Current branch: `feat/v0.6.0-battery-layout`
+- v0.5.5 Hard Version Gate: `PASSED — PR #24 merged; exact-head CI #83 passed at 94df8ed; merged-main RC passed; v0.5.5 tag/Release target 4662414`
+- v0.6.0 corrected Design Verification: `PASSED — Tom-approved 2×5 / 10-cell segmented battery; paw removed; compact battery-only`
+- Active implementation plan: `docs/superpowers/plans/2026-07-12-v0.6.0-battery-visual.md`
+- Task 1 evidence: `battery_presentation pure semantics GREEN in commit 0d1c963`
+- Task 2 evidence: `BatteryView 2×5 / ten persistent cells focused GREEN; integration not yet implemented`
+- Current blocker: `None`
+- v0.6.0 5H Battery Indicator and Layout Tightening: `ACTIVE / Phase C TDD`
 - Human fact required: `None`
 - Blocker: `None`
-- Next exact action: execute TDD Task 1: establish remaining-to-ceil-segment and fixed-color RED tests before minimum battery presentation implementation
+- Next exact action: establish and run the focused main-window expanded integration RED, then integrate BatteryView as the interactive right-side visual while preserving five text rows and no paw
 - Last updated: 2026-07-12
