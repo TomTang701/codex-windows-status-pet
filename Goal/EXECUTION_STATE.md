@@ -12,10 +12,10 @@
   upgrade, repair, rollback, normal uninstall, and purge uninstall passed.
 - Repository hygiene: automatic merged-head deletion is enabled. Removed proven-safe
   merged branches `docs/v0.8.0-release-reconciliation` and
-  `feat/v0.8.0-productization-menu`, plus their byte-for-byte duplicate archive
-  `archive/pr2-reset-credit-hardening-2026-07-10`.
-- Retained remote branch: `goal/reset-credit-repo-hardening` is closed but unmerged
-  and has distinct historical content; it was intentionally not deleted.
+  `feat/v0.8.0-productization-menu`, their byte-for-byte duplicate archive
+  `archive/pr2-reset-credit-hardening-2026-07-10`, and superseded closed PR #2
+  branch `goal/reset-credit-repo-hardening` after content and lineage audit.
+- Final remote branch state: `main` only; no open pull requests.
 - Preserved local-work boundary: the original `main` worktree and Tom's divergent
   local documentation commit `53670bc` remain untouched.
 - Current phase: final release-state reconciliation.
