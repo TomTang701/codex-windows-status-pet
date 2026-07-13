@@ -38,10 +38,21 @@
   (191 tests plus document, version, dependency, compile, privacy, inventory,
   and startup checks); UI modules were exercised individually, with content-fit
   layout tests and the 25-step DPI probe separately confirmed green.
-- Next exact action: after the current `.build` EXE exits through its tray, run
-  the safe installed-lifecycle smoke on this Windows host. Then run RC and
-  exact-head CI, which repeat the lifecycle smoke on a fresh GitHub Windows
-  runner. The build staging root is intentionally protected from in-use deletion.
-- Blocker: `The current packaged test instance is still running. It must exit
-  normally from the tray before the real installed-lifecycle smoke can mutate
-  the product-owned per-user install root.`
+- Installed-lifecycle evidence: on 2026-07-12, the real v0.8.0 artifact
+  completed fresh install, Start Menu shortcut creation, installed EXE startup,
+  test-owned reinstall, normal uninstall settings preservation, purge uninstall,
+  and unrelated `.codex` sentinel preservation on this physical Windows host.
+  A detached PowerShell supervisor recorded child `ExitCode = 0`; the smoke's
+  structured result recorded `passed: true`. Final boundary checks found no
+  installed EXE, mutex, install root, or shortcut, and restored the pre-run
+  settings SHA-256 unchanged.
+- Formal RC evidence: the 2026-07-12 serial detached-supervisor run recorded
+  `ExitCode = 0` and `release_candidate_approved: true`; Quality, release
+  build, static package smoke, packaged runtime smoke, README screenshots,
+  strict compatibility, and whitespace all passed against the fresh v0.8.0
+  artifact (`12c6c14d5cc54ce794d81fdf1108dc7906a50b8fb30c055eb02f039b373b0743`).
+- Next exact action: complete final local diff and sensitive-data review, then
+  obtain current explicit remote-write authorization before pushing the branch
+  for exact-head GitHub Windows CI.
+- Blocker: no local technical blocker. Exact-head GitHub CI is pending a remote
+  branch push and is not claimed locally.

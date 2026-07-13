@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -50,15 +52,21 @@ def _powershell_file(script, *arguments):
     )
 
 
-def _installed_process_is_running(executable):
-    command = (
-        "$target = [IO.Path]::GetFullPath($args[0]); "
+def installed_process_probe_command(executable):
+    """Return a PowerShell probe with a literal, safely quoted EXE path."""
+    target = Path(executable).as_posix().replace("'", "''")
+    return (
+        f"$target = [IO.Path]::GetFullPath('{target}'); "
         "$match = Get-CimInstance Win32_Process -Filter \"Name = 'CodexStatusPet.exe'\" | "
         "Where-Object { $_.ExecutablePath -and [IO.Path]::GetFullPath($_.ExecutablePath) -eq $target }; "
         "if (!$match) { exit 1 }"
     )
+
+
+def _installed_process_is_running(executable):
+    command = installed_process_probe_command(executable)
     completed = subprocess.run(
-        ["powershell", "-NoProfile", "-Command", command, str(executable)],
+        ["powershell", "-NoProfile", "-Command", command],
         cwd=ROOT,
         text=True,
         encoding="utf-8",
@@ -115,10 +123,24 @@ def installed_lifecycle_smoke():
     return artifact
 
 
-def main():
+def main(arguments=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--result-file",
+        type=Path,
+        help="write structured success evidence after the lifecycle smoke passes",
+    )
+    options = parser.parse_args(arguments)
     artifact = installed_lifecycle_smoke()
+    if options.result_file:
+        options.result_file.parent.mkdir(parents=True, exist_ok=True)
+        options.result_file.write_text(
+            json.dumps({"artifact": str(artifact), "passed": True}) + "\n",
+            encoding="utf-8",
+        )
     print(f"installed lifecycle smoke passed: {artifact}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

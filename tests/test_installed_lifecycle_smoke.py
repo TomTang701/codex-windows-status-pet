@@ -2,18 +2,43 @@
 
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
-from installed_lifecycle_smoke import ensure_clean_install_root, installed_lifecycle_paths
+from installed_lifecycle_smoke import (
+    ensure_clean_install_root,
+    installed_lifecycle_paths,
+    installed_process_probe_command,
+    main,
+)
 
 
 class InstalledLifecycleSmokeTests(unittest.TestCase):
+    def test_main_writes_success_result_file_after_the_lifecycle_smoke_passes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result_file = Path(directory) / "lifecycle-result.json"
+            artifact = Path(directory) / "CodexStatusPet-v0.8.0-win11-x64.zip"
+            with mock.patch("installed_lifecycle_smoke.installed_lifecycle_smoke", return_value=artifact):
+                exit_code = main(["--result-file", str(result_file)])
+
+            self.assertEqual(exit_code, 0)
+            self.assertEqual(
+                json.loads(result_file.read_text(encoding="utf-8")),
+                {"artifact": str(artifact), "passed": True},
+            )
+
+    def test_process_probe_embeds_the_exact_installed_executable_path(self):
+        command = installed_process_probe_command(Path("C:/Users/Tom/AppData/Local/Programs/CodexStatusPet/CodexStatusPet.exe"))
+        self.assertIn("'C:/Users/Tom/AppData/Local/Programs/CodexStatusPet/CodexStatusPet.exe'", command)
+        self.assertNotIn("$args[0]", command)
+
     def test_paths_are_limited_to_the_product_root_shortcut_and_settings_file(self):
         paths = installed_lifecycle_paths(
             local_app_data=Path("C:/Users/Tom/AppData/Local"),
