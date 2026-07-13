@@ -14,6 +14,15 @@ the current Windows host remains client-runtime evidence; GitHub Windows runner
 installation results are clean runner automation and are not physical Windows
 11 client evidence unless that operating system is independently verified.
 
+## v0.9.0 distribution and lifecycle evidence
+
+| Area | Coverage | Status | Evidence / next action |
+|---|---|---|---|
+| v0.9.0 ZIP direct use | Extract complete onedir ZIP and run `CodexStatusPet.exe` without source runtime | Automated Windows host pass | Isolated packaged-runtime smoke passed with `PYTHONPATH` removed and no installed state or Start Menu shortcut. |
+| v0.9.0 authenticated deployment | Private GitHub Release resolution, ZIP/SHA acquisition, and installer delegation | Automated pass | Bootstrap smoke passed; the implementation requires an authenticated `gh` session and reads no embedded or external token. |
+| v0.9.0 installed lifecycle | Upgrade from v0.8.0, repair, rollback, normal uninstall, and purge uninstall | Physical Windows host and GitHub Windows CI pass | The focused lifecycle smoke preserves settings bytes and unrelated `.codex` data, removes test residue, and passed locally plus exact-head CI for PR #40. |
+| v0.9.0 release | Merged-main RC, annotated tag, Release ZIP and SHA-256 sidecar | Pass | RC passed on `bdae1942856ffa00677e64c63142457d0f79efce`; tag and private GitHub Release target the same commit. |
+
 | Area | Coverage | Status | Evidence / next action |
 |---|---|---|---|
 | Windows version | Windows 10 | Deferred / Not claimed / Non-blocking | Outside the current Windows 11 x64 support declaration; future evidence may expand support but does not block current releases. |
