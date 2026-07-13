@@ -1,4 +1,4 @@
-"""Pure selection rules for authenticated GitHub Release deployment."""
+"""Pure selection rules for public GitHub Release deployment."""
 
 from __future__ import annotations
 
@@ -18,6 +18,21 @@ class ReleaseAssets:
     zip_name: str
     checksum_name: str
     installer_name: str
+    zip_url: str
+    checksum_url: str
+    installer_url: str
+
+
+RELEASES_API = "https://api.github.com/repos/TomTang701/codex-windows-status-pet/releases"
+
+
+def release_metadata_url(tag=None):
+    """Return the public REST endpoint for latest or one exact stable tag."""
+    if tag is None:
+        return f"{RELEASES_API}/latest"
+    if re.fullmatch(r"v\d+\.\d+\.\d+", str(tag)) is None:
+        raise ReleaseResolutionError("requested release tag must be vMAJOR.MINOR.PATCH")
+    return f"{RELEASES_API}/tags/{tag}"
 
 
 def select_release_assets(release):
@@ -31,13 +46,23 @@ def select_release_assets(release):
     version = match.group(1)
     zip_name = release_archive_name(version)
     required = (zip_name, f"{zip_name}.sha256", "install.ps1")
-    names = {asset.get("name") for asset in release.get("assets", ()) if isinstance(asset, dict)}
-    missing = [name for name in required if name not in names]
+    assets = {
+        asset.get("name"): asset
+        for asset in release.get("assets", ())
+        if isinstance(asset, dict) and asset.get("name")
+    }
+    missing = [name for name in required if name not in assets]
     if missing:
         raise ReleaseResolutionError("release required asset is missing: " + ", ".join(missing))
+    missing_urls = [name for name in required if not assets[name].get("browser_download_url")]
+    if missing_urls:
+        raise ReleaseResolutionError("release asset download URL is missing: " + ", ".join(missing_urls))
     return ReleaseAssets(
         version=version,
         zip_name=zip_name,
         checksum_name=f"{zip_name}.sha256",
         installer_name="install.ps1",
+        zip_url=assets[zip_name]["browser_download_url"],
+        checksum_url=assets[f"{zip_name}.sha256"]["browser_download_url"],
+        installer_url=assets["install.ps1"]["browser_download_url"],
     )

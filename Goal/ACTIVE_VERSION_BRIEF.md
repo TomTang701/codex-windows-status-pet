@@ -1,33 +1,24 @@
-# ACTIVE VERSION BRIEF — v0.9.0 Distribution, Upgrade, and Repository Hygiene
+# ACTIVE VERSION BRIEF — v0.9.1 Public Distribution Correction
 
-## Released state
+## Baseline and target
 
-- Latest released product: `v0.9.0` at `bdae1942856ffa00677e64c63142457d0f79efce`.
-- Annotated tag and GitHub Release: `v0.9.0`, targeting the same commit.
-- Active implementation scope: none.
-
-## Approved outcome
-
-v0.9.0 makes the packaged EXE and full release ZIP the normal user paths,
-provides truthful authenticated PowerShell deployment for the private GitHub
-Release, and verifies repair, upgrade, rollback, and uninstall behavior.
+- Released baseline: `v0.9.0` at `bdae1942856ffa00677e64c63142457d0f79efce`.
+- Active implementation: public HTTPS / GitHub REST Release acquisition and product ZIP
+  discoverability correction.
+- Target product: `v0.9.1`, released and reconciled.
 
 ## Protected contracts
 
-Keep the v0.8.0 onedir architecture, local Codex quota/activity boundaries,
-bilingual UI, manual Compact, settings, DPI, position recovery, Shell identity,
-tray reachability, one-instance behavior, threading, and safe shutdown. Do not
-add MSI/MSIX, an installer framework, in-app or background updating, telemetry,
-a token reader, a third-party quota endpoint, or a Codex-core change.
+Keep the packaged onedir runtime, existing `install.ps1` transaction authority, settings
+preservation, unrelated `.codex` preservation, bilingual UI, Compact, DPI and position
+recovery, Shell identity, tray reachability, one-instance behavior, and safe shutdown.
+Normal users must not need Git, GitHub CLI, `gh auth login`, a GitHub account, Python, pip,
+or a repository clone.
 
-## Completion record
+## Current gate
 
-The merged-main formal RC passed. Exact-head GitHub Windows CI for PR #40
-passed before squash merge. The Release contains the versioned Windows ZIP,
-its SHA-256 sidecar, `install.ps1`, and the authenticated bootstrap script.
-Repository hygiene enabled automatic deletion of merged head branches and
-removed only branches proven merged, byte-for-byte duplicate, or superseded by
-later merged delivery lineage. The final historical branch audit confirmed that
-closed PR #2 had no remaining required work, so it was safely removed.
+Phase A passed the published v0.9.0 product ZIP provenance audit. The next gate is a
+focused RED/GREEN correction of `scripts/install_release.ps1` so public latest and exact
+stable-tag installation use GitHub REST metadata and exact Release assets without `gh`.
 
-**Status:** `COMPLETED / STOP — wait for Tom's next approved Goal.`
+**Status:** `ACTIVE / Phase A → Phase B; blocker none.`

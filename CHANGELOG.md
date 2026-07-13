@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+## 0.9.1 - 2026-07-12
+
+- Added public GitHub Release bootstrap using anonymous REST metadata and exact product assets; normal installation no longer requires Git, GitHub CLI, credentials, Python, or a repository checkout.
+- Added strict latest/pinned stable-release validation, checksum verification, source-archive rejection, and focused bootstrap resolution coverage.
+
 ## 0.9.0 - 2026-07-12
 
 - Added verified ZIP direct use, authenticated private-release bootstrap, and per-user install lifecycle coverage for repair, upgrade, rollback, and uninstall.

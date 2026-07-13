@@ -2,22 +2,25 @@
 
 English: [English version](INSTALLATION.md)
 
-## v0.9.0 部署边界
+## v0.9.1 部署边界
 
 已发布 ZIP 是当前普通用户路径：如需手动验证，请核对其 SHA-256；解压完整压缩包后，
 运行 `CodexStatusPet\CodexStatusPet.exe`。该 EXE 是应用入口而不是安装器，
 请勿将它从 onedir 运行时中单独复制出来。
 
-本仓库为 private。Tom 和已授权协作者先使用 `gh auth login` 认证现有 GitHub CLI，
-随后在 v0.9.0 Release 发布后运行以下快速安装命令：
+本仓库为公开仓库。普通安装不需要 Git、GitHub CLI、`gh auth login`、账号、token、
+Python、pip 或仓库检出。使用以下命令安装最新稳定 Release：
 
 ```powershell
-$d = Join-Path $env:TEMP 'CodexStatusPet-bootstrap'; New-Item -ItemType Directory -Force -Path $d | Out-Null; gh release download --repo TomTang701/codex-windows-status-pet --pattern CodexStatusPet-bootstrap.ps1 --dir $d --clobber; & (Join-Path $d 'CodexStatusPet-bootstrap.ps1')
+& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1')))
 ```
 
 bootstrap 会解析稳定 Release，下载其匹配的 ZIP、SHA-256 sidecar 和现有 `install.ps1`，
-再委托该安装器完成校验和安装。它不会读取或嵌入 token。仓库保持 private 时，匿名公开
-下载命令仍不可用。
+再委托该安装器完成校验和安装。它不会读取或嵌入 token。若要固定稳定版本，
+请对下载的 bootstrap 传入 `-Tag vX.Y.Z`；固定版本缺失或格式错误时会失败，不会回退到 latest。
+
+GitHub 的 Code -> Download ZIP 和 Release 的 Source code 压缩包都是源码，不是产品包。
+产品 ZIP 名称为 `CodexStatusPet-vX.Y.Z-win11-x64.zip`。
 
 以下带 ArtifactPath 的调用仅保留给源码验证和发布工程，不是普通用户的快速开始：
 

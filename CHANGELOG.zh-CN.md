@@ -4,6 +4,11 @@ English: [English version](CHANGELOG.md)
 
 ## 未发布
 
+## 0.9.1 - 2026-07-12
+
+- 新增公开 GitHub Release bootstrap：通过匿名 REST 元数据和精确产品资产安装，普通安装不再需要 Git、GitHub CLI、凭据、Python 或仓库检出。
+- 新增 latest/固定版本稳定 Release 校验、校验和验证、源代码压缩包拒绝，以及聚焦的 bootstrap 解析测试。
+
 ## 0.9.0 - 2026-07-12
 
 - 增加已验证的 ZIP 直接使用、私有 Release 的认证引导安装，以及覆盖修复、升级、回滚和卸载的每用户安装生命周期验证。
