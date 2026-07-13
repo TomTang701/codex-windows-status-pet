@@ -22,6 +22,9 @@ if ($actual -ne $Sha256.Trim().ToLowerInvariant()) { throw 'Release checksum doe
 
 $staging = Join-Path ([IO.Path]::GetTempPath()) "CodexStatusPet-stage-$([guid]::NewGuid())"
 $backup = "$installRoot.backup-$([guid]::NewGuid())"
+$settingsPath = Join-Path $env:USERPROFILE '.codex\codex-windows-status-pet.json'
+$settingsSnapshot = Join-Path $staging 'settings-before-install.json'
+$settingsExisted = $false
 $success = $false
 
 function Test-ProductInstanceRunning {
@@ -73,6 +76,10 @@ try {
     $entrypoint = Join-Path $runtime $manifest.entrypoint
     if (!(Test-Path -LiteralPath $entrypoint)) { throw 'Release entry point is missing.' }
 
+    if (Test-Path -LiteralPath $settingsPath) {
+        Copy-Item -LiteralPath $settingsPath -Destination $settingsSnapshot -Force
+        $settingsExisted = $true
+    }
     Stop-InstalledProduct
 
     if (Test-ProductInstanceRunning) {
@@ -103,5 +110,9 @@ finally {
         Move-Item -LiteralPath $backup -Destination $installRoot
     }
     if ($success -and (Test-Path -LiteralPath $backup)) { Remove-Item -LiteralPath $backup -Recurse -Force }
+    if ($settingsExisted -and (Test-Path -LiteralPath $settingsSnapshot)) {
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $settingsPath) | Out-Null
+        Copy-Item -LiteralPath $settingsSnapshot -Destination $settingsPath -Force
+    }
     Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue
 }

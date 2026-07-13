@@ -2,8 +2,8 @@
 
 - Program Goal: `ACTIVE — v0.9.0 Distribution, Upgrade, and Repository Hygiene`.
 - Released baseline: `v0.8.0` at `788f870bceb3d457e4b0708fa3620637092b5808`.
-- Active candidate: none.
-- Current phase: `Phase C — truthful one-command PowerShell deployment`.
+- Active candidate: local `v0.9.0` distribution candidate; not released.
+- Current phase: `Phase D — script-driven reinstall / repair / upgrade / uninstall lifecycle`.
 - Final target: released and reconciled `v0.9.0`.
 - Active Goal branch: `goal/v0.9.0-distribution-hygiene`, created from verified
   `origin/main` at `c7bc05e7ef9e77cb6c06632ccc3afb1901fe4547`.
@@ -31,10 +31,25 @@
   `PYTHONPATH` removed, acquired/released the mutex, showed the duplicate notice,
   and exited normally. Existing settings remained readable with their seeded
   semantics intact; no installed runtime or Start Menu shortcut was created.
-- Next exact action: inspect GitHub CLI authenticated Release acquisition and
-  define the smallest bootstrap contract that downloads the official ZIP and
-  SHA-256 sidecar, verifies before invoking the existing `install.ps1`, and
-  reports distinct private-release resolution/acquisition/checksum failures.
+- Phase C evidence: `scripts/install_release.ps1` uses an authenticated existing
+  GitHub CLI session to resolve a stable private Release, download the matching
+  ZIP, SHA-256 sidecar, and existing `install.ps1`, and delegate verification and
+  installation to that installer. It has no token reader or embedded secret.
+  The fake-GitHub Windows smoke passed, and the live private-v0.8.0 probe reached
+  the truthful missing-bootstrap-asset failure without creating installed state.
+- Phase D is active: the lifecycle smoke now requires an explicitly supplied
+  different previous release, verifies v0.8.0-to-v0.9.0 manifest provenance,
+  byte-for-byte settings preservation, same-version repair, failed replacement
+  rollback, normal uninstall, and purge uninstall. The installer snapshots
+  settings before it asks an old runtime to close, then restores those bytes at
+  the transaction boundary. Focused unit tests pass.
+- CI now downloads the published v0.8.0 ZIP and sidecar using GitHub Actions'
+  ephemeral `github.token`, then passes it explicitly to the v0.9.0 lifecycle
+  smoke. This is CI-only release-artifact acquisition, not a new user credential
+  path.
+- Next exact action: complete the local v0.8.0-to-v0.9.0 lifecycle run with a
+  definitive exit code, then update the bilingual Quick Install, Upgrade, and
+  Uninstall documentation before the formal RC.
 - STOP only after `v0.9.0` release, authoritative reconciliation, proven-safe
   remote branch cleanup, and final verification.
 - Blocker: none.

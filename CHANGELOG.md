@@ -4,6 +4,10 @@
 
 ## Unreleased
 
+## 0.9.0 - 2026-07-12
+
+- Added verified ZIP direct use, authenticated private-release bootstrap, and per-user install lifecycle coverage for repair, upgrade, rollback, and uninstall.
+
 ## 0.8.0 - 2026-07-12
 
 - Added the Windows onedir distribution, manifest/checksum boundary, per-user installation lifecycle, and unified overlay/notification-area menu semantics.
