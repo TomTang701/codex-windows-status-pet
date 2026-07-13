@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.7.1"
+APP_VERSION = "0.8.0"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -26,6 +26,7 @@ try:
     from api.window_lifecycle_controller_api import WindowLifecycleController
     from api.window_recovery_api import recover_position
     from api.window_scale_api import derive_window_metrics
+    from api.localization_api import translate
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.quota_parse_api import parse_quota_payload
     from api.quota_state_api import QuotaState
@@ -50,6 +51,7 @@ except ModuleNotFoundError:
     from scripts.api.window_lifecycle_controller_api import WindowLifecycleController
     from scripts.api.window_recovery_api import recover_position
     from scripts.api.window_scale_api import derive_window_metrics
+    from scripts.api.localization_api import translate
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.quota_parse_api import parse_quota_payload
     from scripts.api.quota_state_api import QuotaState
@@ -66,6 +68,35 @@ def ensure_single_instance():
     global _single_instance_guard
     _single_instance_guard = SingleInstance()
     return _single_instance_guard.acquire()
+
+
+def existing_instance_notice(language):
+    """Return the single-instance notice through the runtime localization authority."""
+    return translate(language, "existing_instance")
+
+
+def notify_existing_instance():
+    """Explain why a windowed second launch exits without opening a window."""
+    language = "en"
+    try:
+        language = SettingsPersistenceController(
+            Path.home() / ".codex" / "codex-windows-status-pet.json"
+        ).load().settings["language"]
+    except (KeyError, OSError):
+        pass
+    try:
+        import ctypes
+
+        ctypes.windll.user32.MessageBoxW(
+            None,
+            existing_instance_notice(language),
+            "Codex Windows Status Pet",
+            0x10,
+        )
+    except (AttributeError, OSError):
+        logging.getLogger("codex-status-pet").warning(
+            "an existing application instance prevented startup"
+        )
 
 
 class ActivityMonitor:
@@ -168,6 +199,7 @@ class Pet(tk.Tk):
         self.apply_settings(self.settings)
         self.set_compact(self.settings["compact"])
         self.tray = TrayIcon3(self.tray_actions, self.settings["language"])
+        self._sync_tray_menu()
         self.after(100, self.process_tray_actions)
         self.after(250, self.poll)
         self.after(1000, self.refresh_activity)
@@ -271,6 +303,19 @@ class Pet(tk.Tk):
         self.locked_var.set(self.settings["locked"])
         if hasattr(self, "compact_var"):
             self.compact_var.set(self.settings["compact"])
+        self._sync_tray_menu()
+
+    def _sync_tray_menu(self):
+        """Push a plain Tk-owned menu snapshot to the tray adapter."""
+        tray = getattr(self, "tray", None)
+        if tray is not None and hasattr(tray, "set_menu_state"):
+            tray.set_menu_state(
+                self.settings["language"],
+                visible=not self.hidden,
+                topmost=self.settings["topmost"],
+                locked=self.settings["locked"],
+                compact=self.settings["compact"],
+            )
 
     def _pointer_enter(self, _event=None):
         self.hovered = True
@@ -353,6 +398,7 @@ class Pet(tk.Tk):
         self.settings["compact"] = compact
         self.compact_var.set(compact)
         self.set_compact(compact)
+        self._sync_tray_menu()
         return self.save_settings()
 
     def show_window(self):
@@ -367,6 +413,7 @@ class Pet(tk.Tk):
         ensure_overlay_toolwindow(self.winfo_id())
         self.update_idletasks()
         self.attributes("-alpha", self.settings["alpha"])
+        self._sync_tray_menu()
         self.attributes("-topmost", True)
         self.lift()
         self.focus_force()
@@ -407,6 +454,7 @@ class Pet(tk.Tk):
             self.save_settings()
         self.hidden = True
         self.attributes("-alpha", 0.0)
+        self._sync_tray_menu()
 
     def start_drag(self, event):
         if not self.settings["locked"]:
@@ -506,6 +554,14 @@ class Pet(tk.Tk):
                 elif action == "settings":
                     self.show_window()
                     self.show_settings()
+                elif action == "topmost":
+                    self.topmost_var.set(not self.settings["topmost"])
+                    self.toggle_topmost()
+                elif action == "lock":
+                    self.locked_var.set(not self.settings["locked"])
+                    self.toggle_locked()
+                elif action == "compact":
+                    self.set_manual_compact(not self.settings["compact"])
                 elif action == "exit":
                     self.close()
                 elif action == "tray_error":
@@ -652,6 +708,7 @@ def run():
     configure_logging(Path.home() / ".codex" / "codex-windows-status-pet.log")
     enable_dpi_awareness()
     if not ensure_single_instance():
+        notify_existing_instance()
         raise SystemExit(0)
     try:
         app = Pet()

@@ -7,10 +7,10 @@ import tkinter as tk
 
 try:
     from api.display_api import place_popup, work_area_for_point
-    from api.localization_api import translate
+    from api.menu_model_api import build_menu_items
 except ModuleNotFoundError:
     from scripts.api.display_api import place_popup, work_area_for_point
-    from scripts.api.localization_api import translate
+    from scripts.api.menu_model_api import build_menu_items
 
 
 def show_context_menu(owner, event):
@@ -52,14 +52,40 @@ def show_context_menu(owner, event):
         "anchor": "w", "width": 18, "bd": 0, "relief": "flat",
         "bg": "#f3f4f6", "activebackground": "#dbeafe",
     }
-    language = owner.settings["language"]
-    tk.Button(body, text=translate(language, "settings"), command=lambda: run_and_close(owner.show_settings), **button_options).pack(fill="x", padx=2, pady=1)
-    tk.Checkbutton(body, text=translate(language, "always_on_top"), variable=owner.topmost_var, command=lambda: run_and_close(owner.toggle_topmost), **button_options).pack(fill="x", padx=2, pady=1)
-    tk.Checkbutton(body, text=translate(language, "lock_position"), variable=owner.locked_var, command=lambda: run_and_close(owner.toggle_locked), **button_options).pack(fill="x", padx=2, pady=1)
-    tk.Checkbutton(body, text=translate(language, "compact"), variable=owner.compact_var, command=lambda: run_and_close(lambda: owner.set_manual_compact(owner.compact_var.get())), **button_options).pack(fill="x", padx=2, pady=1)
-    tk.Frame(body, height=1, bg="#d1d5db").pack(fill="x", padx=2, pady=3)
-    tk.Button(body, text=translate(language, "hide_window"), command=lambda: run_and_close(owner.hide_window), **button_options).pack(fill="x", padx=2, pady=1)
-    tk.Button(body, text=translate(language, "exit"), command=lambda: run_and_close(owner.close), **button_options).pack(fill="x", padx=2, pady=1)
+    commands = {
+        "settings": owner.show_settings,
+        "topmost": owner.toggle_topmost,
+        "lock": owner.toggle_locked,
+        "compact": lambda: owner.set_manual_compact(owner.compact_var.get()),
+        "hide": owner.hide_window,
+        "exit": owner.close,
+    }
+    variables = {
+        "topmost": owner.topmost_var,
+        "lock": owner.locked_var,
+        "compact": owner.compact_var,
+    }
+    items = build_menu_items(
+        owner.settings["language"], visible=True,
+        topmost=owner.settings["topmost"], locked=owner.settings["locked"],
+        compact=owner.settings["compact"],
+    )
+    for item in items:
+        if item.action == "exit":
+            tk.Frame(body, height=1, bg="#d1d5db").pack(fill="x", padx=2, pady=3)
+        if item.checked is None:
+            widget = tk.Button(
+                body, text=item.label,
+                command=lambda command=commands[item.action]: run_and_close(command),
+                **button_options,
+            )
+        else:
+            widget = tk.Checkbutton(
+                body, text=item.label, variable=variables[item.action],
+                command=lambda command=commands[item.action]: run_and_close(command),
+                **button_options,
+            )
+        widget.pack(fill="x", padx=2, pady=1)
     popup.bind("<Escape>", lambda _event: (close_popup(), "break")[1])
     popup.bind("<Button-3>", lambda _event: close_popup())
     popup.bind("<FocusOut>", lambda _event: popup.after_idle(close_popup))

@@ -2,6 +2,10 @@
 
 English: [English version](COMPATIBILITY_MATRIX.md)
 
+## v0.8.0 调整后的发布证据
+
+Windows Sandbox、独立干净 Windows 11 VM 和跨 Windows 用户桌面自动化在当前环境不可用，已获批准作为**非阻塞环境限制**；它们不是已通过的证据，也不会为 v0.8.0 新增 VM 或跨用户自动化基础设施。真实打包 EXE 生命周期仍以当前 Windows 主机为客户端证据；GitHub Windows runner 的安装生命周期结果属于干净 runner 自动化证据，除非独立验证运行器操作系统，否则不声明为实体 Windows 11 客户端证据。正式 README 证据为英文和简体中文各三张真实打包 EXE 截图：主悬浮窗、右键菜单和设置窗口。
+
 **状态：** 持续维护的测试记录  
 **规则：** 模拟测试或无界面测试不能替代实体 Windows 测试结果。
 
@@ -35,6 +39,11 @@ English: [English version](COMPATIBILITY_MATRIX.md)
 | 自动化 Quality | 文档一致性、编译和单元测试 | 通过 | `scripts/run_quality_checks.py` 已通过；Quality 明确不做发布就绪决定。 |
 | 启动器 | 根目录 `start_codex_status_pet.cmd`，重复启动 | 实体通过 | 2026-07-10 连续启动两次只产生一个实际 `pythonw.exe` 悬浮窗进程，没有常驻 CMD 窗口；进程计数已排除命令行自匹配。 |
 | 启动项清理 | 旧 `Codex Status Pet.lnk` | 实体通过 | 2026-07-10 检查启动文件夹和快捷方式目标；已删除指向旧 `.agents\plugins\plugins\codex-windows-status-pet` 副本的快捷方式；`startup_audit.py` 当前报告 `clean: true`，没有本项目启动项。 |
+| v0.8.0 打包 | PyInstaller onedir EXE、清单、声明、SHA-256 和排除清单 | 自动通过 | `python scripts/build_release.py` 和 `python scripts/package_smoke_test.py` 已生成并验证版本化 EXE ZIP。 |
+| v0.8.0 打包生命周期 | GUI EXE 首次启动、重复实例保持和正常关闭 | 自动化 Windows 主机通过 | `python scripts/packaged_runtime_smoke.py` 已针对真实版本化 EXE ZIP 通过；没有源代码进程替代该 artifact。 |
+| v0.8.0 已安装生命周期 | 全新安装、开始菜单条目、测试创建的重装、普通卸载保留设置和清除安全性 | 实体 Windows 主机通过 | 2026-07-12 真实 artifact 在独立 PowerShell supervisor 下完成，子进程 `ExitCode = 0`，smoke 结构化结果为 `passed: true`；最终检查没有已安装 EXE、mutex、安装根或快捷方式，且原 settings 的 SHA-256 未变化。未来 GitHub runner 的结果属于干净生命周期自动化；除非独立验证其操作系统，否则不是实体 Windows 11 客户端证据。 |
+| v0.8.0 干净 VM/Sandbox/跨用户 | 独立干净 Windows 11 VM、Sandbox 或跨用户桌面自动化 | 已批准限制 / 非阻塞 | 这些环境在当前执行上下文中不可用，未通过也不作声明；不会仅为 v0.8.0 新增 VM 或跨用户自动化基础设施。 |
+| v0.8.0 README 证据 | 三张打包英文和三张打包简体中文产品视图 | 实体 Windows 主机通过 | 维护者提供的真实打包 EXE 截图展示了两种语言下已规范化的展开主悬浮窗、主悬浮窗右键菜单和设置窗口；`python scripts/check_readme_screenshots.py` 验证准确六个文件及 README 语言映射。 |
 
 ## 发布门槛
 

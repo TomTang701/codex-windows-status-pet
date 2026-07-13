@@ -1,26 +1,30 @@
-# ACTIVE VERSION BRIEF – v0.7.1 Activity Localization and Compact Geometry Correctness
+# ACTIVE VERSION BRIEF — v0.8.0 Windows Productization and Menu Unification
 
-## Released product
+## Baseline and target
 
-- `v0.7.1` is released at `e45c457361d0ac3592e7d1e20671bc54f690661e`.
-- `v0.7.0` is the previous release at `46912952b200d8a296e94d1429e33c1484dc91b5`.
-- `v0.6.3` is released at `7991c38ab19f05966025a46999c83852ea4c5b15`.
-- `v0.6.2` is the released quota-row visibility and dynamic-distribution correction at `8b7c7fec2a864fa94601ed8235d04cb5cb716a03`.
-- `v0.6.1` is the released quota-window identity correction at `40d59c8b7d9f9f536299aacc67686ed7a70467eb`.
-- `v0.6.0` is the verified released segmented-battery baseline at `b7915d86a5007d76a62a7870ad248b9230fe0f4a`.
-- `v0.5.5` remains the released mixed-DPI startup-position recovery patch; `v0.5.4` remains a closed investigation with no product release.
+- Latest released product: `v0.7.1` at `e45c457361d0ac3592e7d1e20671bc54f690661e`.
+- Active candidate: `v0.8.0`; it is not released, tagged, or published.
+- v0.7.1 remains the product baseline until all v0.8.0 release gates pass.
 
-## Approved v0.7.1 outcome
+## Approved outcome
 
-v0.7.1 makes activity state language-independent until presentation, preserves Compact geometry through settings re-application, and persists canonical expanded coordinates after Compact drag. The v0.7.0 language, battery source, no-fallback, and row-visibility contracts remain unchanged.
+v0.8.0 packages the existing Windows application as a checksum-verified,
+per-user onedir install; adds a safe installer/uninstaller and Start Menu entry;
+unifies localized tray/overlay menu semantics; and supplies truthful packaged
+Windows 11 evidence in English and Simplified Chinese.
 
-## Protected contracts retained
+## Protected contracts
 
-- Official local `codex app-server --stdio` remains the sole quota authority.
-- No `auth.json`, access-token, third-party endpoint, or arbitrary unknown-field propagation.
-- Five persistent row identities, the v0.6.0 ten-cell battery, mixed-DPI recovery, and Shell identity remain protected.
-- No positional, dictionary-order, `primary`, or `secondary` naming assumption determines window identity.
+Keep the v0.7.1 quota, activity, localization, manual Compact, settings, DPI,
+position recovery, Shell identity, one-instance, threading, and shutdown
+contracts. No new product feature, automatic startup, background updater,
+telemetry, token reader, third-party quota endpoint, or Codex-core change is in
+scope.
 
-## Final phase
+## Current release gate
 
-`Released and reconciled. No active implementation scope; STOP pending Tom's next approved Goal.`
+`ACTIVE — implementation and evidence gathering. Do not create a v0.8.0 tag or
+GitHub Release until packaged runtime, installed lifecycle, six authentic
+screenshots, Quality, formal RC, and exact-head CI are all proven. Windows
+Sandbox, clean VM, and cross-user coverage are approved non-blocking environment
+limitations, not passing evidence.`
