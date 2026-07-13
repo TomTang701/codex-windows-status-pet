@@ -3,7 +3,7 @@
 ## Baseline and target
 
 - Latest released product: `v0.8.0` at `788f870bceb3d457e4b0708fa3620637092b5808`.
-- Active candidate: none.
+- Active candidate: local `v0.9.0` distribution candidate; not released.
 - Target product: `v0.9.0`, not yet released.
 
 ## Approved outcome
@@ -23,6 +23,7 @@ a token reader, a third-party quota endpoint, or a Codex-core change.
 
 ## Current release gate
 
-`ACTIVE / Phase C. v0.8.0 remains the released baseline. ZIP direct use is
-verified through the packaged EXE; the next gate is authenticated PowerShell
-release acquisition and verified deployment without a second installer.`
+`ACTIVE / Phase D. v0.8.0 remains the released baseline. ZIP direct use and the
+authenticated bootstrap are verified locally; the next gate is the complete
+v0.8.0-to-v0.9.0 repair, rollback, and uninstall lifecycle without a second
+installer.`

@@ -47,9 +47,19 @@ SHA-256；然后解压**完整**压缩包，打开解压后的 `CodexStatusPet` 
 不要只从 onedir 包中复制 `CodexStatusPet.exe`。`_internal` 运行时和发布清单
 必须与 EXE 保持同目录。ZIP 直接使用不会创建开始菜单快捷方式，也不会声明已安装状态。
 
-本仓库为 private。v0.8.0 Release 只能由 Tom 或已授权协作者通过已认证的 GitHub
-路径取得；项目不会伪造匿名公开下载命令。v0.9.0 Program 将为已安装使用新增经过
-验证的认证 PowerShell 部署命令。
+## 快速安装和升级（私有仓库）
+
+本仓库为 private。Tom 和已授权协作者必须先使用现有 GitHub CLI 完成 `gh auth login`。
+v0.9.0 Release 发布后，运行以下一条 PowerShell 命令即可下载该 Release 的 bootstrap、通过
+配套 SHA-256 校验 ZIP、安装或修复当前用户的运行时、创建或刷新开始菜单快捷方式并启动软件：
+
+```powershell
+$d = Join-Path $env:TEMP 'CodexStatusPet-bootstrap'; New-Item -ItemType Directory -Force -Path $d | Out-Null; gh release download --repo TomTang701/codex-windows-status-pet --pattern CodexStatusPet-bootstrap.ps1 --dir $d --clobber; & (Join-Path $d 'CodexStatusPet-bootstrap.ps1')
+```
+
+再次运行相同命令可升级至较新的已发布 Release，或完成已验证的同版本修复。它会保留
+CodexStatusPet 设置和无关 `.codex` 数据。这是经过认证的 GitHub CLI 路径，不是匿名公开
+下载命令；它不会读取或嵌入 token。
 
 ## 数据与安全边界
 

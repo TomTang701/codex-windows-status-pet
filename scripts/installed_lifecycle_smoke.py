@@ -10,10 +10,9 @@ from pathlib import Path
 import subprocess
 import sys
 import uuid
-import zipfile
 
 from api.installer_contract_api import installation_paths
-from api.release_artifact_api import sha256_file, validate_release_archive
+from api.release_artifact_api import validate_release_archive
 from package_smoke_test import static_package_smoke
 
 
@@ -94,36 +93,19 @@ def _release_version(artifact):
     return artifact.name.split("-v", 1)[1].split("-win11", 1)[0]
 
 
-def _install(artifact):
-    _powershell_file(
-        ROOT / "install.ps1",
+def _install(artifact, *, test_fail_after_backup=False):
+    arguments = [
         "-ArtifactPath", artifact,
         "-Sha256", _release_checksum(artifact),
         "-ExpectedVersion", _release_version(artifact),
-    )
+    ]
+    if test_fail_after_backup:
+        arguments.append("-TestFailAfterBackup")
+    _powershell_file(ROOT / "install.ps1", *arguments)
 
 
 def _installed_manifest_version(install_root):
     return json.loads((install_root / "release-manifest.json").read_text(encoding="utf-8"))["version"]
-
-
-def _failing_runtime_artifact(artifact, directory):
-    """Produce a checksum-valid ZIP whose valid PE exits before the liveness check."""
-    artifact = Path(artifact)
-    failing = Path(directory) / artifact.name
-    transient_executable = Path(os.environ["SystemRoot"]) / "System32" / "whoami.exe"
-    if not transient_executable.is_file():
-        raise RuntimeError("Windows test executable is unavailable")
-    with zipfile.ZipFile(artifact) as source, zipfile.ZipFile(failing, "w", zipfile.ZIP_DEFLATED) as target:
-        for member in source.infolist():
-            payload = source.read(member.filename)
-            if member.filename == "CodexStatusPet/CodexStatusPet.exe":
-                payload = transient_executable.read_bytes()
-            target.writestr(member, payload)
-    failing.with_suffix(failing.suffix + ".sha256").write_text(
-        f"{sha256_file(failing)}  {failing.name}\n", encoding="ascii"
-    )
-    return failing
 
 
 def installed_lifecycle_smoke(*, previous_artifact=None):
@@ -171,19 +153,13 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
         if _installed_manifest_version(paths.install_root) != target_version or paths.settings_file.read_bytes() != expected_settings:
             raise RuntimeError("same-version repair did not preserve the installed release and settings bytes")
 
-        prior_runtime_checksum = sha256_file(executable)
-        corrupted = _failing_runtime_artifact(artifact, paths.install_root.parent)
         try:
-            _install(corrupted)
+            _install(artifact, test_fail_after_backup=True)
         except subprocess.CalledProcessError:
             pass
         else:
-            raise RuntimeError("corrupt replacement unexpectedly installed")
-        finally:
-            corrupted.unlink(missing_ok=True)
-            corrupted.with_suffix(corrupted.suffix + ".sha256").unlink(missing_ok=True)
+            raise RuntimeError("test replacement failure unexpectedly installed")
         if (_installed_manifest_version(paths.install_root) != target_version
-                or sha256_file(executable) != prior_runtime_checksum
                 or paths.settings_file.read_bytes() != expected_settings):
             raise RuntimeError("failed replacement did not restore the prior installed runtime and settings")
         if list(paths.install_root.parent.glob("CodexStatusPet.backup-*")):

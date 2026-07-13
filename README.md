@@ -32,10 +32,22 @@ Do not copy only `CodexStatusPet.exe` out of the extracted onedir package. Its
 `_internal` runtime and release manifest must remain beside it. This ZIP-direct
 path does not create a Start Menu shortcut or installed-product state.
 
-The repository is private. The v0.8.0 release can be obtained only by a Tom or
-authorized collaborator using an authenticated GitHub path; anonymous public
-download commands are intentionally not documented. The v0.9.0 Program will add
-a verified authenticated PowerShell deployment command for installed use.
+## Quick Install and upgrade (private repository)
+
+The repository is private. Tom and authorized collaborators must first sign in
+with the existing GitHub CLI (`gh auth login`). After the v0.9.0 Release is
+published, run this one PowerShell command to acquire that Release's bootstrap,
+verify its ZIP through the included SHA-256 sidecar, install or repair the
+per-user runtime, create or refresh the Start Menu shortcut, and launch it:
+
+```powershell
+$d = Join-Path $env:TEMP 'CodexStatusPet-bootstrap'; New-Item -ItemType Directory -Force -Path $d | Out-Null; gh release download --repo TomTang701/codex-windows-status-pet --pattern CodexStatusPet-bootstrap.ps1 --dir $d --clobber; & (Join-Path $d 'CodexStatusPet-bootstrap.ps1')
+```
+
+Run the same command again to upgrade to a newer published Release or perform a
+verified same-version repair. It preserves CodexStatusPet settings and unrelated
+`.codex` data. This is an authenticated GitHub CLI path, not an anonymous
+public-download command, and it neither reads nor embeds a token.
 
 ## Notification-area tray icon
 

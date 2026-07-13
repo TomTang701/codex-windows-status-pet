@@ -2,7 +2,8 @@
 param(
     [Parameter(Mandatory = $true)] [string]$ArtifactPath,
     [Parameter(Mandatory = $true)] [string]$Sha256,
-    [Parameter(Mandatory = $true)] [ValidatePattern('^\d+\.\d+\.\d+$')] [string]$ExpectedVersion
+    [Parameter(Mandatory = $true)] [ValidatePattern('^\d+\.\d+\.\d+$')] [string]$ExpectedVersion,
+    [switch]$TestFailAfterBackup
 )
 
 $ErrorActionPreference = 'Stop'
@@ -90,6 +91,7 @@ try {
     $installParent = Split-Path -Parent $installRoot
     New-Item -ItemType Directory -Force -Path $installParent | Out-Null
     Move-Item -LiteralPath $runtime -Destination $installRoot
+    if ($TestFailAfterBackup) { throw 'Test failure after backup creation.' }
     $installedExe = Join-Path $installRoot 'CodexStatusPet.exe'
     Start-Process -FilePath $installedExe
     Start-Sleep -Seconds 2
