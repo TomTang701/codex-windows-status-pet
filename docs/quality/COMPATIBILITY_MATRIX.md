@@ -48,7 +48,7 @@ installation results are clean runner automation and are not physical Windows
 | v0.8.0 packaged lifecycle | GUI EXE first launch, duplicate-instance preservation, and normal close | Automated Windows host pass | `python scripts/packaged_runtime_smoke.py` passed against the real versioned EXE ZIP; no source process stood in for the artifact. |
 | v0.8.0 installed lifecycle | Fresh install, Start Menu entry, test-owned reinstall, normal uninstall preservation, and purge safety | Pending | Run `python scripts/installed_lifecycle_smoke.py` on the current physical host when its install root is clean and on a fresh GitHub Windows runner. Runner evidence is clean lifecycle automation, not physical Windows 11 client evidence unless its OS is verified. |
 | v0.8.0 clean VM/Sandbox/cross-user | Separate clean Windows 11 VM, Sandbox, or cross-user desktop automation | Approved limitation / Non-blocking | These environments are unavailable in the current execution context. They are not passed or claimed, and no VM/cross-user infrastructure will be added solely for v0.8.0. |
-| v0.8.0 README evidence | Three packaged English and three packaged Simplified Chinese product views | Pending | Capture the six required PNGs from the packaged EXE on the primary display at 100% Window Size and opacity, then pass `python scripts/check_readme_screenshots.py`. |
+| v0.8.0 README evidence | Three packaged English and three packaged Simplified Chinese product views | Physical Windows host pass | Maintainer-provided screenshots from the real packaged EXE show the normalized expanded overlay, overlay context menu, and Settings window in both languages; `python scripts/check_readme_screenshots.py` validates the exact six files and README language mapping. |
 
 ## Release gate
 

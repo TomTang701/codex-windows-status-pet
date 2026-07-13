@@ -36,6 +36,22 @@ icons button first. Right-click this icon to open the CodexStatusPet tray menu,
 then choose **Settings**. This icon is distinct from the Codex app icon and
 from Windows system icons because it has the light-blue face on the navy tile.
 
+![CodexStatusPet tray icon](docs/assets/tray-icon.png)
+
+## Packaged v0.8.0 screenshots
+
+All screenshots below were captured manually from the real packaged
+`CodexStatusPet.exe` on Windows 11 after normalization to the expanded layout,
+100% Window Size, and 100% opacity.
+
+### English
+
+![English main overlay](docs/assets/readme/en/main-overlay.png)
+
+![English overlay context menu](docs/assets/readme/en/context-menu.png)
+
+![English Settings window](docs/assets/readme/en/settings.png)
+
 ## Data and security boundary
 
 The companion starts only the local Codex app-server and reads local Codex session metadata. Its quota provider normalizes already-fetched local data only; it does not read `auth.json`, access tokens, or project files, send data to a third-party service, or maintain its own backend. The only network activity comes from the official local Codex app-server process.

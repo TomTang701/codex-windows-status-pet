@@ -2,6 +2,18 @@
 
 English: [English version](README.md)
 
+## 打包版 v0.8.0 截图
+
+以下截图均由维护者在 Windows 11 上从真实打包 `CodexStatusPet.exe` 手工捕获，捕获前已使用展开布局、100% 窗口大小和 100% 透明度。
+
+### 简体中文
+
+![简体中文主悬浮窗](docs/assets/readme/zh-CN/main-overlay.png)
+
+![简体中文主悬浮窗右键菜单](docs/assets/readme/zh-CN/context-menu.png)
+
+![简体中文设置窗口](docs/assets/readme/zh-CN/settings.png)
+
 ## 通知区域托盘图标
 
 真实的 CodexStatusPet 托盘图标是**深海军蓝色方形底图上的浅蓝色圆脸，带两只小的深色方形眼睛**。它位于 Windows 右下角时钟附近的通知区域；若未显示，请先点击 `^` 展开隐藏图标。右键该图标即可打开 CodexStatusPet 托盘菜单，并选择“设置”。它与 Codex 应用图标及 Windows 系统图标不同：其特征是深蓝底上的浅蓝圆脸。

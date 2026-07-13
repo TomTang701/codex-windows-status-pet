@@ -11,15 +11,20 @@
   PyInstaller parent EXE → GUI child EXE process tree before requesting a normal
   close.
 - Known limitation: Windows UI automation cannot enumerate the no-frame tool
-  window in this environment, so authentic packaged screenshots and full visual
-  menu evidence remain pending; no substitute screenshot is permitted.
+  window in this environment. This does not invalidate visual evidence because
+  authentic maintainer-provided packaged screenshots now cover every required
+  language/view combination; no substitute or generated screenshot was used.
 - Primary-display screenshot attempt: the packaged EXE was normalized to
   `(100,100)`, 100% Window Size, 100% opacity, expanded mode, and all five
   rows enabled. Its real PyInstaller parent/child EXE processes remained alive,
   but Windows UI automation still enumerated no overlay window. This is recorded
   as a tool limitation, not a product defect; no shell-identity change will be
-  made for screenshot tooling. Authentic maintainer-provided overlay and context
-  menu captures are required for the four affected language/view combinations.
+  made for screenshot tooling. The authentic maintainer-provided overlay and
+  context-menu captures now satisfy the four affected language/view combinations.
+- Screenshot evidence: maintainer-provided packaged-EXE captures now supply all
+  six required views at `docs/assets/readme/en/` and `docs/assets/readme/zh-CN/`.
+  The companion `docs/assets/tray-icon.png` is an authentic tray capture used
+  only for icon discoverability, not as a duplicate formal screenshot gate.
 - Approved release-gate adjustment: clean Windows 11 VM, Windows Sandbox, and
   cross-user automation coverage are unavailable non-blocking environment
   limitations. They are not passed or claimed. A fresh GitHub Windows runner
@@ -33,12 +38,10 @@
   (191 tests plus document, version, dependency, compile, privacy, inventory,
   and startup checks); UI modules were exercised individually, with content-fit
   layout tests and the 25-step DPI probe separately confirmed green.
-- Next exact action: run the safe installed-lifecycle smoke on a fresh Windows
-  runner, capture six authentic packaged-runtime screenshots on the primary
-  display at 100% Window Size and opacity, then run RC and exact-head CI. The
-  current `.build` EXE test instance must first exit through its tray because
-  the build staging root is intentionally protected from in-use deletion.
-- Blocker: `The no-frame Tk tool window cannot be enumerated by available Windows
-  UI automation. Tom must provide the specific authentic packaged overlay/menu
-  screenshots that cannot be captured after primary-display normalization;
-  physical screenshot evidence remains unproven.`
+- Next exact action: after the current `.build` EXE exits through its tray, run
+  the safe installed-lifecycle smoke on this Windows host. Then run RC and
+  exact-head CI, which repeat the lifecycle smoke on a fresh GitHub Windows
+  runner. The build staging root is intentionally protected from in-use deletion.
+- Blocker: `The current packaged test instance is still running. It must exit
+  normally from the tray before the real installed-lifecycle smoke can mutate
+  the product-owned per-user install root.`
