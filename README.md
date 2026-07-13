@@ -18,14 +18,24 @@ Supported platform: Windows 11 x64. Windows 10 is Deferred, Not claimed, and Non
 - Weekly quota and the earliest future reset-credit expiry use local `HH:MM M/D` formatting without leading zeroes.
 - Settings actions: Save, Apply, Restore Defaults, and Close.
 - Context menu: localized Settings, topmost, lock, and persisted manual Compact controls. Notification-area menu: show, hide, open settings, and exit.
-- Uses `pythonw.exe`; no persistent command prompt window is required.
-- The repository launcher starts the companion on demand; it does not install an automatic sign-in entry.
+- The packaged product runs as `CodexStatusPet.exe`; no persistent command prompt window is required.
+- The source launcher starts the companion on demand for development only; it does not install an automatic sign-in entry.
 
-## Quick start
+## Packaged release quick start
 
-Double-click `start_codex_status_pet.cmd` in this repository.
+For normal use, download the official Release ZIP, verify its published
+SHA-256 when manually validating the artifact, extract the **complete** archive,
+open the extracted `CodexStatusPet` directory, and run `CodexStatusPet.exe`.
+`CodexStatusPet.exe` is the application entry point, not an installer.
 
-The bundled Python runtime is preferred. If it is unavailable, the launcher falls back to `pythonw.exe` on `PATH`. The fallback environment must install the packages listed in `requirements.txt`.
+Do not copy only `CodexStatusPet.exe` out of the extracted onedir package. Its
+`_internal` runtime and release manifest must remain beside it. This ZIP-direct
+path does not create a Start Menu shortcut or installed-product state.
+
+The repository is private. The v0.8.0 release can be obtained only by a Tom or
+authorized collaborator using an authenticated GitHub path; anonymous public
+download commands are intentionally not documented. The v0.9.0 Program will add
+a verified authenticated PowerShell deployment command for installed use.
 
 ## Notification-area tray icon
 
@@ -62,7 +72,15 @@ See [ROADMAP](docs/product/ROADMAP.md) for the phased roadmap and [API_SPEC](doc
 See [COMPATIBILITY_MATRIX](docs/quality/COMPATIBILITY_MATRIX.md) for current Windows evidence and release gates.
 See [development documentation](docs/README.md) for the document map and migration status.
 
-## Development checks
+## Development
+
+`start_codex_status_pet.cmd` is a source-development, debugging, source
+verification, and release-engineering launcher. It is not the normal product
+entry point. The bundled Python runtime is preferred; if it is unavailable, the
+launcher falls back to `pythonw.exe` on `PATH`, whose environment must install
+the packages listed in `requirements.txt`.
+
+### Development checks
 
 ```powershell
 python -m py_compile .\scripts\codex_status_pet.py

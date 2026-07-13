@@ -35,14 +35,21 @@ English: [English version](README.md)
 - 周额度和最近未来 Reset Credit 到期时间使用本地 `HH:MM M/D` 格式，月和日不补前导零。
 - 设置操作包括保存、应用、恢复默认值和关闭。
 - 右键菜单提供本地化的设置、置顶、锁定位置和可持久化手动 Compact 控制；通知区域菜单支持显示、隐藏、打开设置和退出。
-- 使用 `pythonw.exe`，无需保留命令提示符窗口。
-- 仓库启动器按需启动伴侣，不会安装 Windows 登录自动启动项。
+- 打包产品以 `CodexStatusPet.exe` 运行，无需保留命令提示符窗口。
+- 源码启动器仅供开发时按需启动伴侣，不会安装 Windows 登录自动启动项。
 
-## 快速启动
+## 打包 Release 快速开始
 
-双击仓库中的 `start_codex_status_pet.cmd`。
+正常使用时，请下载官方 Release ZIP；如需手动验证，请核对发布的
+SHA-256；然后解压**完整**压缩包，打开解压后的 `CodexStatusPet` 目录，
+并运行 `CodexStatusPet.exe`。`CodexStatusPet.exe` 是正式应用入口，不是安装器。
 
-启动器优先使用 Codex 捆绑的 Python 运行时；不可用时回退到 `PATH` 中的 `pythonw.exe`。回退环境必须安装 `requirements.txt` 中列出的包。
+不要只从 onedir 包中复制 `CodexStatusPet.exe`。`_internal` 运行时和发布清单
+必须与 EXE 保持同目录。ZIP 直接使用不会创建开始菜单快捷方式，也不会声明已安装状态。
+
+本仓库为 private。v0.8.0 Release 只能由 Tom 或已授权协作者通过已认证的 GitHub
+路径取得；项目不会伪造匿名公开下载命令。v0.9.0 Program 将为已安装使用新增经过
+验证的认证 PowerShell 部署命令。
 
 ## 数据与安全边界
 
@@ -54,7 +61,13 @@ English: [English version](README.md)
 参见 [COMPATIBILITY_MATRIX](docs/quality/COMPATIBILITY_MATRIX.zh-CN.md) 了解当前 Windows 证据和发布门禁。
 参见[开发文档首页](docs/README.zh-CN.md)了解文档地图和迁移状态。
 
-## 开发检查
+## 开发
+
+`start_codex_status_pet.cmd` 仅用于源码开发、调试、源码验证和发布工程，
+不是普通用户的产品入口。启动器优先使用 Codex 捆绑的 Python 运行时；不可用时
+回退到 `PATH` 中的 `pythonw.exe`，其环境必须安装 `requirements.txt` 中列出的包。
+
+### 开发检查
 
 ```powershell
 python -m py_compile .\scripts\codex_status_pet.py
