@@ -49,6 +49,11 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn(parent_creation, installer)
         self.assertLess(installer.index(parent_creation), installer.index(runtime_move))
 
+    def test_installer_requires_manifest_version_to_match_the_resolved_release(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        self.assertIn("ExpectedVersion", installer)
+        self.assertIn("$manifest.version -ne $ExpectedVersion", installer)
+
 
 if __name__ == "__main__":
     unittest.main()

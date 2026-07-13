@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)] [string]$ArtifactPath,
-    [Parameter(Mandatory = $true)] [string]$Sha256
+    [Parameter(Mandatory = $true)] [string]$Sha256,
+    [Parameter(Mandatory = $true)] [ValidatePattern('^\d+\.\d+\.\d+$')] [string]$ExpectedVersion
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,7 +69,7 @@ try {
     $manifestPath = Join-Path $runtime 'release-manifest.json'
     if (!(Test-Path -LiteralPath $manifestPath)) { throw 'Release manifest is missing.' }
     $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-    if ($manifest.schema_version -ne 1 -or $manifest.product -ne 'codex-windows-status-pet' -or $manifest.platform -ne 'windows' -or $manifest.arch -ne 'x64' -or $manifest.entrypoint -ne 'CodexStatusPet.exe') { throw 'Release manifest is invalid.' }
+    if ($manifest.schema_version -ne 1 -or $manifest.product -ne 'codex-windows-status-pet' -or $manifest.version -ne $ExpectedVersion -or $manifest.platform -ne 'windows' -or $manifest.arch -ne 'x64' -or $manifest.entrypoint -ne 'CodexStatusPet.exe') { throw 'Release manifest is invalid.' }
     $entrypoint = Join-Path $runtime $manifest.entrypoint
     if (!(Test-Path -LiteralPath $entrypoint)) { throw 'Release entry point is missing.' }
 

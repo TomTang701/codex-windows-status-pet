@@ -88,6 +88,10 @@ def _release_checksum(artifact):
     return Path(f"{artifact}.sha256").read_text(encoding="ascii").split()[0]
 
 
+def _release_version(artifact):
+    return artifact.name.split("-v", 1)[1].split("-win11", 1)[0]
+
+
 def installed_lifecycle_smoke():
     """Prove install, reinstall, normal uninstall, and purge stay product-scoped."""
     if sys.platform != "win32":
@@ -105,7 +109,7 @@ def installed_lifecycle_smoke():
     paths.settings_file.parent.mkdir(parents=True, exist_ok=True)
     sentinel.write_text("unrelated Codex data", encoding="utf-8")
     try:
-        _powershell_file(ROOT / "install.ps1", "-ArtifactPath", artifact, "-Sha256", checksum)
+        _powershell_file(ROOT / "install.ps1", "-ArtifactPath", artifact, "-Sha256", checksum, "-ExpectedVersion", _release_version(artifact))
         executable = paths.install_root / "CodexStatusPet.exe"
         if not executable.is_file() or not paths.shortcut.is_file():
             raise RuntimeError("installed product executable or Start Menu shortcut is missing")
@@ -115,7 +119,7 @@ def installed_lifecycle_smoke():
         _powershell_file(paths.install_root / "uninstall.ps1")
         if paths.install_root.exists() or paths.shortcut.exists() or not paths.settings_file.exists():
             raise RuntimeError("normal uninstall did not remove only product files")
-        _powershell_file(ROOT / "install.ps1", "-ArtifactPath", artifact, "-Sha256", checksum)
+        _powershell_file(ROOT / "install.ps1", "-ArtifactPath", artifact, "-Sha256", checksum, "-ExpectedVersion", _release_version(artifact))
         _powershell_file(paths.install_root / "uninstall.ps1", "-PurgeSettings")
         if paths.install_root.exists() or paths.shortcut.exists() or paths.settings_file.exists():
             raise RuntimeError("purge uninstall did not remove the product settings file")
