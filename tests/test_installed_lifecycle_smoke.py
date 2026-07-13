@@ -17,10 +17,17 @@ from installed_lifecycle_smoke import (
     installed_lifecycle_paths,
     installed_process_probe_command,
     main,
+    windows_powershell_executable,
 )
 
 
 class InstalledLifecycleSmokeTests(unittest.TestCase):
+    def test_windows_powershell_executable_uses_the_system_powershell_51_path(self):
+        self.assertEqual(
+            windows_powershell_executable(Path("C:/Windows")),
+            Path("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"),
+        )
+
     def test_main_writes_success_result_file_after_the_lifecycle_smoke_passes(self):
         with tempfile.TemporaryDirectory() as directory:
             result_file = Path(directory) / "lifecycle-result.json"

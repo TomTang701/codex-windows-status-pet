@@ -41,9 +41,18 @@ def ensure_clean_install_root(paths):
         raise RuntimeError("refusing to mutate an existing installed product")
 
 
+def windows_powershell_executable(system_root):
+    """Return the Windows PowerShell host that supplies installer cmdlets."""
+    return Path(system_root) / "System32" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
+
+
+def _powershell_executable():
+    return str(windows_powershell_executable(Path(os.environ["SystemRoot"])))
+
+
 def _powershell_file(script, *arguments):
     return subprocess.run(
-        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script), *map(str, arguments)],
+        [_powershell_executable(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script), *map(str, arguments)],
         check=True,
         cwd=ROOT,
         text=True,
@@ -66,7 +75,7 @@ def installed_process_probe_command(executable):
 def _installed_process_is_running(executable):
     command = installed_process_probe_command(executable)
     completed = subprocess.run(
-        ["powershell", "-NoProfile", "-Command", command],
+        [_powershell_executable(), "-NoProfile", "-Command", command],
         cwd=ROOT,
         text=True,
         encoding="utf-8",
