@@ -10,7 +10,7 @@
 
 - **Released:** v0.3.2 through v0.9.0 are merged, tagged, and published. v0.9.0 is the latest product release.
 - **Released v0.9.0 direction:** the versioned ZIP and `CodexStatusPet.exe` are the normal user path. Private-release Quick Install uses an authenticated GitHub CLI session without reading or embedding a token; the verified lifecycle covers repair, v0.8.0-to-v0.9.0 upgrade, rollback, normal uninstall, and purge uninstall while preserving the required settings and unrelated `.codex` data.
-- **Repository hygiene:** merged-head branch auto-deletion is enabled. Only branches proven merged or duplicate were removed; the closed unmerged `goal/reset-credit-repo-hardening` history remains intentionally retained.
+- **Repository hygiene:** merged-head branch auto-deletion is enabled. The final audit removed only branches proven merged, duplicate, or superseded by later merged delivery lineage; the remote now retains only `main`.
 - **Released v0.8.0 direction:** Windows productization and menu unification ship a checksum-verified PyInstaller onedir ZIP, safe per-user install/uninstall, Start Menu entry, unified localized tray/overlay menus, real packaged bilingual evidence, and clean-runner installed lifecycle CI. The ZIP and SHA-256 sidecar are published in the v0.8.0 GitHub Release.
 - **Historical verification:** v0.5.3 has real root-HWND RED/GREEN, full lifecycle identity coverage, exact-head Windows CI, and merged-main RC. v0.5.2 remains a closed stale-process investigation without a product release.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.

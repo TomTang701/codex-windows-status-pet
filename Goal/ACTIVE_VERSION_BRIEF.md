@@ -26,7 +26,8 @@ The merged-main formal RC passed. Exact-head GitHub Windows CI for PR #40
 passed before squash merge. The Release contains the versioned Windows ZIP,
 its SHA-256 sidecar, `install.ps1`, and the authenticated bootstrap script.
 Repository hygiene enabled automatic deletion of merged head branches and
-removed only branches proven merged or byte-for-byte duplicate. The distinct
-closed, unmerged `goal/reset-credit-repo-hardening` history remains retained.
+removed only branches proven merged, byte-for-byte duplicate, or superseded by
+later merged delivery lineage. The final historical branch audit confirmed that
+closed PR #2 had no remaining required work, so it was safely removed.
 
 **Status:** `COMPLETED / STOP — wait for Tom's next approved Goal.`

@@ -12,7 +12,7 @@ English: [English version](ROADMAP.md)
 
 - **已发布：** v0.3.2 至 v0.9.0 均已合并、打标签并正式发布。v0.9.0 是最新产品版本。
 - **已发布 v0.9.0 方向：** 版本化 ZIP 与 `CodexStatusPet.exe` 是普通用户入口。私有 Release 的快速安装使用已认证 GitHub CLI 会话，不读取或嵌入 token；已验证修复安装、v0.8.0 到 v0.9.0 升级、回滚、普通卸载和彻底卸载，同时保留要求保留的设置及无关 `.codex` 数据。
-- **仓库卫生：** 已启用合并 head 分支自动删除。仅删除已证明合并或重复的分支；已关闭但未合并的 `goal/reset-credit-repo-hardening` 历史被有意保留。
+- **仓库卫生：** 已启用合并 head 分支自动删除。最终审计仅删除已证明合并、重复或已被后续正式交付链路替代的分支；远端现在只保留 `main`。
 - **已发布 v0.8.0 方向：** Windows 产品化和菜单统一发布了带 SHA-256 校验的 PyInstaller onedir ZIP、安全的按用户安装/卸载、开始菜单入口、统一的本地化托盘/悬浮菜单、真实打包双语证据以及 clean-runner 已安装生命周期 CI。ZIP 与 SHA-256 sidecar 已发布在 v0.8.0 GitHub Release 中。
 - **历史验证：** v0.5.3 具有真实 root HWND RED/GREEN、完整生命周期身份覆盖、exact-head Windows CI 和合并后 RC。v0.5.2 保持为已关闭的陈旧进程调查，不产生产品发布。
 - **产品架构：** 外部伴侣使用本机官方 Codex app-server 数据、经过批准的本地会话元数据、五个稳定状态行、通知区域适配器，以及一个 80–200% 的规范“窗口大小”缩放值。
