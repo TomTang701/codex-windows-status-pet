@@ -41,6 +41,21 @@ class InstalledLifecycleSmokeTests(unittest.TestCase):
                 {"artifact": str(artifact), "passed": True},
             )
 
+    def test_main_passes_an_explicit_previous_release_to_the_upgrade_lifecycle(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            result_file = root / "lifecycle-result.json"
+            previous = root / "CodexStatusPet-v0.8.0-win11-x64.zip"
+            artifact = root / "CodexStatusPet-v0.9.0-win11-x64.zip"
+            with mock.patch("installed_lifecycle_smoke.installed_lifecycle_smoke", return_value=artifact) as smoke:
+                exit_code = main([
+                    "--previous-artifact", str(previous),
+                    "--result-file", str(result_file),
+                ])
+
+            self.assertEqual(exit_code, 0)
+            smoke.assert_called_once_with(previous_artifact=previous)
+
     def test_process_probe_embeds_the_exact_installed_executable_path(self):
         command = installed_process_probe_command(Path("C:/Users/Tom/AppData/Local/Programs/CodexStatusPet/CodexStatusPet.exe"))
         self.assertIn("'C:/Users/Tom/AppData/Local/Programs/CodexStatusPet/CodexStatusPet.exe'", command)

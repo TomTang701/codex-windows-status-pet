@@ -91,6 +91,8 @@ def main():
     checksum = sha256_file(artifact)
     sidecar = artifact.with_suffix(artifact.suffix + ".sha256")
     sidecar.write_text(f"{checksum}  {artifact.name}\n", encoding="ascii")
+    shutil.copy2(ROOT / "install.ps1", RELEASE / "install.ps1")
+    shutil.copy2(ROOT / "scripts" / "install_release.ps1", RELEASE / "CodexStatusPet-bootstrap.ps1")
     print(f"artifact={artifact}")
     print(f"sha256={checksum}")
 

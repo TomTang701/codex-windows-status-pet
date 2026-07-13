@@ -4,6 +4,10 @@ English: [English version](CHANGELOG.md)
 
 ## 未发布
 
+## 0.9.0 - 2026-07-12
+
+- 增加已验证的 ZIP 直接使用、私有 Release 的认证引导安装，以及覆盖修复、升级、回滚和卸载的每用户安装生命周期验证。
+
 ## 0.8.0 - 2026-07-12
 
 - 新增 Windows onedir 分发、manifest/checksum 边界、每用户安装生命周期，以及统一的主界面/通知区域菜单语义。

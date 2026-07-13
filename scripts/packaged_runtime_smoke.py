@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import ctypes
+from dataclasses import dataclass
+import json
+import os
 import struct
 import subprocess
 import sys
@@ -12,6 +15,7 @@ import zipfile
 from pathlib import Path
 
 from package_smoke_test import static_package_smoke
+from api.installer_contract_api import installation_paths
 from api.release_artifact_api import RELEASE_ROOT_NAME, validate_release_archive
 from api.runtime_api import SINGLE_INSTANCE_MUTEX_NAME
 
@@ -21,6 +25,65 @@ BM_CLICK = 0x00F5
 WM_NULL = 0x0000
 WINDOWS_GUI_SUBSYSTEM = 2
 TH32CS_SNAPPROCESS = 0x00000002
+
+
+@dataclass(frozen=True)
+class ZipDirectUseBoundary:
+    """Isolated user paths proving the extracted EXE has no installed state."""
+
+    environment: dict[str, str]
+    settings_file: Path
+    install_root: Path
+    shortcut: Path
+
+
+def zip_direct_use_boundary(root, environment=None):
+    """Return a source-independent temporary user environment for ZIP direct use."""
+    root = Path(root)
+    user_profile = root / "User"
+    local_app_data = root / "Local"
+    app_data = root / "Roaming"
+    paths = installation_paths(local_app_data, user_profile)
+    child_environment = dict(os.environ if environment is None else environment)
+    child_environment.pop("PYTHONPATH", None)
+    child_environment.update({
+        "USERPROFILE": str(user_profile),
+        "LOCALAPPDATA": str(local_app_data),
+        "APPDATA": str(app_data),
+        "HOMEDRIVE": user_profile.drive,
+        "HOMEPATH": str(user_profile)[len(user_profile.drive):],
+    })
+    return ZipDirectUseBoundary(
+        environment=child_environment,
+        settings_file=paths.settings_file,
+        install_root=paths.install_root,
+        shortcut=app_data / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Codex Windows Status Pet.lnk",
+    )
+
+
+def assert_zip_direct_use_exit(boundary, expected_settings):
+    """Require readable settings semantics without claiming installed state."""
+    try:
+        actual_settings = json.loads(boundary.settings_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError("ZIP direct use did not preserve readable product settings") from exc
+    for key, expected in expected_settings.items():
+        if actual_settings.get(key) != expected:
+            raise RuntimeError(f"ZIP direct use changed existing product setting: {key}")
+    if boundary.install_root.exists():
+        raise RuntimeError("ZIP direct use created an installed runtime")
+    if boundary.shortcut.exists():
+        raise RuntimeError("ZIP direct use created a Start Menu shortcut")
+
+
+def launch_zip_direct_executable(executable, boundary):
+    """Launch only the extracted runtime with no source-import environment."""
+    executable = Path(executable)
+    return subprocess.Popen(
+        [str(executable)],
+        cwd=str(executable.parent),
+        env=boundary.environment,
+    )
 
 
 class _ProcessEntry(ctypes.Structure):
@@ -276,12 +339,18 @@ def packaged_runtime_smoke():
     if _named_mutex_exists():
         raise RuntimeError("an existing Codex Windows Status Pet instance prevents runtime smoke")
     with tempfile.TemporaryDirectory(prefix="CodexStatusPet-runtime-") as directory:
+        root = Path(directory)
+        boundary = zip_direct_use_boundary(root)
+        boundary.settings_file.parent.mkdir(parents=True)
+        expected_settings = {"schema_version": 1, "x": 30, "y": 120, "language": "zh-CN"}
+        boundary.settings_file.write_text(json.dumps(expected_settings) + "\n", encoding="utf-8")
+        extraction = root / "extract"
         with zipfile.ZipFile(artifact) as archive:
-            archive.extractall(directory)
-        executable = Path(directory) / RELEASE_ROOT_NAME / "CodexStatusPet.exe"
+            archive.extractall(extraction)
+        executable = extraction / RELEASE_ROOT_NAME / "CodexStatusPet.exe"
         if pe_subsystem(executable) != WINDOWS_GUI_SUBSYSTEM:
             raise RuntimeError("packaged executable requires a console subsystem")
-        first = subprocess.Popen([str(executable)])
+        first = launch_zip_direct_executable(executable, boundary)
         duplicate = None
         try:
             _wait_until(
@@ -289,7 +358,7 @@ def packaged_runtime_smoke():
                 seconds=10,
                 message="first packaged process did not acquire its mutex and show a window",
             )
-            duplicate = subprocess.Popen([str(executable)])
+            duplicate = launch_zip_direct_executable(executable, boundary)
             _wait_until(
                 lambda: duplicate_notice_ready(duplicate.pid),
                 seconds=10,
@@ -304,6 +373,7 @@ def packaged_runtime_smoke():
             if not _live_process_tree_ids(first.pid):
                 raise RuntimeError("duplicate launch displaced the first packaged process")
             _close_test_process(first)
+            assert_zip_direct_use_exit(boundary, expected_settings)
         finally:
             for process in (duplicate, first):
                 if process is not None and _live_process_tree_ids(process.pid):

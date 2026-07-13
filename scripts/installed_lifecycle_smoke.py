@@ -12,6 +12,7 @@ import sys
 import uuid
 
 from api.installer_contract_api import installation_paths
+from api.release_artifact_api import validate_release_archive
 from package_smoke_test import static_package_smoke
 
 
@@ -88,34 +89,88 @@ def _release_checksum(artifact):
     return Path(f"{artifact}.sha256").read_text(encoding="ascii").split()[0]
 
 
-def installed_lifecycle_smoke():
-    """Prove install, reinstall, normal uninstall, and purge stay product-scoped."""
+def _release_version(artifact):
+    return artifact.name.split("-v", 1)[1].split("-win11", 1)[0]
+
+
+def _install(artifact, *, test_fail_after_backup=False):
+    arguments = [
+        "-ArtifactPath", artifact,
+        "-Sha256", _release_checksum(artifact),
+        "-ExpectedVersion", _release_version(artifact),
+    ]
+    if test_fail_after_backup:
+        arguments.append("-TestFailAfterBackup")
+    _powershell_file(ROOT / "install.ps1", *arguments)
+
+
+def _installed_manifest_version(install_root):
+    return json.loads((install_root / "release-manifest.json").read_text(encoding="utf-8"))["version"]
+
+
+def installed_lifecycle_smoke(*, previous_artifact=None):
+    """Prove a real update, repair, rollback, and both uninstall scopes."""
     if sys.platform != "win32":
         raise RuntimeError("installed lifecycle smoke requires Windows")
     artifact = static_package_smoke()
+    if previous_artifact is None:
+        raise RuntimeError("installed lifecycle smoke requires --previous-artifact for a real upgrade")
+    previous_artifact = Path(previous_artifact)
+    previous_version = _release_version(previous_artifact)
+    target_version = _release_version(artifact)
+    if previous_version == target_version:
+        raise RuntimeError("previous release must have a different version from the candidate")
+    validate_release_archive(previous_artifact, expected_version=previous_version)
     paths = installed_lifecycle_paths(
         local_app_data=Path(os.environ["LOCALAPPDATA"]),
         app_data=Path(os.environ["APPDATA"]),
         user_profile=Path(os.environ["USERPROFILE"]),
     )
     ensure_clean_install_root(paths)
-    checksum = _release_checksum(artifact)
     sentinel = paths.settings_file.parent / f"codex-status-pet-lifecycle-{uuid.uuid4().hex}.sentinel"
     prior_settings = paths.settings_file.read_bytes() if paths.settings_file.exists() else None
     paths.settings_file.parent.mkdir(parents=True, exist_ok=True)
     sentinel.write_text("unrelated Codex data", encoding="utf-8")
     try:
-        _powershell_file(ROOT / "install.ps1", "-ArtifactPath", artifact, "-Sha256", checksum)
+        _install(previous_artifact)
         executable = paths.install_root / "CodexStatusPet.exe"
         if not executable.is_file() or not paths.shortcut.is_file():
             raise RuntimeError("installed product executable or Start Menu shortcut is missing")
         if not _installed_process_is_running(executable):
             raise RuntimeError("installed executable did not remain running")
-        paths.settings_file.write_text('{"lifecycle_smoke": true}', encoding="utf-8")
+        if _installed_manifest_version(paths.install_root) != previous_version:
+            raise RuntimeError("initial installation does not retain the prior release provenance")
+        expected_settings = b'{\n  "lifecycle_smoke": true,\n  "x": 4151\n}\n'
+        paths.settings_file.write_bytes(expected_settings)
+
+        _install(artifact)
+        if _installed_manifest_version(paths.install_root) != target_version:
+            raise RuntimeError("upgrade did not install the candidate manifest version")
+        if paths.settings_file.read_bytes() != expected_settings or not sentinel.exists():
+            raise RuntimeError("upgrade did not preserve settings bytes and unrelated Codex data")
+
+        _install(artifact)
+        if _installed_manifest_version(paths.install_root) != target_version or paths.settings_file.read_bytes() != expected_settings:
+            raise RuntimeError("same-version repair did not preserve the installed release and settings bytes")
+
+        try:
+            _install(artifact, test_fail_after_backup=True)
+        except subprocess.CalledProcessError:
+            pass
+        else:
+            raise RuntimeError("test replacement failure unexpectedly installed")
+        if (_installed_manifest_version(paths.install_root) != target_version
+                or paths.settings_file.read_bytes() != expected_settings):
+            raise RuntimeError("failed replacement did not restore the prior installed runtime and settings")
+        if list(paths.install_root.parent.glob("CodexStatusPet.backup-*")):
+            raise RuntimeError("failed replacement left stale backup state")
+
         _powershell_file(paths.install_root / "uninstall.ps1")
         if paths.install_root.exists() or paths.shortcut.exists() or not paths.settings_file.exists():
             raise RuntimeError("normal uninstall did not remove only product files")
-        _powershell_file(ROOT / "install.ps1", "-ArtifactPath", artifact, "-Sha256", checksum)
+        if paths.settings_file.read_bytes() != expected_settings:
+            raise RuntimeError("normal uninstall did not preserve settings bytes")
+        _install(artifact)
         _powershell_file(paths.install_root / "uninstall.ps1", "-PurgeSettings")
         if paths.install_root.exists() or paths.shortcut.exists() or paths.settings_file.exists():
             raise RuntimeError("purge uninstall did not remove the product settings file")
@@ -135,12 +190,17 @@ def installed_lifecycle_smoke():
 def main(arguments=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "--previous-artifact",
+        type=Path,
+        help="a verified earlier release ZIP used to exercise a real upgrade transaction",
+    )
+    parser.add_argument(
         "--result-file",
         type=Path,
         help="write structured success evidence after the lifecycle smoke passes",
     )
     options = parser.parse_args(arguments)
-    artifact = installed_lifecycle_smoke()
+    artifact = installed_lifecycle_smoke(previous_artifact=options.previous_artifact)
     if options.result_file:
         options.result_file.parent.mkdir(parents=True, exist_ok=True)
         options.result_file.write_text(

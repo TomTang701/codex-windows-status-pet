@@ -10,7 +10,7 @@ import time
 import tkinter as tk
 from pathlib import Path
 
-APP_VERSION = "0.8.0"
+APP_VERSION = "0.9.0"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer

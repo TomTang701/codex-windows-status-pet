@@ -1,7 +1,9 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)] [string]$ArtifactPath,
-    [Parameter(Mandatory = $true)] [string]$Sha256
+    [Parameter(Mandatory = $true)] [string]$Sha256,
+    [Parameter(Mandatory = $true)] [ValidatePattern('^\d+\.\d+\.\d+$')] [string]$ExpectedVersion,
+    [switch]$TestFailAfterBackup
 )
 
 $ErrorActionPreference = 'Stop'
@@ -21,6 +23,9 @@ if ($actual -ne $Sha256.Trim().ToLowerInvariant()) { throw 'Release checksum doe
 
 $staging = Join-Path ([IO.Path]::GetTempPath()) "CodexStatusPet-stage-$([guid]::NewGuid())"
 $backup = "$installRoot.backup-$([guid]::NewGuid())"
+$settingsPath = Join-Path $env:USERPROFILE '.codex\codex-windows-status-pet.json'
+$settingsSnapshot = Join-Path $staging 'settings-before-install.json'
+$settingsExisted = $false
 $success = $false
 
 function Test-ProductInstanceRunning {
@@ -68,10 +73,14 @@ try {
     $manifestPath = Join-Path $runtime 'release-manifest.json'
     if (!(Test-Path -LiteralPath $manifestPath)) { throw 'Release manifest is missing.' }
     $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-    if ($manifest.schema_version -ne 1 -or $manifest.product -ne 'codex-windows-status-pet' -or $manifest.platform -ne 'windows' -or $manifest.arch -ne 'x64' -or $manifest.entrypoint -ne 'CodexStatusPet.exe') { throw 'Release manifest is invalid.' }
+    if ($manifest.schema_version -ne 1 -or $manifest.product -ne 'codex-windows-status-pet' -or $manifest.version -ne $ExpectedVersion -or $manifest.platform -ne 'windows' -or $manifest.arch -ne 'x64' -or $manifest.entrypoint -ne 'CodexStatusPet.exe') { throw 'Release manifest is invalid.' }
     $entrypoint = Join-Path $runtime $manifest.entrypoint
     if (!(Test-Path -LiteralPath $entrypoint)) { throw 'Release entry point is missing.' }
 
+    if (Test-Path -LiteralPath $settingsPath) {
+        Copy-Item -LiteralPath $settingsPath -Destination $settingsSnapshot -Force
+        $settingsExisted = $true
+    }
     Stop-InstalledProduct
 
     if (Test-ProductInstanceRunning) {
@@ -82,6 +91,7 @@ try {
     $installParent = Split-Path -Parent $installRoot
     New-Item -ItemType Directory -Force -Path $installParent | Out-Null
     Move-Item -LiteralPath $runtime -Destination $installRoot
+    if ($TestFailAfterBackup) { throw 'Test failure after backup creation.' }
     $installedExe = Join-Path $installRoot 'CodexStatusPet.exe'
     Start-Process -FilePath $installedExe
     Start-Sleep -Seconds 2
@@ -102,5 +112,9 @@ finally {
         Move-Item -LiteralPath $backup -Destination $installRoot
     }
     if ($success -and (Test-Path -LiteralPath $backup)) { Remove-Item -LiteralPath $backup -Recurse -Force }
+    if ($settingsExisted -and (Test-Path -LiteralPath $settingsSnapshot)) {
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $settingsPath) | Out-Null
+        Copy-Item -LiteralPath $settingsSnapshot -Destination $settingsPath -Force
+    }
     Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue
 }

@@ -49,6 +49,29 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn(parent_creation, installer)
         self.assertLess(installer.index(parent_creation), installer.index(runtime_move))
 
+    def test_installer_requires_manifest_version_to_match_the_resolved_release(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        self.assertIn("ExpectedVersion", installer)
+        self.assertIn("$manifest.version -ne $ExpectedVersion", installer)
+
+    def test_installer_snapshots_existing_settings_before_stopping_the_installed_runtime(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        snapshot = "$settingsSnapshot = Join-Path $staging 'settings-before-install.json'"
+        stop = "Stop-InstalledProduct"
+        restore = "Copy-Item -LiteralPath $settingsSnapshot -Destination $settingsPath -Force"
+        self.assertIn(snapshot, installer)
+        self.assertIn(restore, installer)
+        self.assertLess(installer.index(snapshot), installer.index(stop))
+
+    def test_installer_has_an_explicit_test_only_failure_after_backup_creation(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        switch = "[switch]$TestFailAfterBackup"
+        move = "Move-Item -LiteralPath $runtime -Destination $installRoot"
+        failure = "if ($TestFailAfterBackup) { throw 'Test failure after backup creation.' }"
+        self.assertIn(switch, installer)
+        self.assertIn(failure, installer)
+        self.assertLess(installer.index(move), installer.index(failure))
+
 
 if __name__ == "__main__":
     unittest.main()
