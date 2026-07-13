@@ -3,7 +3,7 @@
 - Program Goal: `ACTIVE — v0.9.0 Distribution, Upgrade, and Repository Hygiene`.
 - Released baseline: `v0.8.0` at `788f870bceb3d457e4b0708fa3620637092b5808`.
 - Active candidate: none.
-- Current phase: `Phase B — formal ZIP direct-use verification`.
+- Current phase: `Phase C — truthful one-command PowerShell deployment`.
 - Final target: released and reconciled `v0.9.0`.
 - Active Goal branch: `goal/v0.9.0-distribution-hygiene`, created from verified
   `origin/main` at `c7bc05e7ef9e77cb6c06632ccc3afb1901fe4547`.
@@ -25,10 +25,16 @@
   launcher to development, debugging, source verification, and release
   engineering. Private-release acquisition is stated truthfully; no anonymous
   download command is claimed before Phase C implements it.
-- Next exact action: establish a focused production-equivalent ZIP direct-use
-  RED that proves the current packaged-runtime smoke does not yet cover every
-  required v0.9.0 provenance and installed-state boundary, then extend the
-  smallest existing packaged-runtime authority to GREEN.
+- Phase B evidence: the current onedir ZIP was rebuilt in the v0.9.0 worktree
+  and exercised through the existing packaged-runtime smoke with a temporary
+  isolated user profile. The extracted EXE ran from its own directory with
+  `PYTHONPATH` removed, acquired/released the mutex, showed the duplicate notice,
+  and exited normally. Existing settings remained readable with their seeded
+  semantics intact; no installed runtime or Start Menu shortcut was created.
+- Next exact action: inspect GitHub CLI authenticated Release acquisition and
+  define the smallest bootstrap contract that downloads the official ZIP and
+  SHA-256 sidecar, verifies before invoking the existing `install.ps1`, and
+  reports distinct private-release resolution/acquisition/checksum failures.
 - STOP only after `v0.9.0` release, authoritative reconciliation, proven-safe
   remote branch cleanup, and final verification.
 - Blocker: none.

@@ -23,6 +23,6 @@ a token reader, a third-party quota endpoint, or a Codex-core change.
 
 ## Current release gate
 
-`ACTIVE / Phase B. v0.8.0 remains the released baseline. The EXE / ZIP /
-source-launch documentation contract is established; the next gate is formal
-ZIP direct-use provenance and lifecycle verification.`
+`ACTIVE / Phase C. v0.8.0 remains the released baseline. ZIP direct use is
+verified through the packaged EXE; the next gate is authenticated PowerShell
+release acquisition and verified deployment without a second installer.`
