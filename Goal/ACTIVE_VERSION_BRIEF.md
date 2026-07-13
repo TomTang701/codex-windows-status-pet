@@ -3,7 +3,7 @@
 ## Baseline and target
 
 - Released baseline: `v0.9.0` at `bdae1942856ffa00677e64c63142457d0f79efce`.
-- Active implementation: public HTTPS / GitHub REST Release acquisition and product ZIP
+- Released implementation: public HTTPS / GitHub REST Release acquisition and product ZIP
   discoverability correction.
 - Target product: `v0.9.1`, released and reconciled.
 
@@ -17,8 +17,8 @@ or a repository clone.
 
 ## Current gate
 
-Phase A passed the published v0.9.0 product ZIP provenance audit. The next gate is a
-focused RED/GREEN correction of `scripts/install_release.ps1` so public latest and exact
-stable-tag installation use GitHub REST metadata and exact Release assets without `gh`.
+v0.9.1 passed the public bootstrap focused tests, real latest/pinned lifecycle evidence,
+formal RC, exact-head Windows CI, merged-main package build, and public Release asset
+verification. The existing `install.ps1` remains the transaction authority.
 
-**Status:** `ACTIVE / Phase A → Phase B; blocker none.`
+**Status:** `RELEASED / v0.9.1; implementation scope none; blocker none.`

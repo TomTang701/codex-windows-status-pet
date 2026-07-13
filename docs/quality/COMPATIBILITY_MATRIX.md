@@ -25,10 +25,13 @@ installation results are clean runner automation and are not physical Windows
 
 ## v0.9.1 public distribution correction
 
-The candidate replaces authenticated `gh` acquisition with public REST Release
-metadata and exact `browser_download_url` assets. The release gate remains open
-until the candidate is packaged, published, and verified from the public latest
-and pinned bootstrap paths.
+v0.9.1 replaces authenticated `gh` acquisition with public REST Release metadata
+and exact `browser_download_url` assets. The release gate passed after packaging,
+publication, and verification from the public latest and pinned bootstrap paths.
+
+| Area | Coverage | Status | Evidence / next action |
+|---|---|---|---|
+| v0.9.1 public distribution | Public latest/pinned bootstrap, exact product ZIP/SHA/install assets, and existing installer delegation | Pass | PR #43 exact-head Windows CI passed; merged main `821d58a`; tag/Release `v0.9.1`; latest public install lifecycle passed; product ZIP SHA-256 `706f24bab7bc3054dd2bd410ab3ff60144972a20690796e0036568f8211ec338`. |
 
 | Area | Coverage | Status | Evidence / next action |
 |---|---|---|---|

@@ -1,13 +1,13 @@
 # ACTIVE PROGRAM GOAL — v0.9.1 Public Distribution Correction
 
-> **Status:** APPROVED PATCH RELEASE PROGRAM / SEQUENTIAL DELIVERY
+> **Status:** COMPLETED / RELEASED AND RECONCILED
 > **Program owner:** Tom
 > **Repository:** `TomTang701/codex-windows-status-pet`
 > **Repository visibility:** PUBLIC
 > **Released baseline:** `v0.9.0` at `bdae1942856ffa00677e64c63142457d0f79efce`
 > **Final target:** released and reconciled `v0.9.1`
 > **Execution model:** published asset provenance audit → public PowerShell bootstrap → product ZIP discoverability → lifecycle verification → one v0.9.1 patch release
-> **STOP:** only after v0.9.1 release, release-state reconciliation, proven-safe temporary branch cleanup, final remote `main`-only state, and final verification
+> **STOP:** satisfied after v0.9.1 release, release-state reconciliation, temporary branch cleanup, final remote `main`-only state, and final verification
 
 ## Active Goal authority
 

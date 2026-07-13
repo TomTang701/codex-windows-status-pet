@@ -1,9 +1,9 @@
 # Execution State
 
-- Program Goal: `ACTIVE — v0.9.1 Public Distribution Correction`.
+- Program Goal: `COMPLETED — v0.9.1 Public Distribution Correction`.
 - Released baseline: `v0.9.0` at `bdae1942856ffa00677e64c63142457d0f79efce`.
 - Repository visibility: public; authenticated `gh` is not part of the normal-user install path.
-- Current phase: `Phase C — candidate packaged; release preparation`.
+- Current phase: `Completed — v0.9.1 released and reconciled`.
 - Final target: released and reconciled `v0.9.1`.
 - Phase A evidence: the public v0.9.0 product ZIP `CodexStatusPet-v0.9.0-win11-x64.zip`
   was downloaded from the GitHub Release asset URL. Its 56,291,064-byte payload matches
@@ -23,9 +23,12 @@
 - Candidate evidence: `scripts/check_version_sources.py` passed; public bootstrap focused
   tests passed 6/6; real public v0.9.0 bootstrap smoke passed; v0.9.1 package build passed.
   Candidate ZIP SHA-256 is `8ba8ef5f1ea6cbe8ba55ea5fff52032d4bcebcd12e4c7f1b4627f013366dd327`.
-- Next exact action: review diff and publish the authorized v0.9.1 branch/PR, then obtain
-  exact-head CI and complete merge, tag, Release, public latest/pinned verification, and
-  final state reconciliation.
+- Release evidence: PR #43 merged to main at `821d58a499984bea79c7a57234920c77ff7549e1`;
+  tag `v0.9.1` and public Release exist; merged-main package SHA-256 is
+  `706f24bab7bc3054dd2bd410ab3ff60144972a20690796e0036568f8211ec338`; latest public
+  install lifecycle passed and cleaned its temporary install root.
+- Final state: remote branch list is reconciled to main only. Next action: STOP and wait
+  for Tom's next approved Goal.
 - Blocker: none.
 - STOP only after v0.9.1 Release, reconciliation, proven-safe temporary branch cleanup,
   final remote branch list exactly `main`, and final verification.

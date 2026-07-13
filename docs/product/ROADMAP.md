@@ -2,14 +2,14 @@
 
 简体中文: [中文版本](ROADMAP.zh-CN.md)
 
-**Status:** v0.9.0 released; v0.9.1 public distribution correction in progress
-**Latest released product:** `v0.9.0` (v0.9.1 candidate)
+**Status:** v0.9.1 released and reconciled
+**Latest released product:** `v0.9.1`
 **Active implementation scope:** None; wait for the next approved Goal
 
 ## Current state
 
-- **Released:** v0.3.2 through v0.9.0 are merged, tagged, and published. v0.9.0 remains the released baseline until v0.9.1 is published.
-- **v0.9.1 direction:** public REST Release bootstrap with exact product ZIP, checksum sidecar, and existing installer delegation; ordinary installation does not require GitHub CLI credentials.
+- **Released:** v0.3.2 through v0.9.1 are merged, tagged, and published. v0.9.1 is the latest product release.
+- **Released v0.9.1 direction:** public REST Release bootstrap with exact product ZIP, checksum sidecar, and existing installer delegation; ordinary installation does not require GitHub CLI credentials.
 - **Repository hygiene:** merged-head branch auto-deletion is enabled. The final audit removed only branches proven merged, duplicate, or superseded by later merged delivery lineage; the remote now retains only `main`.
 - **Released v0.8.0 direction:** Windows productization and menu unification ship a checksum-verified PyInstaller onedir ZIP, safe per-user install/uninstall, Start Menu entry, unified localized tray/overlay menus, real packaged bilingual evidence, and clean-runner installed lifecycle CI. The ZIP and SHA-256 sidecar are published in the v0.8.0 GitHub Release.
 - **Historical verification:** v0.5.3 has real root-HWND RED/GREEN, full lifecycle identity coverage, exact-head Windows CI, and merged-main RC. v0.5.2 remains a closed stale-process investigation without a product release.
