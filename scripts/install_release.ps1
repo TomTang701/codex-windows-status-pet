@@ -5,6 +5,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repository = 'TomTang701/codex-windows-status-pet'
+$releasesApi = "https://api.github.com/repos/$repository/releases"
+$headers = @{
+    Accept = 'application/vnd.github+json'
+    'User-Agent' = 'CodexStatusPet-public-bootstrap/0.9.1'
+}
 $staging = Join-Path ([IO.Path]::GetTempPath()) "CodexStatusPet-release-$([guid]::NewGuid())"
 
 function Fail-ReleaseBootstrap {
@@ -13,44 +18,54 @@ function Fail-ReleaseBootstrap {
 }
 
 try {
-    & gh auth status | Out-Null
-    if ($LASTEXITCODE -ne 0) { Fail-ReleaseBootstrap 'Authentication' 'run gh auth login with access to the private repository' }
-
-    if ($Tag) {
-        $releaseArguments = @('release', 'view', $Tag, '--repo', $repository, '--json', 'tagName,isDraft,isPrerelease,assets')
+    if ($Tag -and $Tag -notmatch '^v\d+\.\d+\.\d+$') { Fail-ReleaseBootstrap 'Release resolution' 'requested release tag must be vMAJOR.MINOR.PATCH' }
+    $metadataUri = if ($Tag) { "$releasesApi/tags/$Tag" } else { "$releasesApi/latest" }
+    try {
+        $release = Invoke-RestMethod -Uri $metadataUri -Headers $headers -Method Get -UseBasicParsing -ErrorAction Stop
     }
-    else {
-        $releaseArguments = @('release', 'view', '--repo', $repository, '--json', 'tagName,isDraft,isPrerelease,assets')
+    catch {
+        Fail-ReleaseBootstrap 'Public GitHub API request' "unable to resolve the requested published Release: $($_.Exception.Message)"
     }
-    $releaseText = & gh @releaseArguments
-    if ($LASTEXITCODE -ne 0) { Fail-ReleaseBootstrap 'Release resolution' 'unable to resolve the requested published Release' }
-    $release = $releaseText | ConvertFrom-Json
-    if ($release.isDraft -or $release.isPrerelease) { Fail-ReleaseBootstrap 'Release resolution' 'Release must be published and stable' }
-    if ($release.tagName -notmatch '^v(\d+\.\d+\.\d+)$') { Fail-ReleaseBootstrap 'Release resolution' 'Release tag must be vMAJOR.MINOR.PATCH' }
+    if ($release.draft -or $release.prerelease) { Fail-ReleaseBootstrap 'Release resolution' 'Release must be published and stable' }
+    if ($release.tag_name -notmatch '^v(\d+\.\d+\.\d+)$') { Fail-ReleaseBootstrap 'Release resolution' 'Release tag must be vMAJOR.MINOR.PATCH' }
+    if ($Tag -and $release.tag_name -cne $Tag) { Fail-ReleaseBootstrap 'Release resolution' 'pinned Release tag did not resolve exactly' }
 
     $expectedVersion = $Matches[1]
     $zipName = "CodexStatusPet-v$expectedVersion-win11-x64.zip"
     $checksumName = "$zipName.sha256"
     $required = @($zipName, $checksumName, 'install.ps1')
-    $assetNames = @($release.assets | ForEach-Object { $_.name })
+    $assetMap = @{}
+    foreach ($asset in @($release.assets)) {
+        if ($asset.name) { $assetMap[$asset.name] = $asset }
+    }
     foreach ($name in $required) {
-        if ($assetNames -notcontains $name) { Fail-ReleaseBootstrap 'Release resolution' "required asset is missing: $name" }
+        if (!$assetMap.ContainsKey($name)) { Fail-ReleaseBootstrap 'Release resolution' "required asset is missing: $name" }
+        if (!$assetMap[$name].browser_download_url) { Fail-ReleaseBootstrap 'Release resolution' "release asset download URL is missing: $name" }
     }
 
     New-Item -ItemType Directory -Force -Path $staging | Out-Null
-    & gh release download $release.tagName --repo $repository --dir $staging --pattern $zipName --pattern $checksumName --pattern 'install.ps1'
-    if ($LASTEXITCODE -ne 0) { Fail-ReleaseBootstrap 'Release acquisition' 'authenticated GitHub download failed' }
-
     $artifact = Join-Path $staging $zipName
     $sidecar = Join-Path $staging $checksumName
     $installer = Join-Path $staging 'install.ps1'
+    foreach ($download in @(
+        @{ Url = $assetMap[$zipName].browser_download_url; Path = $artifact },
+        @{ Url = $assetMap[$checksumName].browser_download_url; Path = $sidecar },
+        @{ Url = $assetMap['install.ps1'].browser_download_url; Path = $installer }
+    )) {
+        try {
+            Invoke-WebRequest -Uri $download.Url -Headers $headers -OutFile $download.Path -UseBasicParsing -ErrorAction Stop
+        }
+        catch {
+            Fail-ReleaseBootstrap 'Public Release asset download' "unable to download $($download.Path): $($_.Exception.Message)"
+        }
+    }
     if (!(Test-Path -LiteralPath $artifact) -or !(Test-Path -LiteralPath $sidecar) -or !(Test-Path -LiteralPath $installer)) { Fail-ReleaseBootstrap 'Release acquisition' 'download did not produce the required assets' }
     $checksumRecord = (Get-Content -LiteralPath $sidecar -Raw).Trim()
-    if ($checksumRecord -notmatch '^([0-9a-fA-F]{64})  .+$') { Fail-ReleaseBootstrap 'Checksum' 'release SHA-256 sidecar is invalid' }
+    if ($checksumRecord -notmatch '^([0-9a-fA-F]{64})\s+(.+)$' -or $Matches[2] -ne $zipName) { Fail-ReleaseBootstrap 'Checksum' 'release SHA-256 sidecar is invalid' }
 
     $expectedChecksum = $Matches[1]
     & $installer -ArtifactPath $artifact -Sha256 $expectedChecksum -ExpectedVersion $expectedVersion
-    if ($LASTEXITCODE -ne 0) { Fail-ReleaseBootstrap 'Installation' 'install.ps1 did not complete successfully' }
+    if (-not $?) { Fail-ReleaseBootstrap 'Installation' 'install.ps1 did not complete successfully' }
 }
 finally {
     Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue

@@ -32,22 +32,32 @@ Do not copy only `CodexStatusPet.exe` out of the extracted onedir package. Its
 `_internal` runtime and release manifest must remain beside it. This ZIP-direct
 path does not create a Start Menu shortcut or installed-product state.
 
-## Quick Install and upgrade (private repository)
+## Quick Install and upgrade (public repository)
 
-The repository is private. Tom and authorized collaborators must first sign in
-with the existing GitHub CLI (`gh auth login`). After the v0.9.0 Release is
-published, run this one PowerShell command to acquire that Release's bootstrap,
-verify its ZIP through the included SHA-256 sidecar, install or repair the
-per-user runtime, create or refresh the Start Menu shortcut, and launch it:
+The public bootstrap uses GitHub's anonymous REST Release metadata and exact
+published assets. It does not require Git, GitHub CLI, `gh auth login`, an
+account, a token, Python, pip, or a repository checkout. Run this PowerShell
+command to install or repair the latest stable Release:
 
 ```powershell
-$d = Join-Path $env:TEMP 'CodexStatusPet-bootstrap'; New-Item -ItemType Directory -Force -Path $d | Out-Null; gh release download --repo TomTang701/codex-windows-status-pet --pattern CodexStatusPet-bootstrap.ps1 --dir $d --clobber; & (Join-Path $d 'CodexStatusPet-bootstrap.ps1')
+& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1')))
 ```
 
 Run the same command again to upgrade to a newer published Release or perform a
-verified same-version repair. It preserves CodexStatusPet settings and unrelated
-`.codex` data. This is an authenticated GitHub CLI path, not an anonymous
-public-download command, and it neither reads nor embeds a token.
+verified same-version repair. To pin an exact stable version, add `-Tag` after
+the downloaded bootstrap has been invoked:
+
+```powershell
+& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v0.9.0
+```
+
+The bootstrap verifies the exact ZIP and SHA-256 sidecar, preserves
+CodexStatusPet settings and unrelated `.codex` data, and delegates the actual
+transaction to the existing `install.ps1`.
+
+The GitHub **Code -> Download ZIP** action and a `Source code (zip)` Release
+asset are source archives, not the product package. Use the versioned product
+ZIP named `CodexStatusPet-vX.Y.Z-win11-x64.zip` or the public bootstrap above.
 
 ## Notification-area tray icon
 
