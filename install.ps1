@@ -79,6 +79,8 @@ try {
     }
 
     if (Test-Path -LiteralPath $installRoot) { Move-Item -LiteralPath $installRoot -Destination $backup }
+    $installParent = Split-Path -Parent $installRoot
+    New-Item -ItemType Directory -Force -Path $installParent | Out-Null
     Move-Item -LiteralPath $runtime -Destination $installRoot
     $installedExe = Join-Path $installRoot 'CodexStatusPet.exe'
     Start-Process -FilePath $installedExe

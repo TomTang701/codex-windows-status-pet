@@ -65,3 +65,11 @@
   installer/lifecycle RED/GREEN tests and a fresh real local artifact lifecycle
   run passed. Next action: push this narrow compatibility correction and verify
   a new exact-head Windows workflow.
+- Final installer root cause: exact head `7a6de8b` then reached the runtime
+  move and failed only because a clean GitHub user profile lacked
+  `%LOCALAPPDATA%\Programs`. The installer now creates the existing install
+  root's parent immediately before moving the verified runtime. A focused RED
+  proved the prior absence; GREEN, installer/lifecycle regression tests, an
+  isolated fresh-user artifact lifecycle (parent absent at start), and a fresh
+  formal RC all passed. Next action: push this final narrow correction and
+  obtain exact-head Windows CI.

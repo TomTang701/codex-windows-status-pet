@@ -42,6 +42,13 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn("[Security.Cryptography.SHA256]::Create()", installer)
         self.assertIn("[IO.File]::OpenRead", installer)
 
+    def test_installer_creates_a_missing_install_parent_before_moving_the_runtime(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        parent_creation = "New-Item -ItemType Directory -Force -Path $installParent"
+        runtime_move = "Move-Item -LiteralPath $runtime -Destination $installRoot"
+        self.assertIn(parent_creation, installer)
+        self.assertLess(installer.index(parent_creation), installer.index(runtime_move))
+
 
 if __name__ == "__main__":
     unittest.main()
