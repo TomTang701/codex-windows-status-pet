@@ -1,12 +1,12 @@
 # ACTIVE PROGRAM GOAL — v0.9.0 Distribution, Upgrade, and Repository Hygiene
 
-> **Status:** APPROVED PROGRAM / SEQUENTIAL DELIVERY
+> **Status:** COMPLETED / STOP
 > **Program owner:** Tom
 > **Repository:** `TomTang701/codex-windows-status-pet`
-> **Released baseline:** `v0.8.0` at `788f870bceb3d457e4b0708fa3620637092b5808`
-> **Final target:** released and reconciled `v0.9.0`
+> **Released baseline:** `v0.9.0` at `bdae1942856ffa00677e64c63142457d0f79efce`
+> **Final target:** released and reconciled `v0.9.0` — achieved
 > **Execution model:** user distribution contract → install/upgrade lifecycle → repository branch hygiene → one v0.9.0 product release
-> **STOP:** only after v0.9.0 release, final reconciliation, proven-safe remote branch cleanup, and final verification
+> **STOP:** achieved; wait for Tom's next approved Goal.
 
 ## Program sequence
 

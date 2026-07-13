@@ -6,6 +6,15 @@ English: [English version](COMPATIBILITY_MATRIX.md)
 
 Windows Sandbox、独立干净 Windows 11 VM 和跨 Windows 用户桌面自动化在当前环境不可用，已获批准作为**非阻塞环境限制**；它们不是已通过的证据，也不会为 v0.8.0 新增 VM 或跨用户自动化基础设施。真实打包 EXE 生命周期仍以当前 Windows 主机为客户端证据；GitHub Windows runner 的安装生命周期结果属于干净 runner 自动化证据，除非独立验证运行器操作系统，否则不声明为实体 Windows 11 客户端证据。正式 README 证据为英文和简体中文各三张真实打包 EXE 截图：主悬浮窗、右键菜单和设置窗口。
 
+## v0.9.0 分发与生命周期证据
+
+| 范围 | 覆盖内容 | 状态 | 证据/下一步 |
+|---|---|---|---|
+| v0.9.0 ZIP 直接使用 | 解压完整 onedir ZIP，并在没有源运行时的情况下运行 `CodexStatusPet.exe` | 自动化 Windows 主机通过 | 隔离的打包运行时 smoke 在移除 `PYTHONPATH` 后通过，且没有创建安装状态或开始菜单快捷方式。 |
+| v0.9.0 已认证部署 | 私有 GitHub Release 解析、ZIP/SHA 获取和 installer 委托 | 自动化通过 | bootstrap smoke 通过；实现要求已认证的 `gh` 会话，不读取嵌入或外部 token。 |
+| v0.9.0 已安装生命周期 | 从 v0.8.0 升级、修复安装、回滚、普通卸载和彻底卸载 | 实体 Windows 主机及 GitHub Windows CI 通过 | 聚焦生命周期 smoke 保留 settings 字节和无关 `.codex` 数据，清理测试残留，并在本地和 PR #40 exact-head CI 通过。 |
+| v0.9.0 发布 | 合并后 main RC、带注释标签、Release ZIP 和 SHA-256 sidecar | 通过 | RC 在 `bdae1942856ffa00677e64c63142457d0f79efce` 通过；标签与面向协作者的私有 Release 指向同一提交。 |
+
 **状态：** 持续维护的测试记录  
 **规则：** 模拟测试或无界面测试不能替代实体 Windows 测试结果。
 
