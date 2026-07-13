@@ -36,6 +36,12 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn("CloseMainWindow", installer)
         self.assertIn("Wait-Process", installer)
 
+    def test_installer_checksum_uses_dotnet_sha256_without_the_optional_get_filehash_cmdlet(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        self.assertNotIn("Get-FileHash", installer)
+        self.assertIn("[Security.Cryptography.SHA256]::Create()", installer)
+        self.assertIn("[IO.File]::OpenRead", installer)
+
 
 if __name__ == "__main__":
     unittest.main()

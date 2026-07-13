@@ -8,7 +8,15 @@ $ErrorActionPreference = 'Stop'
 $product = 'CodexStatusPet'
 $installRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'Programs\CodexStatusPet'))
 $artifact = Get-Item -LiteralPath $ArtifactPath -ErrorAction Stop
-$actual = (Get-FileHash -LiteralPath $artifact.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+$stream = [IO.File]::OpenRead($artifact.FullName)
+$hasher = [Security.Cryptography.SHA256]::Create()
+try {
+    $actual = ([BitConverter]::ToString($hasher.ComputeHash($stream))).Replace('-', '').ToLowerInvariant()
+}
+finally {
+    $hasher.Dispose()
+    $stream.Dispose()
+}
 if ($actual -ne $Sha256.Trim().ToLowerInvariant()) { throw 'Release checksum does not match.' }
 
 $staging = Join-Path ([IO.Path]::GetTempPath()) "CodexStatusPet-stage-$([guid]::NewGuid())"

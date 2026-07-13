@@ -56,10 +56,12 @@
   for exact-head GitHub Windows CI.
 - Blocker: no local technical blocker. Exact-head GitHub CI is pending a remote
   branch push and is not claimed locally.
-- CI incident: PR #38 on exact head `306e6b4` passed the formal RC but failed
-  the clean-runner installed lifecycle smoke because the unqualified
-  `powershell` PATH resolution did not expose `Get-FileHash`. The lifecycle
-  helper now explicitly targets Windows PowerShell 5.1 from `SystemRoot`; its
-  focused RED/GREEN test and a fresh real local artifact lifecycle run both
-  passed. Next action: push this narrow CI correction and verify a new
-  exact-head Windows workflow.
+- CI investigation: PR #38 heads `306e6b4` and `0e630e9` both passed formal
+  RC but failed the clean-runner installed lifecycle smoke. The second run
+  proved that explicitly selecting Windows PowerShell 5.1 was insufficient:
+  its command line was correct, but `Get-FileHash` itself was unavailable.
+  The installer now computes the same fail-closed SHA-256 digest through the
+  .NET cryptography API and does not depend on that optional cmdlet. Focused
+  installer/lifecycle RED/GREEN tests and a fresh real local artifact lifecycle
+  run passed. Next action: push this narrow compatibility correction and verify
+  a new exact-head Windows workflow.
