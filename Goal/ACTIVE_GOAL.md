@@ -1,10 +1,10 @@
 # ACTIVE PROGRAM GOAL — v0.8.0 Windows Productization and Menu Unification
 
-> **Status:** APPROVED / ACTIVE
+> **Status:** COMPLETED / RECONCILED
 > **Program owner:** Tom
 > **Repository:** `TomTang701/codex-windows-status-pet`
-> **Released baseline:** `v0.7.1` at `e45c457361d0ac3592e7d1e20671bc54f690661e`
-> **Target product:** `v0.8.0`
+> **Released product:** `v0.8.0` at `788f870bceb3d457e4b0708fa3620637092b5808`
+> **Target product:** `v0.8.0` (released)
 
 ## Objective
 
@@ -62,3 +62,10 @@ and `docs/superpowers/plans/2026-07-12-v0.8.0-productization-menu.md`.
 
 After v0.8.0 reconciliation, do not begin another version or product feature
 without Tom's next approved Goal.
+
+## Release reconciliation
+
+v0.8.0 was squash-merged through PR #38, revalidated on merged main, tagged
+`v0.8.0`, and published with the ZIP and SHA-256 sidecar. Exact-head Windows CI
+proved the clean-runner installed lifecycle. Current implementation scope is
+none; wait for Tom's next approved Goal.

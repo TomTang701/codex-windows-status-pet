@@ -2,9 +2,9 @@
 
 ## Baseline and target
 
-- Latest released product: `v0.7.1` at `e45c457361d0ac3592e7d1e20671bc54f690661e`.
-- Active candidate: `v0.8.0`; it is not released, tagged, or published.
-- v0.7.1 remains the product baseline until all v0.8.0 release gates pass.
+- Latest released product: `v0.8.0` at `788f870bceb3d457e4b0708fa3620637092b5808`.
+- Active candidate: none.
+- v0.8.0 is tagged and published; it is the current product baseline.
 
 ## Approved outcome
 
@@ -23,8 +23,8 @@ scope.
 
 ## Current release gate
 
-`ACTIVE — implementation and evidence gathering. Do not create a v0.8.0 tag or
-GitHub Release until packaged runtime, installed lifecycle, six authentic
-screenshots, Quality, formal RC, and exact-head CI are all proven. Windows
-Sandbox, clean VM, and cross-user coverage are approved non-blocking environment
-limitations, not passing evidence.`
+`RELEASED / RECONCILED. Packaged runtime, installed lifecycle, six authentic
+screenshots, formal RC, exact-head Windows CI, merged-main RC, tag, and GitHub
+Release are proven. Windows Sandbox, clean VM, and cross-user coverage remain
+approved non-blocking limitations, not passing evidence. No implementation scope
+is active.`
