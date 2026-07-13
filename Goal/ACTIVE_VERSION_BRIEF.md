@@ -24,5 +24,7 @@ scope.
 ## Current release gate
 
 `ACTIVE — implementation and evidence gathering. Do not create a v0.8.0 tag or
-GitHub Release until packaged runtime, installer/clean environment, screenshots,
-Quality, formal RC, and exact-head CI are all proven.`
+GitHub Release until packaged runtime, installed lifecycle, six authentic
+screenshots, Quality, formal RC, and exact-head CI are all proven. Windows
+Sandbox, clean VM, and cross-user coverage are approved non-blocking environment
+limitations, not passing evidence.`

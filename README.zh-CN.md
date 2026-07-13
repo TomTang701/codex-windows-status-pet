@@ -2,6 +2,10 @@
 
 English: [English version](README.md)
 
+## 通知区域托盘图标
+
+真实的 CodexStatusPet 托盘图标是**深海军蓝色方形底图上的浅蓝色圆脸，带两只小的深色方形眼睛**。它位于 Windows 右下角时钟附近的通知区域；若未显示，请先点击 `^` 展开隐藏图标。右键该图标即可打开 CodexStatusPet 托盘菜单，并选择“设置”。它与 Codex 应用图标及 Windows 系统图标不同：其特征是深蓝底上的浅蓝圆脸。
+
 这是一个非官方 Windows Codex 外部伴侣工具，提供小型桌面悬浮窗和通知区域图标，用于显示 Codex 活动、额度和重置次数。
 
 受支持平台：Windows 11 x64。Windows 10 为延期、不声明支持、非阻塞；ARM64 和 32 位 Windows 不在声明范围内。

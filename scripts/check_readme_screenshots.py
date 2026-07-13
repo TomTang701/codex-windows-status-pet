@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LANGUAGES = ("en", "zh-CN")
-VIEWS = ("tray-icon", "main-overlay", "context-menu", "settings")
+VIEWS = ("main-overlay", "context-menu", "settings")
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 

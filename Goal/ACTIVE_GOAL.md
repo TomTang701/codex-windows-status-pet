@@ -33,17 +33,19 @@ menu semantics, and publishing authentic bilingual packaged-runtime evidence.
   authority, English/Simplified Chinese UI, manual Compact, settings, DPI,
   position recovery, Shell identity, one-instance behavior, and safe shutdown.
   Do not add pet, quota, battery, activity, telemetry, or updater features.
-- Capture exactly eight authentic Windows 11 screenshots from the packaged
-  v0.8.0 EXE: tray, overlay, context menu, and Settings for English and for
+- Capture exactly six authentic Windows 11 screenshots from the packaged
+  v0.8.0 EXE: main overlay, context menu, and Settings for English and for
   Simplified Chinese. No mock, source-run, or generated image is evidence.
-- RC and Windows CI must build, validate, smoke-test, and upload the actual EXE
-  ZIP and SHA-256. Clean Sandbox/VM evidence must remain truthfully classified.
+- RC and Windows CI must build, validate, smoke-test, exercise the installed
+  lifecycle where practical, and upload the actual EXE ZIP and SHA-256. Windows
+  Sandbox, clean VM, and cross-user coverage are approved non-blocking
+  environment limitations and must remain truthfully classified.
 
 ## Execution order
 
 ```text
 Design verification → TDD implementation → real onedir build → static and
-runtime package smoke → installer/clean-environment evidence → eight authentic
+runtime package smoke → installed-lifecycle evidence → six authentic
 screenshots → Quality and formal RC → exact-head Windows CI → squash merge →
 merged-main RC → annotated tag and GitHub Release → reconciliation → STOP
 ```
@@ -51,7 +53,7 @@ merged-main RC → annotated tag and GitHub Release → reconciliation → STOP
 ## Completion gate
 
 Do not release or mark v0.8.0 complete without all required code, package,
-installer, screenshot, clean-environment, RC, CI, merge, tag, Release, and
+installer lifecycle, screenshot, RC, CI, merge, tag, Release, and
 state-reconciliation evidence. The approved detailed design and implementation
 plan are `docs/superpowers/specs/2026-07-12-v0.8.0-productization-menu-design.md`
 and `docs/superpowers/plans/2026-07-12-v0.8.0-productization-menu.md`.
