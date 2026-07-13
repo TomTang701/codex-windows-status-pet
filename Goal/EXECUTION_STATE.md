@@ -15,6 +15,9 @@
   menu evidence remain pending; no substitute screenshot is permitted.
 - Next exact action: run the packaged-runtime lifecycle smoke with no existing
   instance, then perform clean-environment installer verification and capture
-  the eight authentic packaged-runtime screenshots.
-- Blocker: `None for implementation; physical screenshot and clean-environment
-  evidence remain unproven.`
+  the eight authentic packaged-runtime screenshots. The current `.build` EXE
+  test instance must first exit through its tray because the build staging root
+  is intentionally protected from in-use deletion.
+- Blocker: `Human interaction is currently required to close the undiscoverable
+  Shell tool-window instance; physical screenshot and clean-environment evidence
+  also remain unproven.`

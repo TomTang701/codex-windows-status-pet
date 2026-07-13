@@ -52,6 +52,16 @@ def write_manifest(root, version):
     }, indent=2) + "\n", encoding="utf-8")
 
 
+def clean_build_paths(paths):
+    """Clean only project-owned staging paths or fail before a costly build."""
+    for path in paths:
+        shutil.rmtree(path, ignore_errors=True)
+        if Path(path).exists():
+            raise RuntimeError(
+                f"release staging path is in use: {path}; close the packaged test instance and retry"
+            )
+
+
 def zip_runtime(runtime, artifact):
     with zipfile.ZipFile(artifact, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(runtime.rglob("*")):
@@ -64,8 +74,7 @@ def main():
     version = app_version()
     subprocess.run([sys.executable, str(ROOT / "scripts" / "check_version_sources.py")], check=True)
     verify_build_dependencies()
-    for path in (PYINSTALLER_DIST, PYINSTALLER_WORK, RELEASE):
-        shutil.rmtree(path, ignore_errors=True)
+    clean_build_paths((PYINSTALLER_DIST, PYINSTALLER_WORK, RELEASE))
     subprocess.run([
         sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean",
         "--distpath", str(PYINSTALLER_DIST), "--workpath", str(PYINSTALLER_WORK),

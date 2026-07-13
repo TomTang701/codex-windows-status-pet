@@ -55,8 +55,10 @@ _TEXT = {
         "show_window": "Show window",
         "open_settings": "Open settings",
         "compact": "Compact",
+        "existing_instance": "Codex Windows Status Pet is already running.\nClose the existing instance before launching this copy.",
     },
     "zh-CN": {
+        "existing_instance": "Codex 状态宠物已在运行。\n请先关闭当前实例，再启动此副本。",
         "idle": "空闲",
         "thinking": "思考中",
         "tool_call": "调用工具",

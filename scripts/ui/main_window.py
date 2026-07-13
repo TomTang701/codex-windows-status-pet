@@ -26,6 +26,7 @@ try:
     from api.window_lifecycle_controller_api import WindowLifecycleController
     from api.window_recovery_api import recover_position
     from api.window_scale_api import derive_window_metrics
+    from api.localization_api import translate
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.quota_parse_api import parse_quota_payload
     from api.quota_state_api import QuotaState
@@ -50,6 +51,7 @@ except ModuleNotFoundError:
     from scripts.api.window_lifecycle_controller_api import WindowLifecycleController
     from scripts.api.window_recovery_api import recover_position
     from scripts.api.window_scale_api import derive_window_metrics
+    from scripts.api.localization_api import translate
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.quota_parse_api import parse_quota_payload
     from scripts.api.quota_state_api import QuotaState
@@ -68,15 +70,26 @@ def ensure_single_instance():
     return _single_instance_guard.acquire()
 
 
+def existing_instance_notice(language):
+    """Return the single-instance notice through the runtime localization authority."""
+    return translate(language, "existing_instance")
+
+
 def notify_existing_instance():
     """Explain why a windowed second launch exits without opening a window."""
+    language = "en"
+    try:
+        language = SettingsPersistenceController(
+            Path.home() / ".codex" / "codex-windows-status-pet.json"
+        ).load().settings["language"]
+    except (KeyError, OSError):
+        pass
     try:
         import ctypes
 
         ctypes.windll.user32.MessageBoxW(
             None,
-            "Codex Windows Status Pet is already running.\n"
-            "Close the existing instance before launching this copy.",
+            existing_instance_notice(language),
             "Codex Windows Status Pet",
             0x10,
         )

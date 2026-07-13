@@ -28,6 +28,12 @@ class SingleInstanceStartupTests(unittest.TestCase):
         self.assertEqual(stopped.exception.code, 0)
         notify.assert_called_once()
 
+    def test_existing_instance_notice_uses_localization_authority(self):
+        self.assertEqual(
+            main_window.existing_instance_notice("en"),
+            "Codex Windows Status Pet is already running.\nClose the existing instance before launching this copy.",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
