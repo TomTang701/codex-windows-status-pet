@@ -2,13 +2,14 @@
 
 简体中文: [中文版本](ROADMAP.zh-CN.md)
 
-**Status:** v0.7.1 released and reconciled
-**Latest released product:** `v0.7.1`
+**Status:** v0.8.0 released and reconciled
+**Latest released product:** `v0.8.0`
 **Active implementation scope:** None; wait for the next approved Goal
 
 ## Current state
 
-- **Released:** v0.3.2 through v0.7.1 are merged, tagged, and published. v0.7.1 is the latest product release.
+- **Released:** v0.3.2 through v0.8.0 are merged, tagged, and published. v0.8.0 is the latest product release.
+- **Released v0.8.0 direction:** Windows productization and menu unification ship a checksum-verified PyInstaller onedir ZIP, safe per-user install/uninstall, Start Menu entry, unified localized tray/overlay menus, real packaged bilingual evidence, and clean-runner installed lifecycle CI. The ZIP and SHA-256 sidecar are published in the v0.8.0 GitHub Release.
 - **Historical verification:** v0.5.3 has real root-HWND RED/GREEN, full lifecycle identity coverage, exact-head Windows CI, and merged-main RC. v0.5.2 remains a closed stale-process investigation without a product release.
 - **Product architecture:** the external companion uses local official Codex app-server data, local approved session metadata, five stable status rows, a notification-area adapter, and one canonical 80–200% Window Size scale.
 - **Released direction:** v0.5.4 remains a closed no-release investigation. v0.5.5 is the released mixed-DPI startup recovery patch. v0.6.0 is the released 5H Battery Indicator and Layout Tightening: it replaces the paw with a truthful 2×5 ten-cell battery while preserving five rows, compact battery-only behavior, mixed-DPI recovery, and Shell identity.

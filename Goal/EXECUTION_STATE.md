@@ -1,9 +1,9 @@
 # Execution State
 
-- Program Goal: `ACTIVE — v0.8.0 Windows Productization and Menu Unification`.
-- Released baseline: `v0.7.1` at `e45c457361d0ac3592e7d1e20671bc54f690661e`.
-- Active candidate: `v0.8.0` on `feat/v0.8.0-productization-menu`.
-- Current phase: `packaged artifact, installer, and CI/RC verification`.
+- Program Goal: `COMPLETED / RECONCILED — v0.8.0 Windows Productization and Menu Unification`.
+- Released product: `v0.8.0` at `788f870bceb3d457e4b0708fa3620637092b5808`.
+- Active candidate: none.
+- Current phase: `released / state reconciled`.
 - Completed evidence: shared menu model RED/GREEN; versioned PyInstaller onedir
   ZIP and SHA-256 static validation; real packaged EXE launch on Windows 11;
   source-instance collision now gives an explicit notification rather than a
@@ -73,3 +73,10 @@
   isolated fresh-user artifact lifecycle (parent absent at start), and a fresh
   formal RC all passed. Next action: push this final narrow correction and
   obtain exact-head Windows CI.
+- Release reconciliation: PR #38 was squash-merged at `788f870`; exact-head
+  Windows CI passed formal RC, clean-runner installed lifecycle, and artifact
+  upload. A detached merged-main worktree at `788f870` then passed formal RC.
+  Annotated tag `v0.8.0` and the GitHub Release publish the ZIP plus SHA-256
+  sidecar. Current implementation scope is none.
+- Next exact action: STOP and wait for Tom's next approved Goal.
+- Blocker: none.
