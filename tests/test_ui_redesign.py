@@ -566,7 +566,7 @@ class UiRedesignTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             self.destroy_app(app)
 
-    def test_settings_keyboard_shortcuts_apply_and_close(self):
+    def test_settings_has_no_product_shortcuts_but_escape_closes(self):
         app = self.new_app()
         try:
             app.apply_settings({**app.settings, "language": "en"})
@@ -578,10 +578,12 @@ class UiRedesignTests(unittest.TestCase):
                 for widget in widgets(dialog)
                 if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Draft")
             )
+            self.assertFalse(dialog.bind("<Alt-a>"))
+            self.assertFalse(dialog.bind("<Alt-s>"))
             dialog.focus_force()
             dialog.event_generate("<Alt-a>")
             app.update_idletasks()
-            self.assertIn("Save", status.cget("text"))
+            self.assertEqual(status.cget("text"), "Draft only · Apply to update")
             dialog.event_generate("<Escape>")
             app.update_idletasks()
             self.assertFalse(dialog.winfo_exists())

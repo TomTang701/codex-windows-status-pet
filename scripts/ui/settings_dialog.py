@@ -646,8 +646,6 @@ def show_settings_dialog(owner):
     translated(themed_button(buttons, text("apply"), apply_draft, width=8), "apply").pack(side="left", padx=3)
     translated(themed_button(buttons, text("restore_defaults"), restore_defaults, width=12), "restore_defaults").pack(side="left", padx=3)
     translated(themed_button(buttons, text("close"), lambda: owner.close_settings(dialog), width=8), "close").pack(side="left", padx=3)
-    dialog.bind("<Alt-a>", lambda _event: (apply_draft(), "break")[1])
-    dialog.bind("<Alt-s>", lambda _event: (save_and_close(), "break")[1])
     dialog.bind("<Escape>", lambda _event: (owner.close_settings(dialog), "break")[1])
     dialog.protocol("WM_DELETE_WINDOW", lambda: owner.close_settings(dialog))
     dialog.update_idletasks()
