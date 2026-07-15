@@ -38,7 +38,7 @@ publication, and verification from the public latest and pinned bootstrap paths.
 | Area | Coverage | Status | Evidence / next action |
 |---|---|---|---|
 | v0.9.2-beta.1 UI regression | Expanded four-row HUD, compact percentage battery, unified quota text color, progress-bar color, and Settings preview/menu coverage | Automated Windows host pass | Quality UI suite and screenshot checks pass on the isolated branch. |
-| v0.9.2-beta.1 Shell close paths | Settings Save, Close, window-manager close, topmost restoration, and delayed Shell identity normalization | Automated HWND lifecycle pass; physical observation pending | Run fresh physical taskbar observations before accepting a 1.0 replacement of `main`; this beta branch does not claim that evidence. |
+| v0.9.2-beta.1 Shell lifecycle | Settings Save/Close, window-manager close, topmost restoration, delayed refresh, and main context-menu open/close/action paths | Automated HWND lifecycle pass; physical observation pending | The menu path now refreshes both popup and owner HWNDs. Run fresh physical taskbar observations before accepting a 1.0 replacement of `main`; this beta branch does not claim that evidence. |
 
 | Area | Coverage | Status | Evidence / next action |
 |---|---|---|---|

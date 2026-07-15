@@ -8,15 +8,24 @@ import tkinter as tk
 try:
     from api.display_api import place_popup, work_area_for_point
     from api.menu_model_api import build_menu_items
+    from api.runtime_api import ensure_overlay_toolwindow
     from ui.theme import COLORS, FONT_FAMILY
 except ModuleNotFoundError:
     from scripts.api.display_api import place_popup, work_area_for_point
     from scripts.api.menu_model_api import build_menu_items
+    from scripts.api.runtime_api import ensure_overlay_toolwindow
     from scripts.ui.theme import COLORS, FONT_FAMILY
 
 
 def show_context_menu(owner, event):
     """Show and own the popup menu for a Pet-like owner object."""
+    def refresh_shell(widget):
+        try:
+            if widget.winfo_exists():
+                ensure_overlay_toolwindow(widget.winfo_id())
+        except tk.TclError:
+            pass
+
     old_menu = getattr(owner, "context_menu", None)
     if old_menu is not None:
         try:
@@ -29,6 +38,7 @@ def show_context_menu(owner, event):
     owner.context_menu = popup
     popup.overrideredirect(True)
     popup.attributes("-topmost", True)
+    refresh_shell(popup)
     popup.configure(bg=COLORS["border"])
     popup.geometry(f"+{event.x_root}+{event.y_root}")
 
@@ -40,11 +50,13 @@ def show_context_menu(owner, event):
             popup.destroy()
         except tk.TclError:
             pass
+        refresh_shell(owner)
 
     def run_and_close(command):
         close_popup()
         try:
             command()
+            refresh_shell(owner)
         except Exception:
             logging.getLogger("codex-status-pet").exception("context-menu command failed")
 

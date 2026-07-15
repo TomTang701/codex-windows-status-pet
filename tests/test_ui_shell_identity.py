@@ -10,6 +10,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 from tests import runtime_geometry_transition_probe
 from tests.runtime_geometry_transition_probe import CONFIG, DummyServer, DummyTray, ROOT
@@ -110,6 +111,33 @@ class ShellIdentityTests(unittest.TestCase):
                 app.set_compact(True)
                 app.set_compact(False)
                 app.update()
+                self.assert_shell_identity(app)
+            finally:
+                if app is not None:
+                    self.destroy_app(app)
+                Path.home = original_home
+
+    def test_context_menu_does_not_create_an_application_window(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            try:
+                app = self.create_app(home)
+                app.menu(SimpleNamespace(x_root=4200, y_root=200))
+                app.update_idletasks()
+                self.assert_shell_identity(app)
+                self.assert_shell_identity(app.context_menu)
+                topmost = next(
+                    widget for widget in app.context_menu.winfo_children()[0].winfo_children()
+                    if widget.winfo_class() == "Button" and "Always on top" in widget.cget("text")
+                )
+                topmost.invoke()
+                deadline = time.monotonic() + 0.35
+                while time.monotonic() < deadline:
+                    app.update()
+                    time.sleep(0.01)
                 self.assert_shell_identity(app)
             finally:
                 if app is not None:

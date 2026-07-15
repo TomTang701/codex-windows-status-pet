@@ -149,6 +149,18 @@ class MenuInteractionTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_context_menu_refreshes_shell_identity_for_popup_and_owner(self):
+        app = self.module["Pet"]()
+        try:
+            with mock.patch("ui.context_menu.ensure_overlay_toolwindow") as normalize:
+                app.menu(SimpleNamespace(x_root=4200, y_root=200))
+                normalize.assert_any_call(app.context_menu.winfo_id())
+                app.context_menu.event_generate("<Escape>")
+                app.update_idletasks()
+                normalize.assert_any_call(app.winfo_id())
+        finally:
+            self.destroy_app(app)
+
     def test_main_window_pushes_live_menu_state_to_tray(self):
         app = self.module["Pet"]()
         calls = []
