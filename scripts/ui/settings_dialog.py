@@ -80,17 +80,24 @@ def show_settings_dialog(owner):
         font=(FONT_FAMILY, 11, "bold"),
         anchor="w",
     ).pack(fill="x", pady=(2, 14))
-    for section in ("General", "Appearance", "Quota display", "Behavior", "Advanced"):
-        tk.Label(
+    navigation_section_labels = []
+    section_texts = {
+        "en": ("General", "Appearance", "Quota display", "Behavior", "Advanced"),
+        "zh-CN": ("\u901a\u7528", "\u5916\u89c2", "\u989d\u5ea6\u663e\u793a", "\u884c\u4e3a", "\u9ad8\u7ea7"),
+    }
+    for index, section in enumerate(section_texts[ui_language]):
+        navigation_label = tk.Label(
             navigation,
             text=section,
-            bg=COLORS["surface_alt"] if section == "General" else COLORS["surface"],
-            fg=COLORS["accent"] if section == "General" else COLORS["muted"],
-            font=(FONT_FAMILY, 9, "bold" if section == "General" else "normal"),
+            bg=COLORS["surface_alt"] if index == 0 else COLORS["surface"],
+            fg=COLORS["accent"] if index == 0 else COLORS["muted"],
+            font=(FONT_FAMILY, 9, "bold" if index == 0 else "normal"),
             anchor="w",
             padx=8,
             pady=7,
-        ).pack(fill="x", pady=1)
+        )
+        navigation_label.pack(fill="x", pady=1)
+        navigation_section_labels.append(navigation_label)
     body = tk.Frame(shell, bg=COLORS["background"], padx=4, pady=2)
     body.pack(side="left", fill="both", expand=True)
     alpha = tk.DoubleVar(value=draft["alpha"])
@@ -232,22 +239,41 @@ def show_settings_dialog(owner):
     translated(themed_label(source_control, text("five_hour"), fg=COLORS["muted"]), "five_hour").grid(row=1, column=0, sticky="w")
     translated(themed_label(source_control, text("weekly"), fg=COLORS["muted"]), "weekly").grid(row=1, column=1, sticky="e")
     translated(themed_label(body, text("language")), "language").grid(row=7, column=0, sticky="w")
-    language_combo = ttk.Combobox(body, textvariable=language, values=tuple(language_labels.values()), state="readonly", width=18)
+    combo_style = ttk.Style(dialog)
+    combo_style.configure(
+        "HUD.TCombobox",
+        fieldbackground=COLORS["surface"],
+        background=COLORS["surface_alt"],
+        foreground=COLORS["text"],
+        bordercolor=COLORS["border"],
+        lightcolor=COLORS["border"],
+        darkcolor=COLORS["border"],
+        arrowcolor=COLORS["accent"],
+    )
+    combo_style.map(
+        "HUD.TCombobox",
+        fieldbackground=[("readonly", COLORS["surface"])],
+        foreground=[("readonly", COLORS["text"])],
+        selectbackground=[("readonly", COLORS["surface_alt"])],
+        selectforeground=[("readonly", COLORS["text"])],
+    )
+    language_combo = ttk.Combobox(body, textvariable=language, values=tuple(language_labels.values()), state="readonly", width=18, style="HUD.TCombobox")
     language_combo.grid(row=7, column=1, sticky="w")
-    tk.Label(
+    row_visibility_title = tk.Label(
         body,
         text="Row visibility",
         bg=COLORS["background"],
         fg=COLORS["accent"],
         font=(FONT_FAMILY, 10, "bold"),
-    ).grid(row=8, column=0, columnspan=2, sticky="w", pady=(8, 2))
+    )
+    row_visibility_title.grid(row=8, column=0, columnspan=2, sticky="w", pady=(8, 2))
     translated(themed_checkbutton(body, text("show_five_hour"), show_primary_5h, command=lambda: refresh_preview()), "show_five_hour").grid(row=10, column=0, sticky="w")
     translated(themed_checkbutton(body, text("show_weekly"), show_weekly, command=lambda: refresh_preview()), "show_weekly").grid(row=10, column=1, sticky="w")
     translated(themed_checkbutton(body, text("show_reset_credit"), show_reset_credit, command=lambda: refresh_preview()), "show_reset_credit").grid(row=11, column=0, sticky="w")
 
     preview = tk.LabelFrame(
         body,
-        text="Live preview",
+        text="Live preview" if ui_language == "en" else "\u9884\u89c8",
         bg=COLORS["surface"],
         fg=COLORS["accent"],
         padx=10,
@@ -276,10 +302,11 @@ def show_settings_dialog(owner):
             else:
                 row.pack_forget()
         metrics = derive_window_metrics(window_scale_value if window_scale_value is not None else window_scale.get())
-        topmost_state = "topmost" if topmost.get() else "normal"
+        topmost_state = ("置顶" if topmost.get() else "普通") if ui_language == "zh-CN" else ("topmost" if topmost.get() else "normal")
         opacity_value = alpha_value if alpha_value is not None else alpha.get()
+        preview_prefix = "预览" if ui_language == "zh-CN" else "Preview"
         preview_meta.configure(
-            text=f"Preview · {metrics.scale_percent}% · opacity {round(float(opacity_value) * 100)}% · {topmost_state}"
+            text=f"{preview_prefix} · {metrics.scale_percent}% · opacity {round(float(opacity_value) * 100)}% · {topmost_state}"
         )
 
     window_scale.trace_add("write", lambda *_args: refresh_preview())
@@ -335,6 +362,12 @@ def show_settings_dialog(owner):
         dialog.title(text("settings_title"))
         for widget, key in translated_widgets:
             widget.configure(text=text(key))
+        for widget, label in zip(navigation_section_labels, section_texts[selected_language]):
+            widget.configure(text=label)
+        row_visibility_title.configure(
+            text="行可见性" if selected_language == "zh-CN" else "Row visibility"
+        )
+        preview.configure(text="预览" if selected_language == "zh-CN" else "Live preview")
         language_labels = {
             "en": text("english"),
             "zh-CN": text("simplified_chinese"),

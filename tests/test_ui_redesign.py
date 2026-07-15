@@ -164,6 +164,30 @@ class UiRedesignTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             self.destroy_app(app)
 
+    def test_language_switch_updates_navigation_preview_titles_and_combobox_style(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            language_combo = next(widget for widget in widgets(app.settings_dialog) if widget.winfo_class() == "TCombobox")
+            self.assertEqual(language_combo.cget("style"), "HUD.TCombobox")
+            language_combo.set("Simplified Chinese")
+            apply_button = next(widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Button) and widget.cget("text") == "Apply")
+            apply_button.invoke()
+            texts = {
+                str(widget.cget("text"))
+                for widget in widgets(app.settings_dialog)
+                if "text" in widget.keys()
+            }
+            self.assertIn("\u901a\u7528", texts)
+            self.assertIn("\u9884\u89c8", texts)
+            self.assertIn("\u884c\u53ef\u89c1\u6027", texts)
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
     def test_context_menu_uses_hud_surface_and_keeps_actions(self):
         app = self.new_app()
         try:
