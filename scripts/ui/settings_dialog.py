@@ -505,7 +505,7 @@ def show_settings_dialog(owner):
         draft_changed = True
         sync_apply_affordance()
         if preview_status is not None:
-            preview_status.configure(text=lifecycle_status(changed=True))
+            preview_status.configure(text=lifecycle_status(changed=True), fg=COLORS["accent"])
 
     def sync_apply_affordance():
         if apply_button is None:
@@ -638,6 +638,7 @@ def show_settings_dialog(owner):
         draft_changed = False
         sync_apply_affordance()
         preview_status.configure(text=lifecycle_status(applied=True))
+        preview_status.configure(fg=COLORS["success"])
         return True
 
     def save_and_close():
@@ -712,7 +713,7 @@ def show_settings_dialog(owner):
         draft_changed = False
         draft_tracking_enabled = True
         sync_apply_affordance()
-        preview_status.configure(text=lifecycle_status())
+        preview_status.configure(text=lifecycle_status(), fg=COLORS["muted"])
 
     dialog.after_idle(initialize_dialog_focus)
     owner.after_idle(owner.ensure_visible)
