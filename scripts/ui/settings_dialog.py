@@ -330,7 +330,15 @@ def show_settings_dialog(owner):
         1: source_control.winfo_children()[2],
     }
 
+    def refresh_preview_palette():
+        background = draft["background_color"]
+        for widget in (preview_card, *preview_card.winfo_children()):
+            widget.configure(bg=background)
+        for widget in (preview_conversations, preview_source, preview_meta):
+            widget.configure(fg=draft["font_color"])
+
     def refresh_preview(window_scale_value=None, alpha_value=None):
+        refresh_preview_palette()
         preview_activity.configure(text=translate(ui_language, "preview_output"))
         preview_conversations.configure(text=translate(ui_language, "preview_active_conversations"))
         for row_id, text_key in preview_row_keys:
@@ -410,11 +418,13 @@ def show_settings_dialog(owner):
         chosen = colorchooser.askcolor(color=draft["font_color"], parent=dialog)[1]
         if chosen:
             draft["font_color"] = chosen
+            refresh_preview()
 
     def choose_background():
         chosen = colorchooser.askcolor(color=draft["background_color"], parent=dialog)[1]
         if chosen:
             draft["background_color"] = chosen
+            refresh_preview()
 
     translated(themed_button(body, text("font_color"), choose_font), "font_color").grid(row=9, column=0, pady=(8, 0), sticky="w")
     translated(themed_button(body, text("background_color"), choose_background), "background_color").grid(row=9, column=1, pady=(8, 0), sticky="w")

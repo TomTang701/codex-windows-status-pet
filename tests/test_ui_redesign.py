@@ -6,6 +6,7 @@ import runpy
 import tempfile
 import tkinter as tk
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from tests.runtime_geometry_transition_probe import CONFIG, DummyServer, DummyTray, ROOT
@@ -123,6 +124,43 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(save.cget("fg"), "#0b1220")
             self.assertTrue(entries)
             self.assertTrue(all(entry.cget("bg") == "#111827" for entry in entries))
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
+    def test_color_draft_updates_live_preview_palette(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            font_button = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Button) and widget.cget("text") == "Font color..."
+            )
+            background_button = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Button) and widget.cget("text") == "Background color..."
+            )
+            preview_card = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 190
+            )
+            preview_conversations = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and widget.cget("text") == "Active conversations  1"
+            )
+            with patch("ui.settings_dialog.colorchooser.askcolor", return_value=((18, 52, 86), "#123456")):
+                font_button.invoke()
+            self.assertEqual(preview_conversations.cget("fg"), "#123456")
+            with patch("ui.settings_dialog.colorchooser.askcolor", return_value=((34, 51, 68), "#223344")):
+                background_button.invoke()
+            self.assertEqual(preview_card.cget("bg"), "#223344")
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
