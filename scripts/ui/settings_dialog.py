@@ -489,4 +489,5 @@ def show_settings_dialog(owner):
     dialog.deiconify()
     dialog.lift()
     dialog.focus_force()
+    dialog.after_idle(lambda: focus_section(0))
     owner.after_idle(owner.ensure_visible)
