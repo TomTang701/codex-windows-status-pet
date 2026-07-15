@@ -416,7 +416,8 @@ class Pet(tk.Tk):
         return display
 
     def _font_spec(self, family, logical_point_size):
-        pixels = max(1, round(logical_point_size * self.window_dpi / 72.0))
+        scale = 0.7 if self.settings.get("language") == "zh-CN" else 1.0
+        pixels = max(1, round(logical_point_size * self.window_dpi / 72.0 * scale))
         return family, -pixels
 
     def _pack_expanded_content(self):

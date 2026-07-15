@@ -79,9 +79,24 @@ class StatusRows(tk.Frame):
         }
         for label in self.labels.values():
             label.pack_forget()
-        for row_id in ROW_IDS:
-            if visible[row_id]:
+            label.grid_forget()
+            label.place_forget()
+        visible_ids = [row_id for row_id in ROW_IDS if visible[row_id]]
+        visible_count = len(visible_ids)
+        if not self.winfo_ismapped():
+            for row_id in visible_ids:
                 self.labels[row_id].pack(fill="x", expand=True, anchor="w")
+            return
+        for visible_index, row_id in enumerate(visible_ids):
+            label = self.labels[row_id]
+            label.place(
+                relx=0,
+                rely=visible_index / visible_count,
+                relwidth=1,
+                relheight=1 / visible_count,
+                anchor="nw",
+            )
+        self.update_idletasks()
 
     def row_values(self):
         return {row_id: label.cget("text") for row_id, label in self.labels.items()}

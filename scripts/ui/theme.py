@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 
-FONT_FAMILY = "Segoe UI"
+# Microsoft YaHei UI provides stable CJK glyphs on supported Windows hosts while
+# retaining the same compact, modern proportions for the English interface.
+FONT_FAMILY = "Microsoft YaHei UI"
 
 COLORS = {
     "background": "#0b1220",
@@ -21,5 +23,5 @@ COLORS = {
 
 
 def scaled_font(size, weight="normal"):
-    """Return a consistent Segoe UI tuple for Tk widgets."""
+    """Return a consistent bilingual font tuple for Tk widgets."""
     return (FONT_FAMILY, size, weight)

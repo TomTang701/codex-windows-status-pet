@@ -47,7 +47,7 @@ class UiRedesignTests(unittest.TestCase):
     def test_signal_hud_theme_is_stable_and_accessible(self):
         from ui.theme import COLORS, FONT_FAMILY
 
-        self.assertEqual(FONT_FAMILY, "Segoe UI")
+        self.assertEqual(FONT_FAMILY, "Microsoft YaHei UI")
         self.assertEqual(COLORS["background"], "#0b1220")
         self.assertEqual(COLORS["text"], "#e5e7eb")
         self.assertEqual(COLORS["accent"], "#22d3ee")
@@ -149,10 +149,16 @@ class UiRedesignTests(unittest.TestCase):
         app = self.new_app()
         try:
             app.apply_settings({**app.settings, "language": "zh-CN", "battery_quota_source": "weekly"})
+            self.assertEqual(translate("zh-CN", "status"), "\u72b6\u6001")
+            self.assertEqual(translate("zh-CN", "output"), "\u8f93\u51fa\u4e2d")
+            self.assertEqual(translate("zh-CN", "weekly"), "\u6bcf\u5468")
             app.latest_activity = {"active": 1, "detail": "输出中", "progress": "活动对话 1 个"}
             app.render_status()
             self.assertEqual(app.hud_status.cget("text"), translate("zh-CN", "output"))
             self.assertEqual(app.signal_title.cget("text"), translate("zh-CN", "weekly"))
+            self.assertEqual(app.status_title.cget("text"), "\u72b6\u6001")
+            self.assertEqual(app.hud_status.cget("text"), "\u8f93\u51fa\u4e2d")
+            self.assertEqual(app.signal_title.cget("text"), "\u6bcf\u5468")
             app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "primary_5h"})
             app.render_status()
             self.assertEqual(app.hud_status.cget("text"), translate("en", "output"))
