@@ -80,6 +80,19 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.signal_kicker.place_info()["anchor"], "nw")
             signal_title = app.signal_title
             self.assertEqual(signal_title.cget("fg"), "#818cf8")
+            app.update_idletasks()
+            self.assertLessEqual(
+                app.signal_kicker.winfo_x() + app.signal_kicker.winfo_width(),
+                app.signal_title.winfo_x(),
+            )
+            self.assertLessEqual(
+                app.signal_age.winfo_y() + app.signal_age.winfo_height(),
+                app.battery.winfo_y(),
+            )
+            self.assertLessEqual(
+                app.battery.winfo_y() + app.battery.winfo_height(),
+                app.signal_card.winfo_height(),
+            )
             app.apply_settings({**app.settings, "battery_quota_source": "primary_5h"})
             self.assertEqual(signal_title.cget("fg"), "#22d3ee")
             app.set_compact(True)

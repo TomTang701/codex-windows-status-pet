@@ -528,6 +528,7 @@ class Pet(tk.Tk):
         self.status_card.pack_forget()
         self.signal_card.pack_forget()
         self.battery.pack_forget()
+        self.battery.place_forget()
         self.text.pack_forget()
         self.hud_header.configure(height=self._hud_header_height())
         self.hud_header.pack(side="top", fill="x", padx=metrics.horizontal_padding, pady=0)
@@ -537,9 +538,14 @@ class Pet(tk.Tk):
         self.signal_card.configure(width=self._signal_card_width())
         self._sync_hover_rail()
         inset = self._hud_header_padding()
-        self.signal_kicker.place(x=inset, y=max(2, round(inset / 2)), anchor="nw")
-        self.signal_title.place(x=inset, y=max(10, round(inset * 1.6)), anchor="nw")
-        self.signal_age.place(x=inset, y=max(19, round(inset * 2.7)), anchor="nw")
+        signal_top = max(2, round(inset / 2))
+        self.signal_kicker.place(x=inset, y=signal_top, anchor="nw")
+        self.signal_title.place(relx=1, x=-inset, y=signal_top, anchor="ne")
+        title_height = max(self.signal_kicker.winfo_reqheight(), self.signal_title.winfo_reqheight())
+        signal_age_y = signal_top + title_height + max(1, round(inset / 2))
+        self.signal_age.place(x=inset, y=signal_age_y, anchor="nw")
+        battery_y = signal_age_y + self.signal_age.winfo_reqheight() + max(1, round(inset / 2))
+        self.battery.place(relx=0.5, y=battery_y, anchor="n")
         self.signal_value.place(
             relx=1,
             rely=1,
@@ -553,11 +559,11 @@ class Pet(tk.Tk):
             padx=(metrics.horizontal_padding, metrics.face_text_gap),
             pady=0,
         )
-        self.battery.pack(expand=True, padx=metrics.horizontal_padding, pady=2)
         self.signal_title.lift()
         self.signal_kicker.lift()
         self.signal_age.lift()
         self.signal_value.lift()
+        self.battery.lift()
 
     def _apply_current_mode_geometry(self):
         """Apply root geometry from canonical settings in the current manual mode."""
@@ -594,6 +600,7 @@ class Pet(tk.Tk):
             self.signal_value.place_forget()
             self.text.pack_forget()
             self.battery.pack_forget()
+            self.battery.place_forget()
             self.battery.set_compact(True)
             self.battery.set_metrics(self.window_metrics.text_font_size, compact=True)
             self.signal_card.pack(expand=True, fill="both", padx=0, pady=0)
@@ -939,9 +946,9 @@ class Pet(tk.Tk):
     def _signal_card_width(self):
         metrics = getattr(self, "window_metrics", None)
         if metrics is None:
-            return 68
+            return 84
         dpi_scale = self.window_dpi / 96.0 if self.window_dpi > 0 else 1.0
-        return max(54, round(68 * metrics.scale_percent / 100 * dpi_scale))
+        return max(84, round(96 * metrics.scale_percent / 100 * dpi_scale))
 
     def _update_signal_age(self, quota_state=None):
         state = quota_state or self.quota_state.state

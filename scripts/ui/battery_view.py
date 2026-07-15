@@ -50,9 +50,9 @@ class BatteryView(tk.Frame):
 
     def set_metrics(self, text_font_size, compact=False):
         """Scale cell request geometry with the existing canonical window scale."""
-        point_size = max(1, round(int(text_font_size) * (0.25 if compact else 0.45)))
+        point_size = max(1, round(int(text_font_size) * (0.25 if compact else 0.35)))
         width = 1 if compact else max(1, round(int(text_font_size) / 5))
-        padding = 0 if compact else 1
+        padding = 0 if compact or int(text_font_size) < 8 else 1
         for cell in self.cells:
             cell.configure(width=width, height=1, font=("Segoe UI", point_size))
             cell.grid_configure(padx=padding, pady=padding)
