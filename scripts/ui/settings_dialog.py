@@ -647,8 +647,15 @@ def show_settings_dialog(owner):
             label: code for code, label in language_labels.items()
         }
         language_combo.configure(values=tuple(language_labels.values()))
-        language.set(language_labels[draft["language"]])
+        language.set(language_labels[selected_language])
         refresh_preview()
+
+    def sync_language_choice(*_args):
+        selected_language = language_by_label.get(language.get())
+        if selected_language and selected_language != ui_language:
+            mark_draft_changed()
+
+    language.trace_add("write", sync_language_choice)
 
     def apply_draft():
         nonlocal draft_changed

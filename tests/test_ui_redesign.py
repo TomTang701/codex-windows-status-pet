@@ -717,7 +717,11 @@ class UiRedesignTests(unittest.TestCase):
             language_combo = next(widget for widget in widgets(app.settings_dialog) if widget.winfo_class() == "TCombobox")
             self.assertEqual(language_combo.cget("style"), "HUD.TCombobox")
             language_combo.set("Simplified Chinese")
-            apply_button = next(widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Button) and widget.cget("text") == "Apply")
+            apply_button = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Button) and str(widget.cget("text")) in {"Apply", "应用"}
+            )
             apply_button.invoke()
             texts = {
                 str(widget.cget("text"))
