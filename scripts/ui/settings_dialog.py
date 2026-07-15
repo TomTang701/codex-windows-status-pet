@@ -534,6 +534,7 @@ def show_settings_dialog(owner):
         if apply_button is None:
             return
         apply_button.configure(
+            fg=COLORS["accent"] if draft_changed else COLORS["muted"],
             highlightthickness=1 if draft_changed else 0,
             highlightbackground=COLORS["accent"],
             highlightcolor=COLORS["accent"],

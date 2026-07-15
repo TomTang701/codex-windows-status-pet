@@ -754,6 +754,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertIn("Apply", status.cget("text"))
             self.assertEqual(status.cget("fg"), "#94a3b8")
             apply_button = next(widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Button) and widget.cget("text") == "Apply")
+            self.assertEqual(apply_button.cget("fg"), "#94a3b8")
             apply_button.invoke()
             self.assertIn("Save", status.cget("text"))
             self.assertEqual(status.cget("fg"), "#4ade80")
@@ -766,6 +767,7 @@ class UiRedesignTests(unittest.TestCase):
             app.update_idletasks()
             self.assertIn("Draft changed", status.cget("text"))
             self.assertEqual(status.cget("fg"), "#22d3ee")
+            self.assertEqual(apply_button.cget("fg"), "#22d3ee")
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
