@@ -10,6 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = re.compile(r'^(?:APP_VERSION|DEFAULT_CLIENT_VERSION)\s*=\s*"([^"]+)"', re.MULTILINE)
+CHANGELOG_VERSION = re.compile(r"^##\s+(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)\b", re.MULTILINE)
 
 
 def check(root: Path = ROOT):
@@ -30,7 +31,7 @@ def check(root: Path = ROOT):
         else:
             sources[relative] = match.group(1)
     changelog = (root / "CHANGELOG.md").read_text(encoding="utf-8")
-    match = re.search(r"^##\s+(\d+\.\d+\.\d+)\b", changelog, re.MULTILINE)
+    match = CHANGELOG_VERSION.search(changelog)
     if not match:
         errors.append("missing semantic version heading in CHANGELOG.md")
     else:

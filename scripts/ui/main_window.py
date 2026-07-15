@@ -11,7 +11,7 @@ import tkinter as tk
 from datetime import datetime, timezone
 from pathlib import Path
 
-APP_VERSION = "0.9.1"
+APP_VERSION = "0.9.2-beta.1"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -31,7 +31,6 @@ try:
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.quota_parse_api import parse_quota_payload
     from api.quota_state_api import QuotaState
-    from api.quota_status_api import HEALTH_COLORS
     from api.status_snapshot_api import battery_health_color
     from api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from ui.context_menu import show_context_menu
@@ -59,7 +58,6 @@ except ModuleNotFoundError:
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.quota_parse_api import parse_quota_payload
     from scripts.api.quota_state_api import QuotaState
-    from scripts.api.quota_status_api import HEALTH_COLORS
     from scripts.api.status_snapshot_api import battery_health_color
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from scripts.ui.context_menu import show_context_menu
@@ -681,11 +679,13 @@ class Pet(tk.Tk):
         )
         if settings_dialog_open:
             self.attributes("-topmost", False)
+            ensure_overlay_toolwindow(self.winfo_id())
             self.settings_dialog.attributes("-topmost", True)
             self.settings_dialog.lift()
             self.settings_dialog.focus_force()
             return
         self.attributes("-topmost", True)
+        ensure_overlay_toolwindow(self.winfo_id())
         self.lift()
         self.focus_force()
         def restore_topmost():
@@ -693,8 +693,10 @@ class Pet(tk.Tk):
                 try:
                     if self.settings_dialog is not None and self.settings_dialog.winfo_exists():
                         self.attributes("-topmost", False)
+                        ensure_overlay_toolwindow(self.winfo_id())
                         return
                     self.attributes("-topmost", self.settings["topmost"])
+                    ensure_overlay_toolwindow(self.winfo_id())
                 except tk.TclError:
                     logging.getLogger("codex-status-pet").debug("window closed before topmost restore")
         self.after(150, restore_topmost)
@@ -1059,29 +1061,9 @@ class Pet(tk.Tk):
             pass
 
     def _apply_status_row_colors(self, presentation):
-        """Keep activity emphasis independent from quota health coloring."""
-        quota_state = presentation.get("quota_state")
-        failure = quota_state in {"unavailable", "tray_error"}
-        tiers = presentation.get("quota_tiers", {})
-        primary_tier = tiers.get("primary_5h", presentation.get("quota_tier", "unavailable"))
-        weekly_tier = tiers.get("weekly", presentation.get("quota_tier", "unavailable"))
-        if failure:
-            quota_colors = {"primary_5h": COLORS["danger"], "weekly": COLORS["danger"], "reset_credit": COLORS["danger"]}
-        elif quota_state == "stale":
-            quota_colors = {"primary_5h": COLORS["muted"], "weekly": COLORS["muted"], "reset_credit": COLORS["muted"]}
-        else:
-            quota_colors = {
-                "primary_5h": self._quota_tier_color(primary_tier),
-                "weekly": self._quota_tier_color(weekly_tier),
-                "reset_credit": self._quota_tier_color(self._worst_quota_tier(primary_tier, weekly_tier)),
-            }
-        row_colors = {
-            "activity": self.settings["font_color"],
-            "progress": COLORS["danger"] if failure else COLORS["muted"],
-            **quota_colors,
-        }
-        for row_id, color in row_colors.items():
-            self.text.labels[row_id].configure(fg=color)
+        """Keep all body text on the selected font color; bars carry quota health."""
+        for label in self.text.labels.values():
+            label.configure(fg=self.settings["font_color"])
 
     def _quota_progress_colors(self, presentation):
         quota_state = presentation.get("quota_state")
@@ -1097,18 +1079,6 @@ class Pet(tk.Tk):
             "primary_5h": battery_health_color(remaining.get("primary_5h")),
             "weekly": battery_health_color(remaining.get("weekly")),
         }
-
-    @staticmethod
-    def _progress_tier_color(tier, healthy_color):
-        return healthy_color if tier == "healthy" else HEALTH_COLORS.get(tier, healthy_color)
-
-    def _quota_tier_color(self, tier):
-        return self.settings["font_color"] if tier == "healthy" else HEALTH_COLORS.get(tier, self.settings["font_color"])
-
-    @staticmethod
-    def _worst_quota_tier(primary_tier, weekly_tier):
-        severity = {"healthy": 0, "caution": 1, "critical": 2, "unavailable": 3}
-        return max((primary_tier, weekly_tier), key=lambda tier: severity.get(tier, 3))
 
     @staticmethod
     def _status_indicator(status_key):
@@ -1133,17 +1103,8 @@ class Pet(tk.Tk):
         return battery_health_color(remaining)
 
     def _signal_title_color(self, presentation):
-        """Carry the selected quota window's health into its source label."""
-        quota_state = presentation.get("quota_state")
-        if quota_state in {"unavailable", "tray_error"}:
-            return COLORS["danger"]
-        if quota_state == "stale":
-            return COLORS["muted"]
-        source = self.settings["battery_quota_source"]
-        tier = presentation.get("quota_tiers", {}).get(source)
-        if tier in {"caution", "critical"}:
-            return self._quota_tier_color(tier)
-        return COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"]
+        """Keep the selected quota label consistent with the body font color."""
+        return self.settings["font_color"]
 
     def poll(self):
         if self.closing:

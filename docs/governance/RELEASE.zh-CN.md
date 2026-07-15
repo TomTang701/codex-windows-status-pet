@@ -5,7 +5,7 @@ English: [English version](RELEASE.md)
 ## 门禁
 
 日常 `run_quality_checks.py` 只提供快速自动化代码质量反馈，绝不批准发布。
-`run_release_candidate_checks.py` 是唯一正式自动化发布命令。v0.8.0 中它会各执行一次
+`run_release_candidate_checks.py` 是唯一正式自动化发布命令。它会各执行一次
 Quality、固定版本 onedir 构建、静态 ZIP/SHA 校验、打包 EXE 生命周期 smoke、README 截图校验、
 严格兼容性就绪和空白检查，并分别报告通过项、阻塞项和限制。规范事实分类与权威检查记录在
 `docs/quality/verification-inventory.json`。
@@ -30,6 +30,6 @@ Quality、固定版本 onedir 构建、静态 ZIP/SHA 校验、打包 EXE 生命
 重大变更使用聚焦提交，且只有在 `scripts/run_quality_checks.py` 和 `git diff --check` 通过后才推送。
 远程所有者必须保持为 `TomTang701`。绿色 Quality 结果不得描述为正式发布批准。
 
-v0.8.0 工作流上传 `CodexStatusPet-v…-win11-x64.zip` 及其 `.sha256` 校验文件，
+当前候选工作流上传 `CodexStatusPet-v…-win11-x64.zip` 及其 `.sha256` 校验文件，
 而不是源码 ZIP。发布说明必须披露未签名二进制、按用户安装路径、设置保留行为、Codex CLI
 依赖和任何干净环境证据的分类。

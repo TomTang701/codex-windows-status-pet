@@ -7,6 +7,7 @@ import gc
 import json
 import runpy
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -114,6 +115,74 @@ class ShellIdentityTests(unittest.TestCase):
                 if app is not None:
                     self.destroy_app(app)
                 Path.home = original_home
+
+    def test_settings_dialog_is_not_an_ordinary_taskbar_window(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            try:
+                app = self.create_app(home)
+                app.show_settings()
+                app.update_idletasks()
+                self.assert_shell_identity(app.settings_dialog)
+            finally:
+                if app is not None:
+                    self.destroy_app(app)
+                Path.home = original_home
+
+    def test_overlay_keeps_toolwindow_identity_after_settings_close_settles(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            original_home = Path.home
+            Path.home = classmethod(lambda cls: home)
+            app = None
+            try:
+                app = self.create_app(home)
+                app.show_settings()
+                app.update_idletasks()
+                app.close_settings(app.settings_dialog)
+                deadline = time.monotonic() + 0.35
+                while time.monotonic() < deadline:
+                    app.update()
+                    time.sleep(0.01)
+                self.assert_shell_identity(app)
+            finally:
+                if app is not None:
+                    self.destroy_app(app)
+                Path.home = original_home
+
+    def test_overlay_keeps_toolwindow_identity_after_each_settings_close_path(self):
+        def buttons(widget):
+            result = []
+            for child in widget.winfo_children():
+                result.extend(buttons(child))
+                if child.winfo_class() == "Button":
+                    result.append(child)
+            return result
+
+        for close_action in ("Close", "Save"):
+            with tempfile.TemporaryDirectory() as directory:
+                home = Path(directory)
+                original_home = Path.home
+                Path.home = classmethod(lambda cls: home)
+                app = None
+                try:
+                    app = self.create_app(home)
+                    app.show_settings()
+                    app.update_idletasks()
+                    button = next(button for button in buttons(app.settings_dialog) if button.cget("text") == close_action)
+                    button.invoke()
+                    deadline = time.monotonic() + 0.35
+                    while time.monotonic() < deadline:
+                        app.update()
+                        time.sleep(0.01)
+                    self.assert_shell_identity(app)
+                finally:
+                    if app is not None:
+                        self.destroy_app(app)
+                    Path.home = original_home
 
     def test_shell_identity_survives_full_runtime_transition_probe(self):
         self.assertEqual(runtime_geometry_transition_probe.main(), 0)

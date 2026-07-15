@@ -6,7 +6,7 @@
 
 Routine `run_quality_checks.py` provides fast automated code-health feedback and
 never approves a release. `run_release_candidate_checks.py` is the single formal
-automated release command. For v0.8.0 it executes Quality, the pinned onedir
+automated release command. It executes Quality, the pinned onedir
 build, static ZIP/SHA validation, packaged-EXE lifecycle smoke, README screenshot
 validation, strict compatibility readiness, and whitespace exactly once. It
 reports passes, blockers, and limitations separately. The canonical fact
@@ -30,7 +30,7 @@ Use Semantic Versioning. Keep application, manifest, changelog, package, artifac
 
 Substantial changes use focused commits and are pushed only after `scripts/run_quality_checks.py` and `git diff --check` pass. The remote owner must remain `TomTang701`. A green Quality result must never be described as formal release approval.
 
-The v0.8.0 workflow uploads `CodexStatusPet-v…-win11-x64.zip` and its `.sha256`
+The current candidate workflow uploads `CodexStatusPet-v…-win11-x64.zip` and its `.sha256`
 sidecar, not a source ZIP. The release notes must disclose the unsigned binary,
 per-user installation path, settings-preservation behavior, Codex CLI dependency,
 and any clean-environment evidence classification.

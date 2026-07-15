@@ -46,6 +46,8 @@ English: [English version](API_SPEC.md)
 | 启动项审计 | `scripts/startup_audit.py` | 只读检测启动文件夹及 Run/RunOnce 注册表中的已知旧版 Codex 状态宠物项目。 | 已知旧名称/路径、无关项目和不修改测试。 |
 | 任务栏 API | `scripts/api/taskbar_api.py` | 读取当前主任务栏边缘和矩形，用于实体兼容性证据。 | 稳定边缘映射和 Windows 探测输出。 |
 
+beta UI 还要求真实 Tk 根窗口在设置打开/关闭、透明度变化、置顶恢复和延迟 Shell 刷新之后仍保留 `WS_EX_TOOLWINDOW`，且不带 `WS_EX_APPWINDOW`。该要求由 Windows UI Shell 身份测试验证，不属于纯 API 层测试。
+
 ## 不变量
 
 - 配置 API 遇到错误 JSON 不得崩溃，应返回默认值和警告。

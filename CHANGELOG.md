@@ -4,6 +4,13 @@
 
 ## Unreleased
 
+## 0.9.2-beta.1 - 2026-07-15
+
+- Added the isolated Signal HUD redesign: four visible expanded rows, horizontal 5-hour and Weekly quota bars, a compact ten-cell battery with percentage, and updated bilingual Settings previews and menus.
+- Unified quota text with the selected font color; quota health is represented by progress-bar and battery colors only.
+- Hardened Windows tool-window identity across Settings Save, Close, window-manager close, topmost restoration, and delayed Shell refresh paths.
+- Added beta UI, Shell identity, and documentation screenshot regression coverage.
+
 ## 0.9.1 - 2026-07-12
 
 - Added public GitHub Release bootstrap using anonymous REST metadata and exact product assets; normal installation no longer requires Git, GitHub CLI, credentials, Python, or a repository checkout.

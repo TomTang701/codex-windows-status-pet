@@ -2,7 +2,11 @@
 
 简体中文: [中文版本](INSTALLATION.zh-CN.md)
 
-## v0.9.1 deployment boundary
+## v0.9.2-beta.1 deployment boundary
+
+This branch is a beta candidate. The latest stable public Release remains
+v0.9.1; beta artifacts are for controlled testing until the current UI and
+Windows Shell evidence are accepted for a formal release.
 
 The published ZIP is the current normal-user path: verify its SHA-256 if you
 validate manually, extract the complete archive, then run
@@ -32,7 +36,7 @@ release engineering. It is not the normal-user Quick Start:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1 `
-  -ArtifactPath .\CodexStatusPet-v0.9.0-win11-x64.zip `
+  -ArtifactPath .\CodexStatusPet-v0.9.1-win11-x64.zip `
   -Sha256 <published-sha256>
 ```
 
@@ -70,7 +74,7 @@ or unrelated configuration.
 
 ## Security and migration boundary
 
-v0.9.1 binaries are unsigned. Windows SmartScreen or an organization policy may
+v0.9.2-beta.1 binaries are unsigned. Windows SmartScreen or an organization policy may
 show a warning; verify the published SHA-256 before use. The
 `start_codex_status_pet.cmd` source launcher remains for development, debugging,
 source verification, and release engineering only. It is not a normal-user

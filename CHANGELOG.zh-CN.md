@@ -4,6 +4,13 @@ English: [English version](CHANGELOG.md)
 
 ## 未发布
 
+## 0.9.2-beta.1 - 2026-07-15
+
+- 新增隔离开发的 Signal HUD 主界面：展开状态显示四行内容、5 小时和每周额度横向进度条，收缩状态显示带百分比的十格电池，并更新双语设置预览和菜单。
+- 额度文字统一使用设置中的字体颜色，额度健康状态只通过进度条和电池颜色表示。
+- 加强设置保存、关闭、右上角关闭、置顶状态恢复及延迟 Shell 刷新过程中的 Windows 工具窗口身份。
+- 增加 beta UI、Shell 身份和 README 截图回归覆盖。
+
 ## 0.9.1 - 2026-07-12
 
 - 新增公开 GitHub Release bootstrap：通过匿名 REST 元数据和精确产品资产安装，普通安装不再需要 Git、GitHub CLI、凭据、Python 或仓库检出。

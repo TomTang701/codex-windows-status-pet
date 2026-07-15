@@ -17,6 +17,7 @@ try:
     )
     from api.settings_session_api import SettingsSession
     from api.status_snapshot_api import battery_health_color
+    from api.runtime_api import ensure_overlay_toolwindow
     from api.localization_api import translate
     from api.window_scale_api import (
         MAX_WINDOW_SCALE_PERCENT,
@@ -36,6 +37,7 @@ except ModuleNotFoundError:
     )
     from scripts.api.settings_session_api import SettingsSession
     from scripts.api.status_snapshot_api import battery_health_color
+    from scripts.api.runtime_api import ensure_overlay_toolwindow
     from scripts.api.localization_api import translate
     from scripts.api.window_scale_api import (
         MAX_WINDOW_SCALE_PERCENT,
@@ -468,8 +470,8 @@ def show_settings_dialog(owner):
     preview_rows = {}
     preview_progress_tracks = {}
     preview_progress_fills = {}
-    for row_id, label, color in (("five_hour", "5-hour quota   -- / --", COLORS["accent"]), ("weekly", "Weekly quota   88%", COLORS["accent_alt"]), ("reset_credit", "Reset Credit   4 times", COLORS["warning"])):
-        preview_rows[row_id] = tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w", font=(FONT_FAMILY, 8))
+    for row_id, label in (("five_hour", "5-hour quota   -- / --"), ("weekly", "Weekly quota   88%"), ("reset_credit", "Reset Credit   4 times")):
+        preview_rows[row_id] = tk.Label(preview_card, text=label, bg=COLORS["background"], fg=draft["font_color"], anchor="w", font=(FONT_FAMILY, 8))
         preview_rows[row_id].pack(fill="x", pady=2)
         if row_id in {"five_hour", "weekly"}:
             track = tk.Frame(
@@ -480,7 +482,7 @@ def show_settings_dialog(owner):
                 highlightbackground=COLORS["text"],
                 highlightcolor=COLORS["text"],
             )
-            fill = tk.Frame(track, bg=color, height=1)
+            fill = tk.Frame(track, bg=COLORS["accent"], height=1)
             track.pack(fill="x", padx=6, pady=(0, 2))
             fill.place(x=0, y=0, relwidth=0.8 if row_id == "weekly" else 0.6, relheight=1, anchor="nw")
             preview_progress_tracks[row_id] = track
@@ -529,6 +531,8 @@ def show_settings_dialog(owner):
             track.configure(bg=COLORS["surface_alt"])
         for widget in (preview_conversations, preview_meta):
             widget.configure(fg=draft["font_color"])
+        for row in preview_rows.values():
+            row.configure(fg=draft["font_color"])
         for widget, color in (
             (font_color_button, draft["font_color"]),
             (background_color_button, draft["background_color"]),
@@ -592,7 +596,7 @@ def show_settings_dialog(owner):
         preview_signal_source.configure(
             text=source_name,
             bg=COLORS["surface_alt"],
-            fg=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
+            fg=draft["font_color"],
             highlightbackground=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
             highlightcolor=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
         )
@@ -835,6 +839,7 @@ def show_settings_dialog(owner):
     )
     dialog.geometry(f"+{dialog_x}+{dialog_y}")
     dialog.deiconify()
+    ensure_overlay_toolwindow(dialog.winfo_id())
     dialog.lift()
     dialog.focus_force()
 

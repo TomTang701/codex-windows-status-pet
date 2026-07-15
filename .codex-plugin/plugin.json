@@ -1,6 +1,6 @@
 {
   "name": "codex-windows-status-pet",
-  "version": "0.9.1+codex.20260712220000",
+  "version": "0.9.2-beta.1+codex.20260715000000",
   "description": "Codex Windows Status Pet plugin",
   "author": {
     "name": "Zixuan Tang"

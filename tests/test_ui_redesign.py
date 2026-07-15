@@ -428,7 +428,7 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
-    def test_main_quota_row_colors_track_quota_health(self):
+    def test_main_quota_row_text_stays_neutral_while_bars_track_quota_health(self):
         app = self.new_app()
         try:
             app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "weekly"})
@@ -440,11 +440,11 @@ class UiRedesignTests(unittest.TestCase):
             }
             app.quota_state.update(app.latest_quota)
             app.render_status()
-            self.assertEqual(app.text.labels["weekly"].cget("fg"), "#f87171")
+            self.assertEqual(app.text.labels["weekly"].cget("fg"), app.settings["font_color"])
             app.latest_quota["rateLimits"]["secondary"]["usedPercent"] = 20
             app.quota_state.update(app.latest_quota)
             app.render_status()
-            self.assertEqual(app.text.labels["weekly"].cget("fg"), "#e5e7eb")
+            self.assertEqual(app.text.labels["weekly"].cget("fg"), app.settings["font_color"])
         finally:
             self.destroy_app(app)
 
@@ -511,9 +511,7 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
-    def test_status_rows_separate_activity_emphasis_from_quota_health(self):
-        from ui.theme import COLORS
-
+    def test_status_rows_keep_all_text_on_selected_font_color(self):
         app = self.new_app()
         try:
             app.apply_settings({**app.settings, "language": "en"})
@@ -531,11 +529,8 @@ class UiRedesignTests(unittest.TestCase):
             }
             app.quota_state.update(app.latest_quota)
             app.render_status()
-            self.assertEqual(app.text.labels["activity"].cget("fg"), app.settings["font_color"])
-            self.assertEqual(app.text.labels["progress"].cget("fg"), COLORS["muted"])
-            self.assertEqual(app.text.labels["primary_5h"].cget("fg"), COLORS["danger"])
-            self.assertEqual(app.text.labels["weekly"].cget("fg"), COLORS["text"])
-            self.assertEqual(app.text.labels["reset_credit"].cget("fg"), COLORS["danger"])
+            for row_id in ("activity", "progress", "primary_5h", "weekly", "reset_credit"):
+                self.assertEqual(app.text.labels[row_id].cget("fg"), app.settings["font_color"])
         finally:
             self.destroy_app(app)
 
@@ -669,6 +664,7 @@ class UiRedesignTests(unittest.TestCase):
             preview_signal_title = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "SIGNAL")
             preview_signal_source = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Weekly")
             self.assertEqual(preview_signal_source.cget("bg"), "#172033")
+            self.assertEqual(preview_signal_source.cget("fg"), app.settings["font_color"])
             self.assertEqual(preview_signal_source.cget("highlightthickness"), 1)
             preview_signal_age = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Sync --")
             self.assertEqual(preview_signal_age.cget("bg"), "#172033")

@@ -48,7 +48,7 @@ verified same-version repair. To pin an exact stable version, add `-Tag` after
 the downloaded bootstrap has been invoked:
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v0.9.0
+& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v0.9.1
 ```
 
 The bootstrap verifies the exact ZIP and SHA-256 sidecar, preserves
@@ -70,9 +70,9 @@ from Windows system icons because it has the light-blue face on the navy tile.
 
 ![CodexStatusPet tray icon](docs/assets/tray-icon.png)
 
-## Current v0.9.1 UI screenshots
+## Current v0.9.2-beta.1 UI screenshots
 
-The screenshots below show the current redesigned overlay, compact battery,
+The screenshots below show the current beta Signal HUD overlay, compact battery,
 localized context menus, and transactional Settings surfaces on Windows 11.
 
 ### English

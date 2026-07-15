@@ -33,6 +33,13 @@ publication, and verification from the public latest and pinned bootstrap paths.
 |---|---|---|---|
 | v0.9.1 public distribution | Public latest/pinned bootstrap, exact product ZIP/SHA/install assets, and existing installer delegation | Pass | PR #43 exact-head Windows CI passed; merged main `821d58a`; tag/Release `v0.9.1`; latest public install lifecycle passed; product ZIP SHA-256 `706f24bab7bc3054dd2bd410ab3ff60144972a20690796e0036568f8211ec338`. |
 
+## v0.9.2-beta.1 Signal HUD candidate
+
+| Area | Coverage | Status | Evidence / next action |
+|---|---|---|---|
+| v0.9.2-beta.1 UI regression | Expanded four-row HUD, compact percentage battery, unified quota text color, progress-bar color, and Settings preview/menu coverage | Automated Windows host pass | Quality UI suite and screenshot checks pass on the isolated branch. |
+| v0.9.2-beta.1 Shell close paths | Settings Save, Close, window-manager close, topmost restoration, and delayed Shell identity normalization | Automated HWND lifecycle pass; physical observation pending | Run fresh physical taskbar observations before accepting a 1.0 replacement of `main`; this beta branch does not claim that evidence. |
+
 | Area | Coverage | Status | Evidence / next action |
 |---|---|---|---|
 | Windows version | Windows 10 | Deferred / Not claimed / Non-blocking | Outside the current Windows 11 x64 support declaration; future evidence may expand support but does not block current releases. |
