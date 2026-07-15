@@ -909,7 +909,9 @@ class Pet(tk.Tk):
         )
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
         self._apply_status_row_colors(presentation)
-        self.battery.configure_presentation(presentation["battery"])
+        self.battery.configure_presentation(
+            presentation["battery"], stale=presentation.get("quota_state") == "stale"
+        )
 
     @staticmethod
     def _hud_border_color(presentation):
@@ -944,7 +946,11 @@ class Pet(tk.Tk):
             age_text = f"{age}s"
         self.signal_age.configure(
             text=f"{prefix} {age_text}",
-            fg=COLORS["danger"] if state in {"unavailable", "tray_error"} else COLORS["muted"],
+            fg=(
+                COLORS["danger"] if state in {"unavailable", "tray_error"}
+                else COLORS["warning"] if state == "stale"
+                else COLORS["muted"]
+            ),
         )
 
     def _schedule_signal_age_refresh(self):

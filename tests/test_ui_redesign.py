@@ -334,6 +334,29 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_stale_quota_mutes_battery_and_highlights_sync_age(self):
+        from datetime import datetime, timedelta, timezone
+
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "weekly"})
+            app.latest_quota = {
+                "rateLimits": {
+                    "primary": {"usedPercent": 20},
+                    "secondary": {"usedPercent": 20},
+                },
+                "rateLimitResetCredits": {"availableCount": 4},
+            }
+            app.quota_state.update(app.latest_quota)
+            app.quota_state.state = "stale"
+            app.quota_state.last_success_at = datetime.now(timezone.utc) - timedelta(seconds=601)
+            app.render_status()
+            self.assertEqual(app.signal_age.cget("fg"), "#fbbf24")
+            self.assertEqual(app.battery.cells[0].cget("bg"), "#64748b")
+            self.assertEqual(app.battery.cells[9].cget("bg"), "#374151")
+        finally:
+            self.destroy_app(app)
+
     def test_status_rows_separate_activity_emphasis_from_quota_health(self):
         from ui.theme import COLORS
 

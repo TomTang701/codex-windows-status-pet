@@ -7,6 +7,7 @@ import tkinter as tk
 
 INACTIVE_COLOR = "#374151"
 UNAVAILABLE_COLOR = "#6b7280"
+STALE_COLOR = "#64748b"
 
 
 class BatteryView(tk.Frame):
@@ -27,10 +28,10 @@ class BatteryView(tk.Frame):
     def event_widgets(self):
         return (self, *self.cells)
 
-    def configure_presentation(self, presentation):
+    def configure_presentation(self, presentation, *, stale=False):
         available = bool(presentation.get("available"))
         for cell, state in zip(self.cells, presentation.get("segments", ())):
-            color = state["color"] if available and state["lit"] else (
+            color = STALE_COLOR if stale and available and state["lit"] else state["color"] if available and state["lit"] else (
                 INACTIVE_COLOR if available else UNAVAILABLE_COLOR
             )
             cell.configure(bg=color)
