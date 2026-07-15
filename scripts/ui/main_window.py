@@ -887,6 +887,7 @@ class Pet(tk.Tk):
             ),
         )
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
+        self._apply_status_row_colors(presentation)
         self.battery.configure_presentation(presentation["battery"])
 
     @staticmethod
@@ -924,6 +925,20 @@ class Pet(tk.Tk):
             text=f"{prefix} {age_text}",
             fg=COLORS["danger"] if state in {"unavailable", "tray_error"} else COLORS["muted"],
         )
+
+    def _apply_status_row_colors(self, presentation):
+        """Keep activity emphasis independent from quota health coloring."""
+        quota_state = presentation.get("quota_state")
+        failure = quota_state in {"unavailable", "tray_error"}
+        row_colors = {
+            "activity": self.settings["font_color"],
+            "progress": COLORS["danger"] if failure else COLORS["muted"],
+            "primary_5h": presentation["color"],
+            "weekly": presentation["color"],
+            "reset_credit": presentation["color"],
+        }
+        for row_id, color in row_colors.items():
+            self.text.labels[row_id].configure(fg=color)
 
     @staticmethod
     def _status_indicator(status_key):

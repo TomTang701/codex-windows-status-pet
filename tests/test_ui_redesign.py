@@ -269,6 +269,34 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_status_rows_separate_activity_emphasis_from_quota_health(self):
+        from ui.theme import COLORS
+
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.latest_activity = {
+                "active": 1,
+                "detail": "Outputting",
+                "progress": "Active conversations  1",
+            }
+            app.latest_quota = {
+                "rateLimits": {
+                    "primary": {"usedPercent": 95},
+                    "secondary": {"usedPercent": 20},
+                },
+                "rateLimitResetCredits": {},
+            }
+            app.quota_state.update(app.latest_quota)
+            app.render_status()
+            self.assertEqual(app.text.labels["activity"].cget("fg"), app.settings["font_color"])
+            self.assertEqual(app.text.labels["progress"].cget("fg"), COLORS["muted"])
+            self.assertEqual(app.text.labels["primary_5h"].cget("fg"), COLORS["danger"])
+            self.assertEqual(app.text.labels["weekly"].cget("fg"), COLORS["danger"])
+            self.assertEqual(app.text.labels["reset_credit"].cget("fg"), COLORS["danger"])
+        finally:
+            self.destroy_app(app)
+
     def test_language_apply_updates_hud_status_without_waiting_for_refresh(self):
         from api.localization_api import translate
 
