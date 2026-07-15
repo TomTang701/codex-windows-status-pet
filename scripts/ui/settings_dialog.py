@@ -217,8 +217,30 @@ def show_settings_dialog(owner):
         return tk.Button(parent, **options)
 
     translated(themed_label(body, text("opacity")), "opacity").grid(row=0, column=0, sticky="w")
-    opacity_scale = themed_scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha, command=lambda value: refresh_preview(alpha_value=value))
-    opacity_scale.grid(row=0, column=1)
+    opacity_control = tk.Frame(body, bg=COLORS["background"])
+    opacity_control.grid(row=0, column=1, sticky="w")
+    opacity_scale = themed_scale(
+        opacity_control,
+        from_=0.25,
+        to=1.0,
+        resolution=0.05,
+        orient="horizontal",
+        length=206,
+        showvalue=False,
+        variable=alpha,
+        command=lambda value: refresh_preview(alpha_value=value),
+    )
+    opacity_scale.pack(side="left")
+    opacity_value_label = tk.Label(
+        opacity_control,
+        text=f"{round(float(alpha.get()) * 100)}%",
+        width=4,
+        anchor="e",
+        bg=COLORS["background"],
+        fg=COLORS["muted"],
+        font=(FONT_FAMILY, 8),
+    )
+    opacity_value_label.pack(side="left", padx=(6, 0))
     translated(themed_label(body, text("window_size")), "window_size").grid(row=1, column=0, sticky="w")
     window_scale_control = themed_scale(
         body,
@@ -429,6 +451,7 @@ def show_settings_dialog(owner):
         topmost_state = ("置顶" if topmost.get() else "普通") if ui_language == "zh-CN" else ("topmost" if topmost.get() else "normal")
         locked_state = ("已锁定" if locked.get() else "可拖动") if ui_language == "zh-CN" else ("locked" if locked.get() else "drag enabled")
         opacity_value = alpha_value if alpha_value is not None else alpha.get()
+        opacity_value_label.configure(text=f"{round(float(opacity_value) * 100)}%")
         preview_prefix = "预览" if ui_language == "zh-CN" else "Preview"
         source_prefix = "数据源" if ui_language == "zh-CN" else "Source"
         source_name = ("5 小时" if ui_language == "zh-CN" else "5-hour") if battery_source.get() == 0 else ("每周" if ui_language == "zh-CN" else "Weekly")

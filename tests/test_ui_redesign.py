@@ -260,6 +260,7 @@ class UiRedesignTests(unittest.TestCase):
                 }
                 self.assertTrue({"General", "Appearance", "Quota display", "Behavior", "Advanced"} <= texts)
                 self.assertIn("Live preview", texts)
+                self.assertIn("35%", texts)
                 self.assertIn("Row visibility", texts)
                 opening_topmost = app.settings["topmost"]
                 checks = [widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Checkbutton)]
