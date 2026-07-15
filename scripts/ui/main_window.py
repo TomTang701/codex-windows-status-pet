@@ -316,7 +316,12 @@ class Pet(tk.Tk):
         self.hud_status.configure(bg=COLORS["surface_alt"])
         self.status_card.configure(bg=bg, highlightbackground=COLORS["border"])
         self.signal_card.configure(bg=COLORS["surface"], highlightbackground=COLORS["border"])
-        self.signal_title.configure(bg=COLORS["surface"], text=self._signal_caption(self.settings["battery_quota_source"], self.settings["language"]))
+        source = self.settings["battery_quota_source"]
+        self.signal_title.configure(
+            bg=COLORS["surface"],
+            text=self._signal_caption(source, self.settings["language"]),
+            fg=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
+        )
         active = bool(self.latest_activity.get("active", 0))
         self.hud_status.configure(
             text=translate(self.settings["language"], "output" if active else "idle"),
