@@ -485,9 +485,14 @@ def show_settings_dialog(owner):
         for index, cell in enumerate(preview_signal_cells):
             cell.configure(bg=COLORS["accent"] if index < lit_cells else "#374151")
         for source_index, label in source_labels.items():
+            selected = source_index == selected_source
             label.configure(
-                fg=COLORS["accent"] if source_index == selected_source else COLORS["muted"],
-                font=(FONT_FAMILY, 9, "bold" if source_index == selected_source else "normal"),
+                bg=COLORS["surface_alt"] if selected else COLORS["background"],
+                fg=COLORS["accent"] if selected else COLORS["muted"],
+                font=(FONT_FAMILY, 9, "bold" if selected else "normal"),
+                highlightthickness=1 if selected else 0,
+                highlightbackground=COLORS["accent"] if selected else COLORS["background"],
+                highlightcolor=COLORS["accent"],
             )
         for row_id, variable in (("five_hour", show_primary_5h), ("weekly", show_weekly), ("reset_credit", show_reset_credit)):
             row = preview_rows[row_id]

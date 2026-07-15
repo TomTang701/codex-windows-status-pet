@@ -499,9 +499,14 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(tkfont.Font(root=app, font=selected_label.cget("font")).cget("weight"), "bold")
             self.assertEqual(tkfont.Font(root=app, font=other_label.cget("font")).cget("weight"), "normal")
             self.assertEqual(selected_label.cget("cursor"), "hand2")
+            self.assertEqual(selected_label.cget("bg"), "#172033")
+            self.assertEqual(selected_label.cget("highlightthickness"), 1)
+            self.assertEqual(other_label.cget("bg"), "#0b1220")
             other_label.invoke()
             app.update_idletasks()
             self.assertEqual(tkfont.Font(root=app, font=other_label.cget("font")).cget("weight"), "bold")
+            self.assertEqual(other_label.cget("bg"), "#172033")
+            self.assertEqual(other_label.cget("highlightthickness"), 1)
             source_preview = next(
                 widget
                 for widget in widgets(app.settings_dialog)
