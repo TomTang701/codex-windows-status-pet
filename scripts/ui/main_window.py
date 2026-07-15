@@ -324,7 +324,28 @@ class Pet(tk.Tk):
         self.attributes("-topmost", self.settings["topmost"])
         bg, fg = self.settings["background_color"], self.settings["font_color"]
         self.configure(bg=bg, highlightbackground=COLORS["border"], highlightcolor=COLORS["accent"])
-        self.hud_header.configure(bg=COLORS["surface_alt"], highlightbackground=COLORS["border"])
+        self.hud_header.configure(
+            bg=COLORS["surface_alt"],
+            highlightbackground=COLORS["border"],
+            height=self._hud_header_height(),
+        )
+        header_font = self._font_spec(
+            FONT_FAMILY,
+            max(6, round(metrics.text_font_size * 0.7)),
+        )
+        self.hud_title.configure(font=(*header_font, "bold"))
+        self.status_title.configure(font=header_font)
+        self.hud_status.configure(font=header_font)
+        signal_title_font = self._font_spec(
+            FONT_FAMILY,
+            max(6, round(metrics.text_font_size * 0.7)),
+        )
+        signal_value_font = self._font_spec(
+            FONT_FAMILY,
+            max(7, round(metrics.text_font_size * 0.85)),
+        )
+        self.signal_title.configure(font=(*signal_title_font, "bold"))
+        self.signal_value.configure(font=(*signal_value_font, "bold"))
         self.hud_title.configure(bg=COLORS["surface_alt"])
         self.hud_status.configure(bg=COLORS["surface_alt"])
         self.status_card.configure(bg=bg, highlightbackground=COLORS["border"])
@@ -420,6 +441,14 @@ class Pet(tk.Tk):
         pixels = max(1, round(logical_point_size * self.window_dpi / 72.0 * scale))
         return family, -pixels
 
+    def _hud_header_height(self):
+        """Keep the compact status header proportional to the active HUD scale."""
+        metrics = getattr(self, "window_metrics", None)
+        if metrics is None:
+            return 11
+        dpi_scale = self.window_dpi / 96.0 if self.window_dpi > 0 else 1.0
+        return max(11, round(14 * metrics.scale_percent / 100 * dpi_scale))
+
     def _pack_expanded_content(self):
         metrics = self.window_metrics
         self.hud_header.pack_forget()
@@ -427,7 +456,7 @@ class Pet(tk.Tk):
         self.signal_card.pack_forget()
         self.battery.pack_forget()
         self.text.pack_forget()
-        self.hud_header.configure(height=11)
+        self.hud_header.configure(height=self._hud_header_height())
         self.hud_header.pack(side="top", fill="x", padx=metrics.horizontal_padding, pady=0)
         self.status_card.pack(side="left", fill="both", expand=True, padx=(metrics.horizontal_padding, 3), pady=0)
         self.signal_card.pack(side="right", fill="y", padx=(0, metrics.horizontal_padding), pady=0)

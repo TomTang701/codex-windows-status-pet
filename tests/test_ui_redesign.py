@@ -91,6 +91,20 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_hud_typography_and_header_height_follow_window_scale(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "window_scale_percent": 100})
+            app.update_idletasks()
+            base_height = app.hud_header.winfo_height()
+            base_font = app.hud_status.cget("font")
+            app.apply_settings({**app.settings, "window_scale_percent": 200})
+            app.update_idletasks()
+            self.assertGreater(app.hud_header.winfo_height(), base_height)
+            self.assertNotEqual(app.hud_status.cget("font"), base_font)
+        finally:
+            self.destroy_app(app)
+
     def test_hud_cursor_explains_drag_and_lock_state(self):
         app = self.new_app()
         try:
