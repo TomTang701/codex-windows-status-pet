@@ -112,6 +112,25 @@ class UiRedesignTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             self.destroy_app(app)
 
+    def test_settings_form_has_quota_group_divider(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            dividers = [
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Frame)
+                and widget.cget("bg") == "#26354d"
+                and int(widget.cget("height")) == 1
+            ]
+            self.assertTrue(dividers)
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
     def test_activity_row_has_primary_visual_weight(self):
         app = self.new_app()
         try:

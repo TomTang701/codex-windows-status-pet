@@ -237,6 +237,8 @@ def show_settings_dialog(owner):
     topmost_checkbutton = themed_checkbutton(body, text("always_on_top"), topmost)
     translated(topmost_checkbutton, "always_on_top").grid(row=4, column=0, sticky="w")
     translated(themed_checkbutton(body, text("lock_position"), locked), "lock_position").grid(row=4, column=1, sticky="w")
+    quota_group_divider = tk.Frame(body, bg=COLORS["border"], height=1)
+    quota_group_divider.grid(row=5, column=0, columnspan=2, sticky="ew", pady=(8, 6))
     translated(themed_label(body, text("battery_content")), "battery_content").grid(row=6, column=0, sticky="w")
     source_control = tk.Frame(body, bg=COLORS["background"])
     source_control.grid(row=6, column=1, sticky="w")
