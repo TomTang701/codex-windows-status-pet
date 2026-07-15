@@ -39,6 +39,21 @@ class StatusSnapshotTests(unittest.TestCase):
         self.assertTrue(result["battery"]["available"])
         self.assertEqual(result["battery"]["remaining_percent"], 55)
 
+    def test_snapshot_exposes_independent_health_tiers_for_both_quota_windows(self):
+        result = build_status_snapshot(
+            {"active": 0},
+            {
+                "rateLimits": {
+                    "primary": {"usedPercent": 95},
+                    "secondary": {"usedPercent": 20},
+                }
+            },
+        )
+        self.assertEqual(
+            result["quota_tiers"],
+            {"primary_5h": "critical", "weekly": "healthy"},
+        )
+
     def test_selected_primary_battery_never_reads_weekly(self):
         result = build_status_snapshot(
             {"active": 0},

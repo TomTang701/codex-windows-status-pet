@@ -31,6 +31,7 @@ try:
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.quota_parse_api import parse_quota_payload
     from api.quota_state_api import QuotaState
+    from api.quota_status_api import HEALTH_COLORS
     from api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from ui.context_menu import show_context_menu
     from ui.battery_view import BatteryView
@@ -57,6 +58,7 @@ except ModuleNotFoundError:
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.quota_parse_api import parse_quota_payload
     from scripts.api.quota_state_api import QuotaState
+    from scripts.api.quota_status_api import HEALTH_COLORS
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from scripts.ui.context_menu import show_context_menu
     from scripts.ui.battery_view import BatteryView
@@ -930,15 +932,34 @@ class Pet(tk.Tk):
         """Keep activity emphasis independent from quota health coloring."""
         quota_state = presentation.get("quota_state")
         failure = quota_state in {"unavailable", "tray_error"}
+        tiers = presentation.get("quota_tiers", {})
+        primary_tier = tiers.get("primary_5h", presentation.get("quota_tier", "unavailable"))
+        weekly_tier = tiers.get("weekly", presentation.get("quota_tier", "unavailable"))
+        if failure:
+            quota_colors = {"primary_5h": COLORS["danger"], "weekly": COLORS["danger"], "reset_credit": COLORS["danger"]}
+        elif quota_state == "stale":
+            quota_colors = {"primary_5h": COLORS["muted"], "weekly": COLORS["muted"], "reset_credit": COLORS["muted"]}
+        else:
+            quota_colors = {
+                "primary_5h": self._quota_tier_color(primary_tier),
+                "weekly": self._quota_tier_color(weekly_tier),
+                "reset_credit": self._quota_tier_color(self._worst_quota_tier(primary_tier, weekly_tier)),
+            }
         row_colors = {
             "activity": self.settings["font_color"],
             "progress": COLORS["danger"] if failure else COLORS["muted"],
-            "primary_5h": presentation["color"],
-            "weekly": presentation["color"],
-            "reset_credit": presentation["color"],
+            **quota_colors,
         }
         for row_id, color in row_colors.items():
             self.text.labels[row_id].configure(fg=color)
+
+    def _quota_tier_color(self, tier):
+        return self.settings["font_color"] if tier == "healthy" else HEALTH_COLORS.get(tier, self.settings["font_color"])
+
+    @staticmethod
+    def _worst_quota_tier(primary_tier, weekly_tier):
+        severity = {"healthy": 0, "caution": 1, "critical": 2, "unavailable": 3}
+        return max((primary_tier, weekly_tier), key=lambda tier: severity.get(tier, 3))
 
     @staticmethod
     def _status_indicator(status_key):

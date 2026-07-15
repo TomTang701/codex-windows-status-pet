@@ -88,7 +88,9 @@ def build_status_snapshot(
     secondary = secondary if isinstance(secondary, dict) else {}
     credits = quota.get("rateLimitResetCredits") or {}
     credit_items = credits if isinstance(credits, (list, dict)) else []
-    tier = health_tier(primary)
+    primary_tier = health_tier(primary)
+    weekly_tier = health_tier(secondary)
+    tier = primary_tier
     if quota_state == "stale":
         color = "#9ca3af"
     elif quota_state == "unavailable":
@@ -132,6 +134,10 @@ def build_status_snapshot(
         "color": color,
         "active_count": active_count,
         "quota_tier": tier,
+        "quota_tiers": {
+            "primary_5h": primary_tier,
+            "weekly": weekly_tier,
+        },
         "quota_state": quota_state,
     }
 

@@ -292,7 +292,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.text.labels["activity"].cget("fg"), app.settings["font_color"])
             self.assertEqual(app.text.labels["progress"].cget("fg"), COLORS["muted"])
             self.assertEqual(app.text.labels["primary_5h"].cget("fg"), COLORS["danger"])
-            self.assertEqual(app.text.labels["weekly"].cget("fg"), COLORS["danger"])
+            self.assertEqual(app.text.labels["weekly"].cget("fg"), COLORS["text"])
             self.assertEqual(app.text.labels["reset_credit"].cget("fg"), COLORS["danger"])
         finally:
             self.destroy_app(app)
