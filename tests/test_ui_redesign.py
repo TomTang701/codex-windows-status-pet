@@ -861,6 +861,7 @@ class UiRedesignTests(unittest.TestCase):
             )
             self.assertEqual(first_item.cget("highlightthickness"), 1)
             self.assertEqual(first_item.cget("highlightcolor"), "#22d3ee")
+            self.assertEqual(first_item.cget("highlightbackground"), "#22d3ee")
             checkbuttons = [widget for widget in widgets(popup) if isinstance(widget, tk.Checkbutton)]
             self.assertTrue(checkbuttons)
             self.assertTrue(all(widget.cget("selectcolor") == "#172033" for widget in checkbuttons))

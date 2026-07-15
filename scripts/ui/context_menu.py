@@ -88,6 +88,14 @@ def show_context_menu(owner, event):
         topmost=owner.settings["topmost"], locked=owner.settings["locked"],
         compact=owner.settings["compact"],
     )
+
+    def set_item_active(widget, active):
+        widget.configure(
+            bg=COLORS["surface_alt"] if active else COLORS["surface"],
+            fg=COLORS["accent"] if active else COLORS["text"],
+            highlightbackground=COLORS["accent"] if active else COLORS["surface"],
+        )
+
     menu_widgets = []
     for item in items:
         if item.action == "exit":
@@ -104,10 +112,15 @@ def show_context_menu(owner, event):
                 command=lambda command=commands[item.action]: run_and_close(command),
                 **checkbutton_options,
             )
+        widget.bind("<Enter>", lambda _event, widget=widget: set_item_active(widget, True), add="+")
+        widget.bind("<Leave>", lambda _event, widget=widget: set_item_active(widget, False), add="+")
+        widget.bind("<FocusIn>", lambda _event, widget=widget: set_item_active(widget, True), add="+")
+        widget.bind("<FocusOut>", lambda _event, widget=widget: set_item_active(widget, False), add="+")
         widget.pack(fill="x", padx=2, pady=1)
         menu_widgets.append(widget)
     if menu_widgets:
         menu_widgets[0].focus_set()
+        set_item_active(menu_widgets[0], True)
     popup.bind("<Escape>", lambda _event: (close_popup(), "break")[1])
     popup.bind("<Button-3>", lambda _event: close_popup())
     popup.bind("<FocusOut>", lambda _event: popup.after_idle(close_popup))
