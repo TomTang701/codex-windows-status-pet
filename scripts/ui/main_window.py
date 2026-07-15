@@ -185,6 +185,7 @@ class Pet(tk.Tk):
         self.settings_dialog = None
         self.tray_restart_scheduled = False
         self.signal_age_refresh_job = None
+        self._signal_progress_ratio = 0.0
         self.server = AppServer(self.queue)
         self.activity = ActivityMonitor()
         self.application_controller = ApplicationController(self.settings["refresh_interval_seconds"])
@@ -251,20 +252,18 @@ class Pet(tk.Tk):
             highlightbackground=COLORS["border"],
             highlightcolor=COLORS["border"],
         )
-        self.signal_value = tk.Label(
+        self.signal_progress_track = tk.Frame(
             self.signal_card,
-            text="--",
             bg=COLORS["surface_alt"],
-            fg=COLORS["muted"],
-            font=(FONT_FAMILY, 8, "bold"),
-            anchor="e",
-            padx=2,
-            pady=0,
+            height=3,
             highlightthickness=1,
             highlightbackground=COLORS["border"],
-            highlightcolor=COLORS["border"],
         )
-        self.signal_value.place(relx=1, rely=1, x=-6, y=-3, anchor="se")
+        self.signal_progress_fill = tk.Frame(
+            self.signal_progress_track,
+            bg=COLORS["accent_alt"],
+            height=1,
+        )
         self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", quota_label=translate(self.settings["language"], "quota"), wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
         self.battery = BatteryView(self.signal_card, bg=COLORS["surface"])
         self._pack_expanded_content()
@@ -393,14 +392,9 @@ class Pet(tk.Tk):
             FONT_FAMILY,
             max(6, round(metrics.text_font_size * 0.7)),
         )
-        signal_value_font = self._font_spec(
-            FONT_FAMILY,
-            max(7, round(metrics.text_font_size * 0.85)),
-        )
         self.signal_kicker.configure(font=(*self._font_spec(FONT_FAMILY, max(5, round(metrics.text_font_size * 0.55))), "bold"))
         self.signal_title.configure(font=(*signal_title_font, "bold"))
         self.signal_age.configure(font=self._font_spec(FONT_FAMILY, max(5, round(metrics.text_font_size * 0.55))))
-        self.signal_value.configure(font=(*signal_value_font, "bold"))
         header_padding = self._hud_header_padding()
         self.hud_title.pack_configure(padx=(header_padding, max(2, round(header_padding / 2))))
         self.status_title.pack_configure(padx=(0, max(2, round(header_padding / 2))))
@@ -429,12 +423,12 @@ class Pet(tk.Tk):
             highlightbackground=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
             highlightcolor=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
         )
-        self.signal_value.configure(
+        self.signal_progress_track.configure(
             bg=COLORS["surface_alt"],
-            fg=COLORS["muted"],
             highlightbackground=COLORS["border"],
             highlightcolor=COLORS["border"],
         )
+        self.signal_progress_fill.configure(bg=COLORS["accent_alt"])
         self._update_signal_age()
         active = bool(self.latest_activity.get("active", 0))
         initial_status_key = (
@@ -453,7 +447,7 @@ class Pet(tk.Tk):
         )
         self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
-        self.text.set_visible_rows(self.settings)
+        self.text.set_visible_rows({**self.settings, "_main_hud_layout": True})
         self.text.set_quota_label(translate(self.settings["language"], "quota"))
         self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec(FONT_FAMILY, metrics.text_font_size), wraplength=metrics.wraplength)
         self._sync_drag_cursor()
@@ -524,7 +518,8 @@ class Pet(tk.Tk):
             self.signal_kicker,
             self.signal_title,
             self.signal_age,
-            self.signal_value,
+            self.signal_progress_track,
+            self.signal_progress_fill,
             *self.text.event_widgets,
             *self.battery.event_widgets,
         )
@@ -585,38 +580,15 @@ class Pet(tk.Tk):
         self.text.pack_forget()
         self.hud_header.configure(height=self._hud_header_height())
         self.hud_header.pack(side="top", fill="x", padx=metrics.horizontal_padding, pady=0)
-        self.status_card.pack(side="left", fill="both", expand=True, padx=(metrics.horizontal_padding, 3), pady=0)
-        self.signal_card.pack(side="right", fill="y", padx=(0, metrics.horizontal_padding), pady=0)
-        self.signal_card.pack_propagate(False)
-        self.signal_card.configure(width=self._signal_card_width())
+        self.status_card.pack(side="top", fill="both", expand=True, padx=metrics.horizontal_padding, pady=0)
         self._sync_hover_rail()
-        inset = self._hud_header_padding()
-        signal_top = max(2, round(inset / 2))
-        self.signal_kicker.place(x=inset, y=signal_top, anchor="nw")
-        self.signal_title.place(relx=1, x=-inset, y=signal_top, anchor="ne")
-        title_height = max(self.signal_kicker.winfo_reqheight(), self.signal_title.winfo_reqheight())
-        signal_age_y = signal_top + title_height + max(1, round(inset / 2))
-        self.signal_age.place(x=inset, y=signal_age_y, anchor="nw")
-        battery_y = signal_age_y + self.signal_age.winfo_reqheight() + max(1, round(inset / 2))
-        self.battery.place(relx=0.5, y=battery_y, anchor="n")
-        self.signal_value.place(
-            relx=1,
-            rely=1,
-            x=-inset,
-            y=-max(2, round(inset / 2)),
-            anchor="se",
-        )
         self.text.pack(
             fill="both",
             expand=True,
             padx=(metrics.horizontal_padding, metrics.face_text_gap),
             pady=0,
         )
-        self.signal_title.lift()
-        self.signal_kicker.lift()
-        self.signal_age.lift()
-        self.signal_value.lift()
-        self.battery.lift()
+        self.text.lift()
 
     def _apply_current_mode_geometry(self):
         """Apply root geometry from canonical settings in the current manual mode."""
@@ -650,7 +622,8 @@ class Pet(tk.Tk):
             self.signal_kicker.place_forget()
             self.signal_title.place_forget()
             self.signal_age.place_forget()
-            self.signal_value.place_forget()
+            self.signal_progress_track.place_forget()
+            self.signal_progress_fill.place_forget()
             self.text.pack_forget()
             self.battery.pack_forget()
             self.battery.place_forget()
@@ -967,24 +940,13 @@ class Pet(tk.Tk):
         )
         battery = presentation["battery"]
         remaining = battery.get("remaining_percent")
-        self.signal_value.configure(
-            text="--" if remaining is None else f"{remaining}%",
-            bg=COLORS["surface_alt"],
-            highlightbackground=signal_title_color,
-            highlightcolor=signal_title_color,
-            fg=(
-                COLORS["danger"]
-                if quota_state in {"unavailable", "tray_error"}
-                else COLORS["muted"]
-                if quota_state == "stale"
-                else self._signal_value_color(
-                    remaining,
-                    self.settings["battery_quota_source"],
-                )
-            ),
-        )
+        self._update_signal_progress(remaining, quota_state)
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
         self._apply_status_row_colors(presentation)
+        self.text.set_quota_progress(
+            presentation.get("remaining_percentages"),
+            self._quota_progress_colors(presentation),
+        )
         self.battery.configure_presentation(
             presentation["battery"],
             stale=presentation.get("quota_state") == "stale",
@@ -1040,6 +1002,26 @@ class Pet(tk.Tk):
             ),
         )
 
+    def _update_signal_progress(self, remaining, quota_state=None):
+        state = quota_state or self.quota_state.state
+        if remaining is None or state in {"unavailable", "tray_error"}:
+            ratio = 0.0
+        else:
+            ratio = max(0.0, min(1.0, float(remaining) / 100.0))
+        color = (
+            COLORS["danger"]
+            if state in {"unavailable", "tray_error"}
+            else COLORS["muted"]
+            if state == "stale"
+            else self._signal_progress_color(
+                remaining,
+                self.settings["battery_quota_source"],
+            )
+        )
+        self.signal_progress_fill.configure(bg=color)
+        self._signal_progress_ratio = ratio
+        self.signal_progress_fill.place_configure(relwidth=ratio)
+
     def _schedule_signal_age_refresh(self):
         if self.closing:
             return
@@ -1087,6 +1069,24 @@ class Pet(tk.Tk):
         for row_id, color in row_colors.items():
             self.text.labels[row_id].configure(fg=color)
 
+    def _quota_progress_colors(self, presentation):
+        quota_state = presentation.get("quota_state")
+        tiers = presentation.get("quota_tiers", {})
+        if quota_state in {"unavailable", "tray_error"}:
+            return {"primary_5h": COLORS["danger"], "weekly": COLORS["danger"]}
+        if quota_state == "stale":
+            return {"primary_5h": COLORS["muted"], "weekly": COLORS["muted"]}
+        primary_tier = tiers.get("primary_5h", presentation.get("quota_tier"))
+        weekly_tier = tiers.get("weekly", presentation.get("quota_tier"))
+        return {
+            "primary_5h": self._progress_tier_color(primary_tier, COLORS["accent"]),
+            "weekly": self._progress_tier_color(weekly_tier, COLORS["accent_alt"]),
+        }
+
+    @staticmethod
+    def _progress_tier_color(tier, healthy_color):
+        return healthy_color if tier == "healthy" else HEALTH_COLORS.get(tier, healthy_color)
+
     def _quota_tier_color(self, tier):
         return self.settings["font_color"] if tier == "healthy" else HEALTH_COLORS.get(tier, self.settings["font_color"])
 
@@ -1111,7 +1111,7 @@ class Pet(tk.Tk):
         return translate(language, "five_hour" if source == "primary_5h" else "weekly")
 
     @staticmethod
-    def _signal_value_color(remaining, source):
+    def _signal_progress_color(remaining, source):
         """Use source color while healthy and health colors as quota gets low."""
         if remaining is None or remaining < 10:
             return COLORS["danger"]

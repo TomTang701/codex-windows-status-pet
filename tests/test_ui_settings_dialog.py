@@ -211,9 +211,10 @@ class SettingsDialogTests(unittest.TestCase):
                 self.assertTrue(app.settings["show_primary_5h"])
                 self.assertTrue(app.settings["show_weekly"])
                 self.assertTrue(app.settings["show_reset_credit"])
-                self.assertTrue(all(
-                    label.winfo_ismapped() for label in app.text.labels.values()
-                ))
+                self.assertEqual(
+                    tuple(row_id for row_id, label in app.text.labels.items() if label.winfo_ismapped()),
+                    ("progress", "primary_5h", "weekly", "reset_credit"),
+                )
             finally:
                 if app is not None:
                     app.application_controller.shutdown()

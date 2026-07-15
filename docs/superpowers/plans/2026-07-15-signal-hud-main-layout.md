@@ -82,3 +82,18 @@
 - [x] Keep the expanded HUD outline neutral during normal activity.
 - [x] Preserve the active signal through the status rail and header indicator.
 - [x] Keep warning and unavailable quota states visible through their existing high-priority borders.
+
+### Task 7: Match the selected compact four-row main-screen hierarchy
+
+**Files:**
+- Modify: `scripts/ui/main_window.py`
+- Modify: `scripts/ui/settings_dialog.py`
+- Modify: `tests/test_ui_redesign.py`
+- Update: `docs/assets/readme/{en,zh-CN}/{main-overlay,settings}.png`
+
+- [x] Keep the stable five row IDs in the data layer, while rendering only `progress`, `primary_5h`, `weekly`, and `reset_credit` in the expanded main HUD.
+- [x] Move the active state into the top header so the second row only shows active chats.
+- [x] Remove the expanded SIGNAL/source/age/battery presentation from the main card; compact mode continues to use the existing ten-cell battery.
+- [x] Add independent horizontal remaining-quota progress bars to the 5-hour and Weekly rows.
+- [x] Map normal, stale, unavailable, and critical quota states to row text and progress fill colors without changing the underlying quota data.
+- [x] Update the settings preview and verify the four-row layout across supported languages and scale factors.

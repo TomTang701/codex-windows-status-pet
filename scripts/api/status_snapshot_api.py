@@ -36,6 +36,11 @@ def _percent_left(window):
     return f"{max(0, 100 - used)}%"
 
 
+def _remaining_value(window):
+    value = _percent_left(window)
+    return None if value == "--" else int(value[:-1])
+
+
 def _short_time(epoch):
     if not epoch:
         return "--"
@@ -135,6 +140,10 @@ def build_status_snapshot(
         "text": rows.as_text(),
         "rows": rows.as_dict(),
         "battery": battery_presentation(selected_window),
+        "remaining_percentages": {
+            "primary_5h": _remaining_value(primary),
+            "weekly": _remaining_value(secondary),
+        },
         "color": color,
         "active_count": active_count,
         "quota_tier": tier,

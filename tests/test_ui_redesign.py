@@ -57,15 +57,17 @@ class UiRedesignTests(unittest.TestCase):
     def test_main_window_uses_hud_surface_without_changing_five_rows(self):
         app = self.new_app()
         try:
+            app.apply_settings({**app.settings, "show_primary_5h": True, "show_weekly": True, "show_reset_credit": True})
             self.assertEqual(app.cget("highlightbackground"), "#26354d")
             self.assertEqual(tuple(app.text.labels), ("activity", "progress", "primary_5h", "weekly", "reset_credit"))
             self.assertEqual(len(app.battery.cells), 10)
         finally:
             self.destroy_app(app)
 
-    def test_expanded_window_uses_two_card_signal_hud_composition(self):
+    def test_expanded_window_uses_compact_four_row_single_card_composition(self):
         app = self.new_app()
         try:
+            app.apply_settings({**app.settings, "show_primary_5h": True, "show_weekly": True, "show_reset_credit": True})
             self.assertEqual(app.hud_header.winfo_parent(), str(app))
             self.assertEqual(app.status_card.winfo_parent(), str(app))
             self.assertEqual(app.signal_card.winfo_parent(), str(app))
@@ -73,53 +75,30 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.hud_status_dot.winfo_parent(), str(app.hud_header))
             self.assertEqual(app.hud_status_dot.cget("text"), chr(0x25CC))
             self.assertEqual(app.text.winfo_parent(), str(app.status_card))
-            self.assertEqual(app.battery.winfo_parent(), str(app.signal_card))
             self.assertTrue(any(str(widget.cget("text")) == "CODEX" for widget in widgets(app.hud_header)))
-            self.assertEqual(app.signal_kicker.winfo_parent(), str(app.signal_card))
-            self.assertEqual(app.signal_kicker.cget("text"), "SIGNAL")
-            self.assertEqual(app.signal_kicker.place_info()["anchor"], "nw")
-            signal_title = app.signal_title
-            signal_value = app.signal_value
-            self.assertEqual(signal_title.cget("fg"), "#818cf8")
-            self.assertEqual(signal_title.cget("bg"), "#172033")
-            self.assertEqual(signal_title.cget("highlightthickness"), 1)
-            self.assertEqual(signal_value.cget("bg"), "#172033")
-            self.assertEqual(signal_value.cget("highlightthickness"), 1)
-            self.assertEqual(app.signal_age.cget("bg"), "#172033")
-            self.assertEqual(app.signal_age.cget("highlightthickness"), 1)
             app.update_idletasks()
-            self.assertLessEqual(
-                app.signal_kicker.winfo_x() + app.signal_kicker.winfo_width(),
-                app.signal_title.winfo_x(),
-            )
-            self.assertLessEqual(
-                app.signal_age.winfo_y() + app.signal_age.winfo_height(),
-                app.battery.winfo_y(),
-            )
-            self.assertLessEqual(
-                app.battery.winfo_y() + app.battery.winfo_height(),
-                app.signal_card.winfo_height(),
-            )
+            visible_ids = tuple(row_id for row_id, label in app.text.labels.items() if label.winfo_ismapped())
+            self.assertEqual(visible_ids, ("progress", "primary_5h", "weekly", "reset_credit"))
+            self.assertFalse(app.signal_card.winfo_ismapped())
+            self.assertFalse(app.battery.winfo_ismapped())
+            self.assertTrue(all(track.winfo_ismapped() for track in app.text.progress_tracks.values()))
             app.apply_settings({**app.settings, "battery_quota_source": "primary_5h"})
-            self.assertEqual(signal_title.cget("fg"), "#22d3ee")
             app.set_compact(True)
             app.update_idletasks()
             self.assertFalse(app.hud_header.winfo_ismapped())
             self.assertFalse(app.status_card.winfo_ismapped())
             self.assertFalse(app.status_title.winfo_ismapped())
             self.assertTrue(app.signal_card.winfo_ismapped())
-            self.assertFalse(app.signal_kicker.winfo_ismapped())
-            self.assertFalse(app.signal_title.winfo_ismapped())
             self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
             app.set_compact(False)
             app.update_idletasks()
             self.assertTrue(app.status_title.winfo_ismapped())
-            self.assertTrue(app.signal_kicker.winfo_ismapped())
-            self.assertTrue(app.signal_title.winfo_ismapped())
+            self.assertFalse(app.signal_card.winfo_ismapped())
+            self.assertTrue(all(track.winfo_ismapped() for track in app.text.progress_tracks.values()))
         finally:
             self.destroy_app(app)
 
-    def test_signal_card_layout_fits_each_language_source_and_supported_scale(self):
+    def test_four_row_layout_fits_each_language_source_and_supported_scale(self):
         app = self.new_app()
         try:
             for language in ("en", "zh-CN"):
@@ -130,22 +109,23 @@ class UiRedesignTests(unittest.TestCase):
                                 **app.settings,
                                 "language": language,
                                 "battery_quota_source": source,
+                                "show_primary_5h": True,
+                                "show_weekly": True,
+                                "show_reset_credit": True,
                                 "window_scale_percent": scale,
                                 "compact": False,
                             })
                             app.update_idletasks()
-                            self.assertLessEqual(
-                                app.signal_kicker.winfo_x() + app.signal_kicker.winfo_width(),
-                                app.signal_title.winfo_x(),
+                            visible_ids = tuple(row_id for row_id, label in app.text.labels.items() if label.winfo_ismapped())
+                            self.assertEqual(
+                                visible_ids,
+                                ("progress", "primary_5h", "weekly", "reset_credit"),
                             )
-                            self.assertLessEqual(
-                                app.signal_age.winfo_y() + app.signal_age.winfo_height(),
-                                app.battery.winfo_y(),
-                            )
-                            self.assertLessEqual(
-                                app.battery.winfo_y() + app.battery.winfo_height(),
-                                app.signal_card.winfo_height(),
-                            )
+                            self.assertLessEqual(app.text.winfo_reqheight(), app.text.winfo_height())
+                            self.assertTrue(all(
+                                track.winfo_x() + track.winfo_width() <= app.text.winfo_width()
+                                for track in app.text.progress_tracks.values()
+                            ))
         finally:
             self.destroy_app(app)
 
@@ -192,7 +172,7 @@ class UiRedesignTests(unittest.TestCase):
     def test_hud_cursor_explains_drag_and_lock_state(self):
         app = self.new_app()
         try:
-            for widget in (app.hud_header, app.status_card, app.signal_card, app.signal_title, app.signal_value):
+            for widget in (app.hud_header, app.status_card, app.signal_card, app.signal_title, app.signal_progress_track, app.signal_progress_fill):
                 self.assertTrue(widget.bind("<Button-1>"))
                 self.assertTrue(widget.bind("<Button-3>"))
             app.apply_settings({**app.settings, "locked": False})
@@ -317,7 +297,7 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
-    def test_signal_card_shows_remaining_percentage_in_expanded_mode(self):
+    def test_main_quota_rows_use_independent_horizontal_progress(self):
         app = self.new_app()
         try:
             app.latest_quota = {
@@ -326,26 +306,31 @@ class UiRedesignTests(unittest.TestCase):
             }
             app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "weekly"})
             app.render_status()
-            self.assertEqual(app.signal_value.cget("text"), "80%")
-            self.assertEqual(app.signal_value.cget("fg"), "#818cf8")
+            app.update_idletasks()
+            self.assertFalse(hasattr(app, "signal_value"))
+            self.assertEqual(float(app.text.progress_fills["weekly"].place_info()["relwidth"]), 0.8)
+            self.assertEqual(app.text.progress_fills["weekly"].cget("bg"), "#818cf8")
             app.latest_quota["rateLimits"]["secondary"]["usedPercent"] = 80
             app.render_status()
-            self.assertEqual(app.signal_value.cget("text"), "20%")
-            self.assertEqual(app.signal_value.cget("fg"), "#fbbf24")
+            self.assertEqual(float(app.text.progress_fills["weekly"].place_info()["relwidth"]), 0.2)
+            self.assertEqual(app.text.progress_fills["weekly"].cget("bg"), "#fbbf24")
             app.latest_quota["rateLimits"]["secondary"]["usedPercent"] = 95
             app.render_status()
-            self.assertEqual(app.signal_value.cget("text"), "5%")
-            self.assertEqual(app.signal_value.cget("fg"), "#f87171")
+            self.assertEqual(float(app.text.progress_fills["weekly"].place_info()["relwidth"]), 0.05)
+            self.assertEqual(app.text.progress_fills["weekly"].cget("bg"), "#f87171")
             app.set_compact(True)
             app.update_idletasks()
-            self.assertFalse(app.signal_value.winfo_ismapped())
+            self.assertFalse(app.text.progress_tracks["weekly"].winfo_ismapped())
+            self.assertFalse(app.text.progress_fills["weekly"].winfo_ismapped())
             app.set_compact(False)
             app.update_idletasks()
-            self.assertTrue(app.signal_value.winfo_ismapped())
+            self.assertTrue(app.text.progress_tracks["weekly"].winfo_ismapped())
+            self.assertTrue(app.text.progress_fills["weekly"].winfo_ismapped())
+            self.assertEqual(float(app.text.progress_fills["weekly"].place_info()["relwidth"]), 0.05)
         finally:
             self.destroy_app(app)
 
-    def test_selected_signal_title_tracks_quota_health(self):
+    def test_main_quota_row_colors_track_quota_health(self):
         app = self.new_app()
         try:
             app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "weekly"})
@@ -357,15 +342,15 @@ class UiRedesignTests(unittest.TestCase):
             }
             app.quota_state.update(app.latest_quota)
             app.render_status()
-            self.assertEqual(app.signal_title.cget("fg"), "#f87171")
+            self.assertEqual(app.text.labels["weekly"].cget("fg"), "#f87171")
             app.latest_quota["rateLimits"]["secondary"]["usedPercent"] = 20
             app.quota_state.update(app.latest_quota)
             app.render_status()
-            self.assertEqual(app.signal_title.cget("fg"), "#818cf8")
+            self.assertEqual(app.text.labels["weekly"].cget("fg"), "#e5e7eb")
         finally:
             self.destroy_app(app)
 
-    def test_signal_card_shows_last_successful_sync_age(self):
+    def test_sync_age_is_not_rendered_as_a_fifth_main_row(self):
         from datetime import datetime, timezone
 
         app = self.new_app()
@@ -384,7 +369,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertFalse(app.signal_age.winfo_ismapped())
             app.set_compact(False)
             app.update_idletasks()
-            self.assertTrue(app.signal_age.winfo_ismapped())
+            self.assertFalse(app.signal_age.winfo_ismapped())
         finally:
             self.destroy_app(app)
 
@@ -422,7 +407,7 @@ class UiRedesignTests(unittest.TestCase):
             app.quota_state.last_success_at = datetime.now(timezone.utc) - timedelta(seconds=601)
             app.render_status()
             self.assertEqual(app.signal_age.cget("fg"), "#fbbf24")
-            self.assertEqual(app.signal_value.cget("fg"), "#94a3b8")
+            self.assertEqual(app.signal_progress_fill.cget("bg"), "#94a3b8")
             self.assertEqual(app.battery.cells[0].cget("bg"), "#64748b")
             self.assertEqual(app.battery.cells[9].cget("bg"), "#374151")
         finally:
@@ -561,7 +546,7 @@ class UiRedesignTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             self.destroy_app(app)
 
-    def test_live_preview_matches_signal_hud_card_composition(self):
+    def test_live_preview_matches_compact_four_row_card_composition(self):
         app = self.new_app()
         try:
             app.apply_settings({**app.settings, "language": "en"})
@@ -575,14 +560,14 @@ class UiRedesignTests(unittest.TestCase):
             preview_texts = {
                 str(widget.cget("text"))
                 for widget in widgets(preview_card)
-                if isinstance(widget, tk.Label)
+                if isinstance(widget, tk.Label) and widget.winfo_ismapped()
             }
             self.assertIn("CODEX", preview_texts)
             self.assertIn("Status", preview_texts)
-            self.assertIn("SIGNAL", preview_texts)
             self.assertIn("QUOTA", preview_texts)
-            self.assertIn("Weekly", preview_texts)
-            self.assertIn("Sync --", preview_texts)
+            self.assertIn("Weekly quota   88%", preview_texts)
+            self.assertNotIn("SIGNAL", preview_texts)
+            self.assertNotIn("Sync --", preview_texts)
             preview_signal_title = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "SIGNAL")
             preview_signal_source = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Weekly")
             self.assertEqual(preview_signal_source.cget("bg"), "#172033")
@@ -590,9 +575,17 @@ class UiRedesignTests(unittest.TestCase):
             preview_signal_age = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Sync --")
             self.assertEqual(preview_signal_age.cget("bg"), "#172033")
             self.assertEqual(preview_signal_age.cget("highlightthickness"), 1)
-            preview_signal_value = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "80%")
-            self.assertEqual(preview_signal_value.cget("bg"), "#172033")
-            self.assertEqual(preview_signal_value.cget("highlightthickness"), 1)
+            preview_signal_progress_track = next(
+                widget for widget in widgets(preview_card)
+                if isinstance(widget, tk.Frame) and int(widget.cget("height")) == 3
+            )
+            preview_signal_progress_fill = next(
+                widget for widget in widgets(preview_signal_progress_track)
+                if isinstance(widget, tk.Frame)
+            )
+            self.assertEqual(preview_signal_progress_track.cget("bg"), "#172033")
+            self.assertEqual(preview_signal_progress_fill.cget("bg"), "#818cf8")
+            self.assertEqual(float(preview_signal_progress_fill.place_info()["relwidth"]), 0.8)
             self.assertEqual(
                 sum(
                     1
@@ -608,10 +601,7 @@ class UiRedesignTests(unittest.TestCase):
                     if isinstance(widget, tk.Label)
                 )
             )
-            self.assertLessEqual(
-                preview_signal_title.winfo_x() + preview_signal_title.winfo_width(),
-                preview_signal_source.winfo_x(),
-            )
+            self.assertFalse(preview_signal_title.winfo_ismapped())
             preview_quota = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "QUOTA")
             self.assertGreaterEqual(preview_quota.winfo_height(), 7)
             preview_live = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Outputting")
@@ -621,7 +611,7 @@ class UiRedesignTests(unittest.TestCase):
                 for widget in widgets(preview_card)
                 if isinstance(widget, tk.Label) and widget.cget("text") == "●  Codex Outputting"
             )
-            self.assertLessEqual(preview_activity.winfo_reqwidth(), preview_activity.winfo_width())
+            self.assertFalse(preview_activity.winfo_ismapped())
             preview_conversations = next(
                 widget
                 for widget in widgets(preview_card)
@@ -635,7 +625,7 @@ class UiRedesignTests(unittest.TestCase):
             )
             self.assertEqual(preview_status_dot.cget("fg"), "#4ade80")
             signal_panel = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 58)
-            self.assertGreaterEqual(signal_panel.winfo_width(), 48)
+            self.assertFalse(signal_panel.winfo_ismapped())
             signal_cells = [
                 widget
                 for widget in widgets(preview_card)
@@ -1053,12 +1043,18 @@ class UiRedesignTests(unittest.TestCase):
             self.assertIn("5-hour", source_label.cget("text"))
             self.assertEqual(five_hour_label.cget("fg"), "#22d3ee")
             self.assertEqual(weekly_label.cget("fg"), "#94a3b8")
-            self.assertTrue(any(widget.cget("text") == "60%" for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Label)))
+            progress_track = next(
+                widget
+                for widget in widgets(preview_card)
+                if isinstance(widget, tk.Frame) and int(widget.cget("height")) == 3
+            )
+            progress_fill = next(widget for widget in widgets(progress_track) if isinstance(widget, tk.Frame))
+            self.assertEqual(float(progress_fill.place_info()["relwidth"]), 0.6)
             source_scale.set(1)
             app.update_idletasks()
             self.assertEqual(five_hour_label.cget("fg"), "#94a3b8")
             self.assertEqual(weekly_label.cget("fg"), "#22d3ee")
-            self.assertTrue(any(widget.cget("text") == "80%" for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Label)))
+            self.assertEqual(float(progress_fill.place_info()["relwidth"]), 0.8)
             self.assertEqual(app.settings["battery_quota_source"], "weekly")
             five_hour_quota = next(
                 widget

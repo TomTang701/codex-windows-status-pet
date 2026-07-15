@@ -118,7 +118,7 @@ class StatusRowsUiTests(unittest.TestCase):
     def test_exactly_five_stable_labels_and_event_widgets(self):
         self.assertEqual(tuple(self.rows.labels), ROW_IDS)
         self.assertEqual(len(self.rows.labels), 5)
-        self.assertEqual(len(self.rows.event_widgets), 7)
+        self.assertEqual(len(self.rows.event_widgets), 11)
 
     def test_one_row_updates_without_recreating_or_shifting_siblings(self):
         identities = {key: str(label) for key, label in self.rows.labels.items()}

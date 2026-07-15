@@ -426,27 +426,27 @@ def show_settings_dialog(owner):
         highlightcolor=COLORS["border"],
     )
     preview_signal_age.place(x=4, y=18, anchor="nw")
+    preview_signal_progress_track = tk.Frame(
+        preview_signal_panel,
+        bg=COLORS["surface_alt"],
+        height=3,
+        highlightthickness=1,
+        highlightbackground=COLORS["border"],
+    )
+    preview_signal_progress_track.place(x=4, y=29, width=48, height=3, anchor="nw")
+    preview_signal_progress_fill = tk.Frame(
+        preview_signal_progress_track,
+        bg=COLORS["accent_alt"],
+        height=1,
+    )
+    preview_signal_progress_fill.place(x=0, y=0, relwidth=0.8, relheight=1, anchor="nw")
     preview_signal_cells_frame = tk.Frame(preview_signal_panel, bg=COLORS["surface"])
-    preview_signal_cells_frame.place(relx=0.5, y=33, anchor="n")
+    preview_signal_cells_frame.place(relx=0.5, y=38, anchor="n")
     preview_signal_cells = []
     for index in range(10):
         cell = tk.Label(preview_signal_cells_frame, text="", width=1, height=1, bd=1, relief="solid", bg="#374151", font=(FONT_FAMILY, 1))
         cell.grid(row=1 + index // 2, column=index % 2, padx=1, pady=1)
         preview_signal_cells.append(cell)
-    preview_signal_value = tk.Label(
-        preview_signal_panel,
-        text="--",
-        bg=COLORS["surface_alt"],
-        fg=COLORS["accent"],
-        anchor="e",
-        font=(FONT_FAMILY, 8, "bold"),
-        padx=1,
-        pady=0,
-        highlightthickness=1,
-        highlightbackground=COLORS["border"],
-        highlightcolor=COLORS["border"],
-    )
-    preview_signal_value.place(relx=1, rely=1, x=-4, y=-3, anchor="se")
     tk.Label(preview_card, text="●  Codex Outputting", bg=COLORS["background"], fg=COLORS["success"], anchor="w", font=(FONT_FAMILY, 10, "bold")).pack(fill="x")
     tk.Label(preview_card, text="Active conversations  1", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 7)).pack(fill="x", pady=(5, 8))
     preview_quota_divider = tk.Frame(preview_card, bg=COLORS["background"], height=10)
@@ -464,9 +464,18 @@ def show_settings_dialog(owner):
     )
     preview_quota_label.place(relx=0.5, rely=0.5, anchor="center")
     preview_rows = {}
+    preview_progress_tracks = {}
+    preview_progress_fills = {}
     for row_id, label, color in (("five_hour", "5-hour quota   -- / --", COLORS["accent"]), ("weekly", "Weekly quota   88%", COLORS["accent_alt"]), ("reset_credit", "Reset Credit   4 times", COLORS["warning"])):
         preview_rows[row_id] = tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w", font=(FONT_FAMILY, 8))
         preview_rows[row_id].pack(fill="x", pady=2)
+        if row_id in {"five_hour", "weekly"}:
+            track = tk.Frame(preview_card, bg=COLORS["surface_alt"], height=3)
+            fill = tk.Frame(track, bg=color, height=1)
+            track.pack(fill="x", padx=6, pady=(0, 2))
+            fill.place(x=0, y=0, relwidth=0.8 if row_id == "weekly" else 0.6, relheight=1, anchor="nw")
+            preview_progress_tracks[row_id] = track
+            preview_progress_fills[row_id] = fill
     preview_meta = tk.Label(
         preview_card,
         text="",
@@ -480,6 +489,8 @@ def show_settings_dialog(owner):
     preview_meta.pack(fill="x", pady=(6, 0))
     preview_activity = preview_card.winfo_children()[2]
     preview_conversations = preview_card.winfo_children()[3]
+    preview_signal_panel.pack_forget()
+    preview_activity.pack_forget()
     preview_row_keys = (
         ("five_hour", "preview_five_hour_quota"),
         ("weekly", "preview_weekly_quota"),
@@ -496,14 +507,16 @@ def show_settings_dialog(owner):
             widget.configure(bg=background)
         for widget in (preview_header, preview_title, preview_status_section, preview_live, preview_status_dot):
             widget.configure(bg=COLORS["surface_alt"])
-        for widget in (preview_signal_panel, preview_signal_title, preview_signal_source, preview_signal_age, preview_signal_cells_frame, preview_signal_value):
+        for widget in (preview_signal_panel, preview_signal_title, preview_signal_source, preview_signal_age, preview_signal_progress_track, preview_signal_cells_frame):
             widget.configure(bg=COLORS["surface"])
         preview_signal_source.configure(bg=COLORS["surface_alt"])
         preview_signal_age.configure(bg=COLORS["surface_alt"])
-        preview_signal_value.configure(bg=COLORS["surface_alt"])
+        preview_signal_progress_track.configure(bg=COLORS["surface_alt"])
         preview_quota_divider.configure(bg=background)
         preview_quota_rule.configure(bg=COLORS["border"])
         preview_quota_label.configure(bg=background, fg=COLORS["muted"])
+        for track in preview_progress_tracks.values():
+            track.configure(bg=COLORS["surface_alt"])
         for widget in (preview_conversations, preview_meta):
             widget.configure(fg=draft["font_color"])
         for widget, color in (
@@ -528,10 +541,13 @@ def show_settings_dialog(owner):
             preview_rows[row_id].configure(text=translate(ui_language, text_key))
         selected_source = int(battery_source.get())
         lit_cells = 6 if selected_source == 0 else 8
-        preview_signal_value.configure(
-            text=f"{lit_cells * 10}%",
-            fg=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
-        )
+        source_color = COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"]
+        preview_signal_progress_fill.configure(bg=source_color)
+        preview_signal_progress_fill.place_configure(relwidth=lit_cells / 10)
+        preview_progress_fills["five_hour"].configure(bg=COLORS["accent"])
+        preview_progress_fills["five_hour"].place_configure(relwidth=0.6)
+        preview_progress_fills["weekly"].configure(bg=COLORS["accent_alt"])
+        preview_progress_fills["weekly"].place_configure(relwidth=0.8)
         for index, cell in enumerate(preview_signal_cells):
             cell.configure(bg=COLORS["accent"] if index < lit_cells else "#374151")
         for source_index, label in source_labels.items():
@@ -549,8 +565,12 @@ def show_settings_dialog(owner):
             if variable.get():
                 if row.winfo_manager() == "":
                     row.pack(fill="x", pady=2)
+                if row_id in preview_progress_tracks and preview_progress_tracks[row_id].winfo_manager() == "":
+                    preview_progress_tracks[row_id].pack(fill="x", padx=6, pady=(0, 2))
             else:
                 row.pack_forget()
+                if row_id in preview_progress_tracks:
+                    preview_progress_tracks[row_id].pack_forget()
         metrics = derive_window_metrics(window_scale_value if window_scale_value is not None else window_scale.get())
         topmost_state = ("置顶" if topmost.get() else "普通") if ui_language == "zh-CN" else ("topmost" if topmost.get() else "normal")
         locked_state = ("已锁定" if locked.get() else "可拖动") if ui_language == "zh-CN" else ("locked" if locked.get() else "drag enabled")
@@ -566,10 +586,9 @@ def show_settings_dialog(owner):
             highlightbackground=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
             highlightcolor=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
         )
-        preview_signal_value.configure(
-            bg=COLORS["surface_alt"],
-            highlightbackground=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
-            highlightcolor=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
+        preview_signal_progress_track.configure(
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
         )
         preview_signal_age.configure(
             text=f"{sync_prefix} --",

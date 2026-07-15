@@ -66,7 +66,7 @@ class RuntimeGeometryTransitionTests(unittest.TestCase):
                                 })
                                 app.render_status()
                                 app.update_idletasks()
-                                expected_ids = ("activity", "progress") + tuple(
+                                expected_ids = ("progress",) + tuple(
                                     row_id
                                     for row_id, enabled in zip(optional_ids, flags)
                                     if enabled
@@ -140,7 +140,7 @@ class RuntimeGeometryTransitionTests(unittest.TestCase):
                                 for row_id, label in app.text.labels.items()
                                 if label.winfo_ismapped()
                             )
-                            expected_ids = ("activity", "progress") + tuple(
+                            expected_ids = ("progress",) + tuple(
                                 row_id
                                 for row_id, enabled in zip(optional_ids, flags)
                                 if enabled
@@ -161,7 +161,6 @@ class RuntimeGeometryTransitionTests(unittest.TestCase):
                                 if label.winfo_ismapped()
                             ))
                             self.assertEqual(len(app.battery.cells), 10)
-                            self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
             finally:
                 if app is not None:
                     app.application_controller.shutdown()
@@ -220,7 +219,7 @@ class RuntimeGeometryTransitionTests(unittest.TestCase):
                 self.assertEqual(toggled["logical_scale"], cold["logical_scale"])
                 self.assertEqual(toggled["dpi"], cold["dpi"])
                 self.assertEqual(toggled["root_actual"], cold["root_actual"])
-                self.assertEqual(len(toggled["labels"]), 5)
+                self.assertEqual(len(toggled["labels"]), 4)
                 self.assertTrue(toggled["fits"])
                 self.assertLessEqual(
                     toggled["final_row_bottom"], toggled["visible_root_bottom"]

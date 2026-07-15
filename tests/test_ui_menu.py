@@ -451,12 +451,9 @@ class MenuInteractionTests(unittest.TestCase):
             for label in app.text.labels.values():
                 self.assertEqual(int(label.cget("wraplength")), 390)
             self.assertEqual(len(app.battery.cells), 10)
-            self.assertEqual(app.battery.winfo_manager(), "place")
-            self.assertGreaterEqual(app.battery.winfo_y(), 0)
-            self.assertLessEqual(
-                app.battery.winfo_y() + app.battery.winfo_height(),
-                app.signal_card.winfo_height(),
-            )
+            self.assertEqual(app.battery.winfo_manager(), "")
+            self.assertFalse(app.battery.winfo_ismapped())
+            self.assertFalse(app.signal_card.winfo_ismapped())
         finally:
             self.destroy_app(app)
 

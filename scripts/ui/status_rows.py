@@ -31,7 +31,9 @@ class StatusRows(tk.Frame):
             pady=0,
         )
         self.labels = {}
-        self.bind("<Map>", lambda _event: self._layout_quota_marker(), add="+")
+        self.progress_tracks = {}
+        self.progress_fills = {}
+        self.bind("<Map>", lambda _event: (self._layout_quota_marker(), self._layout_main_quota_bars(tuple(self.labels))), add="+")
         for row_id in ROW_IDS:
             label = tk.Label(
                 self,
@@ -46,12 +48,23 @@ class StatusRows(tk.Frame):
                 pady=0,
             )
             self.labels[row_id] = label
+            if row_id in {"primary_5h", "weekly"}:
+                track = tk.Frame(self, bg=COLORS["surface_alt"], height=2)
+                fill = tk.Frame(track, bg=COLORS["accent"], height=1)
+                self.progress_tracks[row_id] = track
+                self.progress_fills[row_id] = fill
         self.set_visible_rows({})
         self.configure_rows(text=text)
 
     @property
     def event_widgets(self):
-        return (self, *self.labels.values(), self.quota_label)
+        return (
+            self,
+            *self.labels.values(),
+            *self.progress_tracks.values(),
+            *self.progress_fills.values(),
+            self.quota_label,
+        )
 
     def configure_rows(self, *, rows=None, text=None, fg=None, bg=None, font=None, wraplength=None):
         if text is not None:
@@ -108,8 +121,9 @@ class StatusRows(tk.Frame):
         return (FONT_FAMILY, 6, "bold")
 
     def set_visible_rows(self, settings):
+        main_hud = bool(settings.get("_main_hud_layout"))
         visible = {
-            "activity": True,
+            "activity": not main_hud,
             "progress": True,
             "primary_5h": bool(settings.get("show_primary_5h", True)),
             "weekly": bool(settings.get("show_weekly", True)),
@@ -121,6 +135,8 @@ class StatusRows(tk.Frame):
             label.place_forget()
         self.quota_divider.place_forget()
         self.quota_label.place_forget()
+        for track in self.progress_tracks.values():
+            track.place_forget()
         visible_ids = [row_id for row_id in ROW_IDS if visible[row_id]]
         visible_count = len(visible_ids)
         if not self.winfo_ismapped():
@@ -146,9 +162,42 @@ class StatusRows(tk.Frame):
             anchor="nw",
         )
         self._layout_quota_marker()
+        if main_hud:
+            self.quota_divider.place_forget()
+            self.quota_label.place_forget()
+            self._layout_main_quota_bars(visible_ids)
         self.quota_divider.lift()
         self.quota_label.lift()
         self.update_idletasks()
+
+    def _layout_main_quota_bars(self, visible_ids):
+        if not self.winfo_width() or not self.winfo_height():
+            return
+        row_count = max(1, len(visible_ids))
+        for row_id, track in self.progress_tracks.items():
+            if row_id not in visible_ids:
+                continue
+            label = self.labels[row_id]
+            bar_y = label.winfo_y() + max(1, round(label.winfo_height() * 0.72))
+            track.place(
+                relx=0.46,
+                y=bar_y,
+                relwidth=0.38,
+                height=max(2, round(label.winfo_height() * 0.1)),
+                anchor="nw",
+            )
+            self.progress_fills[row_id].place(x=0, y=0, relheight=1, anchor="nw")
+            track.lift()
+            self.progress_fills[row_id].lift()
+
+    def set_quota_progress(self, remaining, colors=None):
+        remaining = remaining if isinstance(remaining, dict) else {}
+        colors = colors if isinstance(colors, dict) else {}
+        for row_id, fill in self.progress_fills.items():
+            value = remaining.get(row_id)
+            ratio = 0.0 if value is None else max(0.0, min(1.0, float(value) / 100.0))
+            fill.configure(bg=colors.get(row_id, COLORS["accent"]))
+            fill.place_configure(relwidth=ratio)
 
     def row_values(self):
         return {row_id: label.cget("text") for row_id, label in self.labels.items()}
