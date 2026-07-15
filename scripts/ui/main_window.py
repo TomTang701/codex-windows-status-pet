@@ -346,6 +346,10 @@ class Pet(tk.Tk):
         )
         self.signal_title.configure(font=(*signal_title_font, "bold"))
         self.signal_value.configure(font=(*signal_value_font, "bold"))
+        header_padding = self._hud_header_padding()
+        self.hud_title.pack_configure(padx=(header_padding, max(2, round(header_padding / 2))))
+        self.status_title.pack_configure(padx=(0, max(2, round(header_padding / 2))))
+        self.hud_status.pack_configure(padx=(max(2, round(header_padding / 2)), header_padding))
         self.hud_title.configure(bg=COLORS["surface_alt"])
         self.hud_status.configure(bg=COLORS["surface_alt"])
         self.status_card.configure(bg=bg, highlightbackground=COLORS["border"])
@@ -449,6 +453,14 @@ class Pet(tk.Tk):
         dpi_scale = self.window_dpi / 96.0 if self.window_dpi > 0 else 1.0
         return max(11, round(14 * metrics.scale_percent / 100 * dpi_scale))
 
+    def _hud_header_padding(self):
+        """Scale header breathing room with the same physical HUD ratio."""
+        metrics = getattr(self, "window_metrics", None)
+        if metrics is None:
+            return 8
+        dpi_scale = self.window_dpi / 96.0 if self.window_dpi > 0 else 1.0
+        return max(4, round(8 * metrics.scale_percent / 100 * dpi_scale))
+
     def _pack_expanded_content(self):
         metrics = self.window_metrics
         self.hud_header.pack_forget()
@@ -460,8 +472,15 @@ class Pet(tk.Tk):
         self.hud_header.pack(side="top", fill="x", padx=metrics.horizontal_padding, pady=0)
         self.status_card.pack(side="left", fill="both", expand=True, padx=(metrics.horizontal_padding, 3), pady=0)
         self.signal_card.pack(side="right", fill="y", padx=(0, metrics.horizontal_padding), pady=0)
-        self.signal_title.place(x=6, y=3, anchor="nw")
-        self.signal_value.place(relx=1, rely=1, x=-6, y=-3, anchor="se")
+        inset = self._hud_header_padding()
+        self.signal_title.place(x=inset, y=max(2, round(inset / 2)), anchor="nw")
+        self.signal_value.place(
+            relx=1,
+            rely=1,
+            x=-inset,
+            y=-max(2, round(inset / 2)),
+            anchor="se",
+        )
         self.text.pack(
             fill="both",
             expand=True,

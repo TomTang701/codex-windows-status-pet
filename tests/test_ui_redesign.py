@@ -98,10 +98,12 @@ class UiRedesignTests(unittest.TestCase):
             app.update_idletasks()
             base_height = app.hud_header.winfo_height()
             base_font = app.hud_status.cget("font")
+            base_padding = app.hud_title.pack_info()["padx"]
             app.apply_settings({**app.settings, "window_scale_percent": 200})
             app.update_idletasks()
             self.assertGreater(app.hud_header.winfo_height(), base_height)
             self.assertNotEqual(app.hud_status.cget("font"), base_font)
+            self.assertNotEqual(app.hud_title.pack_info()["padx"], base_padding)
         finally:
             self.destroy_app(app)
 
