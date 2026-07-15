@@ -278,6 +278,31 @@ class UiRedesignTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             self.destroy_app(app)
 
+    def test_live_preview_identifies_selected_quota_source(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            source_scale = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Scale) and float(widget.cget("to")) == 1.0 and float(widget.cget("from")) == 0.0
+            )
+            source_scale.set(0)
+            app.update_idletasks()
+            source_label = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Source")
+            )
+            self.assertIn("5-hour", source_label.cget("text"))
+            self.assertEqual(app.settings["battery_quota_source"], "weekly")
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
     def test_context_menu_uses_hud_surface_and_keeps_actions(self):
         app = self.new_app()
         try:
