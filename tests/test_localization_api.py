@@ -14,12 +14,14 @@ class LocalizationApiTests(unittest.TestCase):
         self.assertEqual(normalize_language("zh-CN"), ("zh-CN", None))
         self.assertEqual(normalize_language("fr"), ("en", "language is invalid; English retained"))
         self.assertEqual(translate("en", "idle"), "Idle")
+        self.assertEqual(translate("en", "loading"), "Loading")
         self.assertEqual(
             translate("en", "existing_instance"),
             "Codex Windows Status Pet is already running.\nClose the existing instance before launching this copy.",
         )
         self.assertTrue(translate("zh-CN", "existing_instance").startswith("Codex "))
         self.assertEqual(translate("zh-CN", "idle"), "空闲")
+        self.assertEqual(translate("zh-CN", "loading"), "\\u52a0\\u8f7d\\u4e2d")
 
     def test_key_and_placeholder_contract_is_visible(self):
         self.assertEqual(translate("en", "activity", detail="Running"), "Codex Running")

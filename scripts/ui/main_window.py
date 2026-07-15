@@ -385,13 +385,19 @@ class Pet(tk.Tk):
         self.signal_value.configure(bg=COLORS["surface"], fg=COLORS["muted"])
         self._update_signal_age()
         active = bool(self.latest_activity.get("active", 0))
+        initial_status_key = (
+            "output" if active
+            else "loading" if self.quota_state.state == "loading" and self.quota_state.last_good is None
+            else "idle"
+        )
+        initial_status_color = COLORS["success"] if active else COLORS["accent"] if initial_status_key == "loading" else COLORS["muted"]
         self.hud_status.configure(
-            text=translate(self.settings["language"], "output" if active else "idle"),
-            fg=COLORS["success"] if active else COLORS["muted"],
+            text=translate(self.settings["language"], initial_status_key),
+            fg=initial_status_color,
         )
         self.hud_status_dot.configure(
-            text=self._status_indicator("output" if active else "idle"),
-            fg=COLORS["success"] if active else COLORS["muted"],
+            text=self._status_indicator(initial_status_key),
+            fg=initial_status_color,
         )
         self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
@@ -862,12 +868,14 @@ class Pet(tk.Tk):
             "quota_unavailable" if quota_state in {"unavailable", "tray_error"}
             else "stale" if quota_state == "stale"
             else "output" if active
+            else "loading" if quota_state == "loading" and self.quota_state.last_good is None
             else "idle"
         )
         status_color = (
             COLORS["danger"] if quota_state in {"unavailable", "tray_error"}
             else COLORS["muted"] if quota_state == "stale"
             else COLORS["success"] if active
+            else COLORS["accent"] if status_key == "loading"
             else COLORS["muted"]
         )
         self.hud_status.configure(
@@ -966,6 +974,7 @@ class Pet(tk.Tk):
         return {
             "output": chr(0x25CF),
             "idle": chr(0x25CB),
+            "loading": chr(0x25CC),
             "stale": chr(0x25D0),
             "quota_unavailable": "!",
             "tray_error": "!",

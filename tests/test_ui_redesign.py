@@ -70,7 +70,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.signal_card.winfo_parent(), str(app))
             self.assertEqual(app.status_title.winfo_parent(), str(app.hud_header))
             self.assertEqual(app.hud_status_dot.winfo_parent(), str(app.hud_header))
-            self.assertEqual(app.hud_status_dot.cget("text"), chr(0x25CB))
+            self.assertEqual(app.hud_status_dot.cget("text"), chr(0x25CC))
             self.assertEqual(app.text.winfo_parent(), str(app.status_card))
             self.assertEqual(app.battery.winfo_parent(), str(app.signal_card))
             self.assertTrue(any(str(widget.cget("text")) == "CODEX" for widget in widgets(app.hud_header)))
@@ -90,6 +90,17 @@ class UiRedesignTests(unittest.TestCase):
             app.update_idletasks()
             self.assertTrue(app.status_title.winfo_ismapped())
             self.assertTrue(app.signal_title.winfo_ismapped())
+        finally:
+            self.destroy_app(app)
+
+    def test_initial_quota_load_has_a_distinct_header_state(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.render_status()
+            self.assertEqual(app.hud_status.cget("text"), "Loading")
+            self.assertEqual(app.hud_status_dot.cget("text"), chr(0x25CC))
+            self.assertEqual(app.hud_status_dot.cget("fg"), "#22d3ee")
         finally:
             self.destroy_app(app)
 
@@ -192,6 +203,18 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.hud_header.cget("highlightbackground"), "#26354d")
             self.assertEqual(app.status_card.cget("highlightbackground"), "#26354d")
             self.assertEqual(app.signal_card.cget("highlightbackground"), "#26354d")
+        finally:
+            self.destroy_app(app)
+
+    def test_long_error_status_fits_inside_the_header(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en", "window_scale_percent": 100})
+            app.quota_state.state = "unavailable"
+            app.render_status()
+            app.update_idletasks()
+            self.assertLessEqual(app.hud_status.winfo_reqwidth(), app.hud_status.winfo_width())
+            self.assertLessEqual(app.hud_status.winfo_x() + app.hud_status.winfo_width(), app.hud_header.winfo_width())
         finally:
             self.destroy_app(app)
 

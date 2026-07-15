@@ -8,6 +8,7 @@ SUPPORTED_LANGUAGES = ("en", "zh-CN")
 _TEXT = {
     "en": {
         "idle": "Idle",
+        "loading": "Loading",
         "thinking": "Thinking",
         "tool_call": "Calling tool",
         "command": "Running command",
@@ -67,6 +68,7 @@ _TEXT = {
     "zh-CN": {
         "existing_instance": "Codex 状态宠物已在运行。\n请先关闭当前实例，再启动此副本。",
         "idle": "空闲",
+        "loading": "\\u52a0\\u8f7d\\u4e2d",
         "thinking": "思考中",
         "tool_call": "调用工具",
         "command": "执行命令",
