@@ -206,6 +206,15 @@ class Pet(tk.Tk):
         self.status_title.pack(side="left", padx=(0, 4), fill="y")
         self.hud_status = tk.Label(self.hud_header, text=translate(self.settings["language"], "idle"), bg=COLORS["surface_alt"], fg=COLORS["muted"], font=(FONT_FAMILY, 7), anchor="e")
         self.hud_status.pack(side="right", padx=(4, 8), fill="y")
+        self.hud_status_dot = tk.Label(
+            self.hud_header,
+            text="●",
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 7),
+            anchor="e",
+        )
+        self.hud_status_dot.pack(side="right", padx=(0, 2), fill="y")
         self.status_card = tk.Frame(self, bg=hud_bg, highlightthickness=1, highlightbackground=COLORS["border"])
         self.signal_card = tk.Frame(self, bg=COLORS["surface"], highlightthickness=1, highlightbackground=COLORS["border"])
         self.status_rail = tk.Frame(self.status_card, bg=COLORS["border"], width=2)
@@ -336,6 +345,7 @@ class Pet(tk.Tk):
         self.hud_title.configure(font=(*header_font, "bold"))
         self.status_title.configure(font=header_font)
         self.hud_status.configure(font=header_font)
+        self.hud_status_dot.configure(font=header_font)
         signal_title_font = self._font_spec(
             FONT_FAMILY,
             max(6, round(metrics.text_font_size * 0.7)),
@@ -352,6 +362,7 @@ class Pet(tk.Tk):
         self.hud_status.pack_configure(padx=(max(2, round(header_padding / 2)), header_padding))
         self.hud_title.configure(bg=COLORS["surface_alt"])
         self.hud_status.configure(bg=COLORS["surface_alt"])
+        self.hud_status_dot.configure(bg=COLORS["surface_alt"])
         self.status_card.configure(bg=bg, highlightbackground=COLORS["border"])
         self.status_rail.configure(bg=COLORS["border"])
         self.status_title.configure(
@@ -371,6 +382,7 @@ class Pet(tk.Tk):
             text=translate(self.settings["language"], "output" if active else "idle"),
             fg=COLORS["success"] if active else COLORS["muted"],
         )
+        self.hud_status_dot.configure(fg=COLORS["success"] if active else COLORS["muted"])
         self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.set_visible_rows(self.settings)
@@ -416,6 +428,7 @@ class Pet(tk.Tk):
             self.hud_header,
             self.hud_title,
             self.hud_status,
+            self.hud_status_dot,
             self.status_card,
             self.status_rail,
             self.status_title,
@@ -818,6 +831,7 @@ class Pet(tk.Tk):
             text=translate(self.settings["language"], status_key),
             fg=status_color,
         )
+        self.hud_status_dot.configure(fg=status_color)
         battery = presentation["battery"]
         remaining = battery.get("remaining_percent")
         self.signal_value.configure(
