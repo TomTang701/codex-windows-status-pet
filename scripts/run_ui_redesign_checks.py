@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 
+ROOT = Path(__file__).resolve().parents[1]
 CHILD_TIMEOUT_SECONDS = 120
 
 
@@ -16,9 +17,9 @@ def main() -> int:
             sys.executable,
             "-m",
             "py_compile",
-            "scripts/codex_status_pet.py",
-            *[str(path) for path in Path("scripts/ui").glob("*.py")],
-            *[str(path) for path in Path("scripts/api").glob("*.py")],
+            str(ROOT / "scripts" / "codex_status_pet.py"),
+            *[str(path) for path in (ROOT / "scripts" / "ui").glob("*.py")],
+            *[str(path) for path in (ROOT / "scripts" / "api").glob("*.py")],
         ],
         [
             sys.executable,
@@ -32,6 +33,7 @@ def main() -> int:
         try:
             completed = subprocess.run(
                 command,
+                cwd=ROOT,
                 check=False,
                 timeout=CHILD_TIMEOUT_SECONDS,
             )
