@@ -67,6 +67,11 @@ def show_settings_dialog(owner):
 
     def text(key):
         return translate(ui_language, key)
+
+    def lifecycle_status(applied=False):
+        if ui_language == "zh-CN":
+            return "预览草稿 · 点击应用更新" if not applied else "预览已更新 · 保存后持久化"
+        return "Draft only · Apply to update" if not applied else "Preview updated · Save to persist"
     shell = tk.Frame(dialog, bg=COLORS["background"], padx=10, pady=10)
     shell.pack(fill="both", expand=True)
     navigation = tk.Frame(shell, bg=COLORS["surface"], padx=8, pady=8, width=132)
@@ -368,6 +373,7 @@ def show_settings_dialog(owner):
             text="行可见性" if selected_language == "zh-CN" else "Row visibility"
         )
         preview.configure(text="预览" if selected_language == "zh-CN" else "Live preview")
+        preview_status.configure(text=lifecycle_status(applied=False))
         language_labels = {
             "en": text("english"),
             "zh-CN": text("simplified_chinese"),
@@ -383,6 +389,7 @@ def show_settings_dialog(owner):
             return False
         owner.apply_settings(settings_session.apply())
         refresh_language_widgets(draft["language"])
+        preview_status.configure(text=lifecycle_status(applied=True))
         return True
 
     def save_and_close():
@@ -423,8 +430,17 @@ def show_settings_dialog(owner):
         )
         refresh_preview()
 
+    preview_status = tk.Label(
+        body,
+        text=lifecycle_status(),
+        bg=COLORS["background"],
+        fg=COLORS["muted"],
+        font=(FONT_FAMILY, 8),
+        anchor="w",
+    )
+    preview_status.grid(row=12, column=0, columnspan=3, sticky="w", pady=(10, 0))
     buttons = tk.Frame(body, bg=COLORS["background"])
-    buttons.grid(row=12, column=0, columnspan=3, pady=(14, 0))
+    buttons.grid(row=13, column=0, columnspan=3, pady=(8, 0))
     translated(themed_button(buttons, text("save"), save_and_close, primary=True, width=8), "save").pack(side="left", padx=3)
     translated(themed_button(buttons, text("apply"), apply_draft, width=8), "apply").pack(side="left", padx=3)
     translated(themed_button(buttons, text("restore_defaults"), restore_defaults, width=12), "restore_defaults").pack(side="left", padx=3)
