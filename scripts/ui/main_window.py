@@ -574,6 +574,7 @@ class Pet(tk.Tk):
                     self.close()
                 elif action == "tray_error":
                     presentation = self.presentation_controller.render_tray_error()
+                    self.configure(highlightbackground=COLORS["danger"])
                     self.text.configure_rows(
                         rows=presentation["rows"], fg=presentation["color"]
                     )
@@ -646,8 +647,24 @@ class Pet(tk.Tk):
             self.settings["battery_quota_source"],
             self.settings["language"],
         )
+        self.configure(highlightbackground=self._hud_border_color(presentation))
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
         self.battery.configure_presentation(presentation["battery"])
+
+    @staticmethod
+    def _hud_border_color(presentation):
+        """Use the HUD outline as a low-noise live status indicator."""
+        if presentation.get("quota_state") in {"unavailable", "tray_error"}:
+            return COLORS["danger"]
+        if presentation.get("quota_state") == "stale":
+            return COLORS["muted"]
+        if presentation.get("quota_tier") == "critical":
+            return COLORS["danger"]
+        if presentation.get("quota_tier") == "caution":
+            return COLORS["warning"]
+        if presentation.get("active_count", 0):
+            return COLORS["success"]
+        return COLORS["border"]
 
     def poll(self):
         if self.closing:

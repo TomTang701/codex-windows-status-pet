@@ -61,6 +61,22 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_hud_border_communicates_live_status_without_changing_rows(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.latest_activity = {"active": 1, "detail": "Outputting", "progress": "Active conversations  1"}
+            app.latest_quota = {"rateLimits": {"primary": {"usedPercent": 20}, "secondary": {}}, "rateLimitResetCredits": {}}
+            app.quota_state.update(app.latest_quota)
+            app.render_status()
+            self.assertEqual(app.cget("highlightbackground"), "#4ade80")
+            app.quota_state.state = "unavailable"
+            app.render_status()
+            self.assertEqual(app.cget("highlightbackground"), "#f87171")
+            self.assertEqual(tuple(app.text.labels), ("activity", "progress", "primary_5h", "weekly", "reset_credit"))
+        finally:
+            self.destroy_app(app)
+
     def test_settings_surface_has_navigation_preview_and_transactional_apply(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)
