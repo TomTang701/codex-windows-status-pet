@@ -1002,7 +1002,7 @@ class UiRedesignTests(unittest.TestCase):
             checkbuttons = [
                 widget
                 for widget in widgets(popup)
-                if isinstance(widget, tk.Button) and "[" in str(widget.cget("text"))
+                if isinstance(widget, tk.Button) and any(mark in str(widget.cget("text")) for mark in ("\u2713", "\u25cb"))
             ]
             self.assertEqual(len(checkbuttons), 3)
             labels = [
@@ -1010,7 +1010,7 @@ class UiRedesignTests(unittest.TestCase):
                 for widget in widgets(popup)
                 if isinstance(widget, tk.Button)
             ]
-            self.assertEqual(labels, ["Settings", "Always on top  [x]", "Lock position  [x]", "Compact  [ ]", "Hide window", "Exit"])
+            self.assertEqual(labels, ["Settings", "Always on top  ✓", "Lock position  ✓", "Compact  ○", "Hide window", "Exit"])
         finally:
             if app.context_menu is not None and app.context_menu.winfo_exists():
                 app.context_menu.destroy()

@@ -110,7 +110,7 @@ def show_context_menu(owner, event):
                 **button_options,
             )
         else:
-            state_mark = "[x]" if item.checked else "[ ]"
+            state_mark = "✓" if item.checked else "○"
             widget = tk.Button(
                 body,
                 text=f"{item.label}  {state_mark}",
