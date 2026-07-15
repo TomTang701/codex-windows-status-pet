@@ -299,6 +299,9 @@ def show_settings_dialog(owner):
         variable=battery_source,
     )
     battery_source_scale.grid(row=0, column=0, columnspan=2)
+    # This setting is binary; the visible segmented buttons below are clearer
+    # than presenting the same choice as a one-step slider as well.
+    battery_source_scale.grid_remove()
     def source_button(parent, value, source_index):
         return tk.Button(
             parent,
@@ -390,14 +393,38 @@ def show_settings_dialog(owner):
         font=(FONT_FAMILY, 7),
     )
     preview_status_dot.pack(side="right", padx=(0, 2), fill="y")
-    preview_signal_panel = tk.Frame(preview_card, bg=COLORS["surface"], width=52)
+    preview_signal_panel = tk.Frame(preview_card, bg=COLORS["surface"], width=58)
     preview_signal_panel.pack(side="right", fill="y", padx=(6, 0), ipadx=14)
     preview_signal_panel.pack_propagate(False)
     preview_signal_title = tk.Label(preview_signal_panel, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 6, "bold"))
     preview_signal_title.place(x=2, y=3, anchor="nw")
-    preview_signal_source = tk.Label(preview_signal_panel, text="Weekly", bg=COLORS["surface"], fg=COLORS["accent_alt"], anchor="e", font=(FONT_FAMILY, 6, "bold"))
+    preview_signal_source = tk.Label(
+        preview_signal_panel,
+        text="Weekly",
+        bg=COLORS["surface_alt"],
+        fg=COLORS["accent_alt"],
+        anchor="e",
+        font=(FONT_FAMILY, 6, "bold"),
+        padx=1,
+        pady=0,
+        highlightthickness=1,
+        highlightbackground=COLORS["accent_alt"],
+        highlightcolor=COLORS["accent_alt"],
+    )
     preview_signal_source.place(relx=1, x=-4, y=3, anchor="ne")
-    preview_signal_age = tk.Label(preview_signal_panel, text="Sync --", bg=COLORS["surface"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 6))
+    preview_signal_age = tk.Label(
+        preview_signal_panel,
+        text="Sync --",
+        bg=COLORS["surface_alt"],
+        fg=COLORS["muted"],
+        anchor="w",
+        font=(FONT_FAMILY, 6),
+        padx=1,
+        pady=0,
+        highlightthickness=1,
+        highlightbackground=COLORS["border"],
+        highlightcolor=COLORS["border"],
+    )
     preview_signal_age.place(x=4, y=18, anchor="nw")
     preview_signal_cells_frame = tk.Frame(preview_signal_panel, bg=COLORS["surface"])
     preview_signal_cells_frame.place(relx=0.5, y=33, anchor="n")
@@ -409,24 +436,19 @@ def show_settings_dialog(owner):
     preview_signal_value = tk.Label(
         preview_signal_panel,
         text="--",
-        bg=COLORS["surface"],
+        bg=COLORS["surface_alt"],
         fg=COLORS["accent"],
         anchor="e",
         font=(FONT_FAMILY, 8, "bold"),
+        padx=1,
+        pady=0,
+        highlightthickness=1,
+        highlightbackground=COLORS["border"],
+        highlightcolor=COLORS["border"],
     )
     preview_signal_value.place(relx=1, rely=1, x=-4, y=-3, anchor="se")
     tk.Label(preview_card, text="●  Codex Outputting", bg=COLORS["background"], fg=COLORS["success"], anchor="w", font=(FONT_FAMILY, 10, "bold")).pack(fill="x")
     tk.Label(preview_card, text="Active conversations  1", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 7)).pack(fill="x", pady=(5, 8))
-    preview_source = tk.Label(
-        preview_card,
-        text="",
-        bg=COLORS["background"],
-        fg=COLORS["muted"],
-        anchor="w",
-        justify="left",
-        font=(FONT_FAMILY, 8),
-    )
-    preview_source.pack(fill="x", pady=(0, 4))
     preview_quota_divider = tk.Frame(preview_card, bg=COLORS["background"], height=10)
     preview_quota_divider.pack(fill="x", pady=(1, 0))
     preview_quota_divider.pack_propagate(False)
@@ -476,10 +498,13 @@ def show_settings_dialog(owner):
             widget.configure(bg=COLORS["surface_alt"])
         for widget in (preview_signal_panel, preview_signal_title, preview_signal_source, preview_signal_age, preview_signal_cells_frame, preview_signal_value):
             widget.configure(bg=COLORS["surface"])
+        preview_signal_source.configure(bg=COLORS["surface_alt"])
+        preview_signal_age.configure(bg=COLORS["surface_alt"])
+        preview_signal_value.configure(bg=COLORS["surface_alt"])
         preview_quota_divider.configure(bg=background)
         preview_quota_rule.configure(bg=COLORS["border"])
         preview_quota_label.configure(bg=background, fg=COLORS["muted"])
-        for widget in (preview_conversations, preview_source, preview_meta):
+        for widget in (preview_conversations, preview_meta):
             widget.configure(fg=draft["font_color"])
         for widget, color in (
             (font_color_button, draft["font_color"]),
@@ -532,15 +557,26 @@ def show_settings_dialog(owner):
         opacity_value = alpha_value if alpha_value is not None else alpha.get()
         opacity_value_label.configure(text=f"{round(float(opacity_value) * 100)}%")
         preview_prefix = "预览" if ui_language == "zh-CN" else "Preview"
-        source_prefix = "数据源" if ui_language == "zh-CN" else "Source"
         source_name = ("5 小时" if ui_language == "zh-CN" else "5-hour") if battery_source.get() == 0 else ("每周" if ui_language == "zh-CN" else "Weekly")
         sync_prefix = "同步" if ui_language == "zh-CN" else "Sync"
-        preview_source.configure(text=f"{source_prefix}: {source_name}\n{sync_prefix} --")
         preview_signal_source.configure(
             text=source_name,
+            bg=COLORS["surface_alt"],
             fg=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
+            highlightbackground=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
+            highlightcolor=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
         )
-        preview_signal_age.configure(text=f"{sync_prefix} --")
+        preview_signal_value.configure(
+            bg=COLORS["surface_alt"],
+            highlightbackground=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
+            highlightcolor=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
+        )
+        preview_signal_age.configure(
+            text=f"{sync_prefix} --",
+            bg=COLORS["surface_alt"],
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
         opacity_label = "透明度" if ui_language == "zh-CN" else "alpha"
         preview_meta.configure(
             text=(
@@ -560,10 +596,15 @@ def show_settings_dialog(owner):
         if preview_status is not None:
             preview_status.configure(text=lifecycle_status(changed=True), fg=COLORS["accent"])
 
+    for variable in (position_x, position_y, refresh_interval):
+        variable.trace_add("write", lambda *_args: mark_draft_changed())
+
     def sync_apply_affordance():
         if apply_button is None:
             return
         apply_button.configure(
+            state="normal" if draft_changed else "disabled",
+            cursor="hand2" if draft_changed else "arrow",
             fg=COLORS["accent"] if draft_changed else COLORS["muted"],
             highlightthickness=1 if draft_changed else 0,
             highlightbackground=COLORS["accent"],
@@ -578,7 +619,7 @@ def show_settings_dialog(owner):
     focus_targets = (
         opacity_scale,
         window_scale_control,
-        battery_source_scale,
+        source_labels[0],
         topmost_checkbutton,
         refresh_interval_entry,
     )

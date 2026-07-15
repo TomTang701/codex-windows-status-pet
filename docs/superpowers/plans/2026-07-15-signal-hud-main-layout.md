@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Work only in `G:/Zixuan_Tang/Codex插件/codex-windows-status-pet-ui` on branch `feat/signal-hud-settings-ui-isolated`.
+- Work only in the isolated UI worktree on branch `feat/signal-hud-settings-ui-isolated`.
 - Do not modify the original `main` worktree.
 - Do not add keyboard-shortcut UI or new shortcut bindings.
 - Preserve the five status row IDs and ten battery cells.
@@ -26,17 +26,17 @@
 - Modify: `scripts/ui/settings_dialog.py`
 - Modify: `tests/test_ui_redesign.py`
 
-- [ ] Remove only the uncommitted shortcut hint strings, hint label, Alt+R binding, and their assertions. Keep the already-existing Apply/Save/Escape behavior unchanged.
-- [ ] Run `git diff --check` and confirm no shortcut expansion remains in the working diff.
+- [x] Remove only the uncommitted shortcut hint strings, hint label, Alt+R binding, and their assertions. Keep the already-existing Apply/Save/Escape behavior unchanged.
+- [x] Run `git diff --check` and confirm no shortcut expansion remains in the working diff.
 
 ### Task 2: Add a failing test for the expanded HUD composition
 
 **Files:**
 - Modify: `tests/test_ui_redesign.py`
 
-- [ ] Assert that the expanded window exposes `hud_header`, `status_card`, and `signal_card` presentation containers, with `app.text` inside `status_card` and `app.battery` inside `signal_card`.
-- [ ] Assert that the header contains a status label and that compact mode hides the expanded cards while keeping all ten battery cells mapped.
-- [ ] Run the focused test and confirm it fails against the current direct-pack implementation.
+- [x] Assert that the expanded window exposes `hud_header`, `status_card`, and `signal_card` presentation containers, with `app.text` inside `status_card` and `app.battery` inside `signal_card`.
+- [x] Assert that the header contains a status label and that compact mode hides the expanded cards while keeping all ten battery cells mapped.
+- [x] Run the focused test and confirm it fails against the current direct-pack implementation.
 
 ### Task 3: Implement the two-card Signal HUD
 
@@ -44,18 +44,30 @@
 - Modify: `scripts/ui/main_window.py`
 - Modify: `scripts/ui/theme.py` only if an existing token is genuinely missing
 
-- [ ] Create presentation-only frames using existing theme colors: a thin `hud_header`, a `status_card`, and a `signal_card`.
-- [ ] Add a small title/status label to the header without changing the status row data contract.
-- [ ] Pack the existing `StatusRows` and `BatteryView` into their cards; use card borders and restrained padding so all supported scales still fit.
-- [ ] Include the new frames in right-click, hover, drag, and cursor synchronization event traversal.
-- [ ] Update `apply_settings` and compact transitions so custom background/font colors still apply and compact mode hides the header/cards.
+- [x] Create presentation-only frames using existing theme colors: a thin `hud_header`, a `status_card`, and a `signal_card`.
+- [x] Add a small title/status label to the header without changing the status row data contract.
+- [x] Pack the existing `StatusRows` and `BatteryView` into their cards; use card borders and restrained padding so all supported scales still fit.
+- [x] Include the new frames in right-click, hover, drag, and cursor synchronization event traversal.
+- [x] Update `apply_settings` and compact transitions so custom background/font colors still apply and compact mode hides the header/cards.
 
 ### Task 4: Run verification and review the diff
 
 **Files:**
 - Modify: none
 
-- [ ] Run the branch-local UI gate: `scripts/run_ui_redesign_checks.py`.
-- [ ] Run related legacy tests serially: `tests.test_ui_settings_dialog tests.test_ui_status_rows tests.test_ui_menu`.
-- [ ] Run `tests.test_ui_content_fit` serially and inspect the actual Tk geometry assertions.
-- [ ] Run `git diff --check`, inspect `git diff`, and confirm only the shortcut cleanup, main HUD layout, tests, and plan are changed.
+- [x] Run the branch-local UI gate: `scripts/run_ui_redesign_checks.py`.
+- [x] Run related legacy tests serially: `tests.test_ui_settings_dialog tests.test_ui_status_rows tests.test_ui_menu`.
+- [x] Run `tests.test_ui_content_fit` serially and inspect the actual Tk geometry assertions.
+- [x] Run `git diff --check`, inspect `git diff`, and confirm the changes remain inside the isolated UI redesign scope.
+
+### Task 5: Align the state language across the HUD and settings preview
+
+**Files:**
+- Modify: `scripts/ui/main_window.py`
+- Modify: `scripts/ui/settings_dialog.py`
+- Modify: `tests/test_ui_redesign.py`
+- Update: `docs/assets/readme/{en,zh-CN}/{main-overlay,settings}.png`
+
+- [x] Present the selected quota source, remaining percentage, and sync age as one consistent set of compact state badges.
+- [x] Reuse the same health colors for normal, stale, and unavailable quota states.
+- [x] Verify English and Simplified Chinese screenshots at default and 80% scale without overlap or clipping.

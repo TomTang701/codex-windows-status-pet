@@ -43,6 +43,7 @@ class StatusRows(tk.Frame):
                 bg=bg,
                 wraplength=wraplength,
                 padx=2,
+                pady=0,
             )
             self.labels[row_id] = label
         self.set_visible_rows({})

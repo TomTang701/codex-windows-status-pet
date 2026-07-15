@@ -2,6 +2,7 @@ import sys
 import unittest
 import io
 import json
+import subprocess
 from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
@@ -70,6 +71,24 @@ class GateOrchestrationTests(unittest.TestCase):
         self.assertEqual(subprocess_run.call_args.kwargs["encoding"], "utf-8")
         self.assertEqual(subprocess_run.call_args.kwargs["errors"], "replace")
         self.assertEqual(subprocess_run.call_args.kwargs["env"]["PYTHONIOENCODING"], "utf-8")
+
+    def test_quality_runner_converts_a_stuck_child_into_a_bounded_failure(self):
+        timeout = subprocess.TimeoutExpired(["tool"], 300)
+        with mock.patch.object(run_quality_checks.subprocess, "run", side_effect=timeout):
+            code, output = run_quality_checks.run(["tool"])
+        self.assertEqual(code, 124)
+        self.assertIn("timed out after 300 seconds", output)
+
+    def test_quality_main_reports_each_check_progress(self):
+        progress = io.StringIO()
+        with (
+            mock.patch.object(run_quality_checks, "quality_commands", return_value={"child": ["tool"]}),
+            mock.patch.object(run_quality_checks, "run", return_value=(0, "ok")),
+            mock.patch.object(sys, "stderr", progress),
+        ):
+            self.assertEqual(run_quality_checks.main(), 0)
+        self.assertIn("[quality] child: start", progress.getvalue())
+        self.assertIn("[quality] child: passed", progress.getvalue())
 
     def test_quality_json_is_safe_for_a_gbk_parent_console(self):
         raw = io.BytesIO()

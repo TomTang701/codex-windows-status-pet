@@ -224,10 +224,46 @@ class Pet(tk.Tk):
         self.status_rail = tk.Frame(self.status_card, bg=COLORS["border"], width=2)
         self.status_rail.place(x=1, y=1, width=2, relheight=1)
         self.signal_kicker = tk.Label(self.signal_card, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 6, "bold"), anchor="w")
-        self.signal_title = tk.Label(self.signal_card, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
+        self.signal_title = tk.Label(
+            self.signal_card,
+            text="SIGNAL",
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 7, "bold"),
+            anchor="w",
+            padx=1,
+            pady=0,
+            highlightthickness=1,
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
         self.signal_title.place(x=6, y=3, anchor="nw")
-        self.signal_age = tk.Label(self.signal_card, text="Sync --", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 6), anchor="w")
-        self.signal_value = tk.Label(self.signal_card, text="--", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 8, "bold"), anchor="e")
+        self.signal_age = tk.Label(
+            self.signal_card,
+            text="Sync --",
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 6),
+            anchor="w",
+            padx=1,
+            pady=0,
+            highlightthickness=1,
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
+        self.signal_value = tk.Label(
+            self.signal_card,
+            text="--",
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 8, "bold"),
+            anchor="e",
+            padx=2,
+            pady=0,
+            highlightthickness=1,
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
         self.signal_value.place(relx=1, rely=1, x=-6, y=-3, anchor="se")
         self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", quota_label=translate(self.settings["language"], "quota"), wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
         self.battery = BatteryView(self.signal_card, bg=COLORS["surface"])
@@ -380,14 +416,25 @@ class Pet(tk.Tk):
         )
         self.signal_card.configure(bg=COLORS["surface"], highlightbackground=COLORS["border"])
         self.signal_kicker.configure(bg=COLORS["surface"], fg=COLORS["muted"], text="SIGNAL")
-        self.signal_age.configure(bg=COLORS["surface"])
+        self.signal_age.configure(
+            bg=COLORS["surface_alt"],
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
         source = self.settings["battery_quota_source"]
         self.signal_title.configure(
-            bg=COLORS["surface"],
+            bg=COLORS["surface_alt"],
             text=self._signal_caption(source, self.settings["language"]),
             fg=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
+            highlightbackground=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
+            highlightcolor=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
         )
-        self.signal_value.configure(bg=COLORS["surface"], fg=COLORS["muted"])
+        self.signal_value.configure(
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
         self._update_signal_age()
         active = bool(self.latest_activity.get("active", 0))
         initial_status_key = (
@@ -503,7 +550,13 @@ class Pet(tk.Tk):
         scale = (
             0.7 if scale_percent <= 90 else 0.85
         ) if self.settings.get("language") == "zh-CN" else 1.0
-        pixels = max(1, round(logical_point_size * self.window_dpi / 72.0 * scale))
+        if scale_percent <= 80:
+            scale *= 0.9
+        elif scale_percent <= 95:
+            scale *= 0.95
+        # Truncate positive pixel sizes so the smallest supported HUD scale does
+        # not round up into an extra row of vertical demand.
+        pixels = max(1, int(logical_point_size * self.window_dpi / 72.0 * scale))
         return family, -pixels
 
     def _hud_header_height(self):
@@ -904,11 +957,19 @@ class Pet(tk.Tk):
             fg=status_color,
         )
         self._update_signal_age(quota_state)
-        self.signal_title.configure(fg=self._signal_title_color(presentation))
+        signal_title_color = self._signal_title_color(presentation)
+        self.signal_title.configure(
+            fg=signal_title_color,
+            highlightbackground=signal_title_color,
+            highlightcolor=signal_title_color,
+        )
         battery = presentation["battery"]
         remaining = battery.get("remaining_percent")
         self.signal_value.configure(
             text="--" if remaining is None else f"{remaining}%",
+            bg=COLORS["surface_alt"],
+            highlightbackground=signal_title_color,
+            highlightcolor=signal_title_color,
             fg=(
                 COLORS["danger"]
                 if quota_state in {"unavailable", "tray_error"}
@@ -961,10 +1022,21 @@ class Pet(tk.Tk):
             age_text = f"{age}s"
         self.signal_age.configure(
             text=f"{prefix} {age_text}",
+            bg=COLORS["surface_alt"],
             fg=(
                 COLORS["danger"] if state in {"unavailable", "tray_error"}
                 else COLORS["warning"] if state == "stale"
                 else COLORS["muted"]
+            ),
+            highlightbackground=(
+                COLORS["danger"] if state in {"unavailable", "tray_error"}
+                else COLORS["warning"] if state == "stale"
+                else COLORS["border"]
+            ),
+            highlightcolor=(
+                COLORS["danger"] if state in {"unavailable", "tray_error"}
+                else COLORS["warning"] if state == "stale"
+                else COLORS["border"]
             ),
         )
 

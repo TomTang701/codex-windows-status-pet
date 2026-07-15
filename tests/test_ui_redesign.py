@@ -79,7 +79,14 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.signal_kicker.cget("text"), "SIGNAL")
             self.assertEqual(app.signal_kicker.place_info()["anchor"], "nw")
             signal_title = app.signal_title
+            signal_value = app.signal_value
             self.assertEqual(signal_title.cget("fg"), "#818cf8")
+            self.assertEqual(signal_title.cget("bg"), "#172033")
+            self.assertEqual(signal_title.cget("highlightthickness"), 1)
+            self.assertEqual(signal_value.cget("bg"), "#172033")
+            self.assertEqual(signal_value.cget("highlightthickness"), 1)
+            self.assertEqual(app.signal_age.cget("bg"), "#172033")
+            self.assertEqual(app.signal_age.cget("highlightthickness"), 1)
             app.update_idletasks()
             self.assertLessEqual(
                 app.signal_kicker.winfo_x() + app.signal_kicker.winfo_width(),
@@ -484,6 +491,22 @@ class UiRedesignTests(unittest.TestCase):
                 self.assertIn("Live preview", texts)
                 self.assertIn("35%", texts)
                 self.assertIn("Row visibility", texts)
+                source_scale = next(
+                    widget
+                    for widget in widgets(app.settings_dialog)
+                    if isinstance(widget, tk.Scale)
+                    and float(widget.cget("from")) == 0.0
+                    and float(widget.cget("to")) == 1.0
+                )
+                self.assertEqual(source_scale.winfo_manager(), "")
+                source_buttons = [
+                    widget
+                    for widget in widgets(app.settings_dialog)
+                    if isinstance(widget, tk.Button)
+                    and str(widget.cget("text")) in {"5-hour", "Weekly"}
+                ]
+                self.assertEqual(len(source_buttons), 2)
+                self.assertTrue(all(button.winfo_ismapped() for button in source_buttons))
                 opening_topmost = app.settings["topmost"]
                 checks = [widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Checkbutton)]
                 checks[0].invoke()
@@ -496,6 +519,34 @@ class UiRedesignTests(unittest.TestCase):
                 if app is not None:
                     self.destroy_app(app)
                 Path.home = original_home
+
+    def test_apply_only_enables_after_entry_draft_changes(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            apply_button = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Button) and widget.cget("text") == "Apply"
+            )
+            self.assertEqual(apply_button.cget("state"), "disabled")
+            self.assertEqual(apply_button.cget("cursor"), "arrow")
+            entry = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Entry)
+            )
+            entry.insert("end", "1")
+            app.update_idletasks()
+            self.assertEqual(apply_button.cget("state"), "normal")
+            self.assertEqual(apply_button.cget("cursor"), "hand2")
+            self.assertEqual(apply_button.cget("highlightthickness"), 1)
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
 
     def test_settings_dialog_stays_above_topmost_hud(self):
         app = self.new_app()
@@ -534,6 +585,29 @@ class UiRedesignTests(unittest.TestCase):
             self.assertIn("Sync --", preview_texts)
             preview_signal_title = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "SIGNAL")
             preview_signal_source = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Weekly")
+            self.assertEqual(preview_signal_source.cget("bg"), "#172033")
+            self.assertEqual(preview_signal_source.cget("highlightthickness"), 1)
+            preview_signal_age = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Sync --")
+            self.assertEqual(preview_signal_age.cget("bg"), "#172033")
+            self.assertEqual(preview_signal_age.cget("highlightthickness"), 1)
+            preview_signal_value = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "80%")
+            self.assertEqual(preview_signal_value.cget("bg"), "#172033")
+            self.assertEqual(preview_signal_value.cget("highlightthickness"), 1)
+            self.assertEqual(
+                sum(
+                    1
+                    for widget in widgets(preview_card)
+                    if isinstance(widget, tk.Label) and widget.cget("text") == "Weekly"
+                ),
+                1,
+            )
+            self.assertFalse(
+                any(
+                    str(widget.cget("text")).startswith("Source:")
+                    for widget in widgets(preview_card)
+                    if isinstance(widget, tk.Label)
+                )
+            )
             self.assertLessEqual(
                 preview_signal_title.winfo_x() + preview_signal_title.winfo_width(),
                 preview_signal_source.winfo_x(),
@@ -560,8 +634,8 @@ class UiRedesignTests(unittest.TestCase):
                 if isinstance(widget, tk.Label) and widget.cget("text") == chr(0x25CF)
             )
             self.assertEqual(preview_status_dot.cget("fg"), "#4ade80")
-            signal_panel = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 52)
-            self.assertGreaterEqual(signal_panel.winfo_width(), 42)
+            signal_panel = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 58)
+            self.assertGreaterEqual(signal_panel.winfo_width(), 48)
             signal_cells = [
                 widget
                 for widget in widgets(preview_card)
@@ -606,12 +680,18 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(tkfont.Font(root=app, font=other_label.cget("font")).cget("weight"), "bold")
             self.assertEqual(other_label.cget("bg"), "#172033")
             self.assertEqual(other_label.cget("highlightthickness"), 1)
-            source_preview = next(
+            preview_card = next(
                 widget
                 for widget in widgets(app.settings_dialog)
-                if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Source:")
+                if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 220
             )
-            self.assertIn(other_label.cget("text"), source_preview.cget("text"))
+            preview_signal_source = next(
+                widget
+                for widget in widgets(preview_card)
+                if isinstance(widget, tk.Label)
+                and widget.cget("text") == other_label.cget("text")
+            )
+            self.assertEqual(preview_signal_source.cget("text"), other_label.cget("text"))
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
@@ -812,6 +892,14 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(status.cget("fg"), "#94a3b8")
             apply_button = next(widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Button) and widget.cget("text") == "Apply")
             self.assertEqual(apply_button.cget("fg"), "#94a3b8")
+            self.assertEqual(apply_button.cget("state"), "disabled")
+            entry = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Entry)
+            )
+            entry.insert("end", "1")
+            app.update_idletasks()
             apply_button.invoke()
             self.assertIn("Save", status.cget("text"))
             self.assertEqual(status.cget("fg"), "#4ade80")
@@ -942,10 +1030,15 @@ class UiRedesignTests(unittest.TestCase):
             )
             source_scale.set(0)
             app.update_idletasks()
-            source_label = next(
+            preview_card = next(
                 widget
                 for widget in widgets(app.settings_dialog)
-                if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Source")
+                if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 220
+            )
+            source_label = next(
+                widget
+                for widget in widgets(preview_card)
+                if isinstance(widget, tk.Label) and widget.cget("text") == "5-hour"
             )
             five_hour_label = next(
                 widget

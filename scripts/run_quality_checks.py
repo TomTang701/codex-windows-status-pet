@@ -10,18 +10,23 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
+QUALITY_CHECK_TIMEOUT_SECONDS = 300
 
 
 def run(command):
-    completed = subprocess.run(
-        command,
-        cwd=ROOT,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        capture_output=True,
-        env={**os.environ, "PYTHONIOENCODING": "utf-8"},
-    )
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=ROOT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            capture_output=True,
+            timeout=QUALITY_CHECK_TIMEOUT_SECONDS,
+            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+        )
+    except subprocess.TimeoutExpired:
+        return 124, f"quality check timed out after {QUALITY_CHECK_TIMEOUT_SECONDS} seconds"
     return completed.returncode, completed.stdout + completed.stderr
 
 
@@ -61,8 +66,11 @@ def quality_commands(python=sys.executable):
 def main():
     results = {}
     for name, command in quality_commands().items():
+        print(f"[quality] {name}: start", file=sys.stderr, flush=True)
         code, output = run(command)
         results[name] = {"passed": code == 0, "output": output.strip()}
+        outcome = "passed" if code == 0 else f"failed ({code})"
+        print(f"[quality] {name}: {outcome}", file=sys.stderr, flush=True)
     approved = all(item["passed"] for item in results.values())
     print(json.dumps({"quality_approved": approved, "checks": results}, ensure_ascii=True, indent=2))
     return 0 if approved else 1
