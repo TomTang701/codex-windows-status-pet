@@ -265,6 +265,7 @@ class Pet(tk.Tk):
             height=1,
         )
         self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", quota_label=translate(self.settings["language"], "quota"), wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
+        self.text.bind("<Map>", lambda _event: self._finalize_initial_expanded_layout(), add="+")
         self.battery = BatteryView(self.signal_card, bg=COLORS["surface"])
         self._pack_expanded_content()
         self.bind("<Button-3>", self.menu)
@@ -288,6 +289,7 @@ class Pet(tk.Tk):
         self.after(1000, self.refresh)
         self._schedule_signal_age_refresh()
         self.deiconify()
+        self.after_idle(self._finalize_initial_expanded_layout)
         ensure_overlay_toolwindow(self.winfo_id())
 
     def load_settings(self):
@@ -472,6 +474,14 @@ class Pet(tk.Tk):
                 compact=self.settings["compact"],
             )
 
+    def _finalize_initial_expanded_layout(self):
+        """Switch initial packed rows to the mapped HUD layout before first paint settles."""
+        if self.closing or self.compact:
+            return
+        self.text.set_visible_rows({**self.settings, "_main_hud_layout": True})
+        self.update_idletasks()
+        self.text.layout_progress_bars()
+
     def _pointer_enter(self, _event=None):
         self.hovered = True
         self._sync_hover_rail()
@@ -632,7 +642,7 @@ class Pet(tk.Tk):
             self.battery.set_compact(True)
             self.battery.set_metrics(self.window_metrics.text_font_size, compact=True)
             self.signal_card.pack(expand=True, fill="both", padx=0, pady=0)
-            self.battery.pack(expand=True, padx=8, pady=8)
+            self.battery.pack(expand=True, padx=4, pady=4)
             size = compact_size(self.window_metrics.width, self.window_metrics.height)
         else:
             self.battery.set_compact(False)

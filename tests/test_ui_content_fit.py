@@ -224,13 +224,14 @@ class ContentFitTests(unittest.TestCase):
                     app.update()
                     self.assertFalse(app.text.winfo_ismapped())
                     self.assertEqual(len(app.battery.cells), 10)
+                    compact_widgets = (app.battery.value_label, *app.battery.cells)
                     self.assertTrue(all(
-                        cell.winfo_ismapped()
-                        and cell.winfo_x() >= 0
-                        and cell.winfo_y() >= 0
-                        and cell.winfo_x() + cell.winfo_width() <= app.winfo_width()
-                        and cell.winfo_y() + cell.winfo_height() <= app.winfo_height()
-                        for cell in app.battery.cells
+                        widget.winfo_ismapped()
+                        and widget.winfo_x() >= 0
+                        and widget.winfo_y() >= 0
+                        and widget.winfo_x() + widget.winfo_width() <= app.battery.winfo_width()
+                        and widget.winfo_y() + widget.winfo_height() <= app.battery.winfo_height()
+                        for widget in compact_widgets
                     ))
                 finally:
                     self.destroy_app(app)

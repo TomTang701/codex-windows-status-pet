@@ -141,9 +141,41 @@ class UiRedesignTests(unittest.TestCase):
                 label = app.text.labels[row_id]
                 self.assertTrue(track.winfo_ismapped())
                 self.assertGreaterEqual(track.winfo_y(), label.winfo_y())
+                self.assertGreater(track.winfo_width(), 1)
                 self.assertLessEqual(track.winfo_x() + track.winfo_width(), app.text.winfo_width())
         finally:
             self.destroy_app(app)
+
+    def test_cold_start_expanded_layout_positions_all_quota_bars(self):
+        original_home = Path.home
+        app = None
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                home = Path(directory)
+                settings_path = home / ".codex" / "codex-windows-status-pet.json"
+                settings_path.parent.mkdir(parents=True)
+                settings_path.write_text(json.dumps({
+                    **CONFIG,
+                    "show_primary_5h": True,
+                    "show_weekly": True,
+                    "show_reset_credit": True,
+                }), encoding="utf-8")
+                Path.home = classmethod(lambda cls: home)
+                app = self.module["Pet"]()
+                for callback in app.tk.call("after", "info"):
+                    app.after_cancel(callback)
+                app.update()
+                for row_id in ("primary_5h", "weekly"):
+                    track = app.text.progress_tracks[row_id]
+                    label = app.text.labels[row_id]
+                    self.assertTrue(track.winfo_ismapped())
+                    self.assertGreater(track.winfo_width(), 1)
+                    self.assertGreaterEqual(track.winfo_y(), label.winfo_y())
+                    self.assertLessEqual(track.winfo_x() + track.winfo_width(), app.text.winfo_width())
+        finally:
+            Path.home = original_home
+            if app is not None:
+                self.destroy_app(app)
 
     def test_compact_battery_shows_selected_remaining_percent_without_overflow(self):
         app = self.new_app()
