@@ -411,6 +411,7 @@ class UiRedesignTests(unittest.TestCase):
                 if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Preview")
             )
             self.assertIn("150%", preview_meta.cget("text"))
+            self.assertIn("\n", preview_meta.cget("text"))
             topmost = next(
                 widget
                 for widget in widgets(app.settings_dialog)

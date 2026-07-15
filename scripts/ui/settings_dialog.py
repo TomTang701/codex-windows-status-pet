@@ -354,7 +354,16 @@ def show_settings_dialog(owner):
     for row_id, label, color in (("five_hour", "5-hour quota   -- / --", COLORS["accent"]), ("weekly", "Weekly quota   88%", COLORS["accent_alt"]), ("reset_credit", "Reset Credit   4 times", COLORS["warning"])):
         preview_rows[row_id] = tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w")
         preview_rows[row_id].pack(fill="x", pady=2)
-    preview_meta = tk.Label(preview_card, text="", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 8))
+    preview_meta = tk.Label(
+        preview_card,
+        text="",
+        bg=COLORS["background"],
+        fg=COLORS["muted"],
+        anchor="w",
+        justify="left",
+        wraplength=205,
+        font=(FONT_FAMILY, 7),
+    )
     preview_meta.pack(fill="x", pady=(6, 0))
     preview_activity = preview_card.winfo_children()[2]
     preview_conversations = preview_card.winfo_children()[3]
@@ -424,8 +433,12 @@ def show_settings_dialog(owner):
         source_prefix = "数据源" if ui_language == "zh-CN" else "Source"
         source_name = ("5 小时" if ui_language == "zh-CN" else "5-hour") if battery_source.get() == 0 else ("每周" if ui_language == "zh-CN" else "Weekly")
         preview_source.configure(text=f"{source_prefix}: {source_name}")
+        opacity_label = "透明度" if ui_language == "zh-CN" else "alpha"
         preview_meta.configure(
-            text=f"{preview_prefix} · {metrics.scale_percent}% · opacity {round(float(opacity_value) * 100)}% · {topmost_state} · {locked_state}"
+            text=(
+                f"{preview_prefix} {metrics.scale_percent}% · {opacity_label} "
+                f"{round(float(opacity_value) * 100)}%\n{topmost_state} · {locked_state}"
+            )
         )
 
         mark_draft_changed()
