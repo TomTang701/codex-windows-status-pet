@@ -470,7 +470,14 @@ def show_settings_dialog(owner):
         preview_rows[row_id] = tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w", font=(FONT_FAMILY, 8))
         preview_rows[row_id].pack(fill="x", pady=2)
         if row_id in {"five_hour", "weekly"}:
-            track = tk.Frame(preview_card, bg=COLORS["surface_alt"], height=3)
+            track = tk.Frame(
+                preview_card,
+                bg=COLORS["surface_alt"],
+                height=3,
+                highlightthickness=1,
+                highlightbackground=COLORS["text"],
+                highlightcolor=COLORS["text"],
+            )
             fill = tk.Frame(track, bg=color, height=1)
             track.pack(fill="x", padx=6, pady=(0, 2))
             fill.place(x=0, y=0, relwidth=0.8 if row_id == "weekly" else 0.6, relheight=1, anchor="nw")
@@ -491,6 +498,7 @@ def show_settings_dialog(owner):
     preview_conversations = preview_card.winfo_children()[3]
     preview_signal_panel.pack_forget()
     preview_activity.pack_forget()
+    preview_quota_divider.pack_forget()
     preview_row_keys = (
         ("five_hour", "preview_five_hour_quota"),
         ("weekly", "preview_weekly_quota"),

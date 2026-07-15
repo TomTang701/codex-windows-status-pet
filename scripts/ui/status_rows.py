@@ -33,7 +33,9 @@ class StatusRows(tk.Frame):
         self.labels = {}
         self.progress_tracks = {}
         self.progress_fills = {}
-        self.bind("<Map>", lambda _event: (self._layout_quota_marker(), self._layout_main_quota_bars(tuple(self.labels))), add="+")
+        self._main_hud_layout = False
+        self._visible_ids = ()
+        self.bind("<Map>", lambda _event: (self._layout_quota_marker(), self._layout_main_quota_bars(self._visible_ids)), add="+")
         for row_id in ROW_IDS:
             label = tk.Label(
                 self,
@@ -49,7 +51,14 @@ class StatusRows(tk.Frame):
             )
             self.labels[row_id] = label
             if row_id in {"primary_5h", "weekly"}:
-                track = tk.Frame(self, bg=COLORS["surface_alt"], height=2)
+                track = tk.Frame(
+                    self,
+                    bg=COLORS["surface_alt"],
+                    height=3,
+                    highlightthickness=1,
+                    highlightbackground=COLORS["text"],
+                    highlightcolor=COLORS["text"],
+                )
                 fill = tk.Frame(track, bg=COLORS["accent"], height=1)
                 self.progress_tracks[row_id] = track
                 self.progress_fills[row_id] = fill
@@ -94,6 +103,9 @@ class StatusRows(tk.Frame):
         self.quota_label.configure(text=value)
 
     def _layout_quota_marker(self):
+        if self._main_hud_layout:
+            self.quota_label.place_forget()
+            return
         visible_ids = [
             row_id
             for row_id, label in self.labels.items()
@@ -122,6 +134,7 @@ class StatusRows(tk.Frame):
 
     def set_visible_rows(self, settings):
         main_hud = bool(settings.get("_main_hud_layout"))
+        self._main_hud_layout = main_hud
         visible = {
             "activity": not main_hud,
             "progress": True,
@@ -138,6 +151,7 @@ class StatusRows(tk.Frame):
         for track in self.progress_tracks.values():
             track.place_forget()
         visible_ids = [row_id for row_id in ROW_IDS if visible[row_id]]
+        self._visible_ids = tuple(visible_ids)
         visible_count = len(visible_ids)
         if not self.winfo_ismapped():
             for row_id in visible_ids:
@@ -171,6 +185,8 @@ class StatusRows(tk.Frame):
         self.update_idletasks()
 
     def _layout_main_quota_bars(self, visible_ids):
+        if not self._main_hud_layout:
+            return
         if not self.winfo_width() or not self.winfo_height():
             return
         row_count = max(1, len(visible_ids))

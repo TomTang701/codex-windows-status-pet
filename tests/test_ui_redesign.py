@@ -82,6 +82,8 @@ class UiRedesignTests(unittest.TestCase):
             self.assertFalse(app.signal_card.winfo_ismapped())
             self.assertFalse(app.battery.winfo_ismapped())
             self.assertTrue(all(track.winfo_ismapped() for track in app.text.progress_tracks.values()))
+            self.assertTrue(all(track.cget("highlightbackground") == "#e5e7eb" for track in app.text.progress_tracks.values()))
+            self.assertFalse(app.text.quota_label.winfo_ismapped())
             app.apply_settings({**app.settings, "battery_quota_source": "primary_5h"})
             app.set_compact(True)
             app.update_idletasks()
@@ -330,6 +332,20 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_hiding_quota_rows_also_hides_their_progress_tracks(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "show_primary_5h": True, "show_weekly": True, "show_reset_credit": True})
+            app.update_idletasks()
+            app.apply_settings({**app.settings, "show_primary_5h": False, "show_weekly": False})
+            app.update_idletasks()
+            self.assertFalse(app.text.labels["primary_5h"].winfo_ismapped())
+            self.assertFalse(app.text.labels["weekly"].winfo_ismapped())
+            self.assertFalse(app.text.progress_tracks["primary_5h"].winfo_ismapped())
+            self.assertFalse(app.text.progress_tracks["weekly"].winfo_ismapped())
+        finally:
+            self.destroy_app(app)
+
     def test_main_quota_row_colors_track_quota_health(self):
         app = self.new_app()
         try:
@@ -564,7 +580,7 @@ class UiRedesignTests(unittest.TestCase):
             }
             self.assertIn("CODEX", preview_texts)
             self.assertIn("Status", preview_texts)
-            self.assertIn("QUOTA", preview_texts)
+            self.assertNotIn("QUOTA", preview_texts)
             self.assertIn("Weekly quota   88%", preview_texts)
             self.assertNotIn("SIGNAL", preview_texts)
             self.assertNotIn("Sync --", preview_texts)
@@ -577,7 +593,14 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(preview_signal_age.cget("highlightthickness"), 1)
             preview_signal_progress_track = next(
                 widget for widget in widgets(preview_card)
-                if isinstance(widget, tk.Frame) and int(widget.cget("height")) == 3
+                if isinstance(widget, tk.Frame)
+                and int(widget.cget("height")) == 3
+                and widget.winfo_ismapped()
+                and any(
+                    child.cget("bg") == "#818cf8"
+                    for child in widget.winfo_children()
+                    if isinstance(child, tk.Frame)
+                )
             )
             preview_signal_progress_fill = next(
                 widget for widget in widgets(preview_signal_progress_track)
@@ -586,6 +609,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(preview_signal_progress_track.cget("bg"), "#172033")
             self.assertEqual(preview_signal_progress_fill.cget("bg"), "#818cf8")
             self.assertEqual(float(preview_signal_progress_fill.place_info()["relwidth"]), 0.8)
+            self.assertEqual(preview_signal_progress_track.cget("highlightbackground"), "#e5e7eb")
             self.assertEqual(
                 sum(
                     1
@@ -602,8 +626,6 @@ class UiRedesignTests(unittest.TestCase):
                 )
             )
             self.assertFalse(preview_signal_title.winfo_ismapped())
-            preview_quota = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "QUOTA")
-            self.assertGreaterEqual(preview_quota.winfo_height(), 7)
             preview_live = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Outputting")
             self.assertEqual(preview_live.cget("fg"), "#4ade80")
             preview_activity = next(
@@ -1070,7 +1092,7 @@ class UiRedesignTests(unittest.TestCase):
     def test_context_menu_uses_hud_surface_and_keeps_actions(self):
         app = self.new_app()
         try:
-            app.apply_settings({**app.settings, "language": "en"})
+            app.apply_settings({**app.settings, "language": "en", "locked": True})
             app.menu(type("Event", (), {"x_root": 4200, "y_root": 200})())
             popup = app.context_menu
             self.assertEqual(popup.cget("bg"), "#26354d")
