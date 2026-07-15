@@ -609,6 +609,8 @@ class Pet(tk.Tk):
         self.geometry(
             f"{self.window_metrics.width}x{self.window_metrics.height}+{x}+{y}"
         )
+        self.update_idletasks()
+        self.text.layout_progress_bars()
 
     def set_compact(self, compact):
         compact = bool(compact)

@@ -131,6 +131,51 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_first_expanded_layout_positions_quota_bars_after_geometry_is_applied(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "show_primary_5h": True, "show_weekly": True, "show_reset_credit": True})
+            app.update()
+            for row_id in ("primary_5h", "weekly"):
+                track = app.text.progress_tracks[row_id]
+                label = app.text.labels[row_id]
+                self.assertTrue(track.winfo_ismapped())
+                self.assertGreaterEqual(track.winfo_y(), label.winfo_y())
+                self.assertLessEqual(track.winfo_x() + track.winfo_width(), app.text.winfo_width())
+        finally:
+            self.destroy_app(app)
+
+    def test_compact_battery_shows_selected_remaining_percent_without_overflow(self):
+        app = self.new_app()
+        try:
+            app.latest_quota = {
+                "rateLimits": {"primary": {"usedPercent": 20}, "secondary": {"usedPercent": 22}},
+                "rateLimitResetCredits": {},
+            }
+            for scale in (80, 100, 150, 200):
+                with self.subTest(scale=scale):
+                    app.apply_settings({
+                        **app.settings,
+                        "language": "en",
+                        "battery_quota_source": "weekly",
+                        "window_scale_percent": scale,
+                    })
+                    app.render_status()
+                    app.set_compact(True)
+                    app.update_idletasks()
+                    self.assertEqual(app.battery.value_label.cget("text"), "78%")
+                    self.assertTrue(app.battery.value_label.winfo_ismapped())
+                    self.assertGreaterEqual(app.battery.value_label.winfo_x(), 0)
+                    self.assertGreaterEqual(app.battery.value_label.winfo_y(), 0)
+                    self.assertLessEqual(
+                        app.battery.value_label.winfo_x() + app.battery.value_label.winfo_width(),
+                        app.battery.winfo_width(),
+                    )
+                    self.assertEqual(app.battery.value_label.grid_info()["row"], 0)
+                    app.set_compact(False)
+        finally:
+            self.destroy_app(app)
+
     def test_initial_quota_load_has_a_distinct_header_state(self):
         app = self.new_app()
         try:

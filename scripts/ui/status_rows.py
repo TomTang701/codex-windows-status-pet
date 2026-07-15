@@ -206,6 +206,10 @@ class StatusRows(tk.Frame):
             track.lift()
             self.progress_fills[row_id].lift()
 
+    def layout_progress_bars(self):
+        """Reflow quota bars after the parent receives its final geometry."""
+        self._layout_main_quota_bars(self._visible_ids)
+
     def set_quota_progress(self, remaining, colors=None):
         remaining = remaining if isinstance(remaining, dict) else {}
         colors = colors if isinstance(colors, dict) else {}
