@@ -699,6 +699,8 @@ class Pet(tk.Tk):
         border_color = self._hud_border_color(presentation)
         self.configure(highlightbackground=border_color)
         self.hud_header.configure(highlightbackground=border_color)
+        self.status_card.configure(highlightbackground=border_color)
+        self.signal_card.configure(highlightbackground=border_color)
         active = bool(presentation.get("active_count", 0))
         self.hud_status.configure(
             text=translate(self.settings["language"], "output" if active else "idle"),
