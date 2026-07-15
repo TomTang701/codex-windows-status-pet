@@ -348,7 +348,23 @@ class UiRedesignTests(unittest.TestCase):
                 for widget in widgets(app.settings_dialog)
                 if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Source")
             )
+            five_hour_label = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and widget.cget("text") == "5-hour"
+            )
+            weekly_label = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and widget.cget("text") == "Weekly"
+            )
             self.assertIn("5-hour", source_label.cget("text"))
+            self.assertEqual(five_hour_label.cget("fg"), "#22d3ee")
+            self.assertEqual(weekly_label.cget("fg"), "#94a3b8")
+            source_scale.set(1)
+            app.update_idletasks()
+            self.assertEqual(five_hour_label.cget("fg"), "#94a3b8")
+            self.assertEqual(weekly_label.cget("fg"), "#22d3ee")
             self.assertEqual(app.settings["battery_quota_source"], "weekly")
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():

@@ -318,12 +318,21 @@ def show_settings_dialog(owner):
         ("weekly", "preview_weekly_quota"),
         ("reset_credit", "preview_reset_credit"),
     )
+    source_labels = {
+        0: source_control.winfo_children()[1],
+        1: source_control.winfo_children()[2],
+    }
 
     def refresh_preview(window_scale_value=None, alpha_value=None):
         preview_activity.configure(text=translate(ui_language, "preview_output"))
         preview_conversations.configure(text=translate(ui_language, "preview_active_conversations"))
         for row_id, text_key in preview_row_keys:
             preview_rows[row_id].configure(text=translate(ui_language, text_key))
+        selected_source = int(battery_source.get())
+        for source_index, label in source_labels.items():
+            label.configure(
+                fg=COLORS["accent"] if source_index == selected_source else COLORS["muted"]
+            )
         for row_id, variable in (("five_hour", show_primary_5h), ("weekly", show_weekly), ("reset_credit", show_reset_credit)):
             row = preview_rows[row_id]
             if variable.get():
