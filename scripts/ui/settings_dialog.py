@@ -123,6 +123,7 @@ def show_settings_dialog(owner):
             bd=0,
             activebackground=COLORS["surface_alt"],
             activeforeground=COLORS["accent"],
+            cursor="hand2",
             highlightthickness=0,
         )
         navigation_label.pack(side="left", fill="both", expand=True)
@@ -177,6 +178,7 @@ def show_settings_dialog(owner):
             "activeforeground": COLORS["accent"],
             "selectcolor": COLORS["surface_alt"],
             "font": (FONT_FAMILY, 9),
+            "cursor": "hand2",
         }
         if command is not None:
             options["command"] = command
@@ -222,6 +224,7 @@ def show_settings_dialog(owner):
             "bd": 0,
             "padx": 10,
             "pady": 5,
+            "cursor": "hand2",
         }
         if width is not None:
             options["width"] = width

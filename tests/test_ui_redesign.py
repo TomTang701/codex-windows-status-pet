@@ -585,6 +585,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(opacity.cget("bg"), "#0b1220")
             self.assertEqual(save.cget("bg"), "#22d3ee")
             self.assertEqual(save.cget("fg"), "#0b1220")
+            self.assertEqual(save.cget("cursor"), "hand2")
             self.assertTrue(entries)
             self.assertTrue(all(entry.cget("bg") == "#111827" for entry in entries))
             source_labels = {

@@ -65,6 +65,7 @@ def show_context_menu(owner, event):
         "activebackground": COLORS["surface_alt"],
         "activeforeground": COLORS["accent"],
         "font": (FONT_FAMILY, 10), "padx": 10, "pady": 5,
+        "cursor": "hand2",
         "highlightthickness": 1,
         "highlightbackground": COLORS["surface"],
         "highlightcolor": COLORS["accent"],
