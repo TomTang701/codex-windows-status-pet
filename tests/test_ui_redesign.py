@@ -246,6 +246,29 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_signal_card_shows_last_successful_sync_age(self):
+        from datetime import datetime, timezone
+
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            self.assertEqual(app.signal_age.cget("text"), "Sync --")
+            app.latest_quota = {
+                "rateLimits": {"primary": {}, "secondary": {"usedPercent": 20}},
+                "rateLimitResetCredits": {},
+            }
+            app.quota_state.update(app.latest_quota, now=datetime.now(timezone.utc))
+            app.render_status()
+            self.assertRegex(str(app.signal_age.cget("text")), r"^Sync \d+s$")
+            app.set_compact(True)
+            app.update_idletasks()
+            self.assertFalse(app.signal_age.winfo_ismapped())
+            app.set_compact(False)
+            app.update_idletasks()
+            self.assertTrue(app.signal_age.winfo_ismapped())
+        finally:
+            self.destroy_app(app)
+
     def test_language_apply_updates_hud_status_without_waiting_for_refresh(self):
         from api.localization_api import translate
 

@@ -8,6 +8,7 @@ import sys
 import threading
 import time
 import tkinter as tk
+from datetime import datetime, timezone
 from pathlib import Path
 
 APP_VERSION = "0.9.1"
@@ -221,6 +222,7 @@ class Pet(tk.Tk):
         self.status_rail.place(x=1, y=1, width=2, relheight=1)
         self.signal_title = tk.Label(self.signal_card, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
         self.signal_title.place(x=6, y=3, anchor="nw")
+        self.signal_age = tk.Label(self.signal_card, text="Sync --", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 6), anchor="w")
         self.signal_value = tk.Label(self.signal_card, text="--", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 8, "bold"), anchor="e")
         self.signal_value.place(relx=1, rely=1, x=-6, y=-3, anchor="se")
         self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
@@ -355,6 +357,7 @@ class Pet(tk.Tk):
             max(7, round(metrics.text_font_size * 0.85)),
         )
         self.signal_title.configure(font=(*signal_title_font, "bold"))
+        self.signal_age.configure(font=self._font_spec(FONT_FAMILY, max(5, round(metrics.text_font_size * 0.55))))
         self.signal_value.configure(font=(*signal_value_font, "bold"))
         header_padding = self._hud_header_padding()
         self.hud_title.pack_configure(padx=(header_padding, max(2, round(header_padding / 2))))
@@ -370,6 +373,7 @@ class Pet(tk.Tk):
             text=translate(self.settings["language"], "status"),
         )
         self.signal_card.configure(bg=COLORS["surface"], highlightbackground=COLORS["border"])
+        self.signal_age.configure(bg=COLORS["surface"])
         source = self.settings["battery_quota_source"]
         self.signal_title.configure(
             bg=COLORS["surface"],
@@ -377,6 +381,7 @@ class Pet(tk.Tk):
             fg=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
         )
         self.signal_value.configure(bg=COLORS["surface"], fg=COLORS["muted"])
+        self._update_signal_age()
         active = bool(self.latest_activity.get("active", 0))
         self.hud_status.configure(
             text=translate(self.settings["language"], "output" if active else "idle"),
@@ -456,6 +461,7 @@ class Pet(tk.Tk):
             self.status_title,
             self.signal_card,
             self.signal_title,
+            self.signal_age,
             self.signal_value,
             *self.text.event_widgets,
             *self.battery.event_widgets,
@@ -512,9 +518,12 @@ class Pet(tk.Tk):
         self.hud_header.pack(side="top", fill="x", padx=metrics.horizontal_padding, pady=0)
         self.status_card.pack(side="left", fill="both", expand=True, padx=(metrics.horizontal_padding, 3), pady=0)
         self.signal_card.pack(side="right", fill="y", padx=(0, metrics.horizontal_padding), pady=0)
+        self.signal_card.pack_propagate(False)
+        self.signal_card.configure(width=self._signal_card_width())
         self._sync_hover_rail()
         inset = self._hud_header_padding()
         self.signal_title.place(x=inset, y=max(2, round(inset / 2)), anchor="nw")
+        self.signal_age.place(x=inset, y=max(12, round(inset * 1.6)), anchor="nw")
         self.signal_value.place(
             relx=1,
             rely=1,
@@ -529,6 +538,9 @@ class Pet(tk.Tk):
             pady=0,
         )
         self.battery.pack(expand=True, padx=metrics.horizontal_padding, pady=2)
+        self.signal_title.lift()
+        self.signal_age.lift()
+        self.signal_value.lift()
 
     def _apply_current_mode_geometry(self):
         """Apply root geometry from canonical settings in the current manual mode."""
@@ -560,6 +572,7 @@ class Pet(tk.Tk):
             self.status_card.pack_forget()
             self.signal_card.pack_forget()
             self.signal_title.place_forget()
+            self.signal_age.place_forget()
             self.signal_value.place_forget()
             self.text.pack_forget()
             self.battery.pack_forget()
@@ -863,6 +876,7 @@ class Pet(tk.Tk):
             text=self._status_indicator(status_key),
             fg=status_color,
         )
+        self._update_signal_age(quota_state)
         battery = presentation["battery"]
         remaining = battery.get("remaining_percent")
         self.signal_value.configure(
@@ -889,6 +903,27 @@ class Pet(tk.Tk):
         if presentation.get("active_count", 0):
             return COLORS["success"]
         return COLORS["border"]
+
+    def _signal_card_width(self):
+        metrics = getattr(self, "window_metrics", None)
+        if metrics is None:
+            return 68
+        dpi_scale = self.window_dpi / 96.0 if self.window_dpi > 0 else 1.0
+        return max(54, round(68 * metrics.scale_percent / 100 * dpi_scale))
+
+    def _update_signal_age(self, quota_state=None):
+        state = quota_state or self.quota_state.state
+        prefix = "Sync" if self.settings.get("language") == "en" else chr(0x540C) + chr(0x6B65)
+        timestamp = self.quota_state.last_success_at
+        if timestamp is None:
+            age_text = "--"
+        else:
+            age = max(0, int((datetime.now(timezone.utc) - timestamp).total_seconds()))
+            age_text = f"{age}s"
+        self.signal_age.configure(
+            text=f"{prefix} {age_text}",
+            fg=COLORS["danger"] if state in {"unavailable", "tray_error"} else COLORS["muted"],
+        )
 
     @staticmethod
     def _status_indicator(status_key):
