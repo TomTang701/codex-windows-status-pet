@@ -350,7 +350,19 @@ def show_settings_dialog(owner):
                 fg=COLORS["accent"] if active else COLORS["muted"],
                 font=(FONT_FAMILY, 9, "bold" if active else "normal"),
             )
-        focus_targets[index].focus_set()
+        for target in focus_targets:
+            target.configure(
+                highlightthickness=0,
+                highlightbackground=COLORS["border"],
+                highlightcolor=COLORS["border"],
+            )
+        target = focus_targets[index]
+        target.configure(
+            highlightthickness=1,
+            highlightbackground=COLORS["accent"],
+            highlightcolor=COLORS["accent"],
+        )
+        target.focus_set()
 
     for index, button in enumerate(navigation_section_labels):
         button.configure(command=lambda index=index: focus_section(index))

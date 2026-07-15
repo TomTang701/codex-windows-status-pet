@@ -225,9 +225,23 @@ class UiRedesignTests(unittest.TestCase):
                 if isinstance(widget, tk.Button) and widget.cget("text") == "General"
             )
             self.assertEqual(general.cget("bg"), "#172033")
+            initial_target = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Scale) and float(widget.cget("to")) == 1.0
+            )
+            self.assertEqual(initial_target.cget("highlightthickness"), 1)
             appearance.invoke()
             self.assertEqual(appearance.cget("bg"), "#172033")
             self.assertEqual(general.cget("bg"), "#111827")
+            target = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Scale) and float(widget.cget("to")) == 200.0
+            )
+            self.assertEqual(target.cget("highlightthickness"), 1)
+            self.assertEqual(target.cget("highlightbackground"), "#22d3ee")
+            self.assertEqual(initial_target.cget("highlightthickness"), 0)
             self.assertTrue(app.settings_dialog.focus_get())
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
