@@ -238,6 +238,7 @@ class UiRedesignTests(unittest.TestCase):
                 if isinstance(widget, tk.Label)
             }
             self.assertIn("CODEX", preview_texts)
+            self.assertIn("Status", preview_texts)
             self.assertIn("SIGNAL", preview_texts)
             preview_live = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Outputting")
             self.assertEqual(preview_live.cget("fg"), "#4ade80")

@@ -316,6 +316,15 @@ def show_settings_dialog(owner):
     preview_header.pack_propagate(False)
     preview_title = tk.Label(preview_header, text="CODEX", bg=COLORS["surface_alt"], fg=COLORS["accent"], anchor="w", font=(FONT_FAMILY, 8, "bold"))
     preview_title.pack(side="left", padx=6, fill="y")
+    preview_status_section = tk.Label(
+        preview_header,
+        text="Status",
+        bg=COLORS["surface_alt"],
+        fg=COLORS["muted"],
+        anchor="w",
+        font=(FONT_FAMILY, 8),
+    )
+    preview_status_section.pack(side="left", padx=(0, 4), fill="y")
     preview_live = tk.Label(preview_header, text="LIVE", bg=COLORS["surface_alt"], fg=COLORS["success"], anchor="e", font=(FONT_FAMILY, 8))
     preview_live.pack(side="right", padx=6, fill="y")
     preview_signal_panel = tk.Frame(preview_card, bg=COLORS["surface"], width=42)
@@ -363,7 +372,7 @@ def show_settings_dialog(owner):
         background = draft["background_color"]
         for widget in (preview_card, *preview_card.winfo_children()):
             widget.configure(bg=background)
-        for widget in (preview_header, preview_title, preview_live):
+        for widget in (preview_header, preview_title, preview_status_section, preview_live):
             widget.configure(bg=COLORS["surface_alt"])
         for widget in (preview_signal_panel, preview_signal_title, preview_signal_value):
             widget.configure(bg=COLORS["surface"])
@@ -382,6 +391,7 @@ def show_settings_dialog(owner):
 
     def refresh_preview(window_scale_value=None, alpha_value=None):
         refresh_preview_palette()
+        preview_status_section.configure(text=text("status"))
         preview_activity.configure(text=translate(ui_language, "preview_output"))
         preview_live.configure(text=translate(ui_language, "output"), fg=COLORS["success"])
         preview_conversations.configure(text=translate(ui_language, "preview_active_conversations"))
