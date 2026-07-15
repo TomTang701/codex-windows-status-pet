@@ -1,6 +1,7 @@
 import gc
 import sys
 import tkinter as tk
+from tkinter import font as tkfont
 import unittest
 from pathlib import Path
 
@@ -84,6 +85,15 @@ class StatusRowsUiTests(unittest.TestCase):
         self.assertEqual(self.rows.quota_label.cget("fg"), "#94a3b8")
         label_center = self.rows.quota_label.winfo_y() + self.rows.quota_label.winfo_height() // 2
         self.assertLessEqual(abs(label_center - self.rows.quota_divider.winfo_y()), 2)
+
+    def test_quota_group_label_scales_with_status_font(self):
+        initial_font = self.rows.quota_label.cget("font")
+        self.rows.configure_rows(font=("Segoe UI", -20))
+        self.assertNotEqual(self.rows.quota_label.cget("font"), initial_font)
+        self.assertEqual(
+            tkfont.Font(root=self.root, font=self.rows.quota_label.cget("font")).actual("family"),
+            "Segoe UI",
+        )
 
     def setUp(self):
         self.root = tk.Tk()

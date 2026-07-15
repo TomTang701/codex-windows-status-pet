@@ -67,6 +67,7 @@ class StatusRows(tk.Frame):
         if font is not None:
             for row_id, label in self.labels.items():
                 label.configure(font=self._font_for_row(font, row_id))
+            self.quota_label.configure(font=self._marker_font(font))
             options.pop("font", None)
         if bg is not None:
             tk.Frame.configure(self, bg=bg)
@@ -94,6 +95,16 @@ class StatusRows(tk.Frame):
         if row_id != "activity" or not isinstance(font, (tuple, list)):
             return font
         return (*font, "bold")
+
+    @staticmethod
+    def _marker_font(font):
+        if isinstance(font, (tuple, list)) and len(font) >= 2:
+            try:
+                size = max(1, round(abs(int(font[1])) * 0.6))
+                return (font[0], -size, "bold")
+            except (TypeError, ValueError):
+                pass
+        return (FONT_FAMILY, 6, "bold")
 
     def set_visible_rows(self, settings):
         visible = {
