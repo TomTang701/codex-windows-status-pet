@@ -420,9 +420,11 @@ def show_settings_dialog(owner):
         font=(FONT_FAMILY, 8),
     )
     preview_source.pack(fill="x", pady=(0, 4))
-    preview_quota_divider = tk.Frame(preview_card, bg=COLORS["border"], height=1)
+    preview_quota_divider = tk.Frame(preview_card, bg=COLORS["background"], height=10)
     preview_quota_divider.pack(fill="x", pady=(1, 0))
     preview_quota_divider.pack_propagate(False)
+    preview_quota_rule = tk.Frame(preview_quota_divider, bg=COLORS["border"], height=1)
+    preview_quota_rule.place(relx=0, rely=0.5, relwidth=1, anchor="w")
     preview_quota_label = tk.Label(
         preview_quota_divider,
         text="QUOTA",
@@ -467,7 +469,8 @@ def show_settings_dialog(owner):
             widget.configure(bg=COLORS["surface_alt"])
         for widget in (preview_signal_panel, preview_signal_title, preview_signal_cells_frame, preview_signal_value):
             widget.configure(bg=COLORS["surface"])
-        preview_quota_divider.configure(bg=COLORS["border"])
+        preview_quota_divider.configure(bg=background)
+        preview_quota_rule.configure(bg=COLORS["border"])
         preview_quota_label.configure(bg=background, fg=COLORS["muted"])
         for widget in (preview_conversations, preview_source, preview_meta):
             widget.configure(fg=draft["font_color"])

@@ -487,6 +487,8 @@ class UiRedesignTests(unittest.TestCase):
             self.assertIn("Status", preview_texts)
             self.assertIn("SIGNAL", preview_texts)
             self.assertIn("QUOTA", preview_texts)
+            preview_quota = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "QUOTA")
+            self.assertGreaterEqual(preview_quota.winfo_height(), 7)
             preview_live = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Outputting")
             self.assertEqual(preview_live.cget("fg"), "#4ade80")
             preview_activity = next(
