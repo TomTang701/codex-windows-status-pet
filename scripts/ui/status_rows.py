@@ -53,11 +53,21 @@ class StatusRows(tk.Frame):
             for key, value in {"fg": fg, "bg": bg, "font": font, "wraplength": wraplength}.items()
             if value is not None
         }
+        if font is not None:
+            for row_id, label in self.labels.items():
+                label.configure(font=self._font_for_row(font, row_id))
+            options.pop("font", None)
         if bg is not None:
             tk.Frame.configure(self, bg=bg)
         if options:
             for label in self.labels.values():
                 label.configure(**options)
+
+    @staticmethod
+    def _font_for_row(font, row_id):
+        if row_id != "activity" or not isinstance(font, (tuple, list)):
+            return font
+        return (*font, "bold")
 
     def set_visible_rows(self, settings):
         visible = {

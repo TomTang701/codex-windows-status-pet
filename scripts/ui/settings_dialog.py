@@ -120,10 +120,78 @@ def show_settings_dialog(owner):
         translated_widgets.append((widget, key))
         return widget
 
-    translated(tk.Label(body, text=text("opacity")), "opacity").grid(row=0, column=0, sticky="w")
-    tk.Scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha).grid(row=0, column=1)
-    translated(tk.Label(body, text=text("window_size")), "window_size").grid(row=1, column=0, sticky="w")
-    tk.Scale(
+    def themed_label(parent, value, **kwargs):
+        return tk.Label(
+            parent,
+            text=value,
+            bg=kwargs.pop("bg", COLORS["background"]),
+            fg=kwargs.pop("fg", COLORS["text"]),
+            font=kwargs.pop("font", (FONT_FAMILY, 9)),
+            **kwargs,
+        )
+
+    def themed_checkbutton(parent, value, variable):
+        return tk.Checkbutton(
+            parent,
+            text=value,
+            variable=variable,
+            bg=COLORS["background"],
+            fg=COLORS["text"],
+            activebackground=COLORS["background"],
+            activeforeground=COLORS["accent"],
+            selectcolor=COLORS["surface_alt"],
+            font=(FONT_FAMILY, 9),
+        )
+
+    def themed_scale(parent, **kwargs):
+        return tk.Scale(
+            parent,
+            bg=COLORS["background"],
+            fg=COLORS["muted"],
+            troughcolor=COLORS["surface_alt"],
+            activebackground=COLORS["accent"],
+            highlightthickness=0,
+            bd=0,
+            font=(FONT_FAMILY, 8),
+            **kwargs,
+        )
+
+    def themed_entry(parent, **kwargs):
+        entry = tk.Entry(
+            parent,
+            bg=COLORS["surface"],
+            fg=COLORS["text"],
+            insertbackground=COLORS["accent"],
+            relief="flat",
+            highlightthickness=1,
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["accent"],
+            **kwargs,
+        )
+        return entry
+
+    def themed_button(parent, value, command, *, primary=False, width=None):
+        options = {
+            "text": value,
+            "command": command,
+            "font": (FONT_FAMILY, 9, "bold" if primary else "normal"),
+            "fg": COLORS["background"] if primary else COLORS["text"],
+            "bg": COLORS["accent"] if primary else COLORS["surface"],
+            "activeforeground": COLORS["background"] if primary else COLORS["accent"],
+            "activebackground": COLORS["accent_alt"] if primary else COLORS["surface_alt"],
+            "relief": "flat",
+            "bd": 0,
+            "padx": 10,
+            "pady": 5,
+        }
+        if width is not None:
+            options["width"] = width
+        return tk.Button(parent, **options)
+
+    translated(themed_label(body, text("opacity")), "opacity").grid(row=0, column=0, sticky="w")
+    themed_scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha).grid(row=0, column=1)
+    translated(themed_label(body, text("window_size")), "window_size").grid(row=1, column=0, sticky="w")
+    themed_scale(
         body,
         from_=MIN_WINDOW_SCALE_PERCENT,
         to=MAX_WINDOW_SCALE_PERCENT,
@@ -133,22 +201,22 @@ def show_settings_dialog(owner):
         variable=window_scale,
         label="%",
     ).grid(row=1, column=1)
-    translated(tk.Label(body, text=text("default_position")), "default_position").grid(row=2, column=0, sticky="w")
-    position = tk.Frame(body)
+    translated(themed_label(body, text("default_position")), "default_position").grid(row=2, column=0, sticky="w")
+    position = tk.Frame(body, bg=COLORS["background"])
     position.grid(row=2, column=1, sticky="w")
     digit_or_signed = (owner.register(is_signed_integer_candidate), "%P")
     digits_only = (owner.register(is_unsigned_integer_candidate), "%P")
-    tk.Entry(position, textvariable=position_x, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
-    tk.Label(position, text=", ").pack(side="left")
-    tk.Entry(position, textvariable=position_y, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
-    translated(tk.Label(body, text=text("refresh_interval")), "refresh_interval").grid(row=3, column=0, sticky="w")
-    tk.Entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only).grid(row=3, column=1, sticky="w")
-    translated(tk.Checkbutton(body, text=text("always_on_top"), variable=topmost), "always_on_top").grid(row=4, column=0, sticky="w")
-    translated(tk.Checkbutton(body, text=text("lock_position"), variable=locked), "lock_position").grid(row=4, column=1, sticky="w")
-    translated(tk.Label(body, text=text("battery_content")), "battery_content").grid(row=6, column=0, sticky="w")
-    source_control = tk.Frame(body)
+    themed_entry(position, textvariable=position_x, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
+    themed_label(position, ", ", fg=COLORS["muted"], font=(FONT_FAMILY, 9)).pack(side="left")
+    themed_entry(position, textvariable=position_y, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
+    translated(themed_label(body, text("refresh_interval")), "refresh_interval").grid(row=3, column=0, sticky="w")
+    themed_entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only).grid(row=3, column=1, sticky="w")
+    translated(themed_checkbutton(body, text("always_on_top"), topmost), "always_on_top").grid(row=4, column=0, sticky="w")
+    translated(themed_checkbutton(body, text("lock_position"), locked), "lock_position").grid(row=4, column=1, sticky="w")
+    translated(themed_label(body, text("battery_content")), "battery_content").grid(row=6, column=0, sticky="w")
+    source_control = tk.Frame(body, bg=COLORS["background"])
     source_control.grid(row=6, column=1, sticky="w")
-    tk.Scale(
+    themed_scale(
         source_control,
         from_=0,
         to=1,
@@ -158,9 +226,9 @@ def show_settings_dialog(owner):
         length=140,
         variable=battery_source,
     ).grid(row=0, column=0, columnspan=2)
-    translated(tk.Label(source_control, text=text("five_hour")), "five_hour").grid(row=1, column=0, sticky="w")
-    translated(tk.Label(source_control, text=text("weekly")), "weekly").grid(row=1, column=1, sticky="e")
-    translated(tk.Label(body, text=text("language")), "language").grid(row=7, column=0, sticky="w")
+    translated(themed_label(source_control, text("five_hour"), fg=COLORS["muted"]), "five_hour").grid(row=1, column=0, sticky="w")
+    translated(themed_label(source_control, text("weekly"), fg=COLORS["muted"]), "weekly").grid(row=1, column=1, sticky="e")
+    translated(themed_label(body, text("language")), "language").grid(row=7, column=0, sticky="w")
     language_combo = ttk.Combobox(body, textvariable=language, values=tuple(language_labels.values()), state="readonly", width=18)
     language_combo.grid(row=7, column=1, sticky="w")
     tk.Label(
@@ -170,9 +238,9 @@ def show_settings_dialog(owner):
         fg=COLORS["accent"],
         font=(FONT_FAMILY, 10, "bold"),
     ).grid(row=8, column=0, columnspan=2, sticky="w", pady=(8, 2))
-    translated(tk.Checkbutton(body, text=text("show_five_hour"), variable=show_primary_5h), "show_five_hour").grid(row=10, column=0, sticky="w")
-    translated(tk.Checkbutton(body, text=text("show_weekly"), variable=show_weekly), "show_weekly").grid(row=10, column=1, sticky="w")
-    translated(tk.Checkbutton(body, text=text("show_reset_credit"), variable=show_reset_credit), "show_reset_credit").grid(row=11, column=0, sticky="w")
+    translated(themed_checkbutton(body, text("show_five_hour"), show_primary_5h), "show_five_hour").grid(row=10, column=0, sticky="w")
+    translated(themed_checkbutton(body, text("show_weekly"), show_weekly), "show_weekly").grid(row=10, column=1, sticky="w")
+    translated(themed_checkbutton(body, text("show_reset_credit"), show_reset_credit), "show_reset_credit").grid(row=11, column=0, sticky="w")
 
     preview = tk.LabelFrame(
         body,
@@ -202,8 +270,8 @@ def show_settings_dialog(owner):
         if chosen:
             draft["background_color"] = chosen
 
-    translated(tk.Button(body, text=text("font_color"), command=choose_font), "font_color").grid(row=9, column=0, pady=(8, 0), sticky="w")
-    translated(tk.Button(body, text=text("background_color"), command=choose_background), "background_color").grid(row=9, column=1, pady=(8, 0), sticky="w")
+    translated(themed_button(body, text("font_color"), choose_font), "font_color").grid(row=9, column=0, pady=(8, 0), sticky="w")
+    translated(themed_button(body, text("background_color"), choose_background), "background_color").grid(row=9, column=1, pady=(8, 0), sticky="w")
 
     def sync_draft():
         try:
@@ -295,12 +363,12 @@ def show_settings_dialog(owner):
             0 if draft["battery_quota_source"] == "primary_5h" else 1
         )
 
-    buttons = tk.Frame(body)
+    buttons = tk.Frame(body, bg=COLORS["background"])
     buttons.grid(row=12, column=0, columnspan=3, pady=(14, 0))
-    translated(tk.Button(buttons, text=text("save"), width=8, command=save_and_close), "save").pack(side="left", padx=3)
-    translated(tk.Button(buttons, text=text("apply"), width=8, command=apply_draft), "apply").pack(side="left", padx=3)
-    translated(tk.Button(buttons, text=text("restore_defaults"), width=12, command=restore_defaults), "restore_defaults").pack(side="left", padx=3)
-    translated(tk.Button(buttons, text=text("close"), width=8, command=lambda: owner.close_settings(dialog)), "close").pack(side="left", padx=3)
+    translated(themed_button(buttons, text("save"), save_and_close, primary=True, width=8), "save").pack(side="left", padx=3)
+    translated(themed_button(buttons, text("apply"), apply_draft, width=8), "apply").pack(side="left", padx=3)
+    translated(themed_button(buttons, text("restore_defaults"), restore_defaults, width=12), "restore_defaults").pack(side="left", padx=3)
+    translated(themed_button(buttons, text("close"), lambda: owner.close_settings(dialog), width=8), "close").pack(side="left", padx=3)
     dialog.protocol("WM_DELETE_WINDOW", lambda: owner.close_settings(dialog))
     dialog.update_idletasks()
     dialog_work_area = work_area_for_point(owner.winfo_rootx(), owner.winfo_rooty())

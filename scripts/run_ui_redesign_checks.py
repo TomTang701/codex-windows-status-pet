@@ -4,11 +4,19 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from pathlib import Path
 
 
 def main() -> int:
     commands = [
-        [sys.executable, "-m", "py_compile", "scripts/codex_status_pet.py"],
+        [
+            sys.executable,
+            "-m",
+            "py_compile",
+            "scripts/codex_status_pet.py",
+            *[str(path) for path in Path("scripts/ui").glob("*.py")],
+            *[str(path) for path in Path("scripts/api").glob("*.py")],
+        ],
         [sys.executable, "-m", "unittest", "tests.test_ui_redesign"],
     ]
     for command in commands:

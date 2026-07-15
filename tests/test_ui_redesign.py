@@ -93,6 +93,37 @@ class UiRedesignTests(unittest.TestCase):
                     self.destroy_app(app)
                 Path.home = original_home
 
+    def test_settings_controls_use_dark_theme_and_primary_action(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            opacity = next(widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Label) and widget.cget("text") == "Opacity")
+            save = next(widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Button) and widget.cget("text") == "Save")
+            entries = [widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Entry) and widget.winfo_class() == "Entry"]
+            self.assertEqual(opacity.cget("bg"), "#0b1220")
+            self.assertEqual(save.cget("bg"), "#22d3ee")
+            self.assertEqual(save.cget("fg"), "#0b1220")
+            self.assertTrue(entries)
+            self.assertTrue(all(entry.cget("bg") == "#111827" for entry in entries))
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
+    def test_activity_row_has_primary_visual_weight(self):
+        app = self.new_app()
+        try:
+            import tkinter.font as tkfont
+
+            activity_font = tkfont.Font(root=app, font=app.text.labels["activity"].cget("font"))
+            progress_font = tkfont.Font(root=app, font=app.text.labels["progress"].cget("font"))
+            self.assertEqual(activity_font.cget("weight"), "bold")
+            self.assertEqual(progress_font.cget("weight"), "normal")
+        finally:
+            self.destroy_app(app)
+
     def test_context_menu_uses_hud_surface_and_keeps_actions(self):
         app = self.new_app()
         try:
