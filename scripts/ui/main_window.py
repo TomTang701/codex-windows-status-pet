@@ -304,6 +304,7 @@ class Pet(tk.Tk):
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.set_visible_rows(self.settings)
         self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec(FONT_FAMILY, metrics.text_font_size), wraplength=metrics.wraplength)
+        self._sync_drag_cursor()
         if not self.compact:
             self._pack_expanded_content()
         self._apply_current_mode_geometry()
@@ -330,6 +331,13 @@ class Pet(tk.Tk):
 
     def _pointer_leave(self, _event=None):
         self.hovered = False
+
+    def _sync_drag_cursor(self):
+        """Expose whether the HUD can be dragged through its cursor affordance."""
+        cursor = "arrow" if self.settings["locked"] else "fleur"
+        self.configure(cursor=cursor)
+        for widget in (*self.text.event_widgets, *self.battery.event_widgets):
+            widget.configure(cursor=cursor)
 
     def _sync_compatibility_metrics(self, settings):
         logical = derive_window_metrics(settings.get("window_scale_percent"))

@@ -62,6 +62,18 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_hud_cursor_explains_drag_and_lock_state(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "locked": False})
+            self.assertEqual(app.cget("cursor"), "fleur")
+            self.assertEqual(app.text.labels["activity"].cget("cursor"), "fleur")
+            app.apply_settings({**app.settings, "locked": True})
+            self.assertEqual(app.cget("cursor"), "arrow")
+            self.assertEqual(app.text.labels["activity"].cget("cursor"), "arrow")
+        finally:
+            self.destroy_app(app)
+
     def test_hud_border_communicates_live_status_without_changing_rows(self):
         app = self.new_app()
         try:
