@@ -535,6 +535,12 @@ class UiRedesignTests(unittest.TestCase):
             app.menu(type("Event", (), {"x_root": 4200, "y_root": 200})())
             popup = app.context_menu
             self.assertEqual(popup.cget("bg"), "#26354d")
+            menu_header = next(
+                widget
+                for widget in widgets(popup)
+                if isinstance(widget, tk.Label) and widget.cget("text") == "CODEX"
+            )
+            self.assertEqual(menu_header.cget("fg"), "#22d3ee")
             first_item = next(
                 widget
                 for widget in widgets(popup)

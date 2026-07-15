@@ -50,6 +50,15 @@ def show_context_menu(owner, event):
 
     body = tk.Frame(popup, bg=COLORS["surface"], bd=1, relief="solid")
     body.pack(padx=1, pady=1)
+    tk.Label(
+        body,
+        text="CODEX",
+        bg=COLORS["surface"],
+        fg=COLORS["accent"],
+        anchor="w",
+        font=(FONT_FAMILY, 8, "bold"),
+    ).pack(fill="x", padx=10, pady=(7, 3))
+    tk.Frame(body, height=1, bg=COLORS["border"]).pack(fill="x", padx=6, pady=(0, 3))
     button_options = {
         "anchor": "w", "width": 22, "bd": 0, "relief": "flat",
         "bg": COLORS["surface"], "fg": COLORS["text"],
