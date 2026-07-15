@@ -229,9 +229,9 @@ class UiRedesignTests(unittest.TestCase):
             app.latest_quota = {"rateLimits": {"primary": {"usedPercent": 20}, "secondary": {}}, "rateLimitResetCredits": {}}
             app.quota_state.update(app.latest_quota)
             app.render_status()
-            self.assertEqual(app.cget("highlightbackground"), "#4ade80")
-            self.assertEqual(app.status_card.cget("highlightbackground"), "#4ade80")
-            self.assertEqual(app.signal_card.cget("highlightbackground"), "#4ade80")
+            self.assertEqual(app.cget("highlightbackground"), "#26354d")
+            self.assertEqual(app.status_card.cget("highlightbackground"), "#26354d")
+            self.assertEqual(app.signal_card.cget("highlightbackground"), "#26354d")
             self.assertEqual(app.status_rail.cget("bg"), "#4ade80")
             self.assertEqual(app.hud_status_dot.cget("text"), chr(0x25CF))
             self.assertEqual(app.hud_status_dot.cget("fg"), "#4ade80")

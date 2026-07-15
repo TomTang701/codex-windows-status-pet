@@ -71,3 +71,14 @@
 - [x] Present the selected quota source, remaining percentage, and sync age as one consistent set of compact state badges.
 - [x] Reuse the same health colors for normal, stale, and unavailable quota states.
 - [x] Verify English and Simplified Chinese screenshots at default and 80% scale without overlap or clipping.
+
+### Task 6: Reduce active-state border noise
+
+**Files:**
+- Modify: `scripts/ui/main_window.py`
+- Modify: `tests/test_ui_redesign.py`
+- Update: `docs/assets/readme/{en,zh-CN}/main-overlay.png`
+
+- [x] Keep the expanded HUD outline neutral during normal activity.
+- [x] Preserve the active signal through the status rail and header indicator.
+- [x] Keep warning and unavailable quota states visible through their existing high-priority borders.

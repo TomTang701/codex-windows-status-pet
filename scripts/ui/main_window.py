@@ -931,7 +931,6 @@ class Pet(tk.Tk):
         self.hud_header.configure(highlightbackground=border_color)
         self.status_card.configure(highlightbackground=border_color)
         self.signal_card.configure(highlightbackground=border_color)
-        self.status_rail.configure(bg=border_color)
         active = bool(presentation.get("active_count", 0))
         quota_state = presentation.get("quota_state")
         status_key = (
@@ -948,6 +947,9 @@ class Pet(tk.Tk):
             else COLORS["accent"] if status_key == "loading"
             else COLORS["muted"]
         )
+        # Keep activity visible in the rail and status dot without turning the
+        # entire HUD outline green during normal output.
+        self.status_rail.configure(bg=status_color if active else border_color)
         self.hud_status.configure(
             text=translate(self.settings["language"], status_key),
             fg=status_color,
@@ -991,7 +993,7 @@ class Pet(tk.Tk):
 
     @staticmethod
     def _hud_border_color(presentation):
-        """Use the HUD outline as a low-noise live status indicator."""
+        """Use the HUD outline for quota health; activity uses the status rail."""
         if presentation.get("quota_state") in {"unavailable", "tray_error"}:
             return COLORS["danger"]
         if presentation.get("quota_state") == "stale":
@@ -1000,8 +1002,6 @@ class Pet(tk.Tk):
             return COLORS["danger"]
         if presentation.get("quota_tier") == "caution":
             return COLORS["warning"]
-        if presentation.get("active_count", 0):
-            return COLORS["success"]
         return COLORS["border"]
 
     def _signal_card_width(self):
