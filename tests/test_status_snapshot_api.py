@@ -68,7 +68,7 @@ class StatusSnapshotTests(unittest.TestCase):
             {"active": 0},
             {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45, "resetsAt": reset}}},
         )
-        self.assertEqual(result["rows"]["primary_5h"], "5h -- / --")
+        self.assertEqual(result["rows"]["primary_5h"], "5h --")
         self.assertTrue(result["rows"]["weekly"].startswith("每周 55% /"))
         self.assertEqual(result["battery"]["remaining_percent"], 55)
 
@@ -194,8 +194,8 @@ class StatusSnapshotTests(unittest.TestCase):
         self.assertEqual(chinese["rows"]["activity"], "Codex 空闲")
         self.assertEqual(english["rows"]["progress"], "Quota unavailable")
         self.assertEqual(chinese["rows"]["progress"], "额度暂不可用")
-        self.assertTrue(english["rows"]["weekly"].startswith("Weekly 55% /"))
-        self.assertTrue(chinese["rows"]["weekly"].startswith("每周 55% /"))
+        self.assertEqual(english["rows"]["weekly"], "Weekly 55%")
+        self.assertEqual(chinese["rows"]["weekly"], "每周 55%")
         self.assertTrue(english["rows"]["reset_credit"].startswith("Reset 5 times"))
         self.assertTrue(chinese["rows"]["reset_credit"].startswith("重置 5 次"))
         self.assertEqual(tuple(english["rows"]), ROW_IDS)

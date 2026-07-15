@@ -31,6 +31,7 @@ class QuotaFormatTests(unittest.TestCase):
         self.assertRegex(line, r"^周 85% / 15:16 7/10$")
 
     def test_missing_reset_time_is_not_invented(self):
+        self.assertEqual(quota_line("Weekly", "85%", None), "Weekly 85%")
         self.assertEqual(reset_credit_line(5, None), "重置 5 次")
 
 

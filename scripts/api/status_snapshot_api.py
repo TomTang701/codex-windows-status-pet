@@ -114,7 +114,11 @@ def build_status_snapshot(
     rows = StatusRowsSnapshot(
         activity=translate(language, "activity", detail=detail) + state_label,
         progress=translate(language, "quota_unavailable") if quota_state == "unavailable" else progress,
-        primary_5h=f"5h {_percent_left(primary)} / {_short_time(primary.get('resetsAt'))}",
+        primary_5h=(
+            f"5h {_percent_left(primary)}"
+            if not primary.get("resetsAt")
+            else f"5h {_percent_left(primary)} / {_short_time(primary.get('resetsAt'))}"
+        ),
         weekly=quota_line(translate(language, "week"), _percent_left(secondary), secondary.get("resetsAt")),
         reset_credit=reset_credit_line(
             credits.get("availableCount", "--") if isinstance(credits, dict) else "--",
