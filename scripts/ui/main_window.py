@@ -896,6 +896,7 @@ class Pet(tk.Tk):
             fg=status_color,
         )
         self._update_signal_age(quota_state)
+        self.signal_title.configure(fg=self._signal_title_color(presentation))
         battery = presentation["battery"]
         remaining = battery.get("remaining_percent")
         self.signal_value.configure(
@@ -1022,6 +1023,19 @@ class Pet(tk.Tk):
             return COLORS["danger"]
         if remaining < 50:
             return COLORS["warning"]
+        return COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"]
+
+    def _signal_title_color(self, presentation):
+        """Carry the selected quota window's health into its source label."""
+        quota_state = presentation.get("quota_state")
+        if quota_state in {"unavailable", "tray_error"}:
+            return COLORS["danger"]
+        if quota_state == "stale":
+            return COLORS["muted"]
+        source = self.settings["battery_quota_source"]
+        tier = presentation.get("quota_tiers", {}).get(source)
+        if tier in {"caution", "critical"}:
+            return self._quota_tier_color(tier)
         return COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"]
 
     def poll(self):

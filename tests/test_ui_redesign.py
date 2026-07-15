@@ -275,6 +275,26 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_selected_signal_title_tracks_quota_health(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "weekly"})
+            app.latest_quota = {
+                "rateLimits": {
+                    "primary": {"usedPercent": 20},
+                    "secondary": {"usedPercent": 95},
+                }
+            }
+            app.quota_state.update(app.latest_quota)
+            app.render_status()
+            self.assertEqual(app.signal_title.cget("fg"), "#f87171")
+            app.latest_quota["rateLimits"]["secondary"]["usedPercent"] = 20
+            app.quota_state.update(app.latest_quota)
+            app.render_status()
+            self.assertEqual(app.signal_title.cget("fg"), "#818cf8")
+        finally:
+            self.destroy_app(app)
+
     def test_signal_card_shows_last_successful_sync_age(self):
         from datetime import datetime, timezone
 
