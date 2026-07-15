@@ -886,15 +886,18 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(first_item.cget("highlightthickness"), 1)
             self.assertEqual(first_item.cget("highlightcolor"), "#22d3ee")
             self.assertEqual(first_item.cget("highlightbackground"), "#22d3ee")
-            checkbuttons = [widget for widget in widgets(popup) if isinstance(widget, tk.Checkbutton)]
-            self.assertTrue(checkbuttons)
-            self.assertTrue(all(widget.cget("selectcolor") == "#172033" for widget in checkbuttons))
+            checkbuttons = [
+                widget
+                for widget in widgets(popup)
+                if isinstance(widget, tk.Button) and "[" in str(widget.cget("text"))
+            ]
+            self.assertEqual(len(checkbuttons), 3)
             labels = [
                 str(widget.cget("text"))
                 for widget in widgets(popup)
-                if isinstance(widget, (tk.Button, tk.Checkbutton))
+                if isinstance(widget, tk.Button)
             ]
-            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Compact", "Hide window", "Exit"])
+            self.assertEqual(labels, ["Settings", "Always on top  [x]", "Lock position  [x]", "Compact  [ ]", "Hide window", "Exit"])
         finally:
             if app.context_menu is not None and app.context_menu.winfo_exists():
                 app.context_menu.destroy()

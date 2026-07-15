@@ -89,7 +89,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
-            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Compact", "Hide window", "Exit"])
+            self.assertEqual(labels, ["Settings", "Always on top  [x]", "Lock position  [ ]", "Compact  [ ]", "Hide window", "Exit"])
             for removed in ("立即刷新", "复制诊断摘要", "恢复上次设置"):
                 self.assertNotIn(removed, labels)
         finally:
@@ -117,7 +117,7 @@ class MenuInteractionTests(unittest.TestCase):
             app.settings["language"] = "en"
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
-            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Compact", "Hide window", "Exit"])
+            self.assertEqual(labels, ["Settings", "Always on top  [x]", "Lock position  [ ]", "Compact  [ ]", "Hide window", "Exit"])
         finally:
             self.destroy_app(app)
 
@@ -187,7 +187,7 @@ class MenuInteractionTests(unittest.TestCase):
             app.set_manual_compact(True)
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             self.assertTrue(app.compact)
-            compact = next(item for item in self.menu_items(app.context_menu) if item.cget("text") == "Compact")
+            compact = next(item for item in self.menu_items(app.context_menu) if "Compact" in item.cget("text"))
             self.assertTrue(bool(app.compact_var.get()))
             compact.invoke()
             app.update_idletasks()

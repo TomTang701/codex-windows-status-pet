@@ -69,7 +69,6 @@ def show_context_menu(owner, event):
         "highlightbackground": COLORS["surface"],
         "highlightcolor": COLORS["accent"],
     }
-    checkbutton_options = {**button_options, "selectcolor": COLORS["surface_alt"]}
     commands = {
         "settings": owner.show_settings,
         "topmost": owner.toggle_topmost,
@@ -96,6 +95,10 @@ def show_context_menu(owner, event):
             highlightbackground=COLORS["accent"] if active else COLORS["surface"],
         )
 
+    def toggle_and_run(action):
+        variables[action].set(not variables[action].get())
+        run_and_close(commands[action])
+
     menu_widgets = []
     for item in items:
         if item.action == "exit":
@@ -107,10 +110,12 @@ def show_context_menu(owner, event):
                 **button_options,
             )
         else:
-            widget = tk.Checkbutton(
-                body, text=item.label, variable=variables[item.action],
-                command=lambda command=commands[item.action]: run_and_close(command),
-                **checkbutton_options,
+            state_mark = "[x]" if item.checked else "[ ]"
+            widget = tk.Button(
+                body,
+                text=f"{item.label}  {state_mark}",
+                command=lambda action=item.action: toggle_and_run(action),
+                **button_options,
             )
         widget.bind("<Enter>", lambda _event, widget=widget: set_item_active(widget, True), add="+")
         widget.bind("<Leave>", lambda _event, widget=widget: set_item_active(widget, False), add="+")
