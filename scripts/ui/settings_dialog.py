@@ -67,6 +67,8 @@ def show_settings_dialog(owner):
     draft_changed = False
     draft_tracking_enabled = False
     preview_status = None
+    font_color_button = None
+    background_color_button = None
 
     def text(key):
         return translate(ui_language, key)
@@ -336,6 +338,16 @@ def show_settings_dialog(owner):
             widget.configure(bg=background)
         for widget in (preview_conversations, preview_source, preview_meta):
             widget.configure(fg=draft["font_color"])
+        for widget, color in (
+            (font_color_button, draft["font_color"]),
+            (background_color_button, draft["background_color"]),
+        ):
+            if widget is not None:
+                widget.configure(
+                    highlightthickness=2,
+                    highlightbackground=color,
+                    highlightcolor=color,
+                )
 
     def refresh_preview(window_scale_value=None, alpha_value=None):
         refresh_preview_palette()
@@ -426,8 +438,10 @@ def show_settings_dialog(owner):
             draft["background_color"] = chosen
             refresh_preview()
 
-    translated(themed_button(body, text("font_color"), choose_font), "font_color").grid(row=9, column=0, pady=(8, 0), sticky="w")
-    translated(themed_button(body, text("background_color"), choose_background), "background_color").grid(row=9, column=1, pady=(8, 0), sticky="w")
+    font_color_button = translated(themed_button(body, text("font_color"), choose_font), "font_color")
+    font_color_button.grid(row=9, column=0, pady=(8, 0), sticky="w")
+    background_color_button = translated(themed_button(body, text("background_color"), choose_background), "background_color")
+    background_color_button.grid(row=9, column=1, pady=(8, 0), sticky="w")
 
     def sync_draft():
         try:

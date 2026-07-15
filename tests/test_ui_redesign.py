@@ -158,9 +158,11 @@ class UiRedesignTests(unittest.TestCase):
             with patch("ui.settings_dialog.colorchooser.askcolor", return_value=((18, 52, 86), "#123456")):
                 font_button.invoke()
             self.assertEqual(preview_conversations.cget("fg"), "#123456")
+            self.assertEqual(font_button.cget("highlightbackground"), "#123456")
             with patch("ui.settings_dialog.colorchooser.askcolor", return_value=((34, 51, 68), "#223344")):
                 background_button.invoke()
             self.assertEqual(preview_card.cget("bg"), "#223344")
+            self.assertEqual(background_button.cget("highlightbackground"), "#223344")
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
