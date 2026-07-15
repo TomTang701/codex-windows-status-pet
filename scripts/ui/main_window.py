@@ -199,6 +199,8 @@ class Pet(tk.Tk):
         self.hud_status.pack(side="right", padx=(4, 8), fill="y")
         self.status_card = tk.Frame(self, bg=hud_bg, highlightthickness=1, highlightbackground=COLORS["border"])
         self.signal_card = tk.Frame(self, bg=COLORS["surface"], highlightthickness=1, highlightbackground=COLORS["border"])
+        self.status_rail = tk.Frame(self.status_card, bg=COLORS["border"], width=2)
+        self.status_rail.place(x=1, y=1, width=2, relheight=1)
         self.signal_title = tk.Label(self.signal_card, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
         self.signal_title.place(x=6, y=3, anchor="nw")
         self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
@@ -315,6 +317,7 @@ class Pet(tk.Tk):
         self.hud_title.configure(bg=COLORS["surface_alt"])
         self.hud_status.configure(bg=COLORS["surface_alt"])
         self.status_card.configure(bg=bg, highlightbackground=COLORS["border"])
+        self.status_rail.configure(bg=COLORS["border"])
         self.signal_card.configure(bg=COLORS["surface"], highlightbackground=COLORS["border"])
         source = self.settings["battery_quota_source"]
         self.signal_title.configure(
@@ -373,6 +376,7 @@ class Pet(tk.Tk):
             self.hud_title,
             self.hud_status,
             self.status_card,
+            self.status_rail,
             self.signal_card,
             self.signal_title,
             *self.text.event_widgets,
@@ -713,6 +717,7 @@ class Pet(tk.Tk):
         self.hud_header.configure(highlightbackground=border_color)
         self.status_card.configure(highlightbackground=border_color)
         self.signal_card.configure(highlightbackground=border_color)
+        self.status_rail.configure(bg=border_color)
         active = bool(presentation.get("active_count", 0))
         quota_state = presentation.get("quota_state")
         status_key = (

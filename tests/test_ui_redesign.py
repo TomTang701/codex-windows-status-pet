@@ -111,11 +111,13 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.cget("highlightbackground"), "#4ade80")
             self.assertEqual(app.status_card.cget("highlightbackground"), "#4ade80")
             self.assertEqual(app.signal_card.cget("highlightbackground"), "#4ade80")
+            self.assertEqual(app.status_rail.cget("bg"), "#4ade80")
             app.quota_state.state = "unavailable"
             app.render_status()
             self.assertEqual(app.cget("highlightbackground"), "#f87171")
             self.assertEqual(app.status_card.cget("highlightbackground"), "#f87171")
             self.assertEqual(app.signal_card.cget("highlightbackground"), "#f87171")
+            self.assertEqual(app.status_rail.cget("bg"), "#f87171")
             self.assertEqual(app.hud_status.cget("text"), "Quota unavailable")
             self.assertEqual(tuple(app.text.labels), ("activity", "progress", "primary_5h", "weekly", "reset_credit"))
         finally:
