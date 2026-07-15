@@ -239,6 +239,19 @@ class UiRedesignTests(unittest.TestCase):
                     self.destroy_app(app)
                 Path.home = original_home
 
+    def test_settings_dialog_stays_above_topmost_hud(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "topmost": True})
+            app.show_settings()
+            app.update()
+            self.assertEqual(str(app.attributes("-topmost")), "0")
+            self.assertEqual(str(app.settings_dialog.attributes("-topmost")), "1")
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
     def test_live_preview_matches_signal_hud_card_composition(self):
         app = self.new_app()
         try:

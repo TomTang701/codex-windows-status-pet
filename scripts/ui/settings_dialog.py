@@ -83,7 +83,7 @@ def show_settings_dialog(owner):
         return "Draft only · Apply to update" if not applied else "Preview updated · Save to persist"
     shell = tk.Frame(dialog, bg=COLORS["background"], padx=10, pady=10)
     shell.pack(fill="both", expand=True)
-    navigation = tk.Frame(shell, bg=COLORS["surface"], padx=8, pady=8, width=132)
+    navigation = tk.Frame(shell, bg=COLORS["surface"], padx=8, pady=8, width=150)
     navigation.pack(side="left", fill="y", padx=(0, 10))
     navigation.pack_propagate(False)
     tk.Label(
@@ -288,7 +288,7 @@ def show_settings_dialog(owner):
     language_combo.grid(row=7, column=1, sticky="w")
     row_visibility_title = tk.Label(
         body,
-        text="Row visibility",
+        text=text("row_visibility"),
         bg=COLORS["background"],
         fg=COLORS["accent"],
         font=(FONT_FAMILY, 10, "bold"),
@@ -532,9 +532,7 @@ def show_settings_dialog(owner):
             widget.configure(text=text(key))
         for widget, label in zip(navigation_section_labels, section_texts[selected_language]):
             widget.configure(text=label)
-        row_visibility_title.configure(
-            text="行可见性" if selected_language == "zh-CN" else "Row visibility"
-        )
+        row_visibility_title.configure(text=text("row_visibility"))
         preview.configure(text="预览" if selected_language == "zh-CN" else "Live preview")
         preview_status.configure(text=lifecycle_status(applied=False))
         language_labels = {

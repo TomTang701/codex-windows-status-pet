@@ -508,12 +508,25 @@ class Pet(tk.Tk):
         self.update_idletasks()
         self.attributes("-alpha", self.settings["alpha"])
         self._sync_tray_menu()
+        settings_dialog_open = (
+            self.settings_dialog is not None
+            and self.settings_dialog.winfo_exists()
+        )
+        if settings_dialog_open:
+            self.attributes("-topmost", False)
+            self.settings_dialog.attributes("-topmost", True)
+            self.settings_dialog.lift()
+            self.settings_dialog.focus_force()
+            return
         self.attributes("-topmost", True)
         self.lift()
         self.focus_force()
         def restore_topmost():
             if not self.closing:
                 try:
+                    if self.settings_dialog is not None and self.settings_dialog.winfo_exists():
+                        self.attributes("-topmost", False)
+                        return
                     self.attributes("-topmost", self.settings["topmost"])
                 except tk.TclError:
                     logging.getLogger("codex-status-pet").debug("window closed before topmost restore")

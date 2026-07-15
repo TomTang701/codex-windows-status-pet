@@ -45,6 +45,7 @@ _TEXT = {
         "show_five_hour": "Show 5-hour quota",
         "show_weekly": "Show weekly quota",
         "show_reset_credit": "Show reset credit",
+        "row_visibility": "Row visibility",
         "font_color": "Font color...",
         "background_color": "Background color...",
         "save": "Save",
@@ -119,6 +120,7 @@ _TEXT = {
         "show_window": "显示窗口",
         "open_settings": "打开设置",
         "compact": "收缩",
+        "row_visibility": "\u884c\u53ef\u89c1\u6027",
     },
 }
 
