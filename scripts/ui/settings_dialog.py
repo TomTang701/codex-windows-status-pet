@@ -368,14 +368,16 @@ def show_settings_dialog(owner):
         font=(FONT_FAMILY, 7),
     )
     preview_status_dot.pack(side="right", padx=(0, 2), fill="y")
-    preview_signal_panel = tk.Frame(preview_card, bg=COLORS["surface"], width=42)
+    preview_signal_panel = tk.Frame(preview_card, bg=COLORS["surface"], width=52)
     preview_signal_panel.pack(side="right", fill="y", padx=(6, 0), ipadx=14)
     preview_signal_panel.pack_propagate(False)
     preview_signal_title = tk.Label(preview_signal_panel, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 7, "bold"))
     preview_signal_title.pack(fill="x", padx=4, pady=(3, 1))
+    preview_signal_cells_frame = tk.Frame(preview_signal_panel, bg=COLORS["surface"])
+    preview_signal_cells_frame.pack(fill="x", pady=(1, 0))
     preview_signal_cells = []
     for index in range(10):
-        cell = tk.Label(preview_signal_panel, text="", width=1, height=1, bd=1, relief="solid", bg="#374151", font=(FONT_FAMILY, 1))
+        cell = tk.Label(preview_signal_cells_frame, text="", width=1, height=1, bd=1, relief="solid", bg="#374151", font=(FONT_FAMILY, 1))
         cell.grid(row=1 + index // 2, column=index % 2, padx=1, pady=1)
         preview_signal_cells.append(cell)
     preview_signal_value = tk.Label(
@@ -432,7 +434,7 @@ def show_settings_dialog(owner):
             widget.configure(bg=background)
         for widget in (preview_header, preview_title, preview_status_section, preview_live, preview_status_dot):
             widget.configure(bg=COLORS["surface_alt"])
-        for widget in (preview_signal_panel, preview_signal_title, preview_signal_value):
+        for widget in (preview_signal_panel, preview_signal_title, preview_signal_cells_frame, preview_signal_value):
             widget.configure(bg=COLORS["surface"])
         for widget in (preview_conversations, preview_source, preview_meta):
             widget.configure(fg=draft["font_color"])

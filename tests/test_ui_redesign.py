@@ -422,7 +422,7 @@ class UiRedesignTests(unittest.TestCase):
                 if isinstance(widget, tk.Label) and widget.cget("text") == chr(0x25CF)
             )
             self.assertEqual(preview_status_dot.cget("fg"), "#4ade80")
-            signal_panel = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 42)
+            signal_panel = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 52)
             self.assertGreaterEqual(signal_panel.winfo_width(), 42)
             signal_cells = [
                 widget
