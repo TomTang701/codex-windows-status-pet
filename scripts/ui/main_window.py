@@ -454,7 +454,12 @@ class Pet(tk.Tk):
         return display
 
     def _font_spec(self, family, logical_point_size):
-        scale = 0.7 if self.settings.get("language") == "zh-CN" else 1.0
+        # CJK glyphs need a tighter fit only at the two smallest HUD sizes;
+        # from 95% upward, 0.85 keeps the bilingual hierarchy closer to English.
+        scale_percent = int(self.settings.get("window_scale_percent", 100))
+        scale = (
+            0.7 if scale_percent <= 90 else 0.85
+        ) if self.settings.get("language") == "zh-CN" else 1.0
         pixels = max(1, round(logical_point_size * self.window_dpi / 72.0 * scale))
         return family, -pixels
 

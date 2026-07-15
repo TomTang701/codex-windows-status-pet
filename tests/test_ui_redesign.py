@@ -109,6 +109,19 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_chinese_hud_uses_compact_font_only_at_smallest_scales(self):
+        import tkinter.font as tkfont
+
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "zh-CN", "window_scale_percent": 80})
+            small_size = abs(tkfont.Font(root=app, font=app.hud_status.cget("font")).actual("size"))
+            app.apply_settings({**app.settings, "window_scale_percent": 100})
+            normal_size = abs(tkfont.Font(root=app, font=app.hud_status.cget("font")).actual("size"))
+            self.assertGreater(normal_size, small_size)
+        finally:
+            self.destroy_app(app)
+
     def test_hud_cursor_explains_drag_and_lock_state(self):
         app = self.new_app()
         try:
