@@ -243,13 +243,17 @@ class ContentFitTests(unittest.TestCase):
                     self.destroy_app(app)
 
     def test_production_dpi_startup_fits_every_supported_scale(self):
-        completed = subprocess.run(
-            [sys.executable, str(Path(__file__).with_name("dpi_content_probe.py"))],
-            text=True,
-            encoding="utf-8",
-            capture_output=True,
-            check=False,
-        )
+        try:
+            completed = subprocess.run(
+                [sys.executable, str(Path(__file__).with_name("dpi_content_probe.py"))],
+                text=True,
+                encoding="utf-8",
+                capture_output=True,
+                check=False,
+                timeout=45,
+            )
+        except subprocess.TimeoutExpired as exc:
+            self.fail(f"DPI content probe exceeded 45 seconds: {exc}")
         result = json.loads(completed.stdout)
         self.assertEqual(completed.returncode, 0, result)
         self.assertTrue(result["all_fit"])

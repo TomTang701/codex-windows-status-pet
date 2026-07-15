@@ -208,7 +208,7 @@ class Pet(tk.Tk):
         self.hud_status.pack(side="right", padx=(4, 8), fill="y")
         self.hud_status_dot = tk.Label(
             self.hud_header,
-            text="●",
+            text="\\u25cb",
             bg=COLORS["surface_alt"],
             fg=COLORS["muted"],
             font=(FONT_FAMILY, 7),
@@ -382,7 +382,10 @@ class Pet(tk.Tk):
             text=translate(self.settings["language"], "output" if active else "idle"),
             fg=COLORS["success"] if active else COLORS["muted"],
         )
-        self.hud_status_dot.configure(fg=COLORS["success"] if active else COLORS["muted"])
+        self.hud_status_dot.configure(
+            text=self._status_indicator("output" if active else "idle"),
+            fg=COLORS["success"] if active else COLORS["muted"],
+        )
         self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.set_visible_rows(self.settings)
@@ -856,7 +859,10 @@ class Pet(tk.Tk):
             text=translate(self.settings["language"], status_key),
             fg=status_color,
         )
-        self.hud_status_dot.configure(fg=status_color)
+        self.hud_status_dot.configure(
+            text=self._status_indicator(status_key),
+            fg=status_color,
+        )
         battery = presentation["battery"]
         remaining = battery.get("remaining_percent")
         self.signal_value.configure(
@@ -883,6 +889,16 @@ class Pet(tk.Tk):
         if presentation.get("active_count", 0):
             return COLORS["success"]
         return COLORS["border"]
+
+    @staticmethod
+    def _status_indicator(status_key):
+        return {
+            "output": "\\u25cf",
+            "idle": "\\u25cb",
+            "stale": "\\u25d0",
+            "quota_unavailable": "!",
+            "tray_error": "!",
+        }.get(status_key, "\\u25cb")
 
     @staticmethod
     def _signal_caption(source, language):
