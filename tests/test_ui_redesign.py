@@ -346,6 +346,14 @@ class UiRedesignTests(unittest.TestCase):
             app.menu(type("Event", (), {"x_root": 4200, "y_root": 200})())
             popup = app.context_menu
             self.assertEqual(popup.cget("bg"), "#26354d")
+            first_item = next(
+                widget
+                for widget in widgets(popup)
+                if isinstance(widget, (tk.Button, tk.Checkbutton))
+                and widget.cget("text") == "Settings"
+            )
+            self.assertEqual(first_item.cget("highlightthickness"), 1)
+            self.assertEqual(first_item.cget("highlightcolor"), "#22d3ee")
             checkbuttons = [widget for widget in widgets(popup) if isinstance(widget, tk.Checkbutton)]
             self.assertTrue(checkbuttons)
             self.assertTrue(all(widget.cget("selectcolor") == "#172033" for widget in checkbuttons))

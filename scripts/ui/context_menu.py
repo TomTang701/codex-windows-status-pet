@@ -56,7 +56,9 @@ def show_context_menu(owner, event):
         "activebackground": COLORS["surface_alt"],
         "activeforeground": COLORS["accent"],
         "font": (FONT_FAMILY, 10), "padx": 10, "pady": 5,
-        "highlightthickness": 0,
+        "highlightthickness": 1,
+        "highlightbackground": COLORS["surface"],
+        "highlightcolor": COLORS["accent"],
     }
     checkbutton_options = {**button_options, "selectcolor": COLORS["surface_alt"]}
     commands = {
@@ -77,6 +79,7 @@ def show_context_menu(owner, event):
         topmost=owner.settings["topmost"], locked=owner.settings["locked"],
         compact=owner.settings["compact"],
     )
+    menu_widgets = []
     for item in items:
         if item.action == "exit":
             tk.Frame(body, height=1, bg=COLORS["border"]).pack(fill="x", padx=2, pady=3)
@@ -93,6 +96,9 @@ def show_context_menu(owner, event):
                 **checkbutton_options,
             )
         widget.pack(fill="x", padx=2, pady=1)
+        menu_widgets.append(widget)
+    if menu_widgets:
+        menu_widgets[0].focus_set()
     popup.bind("<Escape>", lambda _event: (close_popup(), "break")[1])
     popup.bind("<Button-3>", lambda _event: close_popup())
     popup.bind("<FocusOut>", lambda _event: popup.after_idle(close_popup))
