@@ -116,6 +116,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.cget("highlightbackground"), "#f87171")
             self.assertEqual(app.status_card.cget("highlightbackground"), "#f87171")
             self.assertEqual(app.signal_card.cget("highlightbackground"), "#f87171")
+            self.assertEqual(app.hud_status.cget("text"), "Quota unavailable")
             self.assertEqual(tuple(app.text.labels), ("activity", "progress", "primary_5h", "weekly", "reset_credit"))
         finally:
             self.destroy_app(app)

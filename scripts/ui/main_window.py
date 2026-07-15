@@ -714,9 +714,22 @@ class Pet(tk.Tk):
         self.status_card.configure(highlightbackground=border_color)
         self.signal_card.configure(highlightbackground=border_color)
         active = bool(presentation.get("active_count", 0))
+        quota_state = presentation.get("quota_state")
+        status_key = (
+            "quota_unavailable" if quota_state in {"unavailable", "tray_error"}
+            else "stale" if quota_state == "stale"
+            else "output" if active
+            else "idle"
+        )
+        status_color = (
+            COLORS["danger"] if quota_state in {"unavailable", "tray_error"}
+            else COLORS["muted"] if quota_state == "stale"
+            else COLORS["success"] if active
+            else COLORS["muted"]
+        )
         self.hud_status.configure(
-            text=translate(self.settings["language"], "output" if active else "idle"),
-            fg=COLORS["success"] if active else COLORS["muted"],
+            text=translate(self.settings["language"], status_key),
+            fg=status_color,
         )
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
         self.battery.configure_presentation(presentation["battery"])
