@@ -184,6 +184,7 @@ class Pet(tk.Tk):
         self.tray_actions = queue.Queue()
         self.settings_dialog = None
         self.tray_restart_scheduled = False
+        self.signal_age_refresh_job = None
         self.server = AppServer(self.queue)
         self.activity = ActivityMonitor()
         self.application_controller = ApplicationController(self.settings["refresh_interval_seconds"])
@@ -249,6 +250,7 @@ class Pet(tk.Tk):
         self.after(250, self.poll)
         self.after(1000, self.refresh_activity)
         self.after(1000, self.refresh)
+        self._schedule_signal_age_refresh()
         self.deiconify()
         ensure_overlay_toolwindow(self.winfo_id())
 
@@ -936,6 +938,28 @@ class Pet(tk.Tk):
             fg=COLORS["danger"] if state in {"unavailable", "tray_error"} else COLORS["muted"],
         )
 
+    def _schedule_signal_age_refresh(self):
+        if self.closing:
+            return
+        self.signal_age_refresh_job = self.after(1000, self._refresh_signal_age)
+
+    def _refresh_signal_age(self):
+        self.signal_age_refresh_job = None
+        if self.closing:
+            return
+        self._update_signal_age()
+        self._schedule_signal_age_refresh()
+
+    def _cancel_signal_age_refresh(self):
+        job = self.signal_age_refresh_job
+        self.signal_age_refresh_job = None
+        if job is None:
+            return
+        try:
+            self.after_cancel(job)
+        except tk.TclError:
+            pass
+
     def _apply_status_row_colors(self, presentation):
         """Keep activity emphasis independent from quota health coloring."""
         quota_state = presentation.get("quota_state")
@@ -1037,6 +1061,7 @@ class Pet(tk.Tk):
     def close(self):
         if not self.lifecycle.begin_close():
             return
+        self._cancel_signal_age_refresh()
         if hasattr(self, "application_controller"):
             self.application_controller.shutdown()
         try:

@@ -292,6 +292,22 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_signal_age_refreshes_without_waiting_for_quota_poll(self):
+        from datetime import datetime, timedelta, timezone
+
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.quota_state.last_success_at = datetime.now(timezone.utc) - timedelta(seconds=5)
+            app._refresh_signal_age()
+            age = int(str(app.signal_age.cget("text")).split()[-1][:-1])
+            self.assertGreaterEqual(age, 5)
+            self.assertIsNotNone(app.signal_age_refresh_job)
+            app._cancel_signal_age_refresh()
+            self.assertIsNone(app.signal_age_refresh_job)
+        finally:
+            self.destroy_app(app)
+
     def test_status_rows_separate_activity_emphasis_from_quota_health(self):
         from ui.theme import COLORS
 
