@@ -404,7 +404,7 @@ class UiRedesignTests(unittest.TestCase):
             preview_card = next(
                 widget
                 for widget in widgets(app.settings_dialog)
-                if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 190
+                if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 220
             )
             preview_texts = {
                 str(widget.cget("text"))
@@ -416,6 +416,18 @@ class UiRedesignTests(unittest.TestCase):
             self.assertIn("SIGNAL", preview_texts)
             preview_live = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Outputting")
             self.assertEqual(preview_live.cget("fg"), "#4ade80")
+            preview_activity = next(
+                widget
+                for widget in widgets(preview_card)
+                if isinstance(widget, tk.Label) and widget.cget("text") == "●  Codex Outputting"
+            )
+            self.assertLessEqual(preview_activity.winfo_reqwidth(), preview_activity.winfo_width())
+            preview_conversations = next(
+                widget
+                for widget in widgets(preview_card)
+                if isinstance(widget, tk.Label) and widget.cget("text") == "Active conversations  1"
+            )
+            self.assertLessEqual(preview_conversations.winfo_reqwidth(), preview_conversations.winfo_width())
             preview_status_dot = next(
                 widget
                 for widget in widgets(preview_card)
@@ -473,7 +485,7 @@ class UiRedesignTests(unittest.TestCase):
             preview_card = next(
                 widget
                 for widget in widgets(app.settings_dialog)
-                if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 190
+                if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 220
             )
             preview_conversations = next(
                 widget

@@ -340,7 +340,7 @@ def show_settings_dialog(owner):
         font=(FONT_FAMILY, 10, "bold"),
     )
     preview.grid(row=0, column=2, rowspan=12, padx=(18, 0), sticky="nsew")
-    preview_card = tk.Frame(preview, bg=COLORS["background"], padx=10, pady=10, width=190, height=145)
+    preview_card = tk.Frame(preview, bg=COLORS["background"], padx=10, pady=10, width=220, height=145)
     preview_card.pack(fill="both", expand=True)
     preview_card.pack_propagate(False)
     preview_header = tk.Frame(preview_card, bg=COLORS["surface_alt"], height=18)
@@ -390,7 +390,7 @@ def show_settings_dialog(owner):
     )
     preview_signal_value.place(relx=1, rely=1, x=-4, y=-3, anchor="se")
     tk.Label(preview_card, text="●  Codex Outputting", bg=COLORS["background"], fg=COLORS["success"], anchor="w", font=(FONT_FAMILY, 10, "bold")).pack(fill="x")
-    tk.Label(preview_card, text="Active conversations  1", bg=COLORS["background"], fg=COLORS["muted"], anchor="w").pack(fill="x", pady=(5, 8))
+    tk.Label(preview_card, text="Active conversations  1", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 7)).pack(fill="x", pady=(5, 8))
     preview_source = tk.Label(
         preview_card,
         text="",
@@ -403,7 +403,7 @@ def show_settings_dialog(owner):
     preview_source.pack(fill="x", pady=(0, 4))
     preview_rows = {}
     for row_id, label, color in (("five_hour", "5-hour quota   -- / --", COLORS["accent"]), ("weekly", "Weekly quota   88%", COLORS["accent_alt"]), ("reset_credit", "Reset Credit   4 times", COLORS["warning"])):
-        preview_rows[row_id] = tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w")
+        preview_rows[row_id] = tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w", font=(FONT_FAMILY, 8))
         preview_rows[row_id].pack(fill="x", pady=2)
     preview_meta = tk.Label(
         preview_card,
@@ -452,7 +452,7 @@ def show_settings_dialog(owner):
     def refresh_preview(window_scale_value=None, alpha_value=None):
         refresh_preview_palette()
         preview_status_section.configure(text=text("status"))
-        preview_activity.configure(text=translate(ui_language, "preview_output"))
+        preview_activity.configure(text=translate(ui_language, "preview_output"), font=(FONT_FAMILY, 7, "bold"))
         preview_live.configure(text=translate(ui_language, "output"), fg=COLORS["success"])
         preview_conversations.configure(text=translate(ui_language, "preview_active_conversations"))
         for row_id, text_key in preview_row_keys:
