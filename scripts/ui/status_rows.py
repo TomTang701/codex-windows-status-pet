@@ -5,6 +5,11 @@ from __future__ import annotations
 import tkinter as tk
 
 try:
+    from ui.theme import COLORS, FONT_FAMILY
+except ModuleNotFoundError:
+    from scripts.ui.theme import COLORS, FONT_FAMILY
+
+try:
     from api.status_rows_api import ROW_IDS, split_status_text
 except ModuleNotFoundError:
     from scripts.api.status_rows_api import ROW_IDS, split_status_text
@@ -26,6 +31,7 @@ class StatusRows(tk.Frame):
                 fg=fg,
                 bg=bg,
                 wraplength=wraplength,
+                padx=2,
             )
             self.labels[row_id] = label
         self.set_visible_rows({})

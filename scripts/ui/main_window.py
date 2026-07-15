@@ -36,6 +36,7 @@ try:
     from ui.settings_dialog import show_settings_dialog
     from ui.status_rows import StatusRows
     from ui.tray_adapter import TrayIcon3
+    from ui.theme import COLORS, FONT_FAMILY
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
     from scripts.api.codex_transport_api import AppServer
@@ -61,6 +62,7 @@ except ModuleNotFoundError:
     from scripts.ui.settings_dialog import show_settings_dialog
     from scripts.ui.status_rows import StatusRows
     from scripts.ui.tray_adapter import TrayIcon3
+    from scripts.ui.theme import COLORS, FONT_FAMILY
 
 
 def ensure_single_instance():
@@ -159,7 +161,13 @@ class Pet(tk.Tk):
         self.geometry(f"+{self.settings['x']}+{self.settings['y']}")
         self.update_idletasks()
         self._sync_compatibility_metrics(self.settings)
-        self.configure(bg=self.settings["background_color"])
+        self.configure(
+            bg=self.settings["background_color"],
+            bd=0,
+            highlightthickness=1,
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["accent"],
+        )
         self.geometry(f"{self.window_metrics.width}x{self.window_metrics.height}+{self.settings['x']}+{self.settings['y']}")
         self.hidden = False
         self.hidden_position = (self.settings["x"], self.settings["y"])
@@ -182,7 +190,7 @@ class Pet(tk.Tk):
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.compact_var = tk.BooleanVar(value=self.settings["compact"])
-        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec("Segoe UI", self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
+        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
         self.battery = BatteryView(self, bg=self.settings["background_color"])
         self._pack_expanded_content()
         self.bind("<Button-3>", self.menu)
@@ -291,11 +299,11 @@ class Pet(tk.Tk):
         self.attributes("-alpha", self.settings["alpha"])
         self.attributes("-topmost", self.settings["topmost"])
         bg, fg = self.settings["background_color"], self.settings["font_color"]
-        self.configure(bg=bg)
+        self.configure(bg=bg, highlightbackground=COLORS["border"], highlightcolor=COLORS["accent"])
         self.battery.configure(bg=bg)
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.set_visible_rows(self.settings)
-        self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec("Segoe UI", metrics.text_font_size), wraplength=metrics.wraplength)
+        self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec(FONT_FAMILY, metrics.text_font_size), wraplength=metrics.wraplength)
         if not self.compact:
             self._pack_expanded_content()
         self._apply_current_mode_geometry()

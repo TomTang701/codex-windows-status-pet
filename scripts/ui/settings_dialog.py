@@ -23,6 +23,7 @@ try:
         WINDOW_SCALE_STEP,
         derive_window_metrics,
     )
+    from ui.theme import COLORS, FONT_FAMILY
 except ModuleNotFoundError:
     from scripts.api.config_api import DEFAULT_SETTINGS
     from scripts.api.display_api import place_popup, work_area_for_point
@@ -40,6 +41,7 @@ except ModuleNotFoundError:
         WINDOW_SCALE_STEP,
         derive_window_metrics,
     )
+    from scripts.ui.theme import COLORS, FONT_FAMILY
 
 
 def show_settings_dialog(owner):
@@ -56,6 +58,7 @@ def show_settings_dialog(owner):
     dialog.title("Codex 宠物设置")
     dialog.resizable(False, False)
     dialog.attributes("-topmost", True)
+    dialog.configure(bg=COLORS["background"])
     settings_session = SettingsSession(owner.settings)
     reset_authorized = False
     owner._settings_session = settings_session
@@ -64,8 +67,32 @@ def show_settings_dialog(owner):
 
     def text(key):
         return translate(ui_language, key)
-    body = tk.Frame(dialog, padx=14, pady=12)
-    body.pack(fill="both", expand=True)
+    shell = tk.Frame(dialog, bg=COLORS["background"], padx=10, pady=10)
+    shell.pack(fill="both", expand=True)
+    navigation = tk.Frame(shell, bg=COLORS["surface"], padx=8, pady=8, width=132)
+    navigation.pack(side="left", fill="y", padx=(0, 10))
+    navigation.pack_propagate(False)
+    tk.Label(
+        navigation,
+        text="Codex Status Pet",
+        bg=COLORS["surface"],
+        fg=COLORS["text"],
+        font=(FONT_FAMILY, 11, "bold"),
+        anchor="w",
+    ).pack(fill="x", pady=(2, 14))
+    for section in ("General", "Appearance", "Quota display", "Behavior", "Advanced"):
+        tk.Label(
+            navigation,
+            text=section,
+            bg=COLORS["surface_alt"] if section == "General" else COLORS["surface"],
+            fg=COLORS["accent"] if section == "General" else COLORS["muted"],
+            font=(FONT_FAMILY, 9, "bold" if section == "General" else "normal"),
+            anchor="w",
+            padx=8,
+            pady=7,
+        ).pack(fill="x", pady=1)
+    body = tk.Frame(shell, bg=COLORS["background"], padx=4, pady=2)
+    body.pack(side="left", fill="both", expand=True)
     alpha = tk.DoubleVar(value=draft["alpha"])
     window_scale = tk.IntVar(value=draft["window_scale_percent"])
     position_x = tk.StringVar(value=str(draft["x"]))
@@ -136,9 +163,34 @@ def show_settings_dialog(owner):
     translated(tk.Label(body, text=text("language")), "language").grid(row=7, column=0, sticky="w")
     language_combo = ttk.Combobox(body, textvariable=language, values=tuple(language_labels.values()), state="readonly", width=18)
     language_combo.grid(row=7, column=1, sticky="w")
+    tk.Label(
+        body,
+        text="Row visibility",
+        bg=COLORS["background"],
+        fg=COLORS["accent"],
+        font=(FONT_FAMILY, 10, "bold"),
+    ).grid(row=8, column=0, columnspan=2, sticky="w", pady=(8, 2))
     translated(tk.Checkbutton(body, text=text("show_five_hour"), variable=show_primary_5h), "show_five_hour").grid(row=10, column=0, sticky="w")
     translated(tk.Checkbutton(body, text=text("show_weekly"), variable=show_weekly), "show_weekly").grid(row=10, column=1, sticky="w")
     translated(tk.Checkbutton(body, text=text("show_reset_credit"), variable=show_reset_credit), "show_reset_credit").grid(row=11, column=0, sticky="w")
+
+    preview = tk.LabelFrame(
+        body,
+        text="Live preview",
+        bg=COLORS["surface"],
+        fg=COLORS["accent"],
+        padx=10,
+        pady=8,
+        font=(FONT_FAMILY, 10, "bold"),
+    )
+    preview.grid(row=0, column=2, rowspan=12, padx=(18, 0), sticky="nsew")
+    preview_card = tk.Frame(preview, bg=COLORS["background"], padx=10, pady=10, width=190, height=145)
+    preview_card.pack(fill="both", expand=True)
+    preview_card.pack_propagate(False)
+    tk.Label(preview_card, text="●  Codex Outputting", bg=COLORS["background"], fg=COLORS["success"], anchor="w", font=(FONT_FAMILY, 10, "bold")).pack(fill="x")
+    tk.Label(preview_card, text="Active conversations  1", bg=COLORS["background"], fg=COLORS["muted"], anchor="w").pack(fill="x", pady=(5, 8))
+    for label, color in (("5-hour quota   -- / --", COLORS["accent"]), ("Weekly quota   88%", COLORS["accent_alt"]), ("Reset Credit   4 times", COLORS["warning"])):
+        tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w").pack(fill="x", pady=2)
 
     def choose_font():
         chosen = colorchooser.askcolor(color=draft["font_color"], parent=dialog)[1]
@@ -244,7 +296,7 @@ def show_settings_dialog(owner):
         )
 
     buttons = tk.Frame(body)
-    buttons.grid(row=12, column=0, columnspan=2, pady=(14, 0))
+    buttons.grid(row=12, column=0, columnspan=3, pady=(14, 0))
     translated(tk.Button(buttons, text=text("save"), width=8, command=save_and_close), "save").pack(side="left", padx=3)
     translated(tk.Button(buttons, text=text("apply"), width=8, command=apply_draft), "apply").pack(side="left", padx=3)
     translated(tk.Button(buttons, text=text("restore_defaults"), width=12, command=restore_defaults), "restore_defaults").pack(side="left", padx=3)

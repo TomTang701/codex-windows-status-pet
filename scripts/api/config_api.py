@@ -47,7 +47,7 @@ DEFAULT_SETTINGS = {
     "alpha": 0.95,
     "font_color": "#e5e7eb",
     "font_size": DEFAULT_WINDOW_METRICS.text_font_size,
-    "background_color": "#111827",
+    "background_color": "#0b1220",
     "topmost": True,
     "locked": False,
     "x": 30,

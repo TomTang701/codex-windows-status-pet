@@ -8,9 +8,11 @@ import tkinter as tk
 try:
     from api.display_api import place_popup, work_area_for_point
     from api.menu_model_api import build_menu_items
+    from ui.theme import COLORS, FONT_FAMILY
 except ModuleNotFoundError:
     from scripts.api.display_api import place_popup, work_area_for_point
     from scripts.api.menu_model_api import build_menu_items
+    from scripts.ui.theme import COLORS, FONT_FAMILY
 
 
 def show_context_menu(owner, event):
@@ -27,7 +29,7 @@ def show_context_menu(owner, event):
     owner.context_menu = popup
     popup.overrideredirect(True)
     popup.attributes("-topmost", True)
-    popup.configure(bg="#e5e7eb")
+    popup.configure(bg=COLORS["border"])
     popup.geometry(f"+{event.x_root}+{event.y_root}")
 
     def close_popup():
@@ -46,11 +48,14 @@ def show_context_menu(owner, event):
         except Exception:
             logging.getLogger("codex-status-pet").exception("context-menu command failed")
 
-    body = tk.Frame(popup, bg="#f3f4f6", bd=1, relief="solid")
+    body = tk.Frame(popup, bg=COLORS["surface"], bd=1, relief="solid")
     body.pack(padx=1, pady=1)
     button_options = {
-        "anchor": "w", "width": 18, "bd": 0, "relief": "flat",
-        "bg": "#f3f4f6", "activebackground": "#dbeafe",
+        "anchor": "w", "width": 22, "bd": 0, "relief": "flat",
+        "bg": COLORS["surface"], "fg": COLORS["text"],
+        "activebackground": COLORS["surface_alt"],
+        "activeforeground": COLORS["accent"],
+        "font": (FONT_FAMILY, 10), "padx": 10, "pady": 5,
     }
     commands = {
         "settings": owner.show_settings,
@@ -72,7 +77,7 @@ def show_context_menu(owner, event):
     )
     for item in items:
         if item.action == "exit":
-            tk.Frame(body, height=1, bg="#d1d5db").pack(fill="x", padx=2, pady=3)
+            tk.Frame(body, height=1, bg=COLORS["border"]).pack(fill="x", padx=2, pady=3)
         if item.checked is None:
             widget = tk.Button(
                 body, text=item.label,
