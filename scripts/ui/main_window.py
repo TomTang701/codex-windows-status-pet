@@ -223,6 +223,7 @@ class Pet(tk.Tk):
         self.signal_card = tk.Frame(self, bg=COLORS["surface"], highlightthickness=1, highlightbackground=COLORS["border"])
         self.status_rail = tk.Frame(self.status_card, bg=COLORS["border"], width=2)
         self.status_rail.place(x=1, y=1, width=2, relheight=1)
+        self.signal_kicker = tk.Label(self.signal_card, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 6, "bold"), anchor="w")
         self.signal_title = tk.Label(self.signal_card, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
         self.signal_title.place(x=6, y=3, anchor="nw")
         self.signal_age = tk.Label(self.signal_card, text="Sync --", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 6), anchor="w")
@@ -360,6 +361,7 @@ class Pet(tk.Tk):
             FONT_FAMILY,
             max(7, round(metrics.text_font_size * 0.85)),
         )
+        self.signal_kicker.configure(font=(*self._font_spec(FONT_FAMILY, max(5, round(metrics.text_font_size * 0.55))), "bold"))
         self.signal_title.configure(font=(*signal_title_font, "bold"))
         self.signal_age.configure(font=self._font_spec(FONT_FAMILY, max(5, round(metrics.text_font_size * 0.55))))
         self.signal_value.configure(font=(*signal_value_font, "bold"))
@@ -377,6 +379,7 @@ class Pet(tk.Tk):
             text=translate(self.settings["language"], "status"),
         )
         self.signal_card.configure(bg=COLORS["surface"], highlightbackground=COLORS["border"])
+        self.signal_kicker.configure(bg=COLORS["surface"], fg=COLORS["muted"], text="SIGNAL")
         self.signal_age.configure(bg=COLORS["surface"])
         source = self.settings["battery_quota_source"]
         self.signal_title.configure(
@@ -470,6 +473,7 @@ class Pet(tk.Tk):
             self.status_rail,
             self.status_title,
             self.signal_card,
+            self.signal_kicker,
             self.signal_title,
             self.signal_age,
             self.signal_value,
@@ -532,8 +536,9 @@ class Pet(tk.Tk):
         self.signal_card.configure(width=self._signal_card_width())
         self._sync_hover_rail()
         inset = self._hud_header_padding()
-        self.signal_title.place(x=inset, y=max(2, round(inset / 2)), anchor="nw")
-        self.signal_age.place(x=inset, y=max(12, round(inset * 1.6)), anchor="nw")
+        self.signal_kicker.place(x=inset, y=max(2, round(inset / 2)), anchor="nw")
+        self.signal_title.place(x=inset, y=max(10, round(inset * 1.6)), anchor="nw")
+        self.signal_age.place(x=inset, y=max(19, round(inset * 2.7)), anchor="nw")
         self.signal_value.place(
             relx=1,
             rely=1,
@@ -549,6 +554,7 @@ class Pet(tk.Tk):
         )
         self.battery.pack(expand=True, padx=metrics.horizontal_padding, pady=2)
         self.signal_title.lift()
+        self.signal_kicker.lift()
         self.signal_age.lift()
         self.signal_value.lift()
 
@@ -581,6 +587,7 @@ class Pet(tk.Tk):
             self.hud_header.pack_forget()
             self.status_card.pack_forget()
             self.signal_card.pack_forget()
+            self.signal_kicker.place_forget()
             self.signal_title.place_forget()
             self.signal_age.place_forget()
             self.signal_value.place_forget()

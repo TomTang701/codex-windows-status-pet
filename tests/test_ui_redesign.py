@@ -74,6 +74,9 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.text.winfo_parent(), str(app.status_card))
             self.assertEqual(app.battery.winfo_parent(), str(app.signal_card))
             self.assertTrue(any(str(widget.cget("text")) == "CODEX" for widget in widgets(app.hud_header)))
+            self.assertEqual(app.signal_kicker.winfo_parent(), str(app.signal_card))
+            self.assertEqual(app.signal_kicker.cget("text"), "SIGNAL")
+            self.assertEqual(app.signal_kicker.place_info()["anchor"], "nw")
             signal_title = app.signal_title
             self.assertEqual(signal_title.cget("fg"), "#818cf8")
             app.apply_settings({**app.settings, "battery_quota_source": "primary_5h"})
@@ -84,11 +87,13 @@ class UiRedesignTests(unittest.TestCase):
             self.assertFalse(app.status_card.winfo_ismapped())
             self.assertFalse(app.status_title.winfo_ismapped())
             self.assertTrue(app.signal_card.winfo_ismapped())
+            self.assertFalse(app.signal_kicker.winfo_ismapped())
             self.assertFalse(app.signal_title.winfo_ismapped())
             self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
             app.set_compact(False)
             app.update_idletasks()
             self.assertTrue(app.status_title.winfo_ismapped())
+            self.assertTrue(app.signal_kicker.winfo_ismapped())
             self.assertTrue(app.signal_title.winfo_ismapped())
         finally:
             self.destroy_app(app)
