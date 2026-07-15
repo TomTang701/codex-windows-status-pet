@@ -229,7 +229,7 @@ class Pet(tk.Tk):
         self.signal_age = tk.Label(self.signal_card, text="Sync --", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 6), anchor="w")
         self.signal_value = tk.Label(self.signal_card, text="--", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 8, "bold"), anchor="e")
         self.signal_value.place(relx=1, rely=1, x=-6, y=-3, anchor="se")
-        self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
+        self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", quota_label=translate(self.settings["language"], "quota"), wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
         self.battery = BatteryView(self.signal_card, bg=COLORS["surface"])
         self._pack_expanded_content()
         self.bind("<Button-3>", self.menu)
@@ -407,6 +407,7 @@ class Pet(tk.Tk):
         self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.set_visible_rows(self.settings)
+        self.text.set_quota_label(translate(self.settings["language"], "quota"))
         self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec(FONT_FAMILY, metrics.text_font_size), wraplength=metrics.wraplength)
         self._sync_drag_cursor()
         if not self.compact:

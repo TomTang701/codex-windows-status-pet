@@ -18,10 +18,20 @@ except ModuleNotFoundError:
 class StatusRows(tk.Frame):
     """Five persistent single-line labels with stable row identities."""
 
-    def __init__(self, owner, *, text, font, fg, bg, wraplength):
+    def __init__(self, owner, *, text, font, fg, bg, wraplength, quota_label="QUOTA"):
         super().__init__(owner, bg=bg)
         self.quota_divider = tk.Frame(self, bg=COLORS["border"], height=1)
+        self.quota_label = tk.Label(
+            self,
+            text=quota_label,
+            bg=bg,
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 6, "bold"),
+            padx=4,
+            pady=0,
+        )
         self.labels = {}
+        self.bind("<Map>", lambda _event: self._layout_quota_marker(), add="+")
         for row_id in ROW_IDS:
             label = tk.Label(
                 self,
@@ -40,7 +50,7 @@ class StatusRows(tk.Frame):
 
     @property
     def event_widgets(self):
-        return (self, *self.labels.values())
+        return (self, *self.labels.values(), self.quota_label)
 
     def configure_rows(self, *, rows=None, text=None, fg=None, bg=None, font=None, wraplength=None):
         if text is not None:
@@ -60,9 +70,24 @@ class StatusRows(tk.Frame):
             options.pop("font", None)
         if bg is not None:
             tk.Frame.configure(self, bg=bg)
+            self.quota_label.configure(bg=bg)
         if options:
             for label in self.labels.values():
                 label.configure(**options)
+
+    def set_quota_label(self, value):
+        self.quota_label.configure(text=value)
+
+    def _layout_quota_marker(self):
+        visible_ids = [
+            row_id
+            for row_id, label in self.labels.items()
+            if label.winfo_manager() in {"pack", "place"}
+        ]
+        if len(visible_ids) < 3:
+            self.quota_label.place_forget()
+            return
+        self.quota_label.place(relx=0.5, rely=2 / len(visible_ids), anchor="center")
 
     @staticmethod
     def _font_for_row(font, row_id):
@@ -83,11 +108,13 @@ class StatusRows(tk.Frame):
             label.grid_forget()
             label.place_forget()
         self.quota_divider.place_forget()
+        self.quota_label.place_forget()
         visible_ids = [row_id for row_id in ROW_IDS if visible[row_id]]
         visible_count = len(visible_ids)
         if not self.winfo_ismapped():
             for row_id in visible_ids:
                 self.labels[row_id].pack(fill="x", expand=True, anchor="w")
+            self._layout_quota_marker()
             return
         for visible_index, row_id in enumerate(visible_ids):
             label = self.labels[row_id]
@@ -106,7 +133,9 @@ class StatusRows(tk.Frame):
             height=1,
             anchor="nw",
         )
+        self._layout_quota_marker()
         self.quota_divider.lift()
+        self.quota_label.lift()
         self.update_idletasks()
 
     def row_values(self):

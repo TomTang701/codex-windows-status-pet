@@ -72,6 +72,19 @@ class StatusRowsUiTests(unittest.TestCase):
         weekly = self.rows.labels["weekly"]
         self.assertLessEqual(divider.winfo_y() + divider.winfo_height(), weekly.winfo_y())
 
+    def test_quota_divider_has_a_small_group_label(self):
+        self.rows.pack(fill="both", expand=True)
+        self.root.deiconify()
+        self.root.geometry("300x200")
+        self.root.update()
+        self.rows.set_visible_rows({})
+        self.root.update_idletasks()
+        self.assertEqual(self.rows.quota_label.cget("text"), "QUOTA")
+        self.assertTrue(self.rows.quota_label.winfo_ismapped())
+        self.assertEqual(self.rows.quota_label.cget("fg"), "#94a3b8")
+        label_center = self.rows.quota_label.winfo_y() + self.rows.quota_label.winfo_height() // 2
+        self.assertLessEqual(abs(label_center - self.rows.quota_divider.winfo_y()), 2)
+
     def setUp(self):
         self.root = tk.Tk()
         self.root.withdraw()
@@ -95,7 +108,7 @@ class StatusRowsUiTests(unittest.TestCase):
     def test_exactly_five_stable_labels_and_event_widgets(self):
         self.assertEqual(tuple(self.rows.labels), ROW_IDS)
         self.assertEqual(len(self.rows.labels), 5)
-        self.assertEqual(len(self.rows.event_widgets), 6)
+        self.assertEqual(len(self.rows.event_widgets), 7)
 
     def test_one_row_updates_without_recreating_or_shifting_siblings(self):
         identities = {key: str(label) for key, label in self.rows.labels.items()}
@@ -113,6 +126,7 @@ class StatusRowsUiTests(unittest.TestCase):
             self.assertEqual(label.cget("bg"), "#654321")
             self.assertEqual(label.cget("wraplength"), 240)
         self.assertEqual(self.rows.quota_divider.cget("bg"), "#26354d")
+        self.assertEqual(self.rows.quota_label.cget("bg"), "#654321")
 
 
 if __name__ == "__main__":
