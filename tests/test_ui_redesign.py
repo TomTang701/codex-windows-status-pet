@@ -118,6 +118,20 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_apply_settings_resets_all_hud_borders_to_neutral(self):
+        app = self.new_app()
+        try:
+            app.quota_state.state = "unavailable"
+            app.render_status()
+            self.assertEqual(app.signal_card.cget("highlightbackground"), "#f87171")
+            app.apply_settings({**app.settings, "language": "en"})
+            self.assertEqual(app.cget("highlightbackground"), "#26354d")
+            self.assertEqual(app.hud_header.cget("highlightbackground"), "#26354d")
+            self.assertEqual(app.status_card.cget("highlightbackground"), "#26354d")
+            self.assertEqual(app.signal_card.cget("highlightbackground"), "#26354d")
+        finally:
+            self.destroy_app(app)
+
     def test_signal_hud_labels_follow_runtime_language(self):
         from api.localization_api import translate
 
