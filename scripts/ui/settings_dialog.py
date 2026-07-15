@@ -319,7 +319,7 @@ def show_settings_dialog(owner):
     preview_live = tk.Label(preview_header, text="LIVE", bg=COLORS["surface_alt"], fg=COLORS["success"], anchor="e", font=(FONT_FAMILY, 8))
     preview_live.pack(side="right", padx=6, fill="y")
     preview_signal_panel = tk.Frame(preview_card, bg=COLORS["surface"], width=42)
-    preview_signal_panel.pack(side="right", fill="y", padx=(6, 0))
+    preview_signal_panel.pack(side="right", fill="y", padx=(6, 0), ipadx=14)
     preview_signal_panel.pack_propagate(False)
     preview_signal_title = tk.Label(preview_signal_panel, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 7, "bold"))
     preview_signal_title.pack(fill="x", padx=4, pady=(3, 1))
