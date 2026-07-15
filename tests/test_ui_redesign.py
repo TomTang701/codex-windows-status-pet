@@ -154,6 +154,25 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_signal_card_shows_remaining_percentage_in_expanded_mode(self):
+        app = self.new_app()
+        try:
+            app.latest_quota = {
+                "rateLimits": {"primary": {}, "secondary": {"usedPercent": 20}},
+                "rateLimitResetCredits": {},
+            }
+            app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "weekly"})
+            app.render_status()
+            self.assertEqual(app.signal_value.cget("text"), "80%")
+            app.set_compact(True)
+            app.update_idletasks()
+            self.assertFalse(app.signal_value.winfo_ismapped())
+            app.set_compact(False)
+            app.update_idletasks()
+            self.assertTrue(app.signal_value.winfo_ismapped())
+        finally:
+            self.destroy_app(app)
+
     def test_language_apply_updates_hud_status_without_waiting_for_refresh(self):
         from api.localization_api import translate
 

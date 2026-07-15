@@ -203,6 +203,8 @@ class Pet(tk.Tk):
         self.status_rail.place(x=1, y=1, width=2, relheight=1)
         self.signal_title = tk.Label(self.signal_card, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
         self.signal_title.place(x=6, y=3, anchor="nw")
+        self.signal_value = tk.Label(self.signal_card, text="--", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 8, "bold"), anchor="e")
+        self.signal_value.place(relx=1, rely=1, x=-6, y=-3, anchor="se")
         self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
         self.battery = BatteryView(self.signal_card, bg=COLORS["surface"])
         self._pack_expanded_content()
@@ -325,6 +327,7 @@ class Pet(tk.Tk):
             text=self._signal_caption(source, self.settings["language"]),
             fg=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
         )
+        self.signal_value.configure(bg=COLORS["surface"], fg=COLORS["muted"])
         active = bool(self.latest_activity.get("active", 0))
         self.hud_status.configure(
             text=translate(self.settings["language"], "output" if active else "idle"),
@@ -379,6 +382,7 @@ class Pet(tk.Tk):
             self.status_rail,
             self.signal_card,
             self.signal_title,
+            self.signal_value,
             *self.text.event_widgets,
             *self.battery.event_widgets,
         )
@@ -413,6 +417,7 @@ class Pet(tk.Tk):
         self.status_card.pack(side="left", fill="both", expand=True, padx=(metrics.horizontal_padding, 3), pady=0)
         self.signal_card.pack(side="right", fill="y", padx=(0, metrics.horizontal_padding), pady=0)
         self.signal_title.place(x=6, y=3, anchor="nw")
+        self.signal_value.place(relx=1, rely=1, x=-6, y=-3, anchor="se")
         self.text.pack(
             fill="both",
             expand=True,
@@ -451,6 +456,7 @@ class Pet(tk.Tk):
             self.status_card.pack_forget()
             self.signal_card.pack_forget()
             self.signal_title.place_forget()
+            self.signal_value.place_forget()
             self.text.pack_forget()
             self.battery.pack_forget()
             self.battery.set_compact(True)
@@ -735,6 +741,14 @@ class Pet(tk.Tk):
         self.hud_status.configure(
             text=translate(self.settings["language"], status_key),
             fg=status_color,
+        )
+        battery = presentation["battery"]
+        remaining = battery.get("remaining_percent")
+        self.signal_value.configure(
+            text="--" if remaining is None else f"{remaining}%",
+            fg=(COLORS["danger"] if remaining is None else (
+                COLORS["accent"] if self.settings["battery_quota_source"] == "primary_5h" else COLORS["accent_alt"]
+            )),
         )
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
         self.battery.configure_presentation(presentation["battery"])
