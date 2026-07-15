@@ -53,6 +53,25 @@ class StatusRowsUiTests(unittest.TestCase):
         self.assertEqual(len(centers), 4)
         self.assertEqual(len(set(right - left for left, right in zip(centers, centers[1:]))), 1)
 
+    def test_quota_divider_stays_between_progress_and_first_quota_row(self):
+        self.rows.pack(fill="both", expand=True)
+        self.root.deiconify()
+        self.root.geometry("300x200")
+        self.root.update()
+        self.rows.set_visible_rows({})
+        self.root.update_idletasks()
+        divider = self.rows.quota_divider
+        progress = self.rows.labels["progress"]
+        primary = self.rows.labels["primary_5h"]
+        self.assertTrue(divider.winfo_ismapped())
+        self.assertEqual(divider.cget("bg"), "#26354d")
+        self.assertLessEqual(progress.winfo_y() + progress.winfo_height(), divider.winfo_y() + 1)
+        self.assertLessEqual(divider.winfo_y() + divider.winfo_height(), primary.winfo_y())
+        self.rows.set_visible_rows({"show_primary_5h": False})
+        self.root.update_idletasks()
+        weekly = self.rows.labels["weekly"]
+        self.assertLessEqual(divider.winfo_y() + divider.winfo_height(), weekly.winfo_y())
+
     def setUp(self):
         self.root = tk.Tk()
         self.root.withdraw()
@@ -93,6 +112,7 @@ class StatusRowsUiTests(unittest.TestCase):
             self.assertEqual(label.cget("fg"), "#123456")
             self.assertEqual(label.cget("bg"), "#654321")
             self.assertEqual(label.cget("wraplength"), 240)
+        self.assertEqual(self.rows.quota_divider.cget("bg"), "#26354d")
 
 
 if __name__ == "__main__":

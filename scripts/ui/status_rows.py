@@ -20,6 +20,7 @@ class StatusRows(tk.Frame):
 
     def __init__(self, owner, *, text, font, fg, bg, wraplength):
         super().__init__(owner, bg=bg)
+        self.quota_divider = tk.Frame(self, bg=COLORS["border"], height=1)
         self.labels = {}
         for row_id in ROW_IDS:
             label = tk.Label(
@@ -81,6 +82,7 @@ class StatusRows(tk.Frame):
             label.pack_forget()
             label.grid_forget()
             label.place_forget()
+        self.quota_divider.place_forget()
         visible_ids = [row_id for row_id in ROW_IDS if visible[row_id]]
         visible_count = len(visible_ids)
         if not self.winfo_ismapped():
@@ -96,6 +98,15 @@ class StatusRows(tk.Frame):
                 relheight=1 / visible_count,
                 anchor="nw",
             )
+        self.quota_divider.place(
+            relx=0,
+            rely=2 / visible_count,
+            relwidth=1,
+            y=-1,
+            height=1,
+            anchor="nw",
+        )
+        self.quota_divider.lift()
         self.update_idletasks()
 
     def row_values(self):
