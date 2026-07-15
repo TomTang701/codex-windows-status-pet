@@ -167,6 +167,8 @@ class UiRedesignTests(unittest.TestCase):
                 for widget in widgets(app.settings_dialog)
                 if isinstance(widget, tk.Label) and widget.cget("text") == "Active conversations  1"
             )
+            self.assertEqual(font_button.cget("highlightbackground"), app.settings["font_color"])
+            self.assertEqual(background_button.cget("highlightbackground"), app.settings["background_color"])
             with patch("ui.settings_dialog.colorchooser.askcolor", return_value=((18, 52, 86), "#123456")):
                 font_button.invoke()
             self.assertEqual(preview_conversations.cget("fg"), "#123456")

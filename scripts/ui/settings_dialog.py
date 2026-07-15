@@ -444,6 +444,7 @@ def show_settings_dialog(owner):
     font_color_button.grid(row=9, column=0, pady=(8, 0), sticky="w")
     background_color_button = translated(themed_button(body, text("background_color"), choose_background), "background_color")
     background_color_button.grid(row=9, column=1, pady=(8, 0), sticky="w")
+    refresh_preview_palette()
 
     def sync_draft():
         try:
