@@ -411,9 +411,28 @@ class Pet(tk.Tk):
 
     def _pointer_enter(self, _event=None):
         self.hovered = True
+        self._sync_hover_rail()
 
-    def _pointer_leave(self, _event=None):
+    def _pointer_leave(self, event=None):
+        if event is not None:
+            try:
+                containing = self.winfo_containing(event.x_root, event.y_root)
+                if containing is not None and containing.winfo_toplevel() == self:
+                    self.hovered = True
+                    self._sync_hover_rail()
+                    return
+            except tk.TclError:
+                pass
         self.hovered = False
+        self._sync_hover_rail()
+
+    def _sync_hover_rail(self):
+        """Give the draggable HUD a quiet hover affordance without changing status color."""
+        width = 3 if self.hovered and not self.compact else 2
+        try:
+            self.status_rail.place_configure(width=width)
+        except tk.TclError:
+            pass
 
     def _sync_drag_cursor(self):
         """Expose whether the HUD can be dragged through its cursor affordance."""
@@ -490,6 +509,7 @@ class Pet(tk.Tk):
         self.hud_header.pack(side="top", fill="x", padx=metrics.horizontal_padding, pady=0)
         self.status_card.pack(side="left", fill="both", expand=True, padx=(metrics.horizontal_padding, 3), pady=0)
         self.signal_card.pack(side="right", fill="y", padx=(0, metrics.horizontal_padding), pady=0)
+        self._sync_hover_rail()
         inset = self._hud_header_padding()
         self.signal_title.place(x=inset, y=max(2, round(inset / 2)), anchor="nw")
         self.signal_value.place(

@@ -137,6 +137,23 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_hud_hover_rail_explains_interactive_surface_without_changing_status(self):
+        from types import SimpleNamespace
+
+        app = self.new_app()
+        try:
+            neutral_status = app.status_card.cget("highlightbackground")
+            app._pointer_enter()
+            self.assertEqual(app.status_rail.place_info()["width"], "3")
+            self.assertEqual(app.status_card.cget("highlightbackground"), neutral_status)
+            app._pointer_leave(SimpleNamespace(x_root=-100, y_root=-100))
+            self.assertEqual(app.status_rail.place_info()["width"], "2")
+            app.set_compact(True)
+            app._pointer_enter()
+            self.assertEqual(app.status_rail.place_info()["width"], "2")
+        finally:
+            self.destroy_app(app)
+
     def test_hud_border_communicates_live_status_without_changing_rows(self):
         app = self.new_app()
         try:
