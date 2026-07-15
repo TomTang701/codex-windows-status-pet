@@ -359,6 +359,15 @@ def show_settings_dialog(owner):
     preview_status_section.pack(side="left", padx=(0, 4), fill="y")
     preview_live = tk.Label(preview_header, text="LIVE", bg=COLORS["surface_alt"], fg=COLORS["success"], anchor="e", font=(FONT_FAMILY, 8))
     preview_live.pack(side="right", padx=6, fill="y")
+    preview_status_dot = tk.Label(
+        preview_header,
+        text=chr(0x25CF),
+        bg=COLORS["surface_alt"],
+        fg=COLORS["success"],
+        anchor="e",
+        font=(FONT_FAMILY, 7),
+    )
+    preview_status_dot.pack(side="right", padx=(0, 2), fill="y")
     preview_signal_panel = tk.Frame(preview_card, bg=COLORS["surface"], width=42)
     preview_signal_panel.pack(side="right", fill="y", padx=(6, 0), ipadx=14)
     preview_signal_panel.pack_propagate(False)
@@ -421,7 +430,7 @@ def show_settings_dialog(owner):
         background = draft["background_color"]
         for widget in (preview_card, *preview_card.winfo_children()):
             widget.configure(bg=background)
-        for widget in (preview_header, preview_title, preview_status_section, preview_live):
+        for widget in (preview_header, preview_title, preview_status_section, preview_live, preview_status_dot):
             widget.configure(bg=COLORS["surface_alt"])
         for widget in (preview_signal_panel, preview_signal_title, preview_signal_value):
             widget.configure(bg=COLORS["surface"])
