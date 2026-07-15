@@ -5,6 +5,7 @@ import json
 import runpy
 import tempfile
 import tkinter as tk
+from tkinter import font as tkfont
 import unittest
 from unittest.mock import patch
 from pathlib import Path
@@ -466,6 +467,15 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(save.cget("fg"), "#0b1220")
             self.assertTrue(entries)
             self.assertTrue(all(entry.cget("bg") == "#111827" for entry in entries))
+            source_labels = {
+                str(widget.cget("text")): widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and str(widget.cget("text")) in {"5-hour", "Weekly"}
+            }
+            selected_label = source_labels["Weekly" if app.settings["battery_quota_source"] == "weekly" else "5-hour"]
+            other_label = source_labels["5-hour" if app.settings["battery_quota_source"] == "weekly" else "Weekly"]
+            self.assertEqual(tkfont.Font(root=app, font=selected_label.cget("font")).cget("weight"), "bold")
+            self.assertEqual(tkfont.Font(root=app, font=other_label.cget("font")).cget("weight"), "normal")
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()

@@ -467,7 +467,8 @@ def show_settings_dialog(owner):
             cell.configure(bg=COLORS["accent"] if index < lit_cells else "#374151")
         for source_index, label in source_labels.items():
             label.configure(
-                fg=COLORS["accent"] if source_index == selected_source else COLORS["muted"]
+                fg=COLORS["accent"] if source_index == selected_source else COLORS["muted"],
+                font=(FONT_FAMILY, 9, "bold" if source_index == selected_source else "normal"),
             )
         for row_id, variable in (("five_hour", show_primary_5h), ("weekly", show_weekly), ("reset_credit", show_reset_credit)):
             row = preview_rows[row_id]
