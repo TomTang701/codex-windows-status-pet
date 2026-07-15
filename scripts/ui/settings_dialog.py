@@ -69,6 +69,7 @@ def show_settings_dialog(owner):
     preview_status = None
     font_color_button = None
     background_color_button = None
+    apply_button = None
 
     def text(key):
         return translate(ui_language, key)
@@ -502,8 +503,18 @@ def show_settings_dialog(owner):
         if not draft_tracking_enabled:
             return
         draft_changed = True
+        sync_apply_affordance()
         if preview_status is not None:
             preview_status.configure(text=lifecycle_status(changed=True))
+
+    def sync_apply_affordance():
+        if apply_button is None:
+            return
+        apply_button.configure(
+            highlightthickness=1 if draft_changed else 0,
+            highlightbackground=COLORS["accent"],
+            highlightcolor=COLORS["accent"],
+        )
 
     window_scale.trace_add("write", lambda *_args: refresh_preview())
     alpha.trace_add("write", lambda *_args: refresh_preview())
@@ -622,8 +633,10 @@ def show_settings_dialog(owner):
             return False
         owner.apply_settings(settings_session.apply())
         draft_changed = False
+        sync_apply_affordance()
         refresh_language_widgets(draft["language"])
         draft_changed = False
+        sync_apply_affordance()
         preview_status.configure(text=lifecycle_status(applied=True))
         return True
 
@@ -677,7 +690,8 @@ def show_settings_dialog(owner):
     buttons = tk.Frame(body, bg=COLORS["background"])
     buttons.grid(row=13, column=0, columnspan=3, pady=(8, 0))
     translated(themed_button(buttons, text("save"), save_and_close, primary=True, width=8), "save").pack(side="left", padx=3)
-    translated(themed_button(buttons, text("apply"), apply_draft, width=8), "apply").pack(side="left", padx=3)
+    apply_button = translated(themed_button(buttons, text("apply"), apply_draft, width=8), "apply")
+    apply_button.pack(side="left", padx=3)
     translated(themed_button(buttons, text("restore_defaults"), restore_defaults, width=12), "restore_defaults").pack(side="left", padx=3)
     translated(themed_button(buttons, text("close"), lambda: owner.close_settings(dialog), width=8), "close").pack(side="left", padx=3)
     dialog.bind("<Escape>", lambda _event: (owner.close_settings(dialog), "break")[1])
@@ -697,6 +711,7 @@ def show_settings_dialog(owner):
         focus_section(0)
         draft_changed = False
         draft_tracking_enabled = True
+        sync_apply_affordance()
         preview_status.configure(text=lifecycle_status())
 
     dialog.after_idle(initialize_dialog_focus)

@@ -401,7 +401,9 @@ class UiRedesignTests(unittest.TestCase):
                 checks = [widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Checkbutton)]
                 checks[0].invoke()
                 apply_button = next(widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Button) and widget.cget("text") == "Apply")
+                self.assertEqual(int(apply_button.cget("highlightthickness")), 1)
                 apply_button.invoke()
+                self.assertEqual(int(apply_button.cget("highlightthickness")), 0)
                 self.assertNotEqual(app.settings["topmost"], opening_topmost)
             finally:
                 if app is not None:
