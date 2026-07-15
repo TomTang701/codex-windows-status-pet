@@ -328,6 +328,15 @@ def show_settings_dialog(owner):
         cell = tk.Label(preview_signal_panel, text="", width=1, height=1, bd=1, relief="solid", bg="#374151", font=(FONT_FAMILY, 1))
         cell.grid(row=1 + index // 2, column=index % 2, padx=1, pady=1)
         preview_signal_cells.append(cell)
+    preview_signal_value = tk.Label(
+        preview_signal_panel,
+        text="--",
+        bg=COLORS["surface"],
+        fg=COLORS["accent"],
+        anchor="e",
+        font=(FONT_FAMILY, 8, "bold"),
+    )
+    preview_signal_value.place(relx=1, rely=1, x=-4, y=-3, anchor="se")
     tk.Label(preview_card, text="●  Codex Outputting", bg=COLORS["background"], fg=COLORS["success"], anchor="w", font=(FONT_FAMILY, 10, "bold")).pack(fill="x")
     tk.Label(preview_card, text="Active conversations  1", bg=COLORS["background"], fg=COLORS["muted"], anchor="w").pack(fill="x", pady=(5, 8))
     preview_source = tk.Label(preview_card, text="", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 8))
@@ -356,7 +365,7 @@ def show_settings_dialog(owner):
             widget.configure(bg=background)
         for widget in (preview_header, preview_title, preview_live):
             widget.configure(bg=COLORS["surface_alt"])
-        for widget in (preview_signal_panel, preview_signal_title):
+        for widget in (preview_signal_panel, preview_signal_title, preview_signal_value):
             widget.configure(bg=COLORS["surface"])
         for widget in (preview_conversations, preview_source, preview_meta):
             widget.configure(fg=draft["font_color"])
@@ -380,6 +389,10 @@ def show_settings_dialog(owner):
             preview_rows[row_id].configure(text=translate(ui_language, text_key))
         selected_source = int(battery_source.get())
         lit_cells = 6 if selected_source == 0 else 8
+        preview_signal_value.configure(
+            text=f"{lit_cells * 10}%",
+            fg=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
+        )
         for index, cell in enumerate(preview_signal_cells):
             cell.configure(bg=COLORS["accent"] if index < lit_cells else "#374151")
         for source_index, label in source_labels.items():
