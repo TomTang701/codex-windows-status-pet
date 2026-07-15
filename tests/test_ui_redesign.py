@@ -492,12 +492,22 @@ class UiRedesignTests(unittest.TestCase):
             source_labels = {
                 str(widget.cget("text")): widget
                 for widget in widgets(app.settings_dialog)
-                if isinstance(widget, tk.Label) and str(widget.cget("text")) in {"5-hour", "Weekly"}
+                if isinstance(widget, tk.Button) and str(widget.cget("text")) in {"5-hour", "Weekly"}
             }
             selected_label = source_labels["Weekly" if app.settings["battery_quota_source"] == "weekly" else "5-hour"]
             other_label = source_labels["5-hour" if app.settings["battery_quota_source"] == "weekly" else "Weekly"]
             self.assertEqual(tkfont.Font(root=app, font=selected_label.cget("font")).cget("weight"), "bold")
             self.assertEqual(tkfont.Font(root=app, font=other_label.cget("font")).cget("weight"), "normal")
+            self.assertEqual(selected_label.cget("cursor"), "hand2")
+            other_label.invoke()
+            app.update_idletasks()
+            self.assertEqual(tkfont.Font(root=app, font=other_label.cget("font")).cget("weight"), "bold")
+            source_preview = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Source:")
+            )
+            self.assertIn(other_label.cget("text"), source_preview.cget("text"))
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
@@ -821,12 +831,12 @@ class UiRedesignTests(unittest.TestCase):
             five_hour_label = next(
                 widget
                 for widget in widgets(app.settings_dialog)
-                if isinstance(widget, tk.Label) and widget.cget("text") == "5-hour"
+                if isinstance(widget, tk.Button) and widget.cget("text") == "5-hour"
             )
             weekly_label = next(
                 widget
                 for widget in widgets(app.settings_dialog)
-                if isinstance(widget, tk.Label) and widget.cget("text") == "Weekly"
+                if isinstance(widget, tk.Button) and widget.cget("text") == "Weekly"
             )
             self.assertIn("5-hour", source_label.cget("text"))
             self.assertEqual(five_hour_label.cget("fg"), "#22d3ee")

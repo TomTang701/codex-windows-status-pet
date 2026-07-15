@@ -296,8 +296,26 @@ def show_settings_dialog(owner):
         variable=battery_source,
     )
     battery_source_scale.grid(row=0, column=0, columnspan=2)
-    translated(themed_label(source_control, text("five_hour"), fg=COLORS["muted"]), "five_hour").grid(row=1, column=0, sticky="w")
-    translated(themed_label(source_control, text("weekly"), fg=COLORS["muted"]), "weekly").grid(row=1, column=1, sticky="e")
+    def source_button(parent, value, source_index):
+        return tk.Button(
+            parent,
+            text=value,
+            command=lambda: battery_source.set(source_index),
+            bg=COLORS["background"],
+            fg=COLORS["muted"],
+            activebackground=COLORS["surface_alt"],
+            activeforeground=COLORS["accent"],
+            relief="flat",
+            bd=0,
+            padx=4,
+            pady=1,
+            cursor="hand2",
+            takefocus=1,
+            highlightthickness=0,
+            font=(FONT_FAMILY, 9),
+        )
+    translated(source_button(source_control, text("five_hour"), 0), "five_hour").grid(row=1, column=0, sticky="w")
+    translated(source_button(source_control, text("weekly"), 1), "weekly").grid(row=1, column=1, sticky="e")
     translated(themed_label(body, text("language")), "language").grid(row=7, column=0, sticky="w")
     combo_style = ttk.Style(dialog)
     combo_style.configure(
