@@ -398,6 +398,7 @@ class Pet(tk.Tk):
         self.hud_header.pack(side="top", fill="x", padx=metrics.horizontal_padding, pady=0)
         self.status_card.pack(side="left", fill="both", expand=True, padx=(metrics.horizontal_padding, 3), pady=0)
         self.signal_card.pack(side="right", fill="y", padx=(0, metrics.horizontal_padding), pady=0)
+        self.signal_title.place(x=6, y=3, anchor="nw")
         self.text.pack(
             fill="both",
             expand=True,
@@ -435,6 +436,7 @@ class Pet(tk.Tk):
             self.hud_header.pack_forget()
             self.status_card.pack_forget()
             self.signal_card.pack_forget()
+            self.signal_title.place_forget()
             self.text.pack_forget()
             self.battery.pack_forget()
             self.battery.set_compact(True)

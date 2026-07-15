@@ -78,7 +78,11 @@ class UiRedesignTests(unittest.TestCase):
             self.assertFalse(app.hud_header.winfo_ismapped())
             self.assertFalse(app.status_card.winfo_ismapped())
             self.assertTrue(app.signal_card.winfo_ismapped())
+            self.assertFalse(app.signal_title.winfo_ismapped())
             self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
+            app.set_compact(False)
+            app.update_idletasks()
+            self.assertTrue(app.signal_title.winfo_ismapped())
         finally:
             self.destroy_app(app)
 
