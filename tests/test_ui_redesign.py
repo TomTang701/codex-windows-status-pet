@@ -237,10 +237,19 @@ class UiRedesignTests(unittest.TestCase):
                 for widget in widgets(app.settings_dialog)
                 if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Draft")
             )
+            self.assertEqual(status.cget("text"), "Draft only · Apply to update")
             self.assertIn("Apply", status.cget("text"))
             apply_button = next(widget for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Button) and widget.cget("text") == "Apply")
             apply_button.invoke()
             self.assertIn("Save", status.cget("text"))
+            window_scale = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Scale) and float(widget.cget("to")) == 200.0
+            )
+            window_scale.set(150)
+            app.update_idletasks()
+            self.assertIn("Draft changed", status.cget("text"))
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()

@@ -64,11 +64,18 @@ def show_settings_dialog(owner):
     owner._settings_session = settings_session
     draft = settings_session.draft_settings
     ui_language = draft["language"]
+    draft_changed = False
+    draft_tracking_enabled = False
+    preview_status = None
 
     def text(key):
         return translate(ui_language, key)
 
-    def lifecycle_status(applied=False):
+    def lifecycle_status(applied=False, changed=None):
+        if changed is None:
+            changed = draft_changed
+        if changed:
+            return "\u8349\u7a3f\u5df2\u53d8\u66f4 \u00b7 \u70b9\u51fb\u5e94\u7528\u66f4\u65b0" if ui_language == "zh-CN" else "Draft changed \u00b7 Apply to update"
         if ui_language == "zh-CN":
             return "预览草稿 · 点击应用更新" if not applied else "预览已更新 · 保存后持久化"
         return "Draft only · Apply to update" if not applied else "Preview updated · Save to persist"
@@ -351,6 +358,16 @@ def show_settings_dialog(owner):
             text=f"{preview_prefix} · {metrics.scale_percent}% · opacity {round(float(opacity_value) * 100)}% · {topmost_state}"
         )
 
+        mark_draft_changed()
+
+    def mark_draft_changed():
+        nonlocal draft_changed
+        if not draft_tracking_enabled:
+            return
+        draft_changed = True
+        if preview_status is not None:
+            preview_status.configure(text=lifecycle_status(changed=True))
+
     window_scale.trace_add("write", lambda *_args: refresh_preview())
     alpha.trace_add("write", lambda *_args: refresh_preview())
     battery_source.trace_add("write", lambda *_args: refresh_preview())
@@ -457,10 +474,13 @@ def show_settings_dialog(owner):
         refresh_preview()
 
     def apply_draft():
+        nonlocal draft_changed
         if not sync_draft():
             return False
         owner.apply_settings(settings_session.apply())
+        draft_changed = False
         refresh_language_widgets(draft["language"])
+        draft_changed = False
         preview_status.configure(text=lifecycle_status(applied=True))
         return True
 
@@ -530,5 +550,13 @@ def show_settings_dialog(owner):
     dialog.deiconify()
     dialog.lift()
     dialog.focus_force()
-    dialog.after_idle(lambda: focus_section(0))
+
+    def initialize_dialog_focus():
+        nonlocal draft_changed, draft_tracking_enabled
+        focus_section(0)
+        draft_changed = False
+        draft_tracking_enabled = True
+        preview_status.configure(text=lifecycle_status())
+
+    dialog.after_idle(initialize_dialog_focus)
     owner.after_idle(owner.ensure_visible)
