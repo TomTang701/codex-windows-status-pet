@@ -242,6 +242,15 @@ class UiRedesignTests(unittest.TestCase):
             topmost.invoke()
             app.update_idletasks()
             self.assertIn("normal" if opening_topmost else "topmost", preview_meta.cget("text"))
+            lock_position = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Checkbutton) and widget.cget("text") == "Lock position"
+            )
+            lock_position.invoke()
+            app.update_idletasks()
+            lock_state = bool(int(app.getvar(lock_position.cget("variable"))))
+            self.assertIn("locked" if lock_state else "drag enabled", preview_meta.cget("text"))
             self.assertEqual(app.settings["window_scale_percent"], opening_scale)
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():

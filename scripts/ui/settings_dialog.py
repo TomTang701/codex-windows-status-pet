@@ -245,7 +245,8 @@ def show_settings_dialog(owner):
     refresh_interval_entry.grid(row=3, column=1, sticky="w")
     topmost_checkbutton = themed_checkbutton(body, text("always_on_top"), topmost, command=lambda: refresh_preview())
     translated(topmost_checkbutton, "always_on_top").grid(row=4, column=0, sticky="w")
-    translated(themed_checkbutton(body, text("lock_position"), locked), "lock_position").grid(row=4, column=1, sticky="w")
+    lock_position_checkbutton = themed_checkbutton(body, text("lock_position"), locked, command=lambda: refresh_preview())
+    translated(lock_position_checkbutton, "lock_position").grid(row=4, column=1, sticky="w")
     quota_group_divider = tk.Frame(body, bg=COLORS["border"], height=1)
     quota_group_divider.grid(row=5, column=0, columnspan=2, sticky="ew", pady=(8, 6))
     translated(themed_label(body, text("battery_content")), "battery_content").grid(row=6, column=0, sticky="w")
@@ -369,13 +370,14 @@ def show_settings_dialog(owner):
                 row.pack_forget()
         metrics = derive_window_metrics(window_scale_value if window_scale_value is not None else window_scale.get())
         topmost_state = ("置顶" if topmost.get() else "普通") if ui_language == "zh-CN" else ("topmost" if topmost.get() else "normal")
+        locked_state = ("已锁定" if locked.get() else "可拖动") if ui_language == "zh-CN" else ("locked" if locked.get() else "drag enabled")
         opacity_value = alpha_value if alpha_value is not None else alpha.get()
         preview_prefix = "预览" if ui_language == "zh-CN" else "Preview"
         source_prefix = "数据源" if ui_language == "zh-CN" else "Source"
         source_name = ("5 小时" if ui_language == "zh-CN" else "5-hour") if battery_source.get() == 0 else ("每周" if ui_language == "zh-CN" else "Weekly")
         preview_source.configure(text=f"{source_prefix}: {source_name}")
         preview_meta.configure(
-            text=f"{preview_prefix} · {metrics.scale_percent}% · opacity {round(float(opacity_value) * 100)}% · {topmost_state}"
+            text=f"{preview_prefix} · {metrics.scale_percent}% · opacity {round(float(opacity_value) * 100)}% · {topmost_state} · {locked_state}"
         )
 
         mark_draft_changed()
