@@ -190,8 +190,17 @@ class Pet(tk.Tk):
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.compact_var = tk.BooleanVar(value=self.settings["compact"])
-        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
-        self.battery = BatteryView(self, bg=self.settings["background_color"])
+        hud_bg = self.settings["background_color"]
+        self.hud_header = tk.Frame(self, bg=COLORS["surface_alt"], height=11, highlightthickness=1, highlightbackground=COLORS["border"])
+        self.hud_header.pack_propagate(False)
+        self.hud_title = tk.Label(self.hud_header, text="CODEX", bg=COLORS["surface_alt"], fg=COLORS["accent"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
+        self.hud_title.pack(side="left", padx=(8, 4), fill="y")
+        self.hud_status = tk.Label(self.hud_header, text="LIVE", bg=COLORS["surface_alt"], fg=COLORS["muted"], font=(FONT_FAMILY, 7), anchor="e")
+        self.hud_status.pack(side="right", padx=(4, 8), fill="y")
+        self.status_card = tk.Frame(self, bg=hud_bg, highlightthickness=1, highlightbackground=COLORS["border"])
+        self.signal_card = tk.Frame(self, bg=COLORS["surface"], highlightthickness=1, highlightbackground=COLORS["border"])
+        self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
+        self.battery = BatteryView(self.signal_card, bg=COLORS["surface"])
         self._pack_expanded_content()
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
@@ -300,7 +309,12 @@ class Pet(tk.Tk):
         self.attributes("-topmost", self.settings["topmost"])
         bg, fg = self.settings["background_color"], self.settings["font_color"]
         self.configure(bg=bg, highlightbackground=COLORS["border"], highlightcolor=COLORS["accent"])
-        self.battery.configure(bg=bg)
+        self.hud_header.configure(bg=COLORS["surface_alt"])
+        self.hud_title.configure(bg=COLORS["surface_alt"])
+        self.hud_status.configure(bg=COLORS["surface_alt"])
+        self.status_card.configure(bg=bg)
+        self.signal_card.configure(bg=COLORS["surface"])
+        self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.set_visible_rows(self.settings)
         self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec(FONT_FAMILY, metrics.text_font_size), wraplength=metrics.wraplength)
@@ -336,8 +350,20 @@ class Pet(tk.Tk):
         """Expose whether the HUD can be dragged through its cursor affordance."""
         cursor = "arrow" if self.settings["locked"] else "fleur"
         self.configure(cursor=cursor)
-        for widget in (*self.text.event_widgets, *self.battery.event_widgets):
+        for widget in self._hud_event_widgets():
             widget.configure(cursor=cursor)
+
+    def _hud_event_widgets(self):
+        """Return all HUD surfaces that should share pointer interactions."""
+        return (
+            self.hud_header,
+            self.hud_title,
+            self.hud_status,
+            self.status_card,
+            self.signal_card,
+            *self.text.event_widgets,
+            *self.battery.event_widgets,
+        )
 
     def _sync_compatibility_metrics(self, settings):
         logical = derive_window_metrics(settings.get("window_scale_percent"))
@@ -359,15 +385,22 @@ class Pet(tk.Tk):
 
     def _pack_expanded_content(self):
         metrics = self.window_metrics
+        self.hud_header.pack_forget()
+        self.status_card.pack_forget()
+        self.signal_card.pack_forget()
         self.battery.pack_forget()
+        self.text.pack_forget()
+        self.hud_header.configure(height=11)
+        self.hud_header.pack(side="top", fill="x", padx=metrics.horizontal_padding, pady=0)
+        self.status_card.pack(side="left", fill="both", expand=True, padx=(metrics.horizontal_padding, 3), pady=0)
+        self.signal_card.pack(side="right", fill="y", padx=(0, metrics.horizontal_padding), pady=0)
         self.text.pack(
-            side="left",
             fill="both",
             expand=True,
             padx=(metrics.horizontal_padding, metrics.face_text_gap),
-            pady=metrics.vertical_padding,
+            pady=0,
         )
-        self.battery.pack(side="right", padx=(0, metrics.horizontal_padding), pady=metrics.vertical_padding)
+        self.battery.pack(expand=True, padx=metrics.horizontal_padding, pady=2)
 
     def _apply_current_mode_geometry(self):
         """Apply root geometry from canonical settings in the current manual mode."""
@@ -395,10 +428,14 @@ class Pet(tk.Tk):
             return
         self.compact = compact
         if compact:
+            self.hud_header.pack_forget()
+            self.status_card.pack_forget()
+            self.signal_card.pack_forget()
             self.text.pack_forget()
             self.battery.pack_forget()
             self.battery.set_compact(True)
             self.battery.set_metrics(self.window_metrics.text_font_size, compact=True)
+            self.signal_card.pack(expand=True, fill="both", padx=0, pady=0)
             self.battery.pack(expand=True, padx=8, pady=8)
             size = compact_size(self.window_metrics.width, self.window_metrics.height)
         else:
@@ -656,6 +693,11 @@ class Pet(tk.Tk):
             self.settings["language"],
         )
         self.configure(highlightbackground=self._hud_border_color(presentation))
+        active = bool(presentation.get("active_count", 0))
+        self.hud_status.configure(
+            text="LIVE" if active else "IDLE",
+            fg=COLORS["success"] if active else COLORS["muted"],
+        )
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
         self.battery.configure_presentation(presentation["battery"])
 

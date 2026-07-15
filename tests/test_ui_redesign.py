@@ -62,6 +62,24 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_expanded_window_uses_two_card_signal_hud_composition(self):
+        app = self.new_app()
+        try:
+            self.assertEqual(app.hud_header.winfo_parent(), str(app))
+            self.assertEqual(app.status_card.winfo_parent(), str(app))
+            self.assertEqual(app.signal_card.winfo_parent(), str(app))
+            self.assertEqual(app.text.winfo_parent(), str(app.status_card))
+            self.assertEqual(app.battery.winfo_parent(), str(app.signal_card))
+            self.assertTrue(any(str(widget.cget("text")) == "CODEX" for widget in widgets(app.hud_header)))
+            app.set_compact(True)
+            app.update_idletasks()
+            self.assertFalse(app.hud_header.winfo_ismapped())
+            self.assertFalse(app.status_card.winfo_ismapped())
+            self.assertTrue(app.signal_card.winfo_ismapped())
+            self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
+        finally:
+            self.destroy_app(app)
+
     def test_hud_cursor_explains_drag_and_lock_state(self):
         app = self.new_app()
         try:
