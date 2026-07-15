@@ -311,6 +311,23 @@ def show_settings_dialog(owner):
     preview_card = tk.Frame(preview, bg=COLORS["background"], padx=10, pady=10, width=190, height=145)
     preview_card.pack(fill="both", expand=True)
     preview_card.pack_propagate(False)
+    preview_header = tk.Frame(preview_card, bg=COLORS["surface_alt"], height=18)
+    preview_header.pack(fill="x")
+    preview_header.pack_propagate(False)
+    preview_title = tk.Label(preview_header, text="CODEX", bg=COLORS["surface_alt"], fg=COLORS["accent"], anchor="w", font=(FONT_FAMILY, 8, "bold"))
+    preview_title.pack(side="left", padx=6, fill="y")
+    preview_live = tk.Label(preview_header, text="LIVE", bg=COLORS["surface_alt"], fg=COLORS["success"], anchor="e", font=(FONT_FAMILY, 8))
+    preview_live.pack(side="right", padx=6, fill="y")
+    preview_signal_panel = tk.Frame(preview_card, bg=COLORS["surface"], width=42)
+    preview_signal_panel.pack(side="right", fill="y", padx=(6, 0))
+    preview_signal_panel.pack_propagate(False)
+    preview_signal_title = tk.Label(preview_signal_panel, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 7, "bold"))
+    preview_signal_title.pack(fill="x", padx=4, pady=(3, 1))
+    preview_signal_cells = []
+    for index in range(10):
+        cell = tk.Label(preview_signal_panel, text="", width=1, height=1, bd=1, relief="solid", bg="#374151", font=(FONT_FAMILY, 1))
+        cell.grid(row=1 + index // 2, column=index % 2, padx=1, pady=1)
+        preview_signal_cells.append(cell)
     tk.Label(preview_card, text="●  Codex Outputting", bg=COLORS["background"], fg=COLORS["success"], anchor="w", font=(FONT_FAMILY, 10, "bold")).pack(fill="x")
     tk.Label(preview_card, text="Active conversations  1", bg=COLORS["background"], fg=COLORS["muted"], anchor="w").pack(fill="x", pady=(5, 8))
     preview_source = tk.Label(preview_card, text="", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 8))
@@ -321,8 +338,8 @@ def show_settings_dialog(owner):
         preview_rows[row_id].pack(fill="x", pady=2)
     preview_meta = tk.Label(preview_card, text="", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 8))
     preview_meta.pack(fill="x", pady=(6, 0))
-    preview_activity = preview_card.winfo_children()[0]
-    preview_conversations = preview_card.winfo_children()[1]
+    preview_activity = preview_card.winfo_children()[2]
+    preview_conversations = preview_card.winfo_children()[3]
     preview_row_keys = (
         ("five_hour", "preview_five_hour_quota"),
         ("weekly", "preview_weekly_quota"),
@@ -337,6 +354,10 @@ def show_settings_dialog(owner):
         background = draft["background_color"]
         for widget in (preview_card, *preview_card.winfo_children()):
             widget.configure(bg=background)
+        for widget in (preview_header, preview_title, preview_live):
+            widget.configure(bg=COLORS["surface_alt"])
+        for widget in (preview_signal_panel, preview_signal_title):
+            widget.configure(bg=COLORS["surface"])
         for widget in (preview_conversations, preview_source, preview_meta):
             widget.configure(fg=draft["font_color"])
         for widget, color in (
@@ -357,6 +378,9 @@ def show_settings_dialog(owner):
         for row_id, text_key in preview_row_keys:
             preview_rows[row_id].configure(text=translate(ui_language, text_key))
         selected_source = int(battery_source.get())
+        lit_cells = 6 if selected_source == 0 else 8
+        for index, cell in enumerate(preview_signal_cells):
+            cell.configure(bg=COLORS["accent"] if index < lit_cells else "#374151")
         for source_index, label in source_labels.items():
             label.configure(
                 fg=COLORS["accent"] if source_index == selected_source else COLORS["muted"]

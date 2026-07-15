@@ -142,6 +142,35 @@ class UiRedesignTests(unittest.TestCase):
                     self.destroy_app(app)
                 Path.home = original_home
 
+    def test_live_preview_matches_signal_hud_card_composition(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            preview_card = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 190
+            )
+            preview_texts = {
+                str(widget.cget("text"))
+                for widget in widgets(preview_card)
+                if isinstance(widget, tk.Label)
+            }
+            self.assertIn("CODEX", preview_texts)
+            self.assertIn("SIGNAL", preview_texts)
+            signal_cells = [
+                widget
+                for widget in widgets(preview_card)
+                if isinstance(widget, tk.Label) and int(widget.cget("width")) == 1
+            ]
+            self.assertEqual(len(signal_cells), 10)
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
     def test_settings_controls_use_dark_theme_and_primary_action(self):
         app = self.new_app()
         try:
