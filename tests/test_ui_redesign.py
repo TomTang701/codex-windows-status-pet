@@ -501,7 +501,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(selected_label.cget("cursor"), "hand2")
             self.assertEqual(selected_label.cget("bg"), "#172033")
             self.assertEqual(selected_label.cget("highlightthickness"), 1)
-            self.assertEqual(other_label.cget("bg"), "#0b1220")
+            self.assertEqual(other_label.cget("bg"), app.settings["background_color"])
             other_label.invoke()
             app.update_idletasks()
             self.assertEqual(tkfont.Font(root=app, font=other_label.cget("font")).cget("weight"), "bold")
@@ -554,6 +554,13 @@ class UiRedesignTests(unittest.TestCase):
                 background_button.invoke()
             self.assertEqual(preview_card.cget("bg"), "#223344")
             self.assertEqual(background_button.cget("highlightbackground"), "#223344")
+            source_labels = {
+                str(widget.cget("text")): widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Button) and str(widget.cget("text")) in {"5-hour", "Weekly"}
+            }
+            self.assertEqual(source_labels["5-hour"].cget("bg"), "#223344")
+            self.assertEqual(source_labels["Weekly"].cget("bg"), "#172033")
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()

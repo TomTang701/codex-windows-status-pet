@@ -487,11 +487,11 @@ def show_settings_dialog(owner):
         for source_index, label in source_labels.items():
             selected = source_index == selected_source
             label.configure(
-                bg=COLORS["surface_alt"] if selected else COLORS["background"],
+                bg=COLORS["surface_alt"] if selected else draft["background_color"],
                 fg=COLORS["accent"] if selected else COLORS["muted"],
                 font=(FONT_FAMILY, 9, "bold" if selected else "normal"),
                 highlightthickness=1 if selected else 0,
-                highlightbackground=COLORS["accent"] if selected else COLORS["background"],
+                highlightbackground=COLORS["accent"] if selected else draft["background_color"],
                 highlightcolor=COLORS["accent"],
             )
         for row_id, variable in (("five_hour", show_primary_5h), ("weekly", show_weekly), ("reset_credit", show_reset_credit)):
