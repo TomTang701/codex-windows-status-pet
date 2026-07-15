@@ -317,6 +317,11 @@ class Pet(tk.Tk):
         self.status_card.configure(bg=bg, highlightbackground=COLORS["border"])
         self.signal_card.configure(bg=COLORS["surface"], highlightbackground=COLORS["border"])
         self.signal_title.configure(bg=COLORS["surface"], text=self._signal_caption(self.settings["battery_quota_source"], self.settings["language"]))
+        active = bool(self.latest_activity.get("active", 0))
+        self.hud_status.configure(
+            text=translate(self.settings["language"], "output" if active else "idle"),
+            fg=COLORS["success"] if active else COLORS["muted"],
+        )
         self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.set_visible_rows(self.settings)

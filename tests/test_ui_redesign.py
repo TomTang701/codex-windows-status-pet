@@ -149,6 +149,19 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_language_apply_updates_hud_status_without_waiting_for_refresh(self):
+        from api.localization_api import translate
+
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.latest_activity = {"active": 1}
+            app.render_status()
+            app.apply_settings({**app.settings, "language": "zh-CN"})
+            self.assertEqual(app.hud_status.cget("text"), translate("zh-CN", "output"))
+        finally:
+            self.destroy_app(app)
+
     def test_settings_surface_has_navigation_preview_and_transactional_apply(self):
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)
