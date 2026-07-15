@@ -760,9 +760,10 @@ class Pet(tk.Tk):
         remaining = battery.get("remaining_percent")
         self.signal_value.configure(
             text="--" if remaining is None else f"{remaining}%",
-            fg=(COLORS["danger"] if remaining is None else (
-                COLORS["accent"] if self.settings["battery_quota_source"] == "primary_5h" else COLORS["accent_alt"]
-            )),
+            fg=self._signal_value_color(
+                remaining,
+                self.settings["battery_quota_source"],
+            ),
         )
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
         self.battery.configure_presentation(presentation["battery"])
@@ -785,6 +786,15 @@ class Pet(tk.Tk):
     @staticmethod
     def _signal_caption(source, language):
         return translate(language, "five_hour" if source == "primary_5h" else "weekly")
+
+    @staticmethod
+    def _signal_value_color(remaining, source):
+        """Use source color while healthy and health colors as quota gets low."""
+        if remaining is None or remaining < 10:
+            return COLORS["danger"]
+        if remaining < 50:
+            return COLORS["warning"]
+        return COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"]
 
     def poll(self):
         if self.closing:

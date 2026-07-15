@@ -167,6 +167,15 @@ class UiRedesignTests(unittest.TestCase):
             app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "weekly"})
             app.render_status()
             self.assertEqual(app.signal_value.cget("text"), "80%")
+            self.assertEqual(app.signal_value.cget("fg"), "#818cf8")
+            app.latest_quota["rateLimits"]["secondary"]["usedPercent"] = 80
+            app.render_status()
+            self.assertEqual(app.signal_value.cget("text"), "20%")
+            self.assertEqual(app.signal_value.cget("fg"), "#fbbf24")
+            app.latest_quota["rateLimits"]["secondary"]["usedPercent"] = 95
+            app.render_status()
+            self.assertEqual(app.signal_value.cget("text"), "5%")
+            self.assertEqual(app.signal_value.cget("fg"), "#f87171")
             app.set_compact(True)
             app.update_idletasks()
             self.assertFalse(app.signal_value.winfo_ismapped())
