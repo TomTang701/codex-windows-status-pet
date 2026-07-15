@@ -420,6 +420,18 @@ def show_settings_dialog(owner):
         font=(FONT_FAMILY, 8),
     )
     preview_source.pack(fill="x", pady=(0, 4))
+    preview_quota_divider = tk.Frame(preview_card, bg=COLORS["border"], height=1)
+    preview_quota_divider.pack(fill="x", pady=(1, 0))
+    preview_quota_divider.pack_propagate(False)
+    preview_quota_label = tk.Label(
+        preview_quota_divider,
+        text="QUOTA",
+        bg=COLORS["background"],
+        fg=COLORS["muted"],
+        font=(FONT_FAMILY, 6, "bold"),
+        padx=4,
+    )
+    preview_quota_label.place(relx=0.5, rely=0.5, anchor="center")
     preview_rows = {}
     for row_id, label, color in (("five_hour", "5-hour quota   -- / --", COLORS["accent"]), ("weekly", "Weekly quota   88%", COLORS["accent_alt"]), ("reset_credit", "Reset Credit   4 times", COLORS["warning"])):
         preview_rows[row_id] = tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w", font=(FONT_FAMILY, 8))
@@ -455,6 +467,8 @@ def show_settings_dialog(owner):
             widget.configure(bg=COLORS["surface_alt"])
         for widget in (preview_signal_panel, preview_signal_title, preview_signal_cells_frame, preview_signal_value):
             widget.configure(bg=COLORS["surface"])
+        preview_quota_divider.configure(bg=COLORS["border"])
+        preview_quota_label.configure(bg=background, fg=COLORS["muted"])
         for widget in (preview_conversations, preview_source, preview_meta):
             widget.configure(fg=draft["font_color"])
         for widget, color in (
@@ -471,6 +485,7 @@ def show_settings_dialog(owner):
     def refresh_preview(window_scale_value=None, alpha_value=None):
         refresh_preview_palette()
         preview_status_section.configure(text=text("status"))
+        preview_quota_label.configure(text=translate(ui_language, "quota"))
         preview_activity.configure(text=translate(ui_language, "preview_output"), font=(FONT_FAMILY, 7, "bold"))
         preview_live.configure(text=translate(ui_language, "output"), fg=COLORS["success"])
         preview_conversations.configure(text=translate(ui_language, "preview_active_conversations"))

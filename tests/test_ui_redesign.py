@@ -486,6 +486,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertIn("CODEX", preview_texts)
             self.assertIn("Status", preview_texts)
             self.assertIn("SIGNAL", preview_texts)
+            self.assertIn("QUOTA", preview_texts)
             preview_live = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Outputting")
             self.assertEqual(preview_live.cget("fg"), "#4ade80")
             preview_activity = next(
@@ -733,6 +734,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertIn("\u884c\u53ef\u89c1\u6027", texts)
             self.assertIn("\u25cf  Codex \u8f93\u51fa\u4e2d", texts)
             self.assertIn("\u6d3b\u52a8\u5bf9\u8bdd 1 \u4e2a", texts)
+            self.assertIn("\u989d\u5ea6", texts)
             self.assertIn("\u6bcf\u5468\u989d\u5ea6   88%", texts)
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
