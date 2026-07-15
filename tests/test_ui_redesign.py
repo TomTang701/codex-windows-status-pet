@@ -352,6 +352,7 @@ class UiRedesignTests(unittest.TestCase):
             app.quota_state.last_success_at = datetime.now(timezone.utc) - timedelta(seconds=601)
             app.render_status()
             self.assertEqual(app.signal_age.cget("fg"), "#fbbf24")
+            self.assertEqual(app.signal_value.cget("fg"), "#94a3b8")
             self.assertEqual(app.battery.cells[0].cget("bg"), "#64748b")
             self.assertEqual(app.battery.cells[9].cget("bg"), "#374151")
         finally:

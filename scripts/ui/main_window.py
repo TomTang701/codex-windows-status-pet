@@ -902,9 +902,15 @@ class Pet(tk.Tk):
         remaining = battery.get("remaining_percent")
         self.signal_value.configure(
             text="--" if remaining is None else f"{remaining}%",
-            fg=self._signal_value_color(
-                remaining,
-                self.settings["battery_quota_source"],
+            fg=(
+                COLORS["danger"]
+                if quota_state in {"unavailable", "tray_error"}
+                else COLORS["muted"]
+                if quota_state == "stale"
+                else self._signal_value_color(
+                    remaining,
+                    self.settings["battery_quota_source"],
+                )
             ),
         )
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
