@@ -530,6 +530,14 @@ class UiRedesignTests(unittest.TestCase):
             self.assertIn("Status", preview_texts)
             self.assertIn("SIGNAL", preview_texts)
             self.assertIn("QUOTA", preview_texts)
+            self.assertIn("Weekly", preview_texts)
+            self.assertIn("Sync --", preview_texts)
+            preview_signal_title = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "SIGNAL")
+            preview_signal_source = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Weekly")
+            self.assertLessEqual(
+                preview_signal_title.winfo_x() + preview_signal_title.winfo_width(),
+                preview_signal_source.winfo_x(),
+            )
             preview_quota = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "QUOTA")
             self.assertGreaterEqual(preview_quota.winfo_height(), 7)
             preview_live = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Outputting")
@@ -707,7 +715,8 @@ class UiRedesignTests(unittest.TestCase):
                 if isinstance(widget, tk.Label) and "Sync --" in str(widget.cget("text"))
             )
             self.assertEqual(weekly_preview.winfo_manager(), "pack")
-            self.assertEqual(sync_preview.winfo_manager(), "pack")
+            self.assertEqual(sync_preview.winfo_manager(), "place")
+            self.assertGreaterEqual(sync_preview.winfo_y(), 0)
             weekly_toggle = next(
                 widget
                 for widget in widgets(app.settings_dialog)

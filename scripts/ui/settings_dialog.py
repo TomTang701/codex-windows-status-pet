@@ -390,10 +390,14 @@ def show_settings_dialog(owner):
     preview_signal_panel = tk.Frame(preview_card, bg=COLORS["surface"], width=52)
     preview_signal_panel.pack(side="right", fill="y", padx=(6, 0), ipadx=14)
     preview_signal_panel.pack_propagate(False)
-    preview_signal_title = tk.Label(preview_signal_panel, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 7, "bold"))
-    preview_signal_title.pack(fill="x", padx=4, pady=(3, 1))
+    preview_signal_title = tk.Label(preview_signal_panel, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 6, "bold"))
+    preview_signal_title.place(x=2, y=3, anchor="nw")
+    preview_signal_source = tk.Label(preview_signal_panel, text="Weekly", bg=COLORS["surface"], fg=COLORS["accent_alt"], anchor="e", font=(FONT_FAMILY, 6, "bold"))
+    preview_signal_source.place(relx=1, x=-4, y=3, anchor="ne")
+    preview_signal_age = tk.Label(preview_signal_panel, text="Sync --", bg=COLORS["surface"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 6))
+    preview_signal_age.place(x=4, y=18, anchor="nw")
     preview_signal_cells_frame = tk.Frame(preview_signal_panel, bg=COLORS["surface"])
-    preview_signal_cells_frame.pack(fill="x", pady=(1, 0))
+    preview_signal_cells_frame.place(relx=0.5, y=33, anchor="n")
     preview_signal_cells = []
     for index in range(10):
         cell = tk.Label(preview_signal_cells_frame, text="", width=1, height=1, bd=1, relief="solid", bg="#374151", font=(FONT_FAMILY, 1))
@@ -467,7 +471,7 @@ def show_settings_dialog(owner):
             widget.configure(bg=background)
         for widget in (preview_header, preview_title, preview_status_section, preview_live, preview_status_dot):
             widget.configure(bg=COLORS["surface_alt"])
-        for widget in (preview_signal_panel, preview_signal_title, preview_signal_cells_frame, preview_signal_value):
+        for widget in (preview_signal_panel, preview_signal_title, preview_signal_source, preview_signal_age, preview_signal_cells_frame, preview_signal_value):
             widget.configure(bg=COLORS["surface"])
         preview_quota_divider.configure(bg=background)
         preview_quota_rule.configure(bg=COLORS["border"])
@@ -529,6 +533,11 @@ def show_settings_dialog(owner):
         source_name = ("5 小时" if ui_language == "zh-CN" else "5-hour") if battery_source.get() == 0 else ("每周" if ui_language == "zh-CN" else "Weekly")
         sync_prefix = "同步" if ui_language == "zh-CN" else "Sync"
         preview_source.configure(text=f"{source_prefix}: {source_name}\n{sync_prefix} --")
+        preview_signal_source.configure(
+            text=source_name,
+            fg=COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"],
+        )
+        preview_signal_age.configure(text=f"{sync_prefix} --")
         opacity_label = "透明度" if ui_language == "zh-CN" else "alpha"
         preview_meta.configure(
             text=(
