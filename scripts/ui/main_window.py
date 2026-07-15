@@ -195,7 +195,7 @@ class Pet(tk.Tk):
         self.hud_header.pack_propagate(False)
         self.hud_title = tk.Label(self.hud_header, text="CODEX", bg=COLORS["surface_alt"], fg=COLORS["accent"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
         self.hud_title.pack(side="left", padx=(8, 4), fill="y")
-        self.hud_status = tk.Label(self.hud_header, text="LIVE", bg=COLORS["surface_alt"], fg=COLORS["muted"], font=(FONT_FAMILY, 7), anchor="e")
+        self.hud_status = tk.Label(self.hud_header, text=translate(self.settings["language"], "idle"), bg=COLORS["surface_alt"], fg=COLORS["muted"], font=(FONT_FAMILY, 7), anchor="e")
         self.hud_status.pack(side="right", padx=(4, 8), fill="y")
         self.status_card = tk.Frame(self, bg=hud_bg, highlightthickness=1, highlightbackground=COLORS["border"])
         self.signal_card = tk.Frame(self, bg=COLORS["surface"], highlightthickness=1, highlightbackground=COLORS["border"])
@@ -316,7 +316,7 @@ class Pet(tk.Tk):
         self.hud_status.configure(bg=COLORS["surface_alt"])
         self.status_card.configure(bg=bg)
         self.signal_card.configure(bg=COLORS["surface"])
-        self.signal_title.configure(bg=COLORS["surface"], text=self._signal_caption(self.settings["battery_quota_source"]))
+        self.signal_title.configure(bg=COLORS["surface"], text=self._signal_caption(self.settings["battery_quota_source"], self.settings["language"]))
         self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.set_visible_rows(self.settings)
@@ -701,7 +701,7 @@ class Pet(tk.Tk):
         self.hud_header.configure(highlightbackground=border_color)
         active = bool(presentation.get("active_count", 0))
         self.hud_status.configure(
-            text="LIVE" if active else "IDLE",
+            text=translate(self.settings["language"], "output" if active else "idle"),
             fg=COLORS["success"] if active else COLORS["muted"],
         )
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
@@ -723,8 +723,8 @@ class Pet(tk.Tk):
         return COLORS["border"]
 
     @staticmethod
-    def _signal_caption(source):
-        return "PRIMARY" if source == "primary_5h" else "WEEKLY"
+    def _signal_caption(source, language):
+        return translate(language, "five_hour" if source == "primary_5h" else "weekly")
 
     def poll(self):
         if self.closing:

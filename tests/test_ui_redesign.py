@@ -71,7 +71,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.text.winfo_parent(), str(app.status_card))
             self.assertEqual(app.battery.winfo_parent(), str(app.signal_card))
             self.assertTrue(any(str(widget.cget("text")) == "CODEX" for widget in widgets(app.hud_header)))
-            signal_title = next(widget for widget in widgets(app.signal_card) if isinstance(widget, tk.Label) and str(widget.cget("text")) in {"PRIMARY", "WEEKLY"})
+            signal_title = app.signal_title
             self.assertEqual(signal_title.cget("fg"), "#94a3b8")
             app.set_compact(True)
             app.update_idletasks()
@@ -107,6 +107,23 @@ class UiRedesignTests(unittest.TestCase):
             app.render_status()
             self.assertEqual(app.cget("highlightbackground"), "#f87171")
             self.assertEqual(tuple(app.text.labels), ("activity", "progress", "primary_5h", "weekly", "reset_credit"))
+        finally:
+            self.destroy_app(app)
+
+    def test_signal_hud_labels_follow_runtime_language(self):
+        from api.localization_api import translate
+
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "zh-CN", "battery_quota_source": "weekly"})
+            app.latest_activity = {"active": 1, "detail": "输出中", "progress": "活动对话 1 个"}
+            app.render_status()
+            self.assertEqual(app.hud_status.cget("text"), translate("zh-CN", "output"))
+            self.assertEqual(app.signal_title.cget("text"), translate("zh-CN", "weekly"))
+            app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "primary_5h"})
+            app.render_status()
+            self.assertEqual(app.hud_status.cget("text"), translate("en", "output"))
+            self.assertEqual(app.signal_title.cget("text"), translate("en", "five_hour"))
         finally:
             self.destroy_app(app)
 
