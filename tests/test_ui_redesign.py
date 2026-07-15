@@ -838,6 +838,12 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(weekly_label.cget("fg"), "#22d3ee")
             self.assertTrue(any(widget.cget("text") == "80%" for widget in widgets(app.settings_dialog) if isinstance(widget, tk.Label)))
             self.assertEqual(app.settings["battery_quota_source"], "weekly")
+            five_hour_quota = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and widget.cget("text") == "5-hour quota   --"
+            )
+            self.assertNotIn("/ --", five_hour_quota.cget("text"))
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
