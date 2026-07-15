@@ -532,7 +532,13 @@ class UiRedesignTests(unittest.TestCase):
                 for widget in widgets(app.settings_dialog)
                 if isinstance(widget, tk.Label) and widget.cget("text") == "Weekly quota   88%"
             )
+            sync_preview = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and "Sync --" in str(widget.cget("text"))
+            )
             self.assertEqual(weekly_preview.winfo_manager(), "pack")
+            self.assertEqual(sync_preview.winfo_manager(), "pack")
             weekly_toggle = next(
                 widget
                 for widget in widgets(app.settings_dialog)

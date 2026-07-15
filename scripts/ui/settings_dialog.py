@@ -380,7 +380,15 @@ def show_settings_dialog(owner):
     preview_signal_value.place(relx=1, rely=1, x=-4, y=-3, anchor="se")
     tk.Label(preview_card, text="●  Codex Outputting", bg=COLORS["background"], fg=COLORS["success"], anchor="w", font=(FONT_FAMILY, 10, "bold")).pack(fill="x")
     tk.Label(preview_card, text="Active conversations  1", bg=COLORS["background"], fg=COLORS["muted"], anchor="w").pack(fill="x", pady=(5, 8))
-    preview_source = tk.Label(preview_card, text="", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 8))
+    preview_source = tk.Label(
+        preview_card,
+        text="",
+        bg=COLORS["background"],
+        fg=COLORS["muted"],
+        anchor="w",
+        justify="left",
+        font=(FONT_FAMILY, 8),
+    )
     preview_source.pack(fill="x", pady=(0, 4))
     preview_rows = {}
     for row_id, label, color in (("five_hour", "5-hour quota   -- / --", COLORS["accent"]), ("weekly", "Weekly quota   88%", COLORS["accent_alt"]), ("reset_credit", "Reset Credit   4 times", COLORS["warning"])):
@@ -465,7 +473,8 @@ def show_settings_dialog(owner):
         preview_prefix = "预览" if ui_language == "zh-CN" else "Preview"
         source_prefix = "数据源" if ui_language == "zh-CN" else "Source"
         source_name = ("5 小时" if ui_language == "zh-CN" else "5-hour") if battery_source.get() == 0 else ("每周" if ui_language == "zh-CN" else "Weekly")
-        preview_source.configure(text=f"{source_prefix}: {source_name}")
+        sync_prefix = "同步" if ui_language == "zh-CN" else "Sync"
+        preview_source.configure(text=f"{source_prefix}: {source_name}\n{sync_prefix} --")
         opacity_label = "透明度" if ui_language == "zh-CN" else "alpha"
         preview_meta.configure(
             text=(
