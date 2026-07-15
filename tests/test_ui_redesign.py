@@ -212,6 +212,26 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_unavailable_quota_mutes_cached_battery(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en", "battery_quota_source": "primary_5h"})
+            app.latest_quota = {
+                "rateLimits": {
+                    "primary": {"usedPercent": 20},
+                    "secondary": {"usedPercent": 20},
+                },
+                "rateLimitResetCredits": {"availableCount": 4},
+            }
+            app.quota_state.update(app.latest_quota)
+            app.render_status()
+            self.assertEqual(app.battery.cells[7].cget("bg"), "#a3e635")
+            app.quota_state.state = "unavailable"
+            app.render_status()
+            self.assertTrue(all(cell.cget("bg") == "#6b7280" for cell in app.battery.cells))
+        finally:
+            self.destroy_app(app)
+
     def test_long_error_status_fits_inside_the_header(self):
         app = self.new_app()
         try:

@@ -28,10 +28,10 @@ class BatteryView(tk.Frame):
     def event_widgets(self):
         return (self, *self.cells)
 
-    def configure_presentation(self, presentation, *, stale=False):
+    def configure_presentation(self, presentation, *, stale=False, unavailable=False):
         available = bool(presentation.get("available"))
         for cell, state in zip(self.cells, presentation.get("segments", ())):
-            color = STALE_COLOR if stale and available and state["lit"] else state["color"] if available and state["lit"] else (
+            color = UNAVAILABLE_COLOR if unavailable else STALE_COLOR if stale and available and state["lit"] else state["color"] if available and state["lit"] else (
                 INACTIVE_COLOR if available else UNAVAILABLE_COLOR
             )
             cell.configure(bg=color)

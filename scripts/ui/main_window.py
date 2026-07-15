@@ -916,7 +916,9 @@ class Pet(tk.Tk):
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
         self._apply_status_row_colors(presentation)
         self.battery.configure_presentation(
-            presentation["battery"], stale=presentation.get("quota_state") == "stale"
+            presentation["battery"],
+            stale=presentation.get("quota_state") == "stale",
+            unavailable=presentation.get("quota_state") in {"unavailable", "tray_error"},
         )
 
     @staticmethod
