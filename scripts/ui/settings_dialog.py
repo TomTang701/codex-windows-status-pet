@@ -243,7 +243,7 @@ def show_settings_dialog(owner):
     translated(themed_label(body, text("refresh_interval")), "refresh_interval").grid(row=3, column=0, sticky="w")
     refresh_interval_entry = themed_entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only)
     refresh_interval_entry.grid(row=3, column=1, sticky="w")
-    topmost_checkbutton = themed_checkbutton(body, text("always_on_top"), topmost)
+    topmost_checkbutton = themed_checkbutton(body, text("always_on_top"), topmost, command=lambda: refresh_preview())
     translated(topmost_checkbutton, "always_on_top").grid(row=4, column=0, sticky="w")
     translated(themed_checkbutton(body, text("lock_position"), locked), "lock_position").grid(row=4, column=1, sticky="w")
     quota_group_divider = tk.Frame(body, bg=COLORS["border"], height=1)

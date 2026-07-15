@@ -233,6 +233,15 @@ class UiRedesignTests(unittest.TestCase):
                 if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Preview")
             )
             self.assertIn("150%", preview_meta.cget("text"))
+            topmost = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Checkbutton) and widget.cget("text") == "Always on top"
+            )
+            opening_topmost = "topmost" in preview_meta.cget("text")
+            topmost.invoke()
+            app.update_idletasks()
+            self.assertIn("normal" if opening_topmost else "topmost", preview_meta.cget("text"))
             self.assertEqual(app.settings["window_scale_percent"], opening_scale)
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
