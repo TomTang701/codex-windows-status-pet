@@ -309,8 +309,19 @@ def show_settings_dialog(owner):
         preview_rows[row_id].pack(fill="x", pady=2)
     preview_meta = tk.Label(preview_card, text="", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 8))
     preview_meta.pack(fill="x", pady=(6, 0))
+    preview_activity = preview_card.winfo_children()[0]
+    preview_conversations = preview_card.winfo_children()[1]
+    preview_row_keys = (
+        ("five_hour", "preview_five_hour_quota"),
+        ("weekly", "preview_weekly_quota"),
+        ("reset_credit", "preview_reset_credit"),
+    )
 
     def refresh_preview(window_scale_value=None, alpha_value=None):
+        preview_activity.configure(text=translate(ui_language, "preview_output"))
+        preview_conversations.configure(text=translate(ui_language, "preview_active_conversations"))
+        for row_id, text_key in preview_row_keys:
+            preview_rows[row_id].configure(text=translate(ui_language, text_key))
         for row_id, variable in (("five_hour", show_primary_5h), ("weekly", show_weekly), ("reset_credit", show_reset_credit)):
             row = preview_rows[row_id]
             if variable.get():
@@ -432,6 +443,7 @@ def show_settings_dialog(owner):
         }
         language_combo.configure(values=tuple(language_labels.values()))
         language.set(language_labels[draft["language"]])
+        refresh_preview()
 
     def apply_draft():
         if not sync_draft():

@@ -183,6 +183,9 @@ class UiRedesignTests(unittest.TestCase):
             self.assertIn("\u901a\u7528", texts)
             self.assertIn("\u9884\u89c8", texts)
             self.assertIn("\u884c\u53ef\u89c1\u6027", texts)
+            self.assertIn("\u25cf  Codex \u8f93\u51fa\u4e2d", texts)
+            self.assertIn("\u6d3b\u52a8\u5bf9\u8bdd 1 \u4e2a", texts)
+            self.assertIn("\u6bcf\u5468\u989d\u5ea6   88%", texts)
         finally:
             if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
                 app.settings_dialog.destroy()
