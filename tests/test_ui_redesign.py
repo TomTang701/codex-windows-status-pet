@@ -94,6 +94,9 @@ class UiRedesignTests(unittest.TestCase):
     def test_hud_cursor_explains_drag_and_lock_state(self):
         app = self.new_app()
         try:
+            for widget in (app.hud_header, app.status_card, app.signal_card, app.signal_title, app.signal_value):
+                self.assertTrue(widget.bind("<Button-1>"))
+                self.assertTrue(widget.bind("<Button-3>"))
             app.apply_settings({**app.settings, "locked": False})
             self.assertEqual(app.cget("cursor"), "fleur")
             self.assertEqual(app.text.labels["activity"].cget("cursor"), "fleur")

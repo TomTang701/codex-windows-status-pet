@@ -220,14 +220,14 @@ class Pet(tk.Tk):
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
         self.bind("<Leave>", self._pointer_leave)
-        for widget in (*self.text.event_widgets, *self.battery.event_widgets):
+        self._drag = (0, 0)
+        for widget in self._hud_event_widgets():
             widget.bind("<Button-3>", self.menu)
             widget.bind("<Enter>", self._pointer_enter)
             widget.bind("<Leave>", self._pointer_leave)
             widget.bind("<B1-Motion>", self.drag)
             widget.bind("<Button-1>", self.start_drag)
             widget.bind("<ButtonRelease-1>", self.finish_drag)
-        self._drag = (0, 0)
         self.apply_settings(self.settings)
         self.set_compact(self.settings["compact"])
         self.tray = TrayIcon3(self.tray_actions, self.settings["language"])
