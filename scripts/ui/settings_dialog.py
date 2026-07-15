@@ -130,18 +130,20 @@ def show_settings_dialog(owner):
             **kwargs,
         )
 
-    def themed_checkbutton(parent, value, variable):
-        return tk.Checkbutton(
-            parent,
-            text=value,
-            variable=variable,
-            bg=COLORS["background"],
-            fg=COLORS["text"],
-            activebackground=COLORS["background"],
-            activeforeground=COLORS["accent"],
-            selectcolor=COLORS["surface_alt"],
-            font=(FONT_FAMILY, 9),
-        )
+    def themed_checkbutton(parent, value, variable, command=None):
+        options = {
+            "text": value,
+            "variable": variable,
+            "bg": COLORS["background"],
+            "fg": COLORS["text"],
+            "activebackground": COLORS["background"],
+            "activeforeground": COLORS["accent"],
+            "selectcolor": COLORS["surface_alt"],
+            "font": (FONT_FAMILY, 9),
+        }
+        if command is not None:
+            options["command"] = command
+        return tk.Checkbutton(parent, **options)
 
     def themed_scale(parent, **kwargs):
         return tk.Scale(
@@ -189,7 +191,7 @@ def show_settings_dialog(owner):
         return tk.Button(parent, **options)
 
     translated(themed_label(body, text("opacity")), "opacity").grid(row=0, column=0, sticky="w")
-    themed_scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha).grid(row=0, column=1)
+    themed_scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha, command=lambda value: refresh_preview(alpha_value=value)).grid(row=0, column=1)
     translated(themed_label(body, text("window_size")), "window_size").grid(row=1, column=0, sticky="w")
     themed_scale(
         body,
@@ -200,6 +202,7 @@ def show_settings_dialog(owner):
         length=230,
         variable=window_scale,
         label="%",
+        command=lambda value: refresh_preview(window_scale_value=value),
     ).grid(row=1, column=1)
     translated(themed_label(body, text("default_position")), "default_position").grid(row=2, column=0, sticky="w")
     position = tk.Frame(body, bg=COLORS["background"])
@@ -238,9 +241,9 @@ def show_settings_dialog(owner):
         fg=COLORS["accent"],
         font=(FONT_FAMILY, 10, "bold"),
     ).grid(row=8, column=0, columnspan=2, sticky="w", pady=(8, 2))
-    translated(themed_checkbutton(body, text("show_five_hour"), show_primary_5h), "show_five_hour").grid(row=10, column=0, sticky="w")
-    translated(themed_checkbutton(body, text("show_weekly"), show_weekly), "show_weekly").grid(row=10, column=1, sticky="w")
-    translated(themed_checkbutton(body, text("show_reset_credit"), show_reset_credit), "show_reset_credit").grid(row=11, column=0, sticky="w")
+    translated(themed_checkbutton(body, text("show_five_hour"), show_primary_5h, command=lambda: refresh_preview()), "show_five_hour").grid(row=10, column=0, sticky="w")
+    translated(themed_checkbutton(body, text("show_weekly"), show_weekly, command=lambda: refresh_preview()), "show_weekly").grid(row=10, column=1, sticky="w")
+    translated(themed_checkbutton(body, text("show_reset_credit"), show_reset_credit, command=lambda: refresh_preview()), "show_reset_credit").grid(row=11, column=0, sticky="w")
 
     preview = tk.LabelFrame(
         body,
@@ -257,8 +260,31 @@ def show_settings_dialog(owner):
     preview_card.pack_propagate(False)
     tk.Label(preview_card, text="●  Codex Outputting", bg=COLORS["background"], fg=COLORS["success"], anchor="w", font=(FONT_FAMILY, 10, "bold")).pack(fill="x")
     tk.Label(preview_card, text="Active conversations  1", bg=COLORS["background"], fg=COLORS["muted"], anchor="w").pack(fill="x", pady=(5, 8))
-    for label, color in (("5-hour quota   -- / --", COLORS["accent"]), ("Weekly quota   88%", COLORS["accent_alt"]), ("Reset Credit   4 times", COLORS["warning"])):
-        tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w").pack(fill="x", pady=2)
+    preview_rows = {}
+    for row_id, label, color in (("five_hour", "5-hour quota   -- / --", COLORS["accent"]), ("weekly", "Weekly quota   88%", COLORS["accent_alt"]), ("reset_credit", "Reset Credit   4 times", COLORS["warning"])):
+        preview_rows[row_id] = tk.Label(preview_card, text=label, bg=COLORS["background"], fg=color, anchor="w")
+        preview_rows[row_id].pack(fill="x", pady=2)
+    preview_meta = tk.Label(preview_card, text="", bg=COLORS["background"], fg=COLORS["muted"], anchor="w", font=(FONT_FAMILY, 8))
+    preview_meta.pack(fill="x", pady=(6, 0))
+
+    def refresh_preview(window_scale_value=None, alpha_value=None):
+        for row_id, variable in (("five_hour", show_primary_5h), ("weekly", show_weekly), ("reset_credit", show_reset_credit)):
+            row = preview_rows[row_id]
+            if variable.get():
+                if row.winfo_manager() == "":
+                    row.pack(fill="x", pady=2)
+            else:
+                row.pack_forget()
+        metrics = derive_window_metrics(window_scale_value if window_scale_value is not None else window_scale.get())
+        topmost_state = "topmost" if topmost.get() else "normal"
+        opacity_value = alpha_value if alpha_value is not None else alpha.get()
+        preview_meta.configure(
+            text=f"Preview · {metrics.scale_percent}% · opacity {round(float(opacity_value) * 100)}% · {topmost_state}"
+        )
+
+    window_scale.trace_add("write", lambda *_args: refresh_preview())
+    alpha.trace_add("write", lambda *_args: refresh_preview())
+    refresh_preview()
 
     def choose_font():
         chosen = colorchooser.askcolor(color=draft["font_color"], parent=dialog)[1]
@@ -362,6 +388,7 @@ def show_settings_dialog(owner):
         battery_source.set(
             0 if draft["battery_quota_source"] == "primary_5h" else 1
         )
+        refresh_preview()
 
     buttons = tk.Frame(body, bg=COLORS["background"])
     buttons.grid(row=12, column=0, columnspan=3, pady=(14, 0))

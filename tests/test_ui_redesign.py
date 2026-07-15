@@ -124,6 +124,46 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_live_preview_tracks_visibility_and_window_scale_draft(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            opening_scale = app.settings["window_scale_percent"]
+            weekly_preview = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and widget.cget("text") == "Weekly quota   88%"
+            )
+            self.assertEqual(weekly_preview.winfo_manager(), "pack")
+            weekly_toggle = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Checkbutton) and widget.cget("text") == "Show weekly quota"
+            )
+            weekly_toggle.invoke()
+            app.update_idletasks()
+            self.assertEqual(weekly_preview.winfo_manager(), "")
+            scale = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Scale) and float(widget.cget("to")) == 200.0
+            )
+            scale.set(150)
+            app.update_idletasks()
+            preview_meta = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Preview")
+            )
+            self.assertIn("150%", preview_meta.cget("text"))
+            self.assertEqual(app.settings["window_scale_percent"], opening_scale)
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
     def test_context_menu_uses_hud_surface_and_keeps_actions(self):
         app = self.new_app()
         try:
