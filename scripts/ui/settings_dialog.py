@@ -91,7 +91,7 @@ def show_settings_dialog(owner):
         "zh-CN": ("\u901a\u7528", "\u5916\u89c2", "\u989d\u5ea6\u663e\u793a", "\u884c\u4e3a", "\u9ad8\u7ea7"),
     }
     for index, section in enumerate(section_texts[ui_language]):
-        navigation_label = tk.Label(
+        navigation_label = tk.Button(
             navigation,
             text=section,
             bg=COLORS["surface_alt"] if index == 0 else COLORS["surface"],
@@ -100,6 +100,11 @@ def show_settings_dialog(owner):
             anchor="w",
             padx=8,
             pady=7,
+            relief="flat",
+            bd=0,
+            activebackground=COLORS["surface_alt"],
+            activeforeground=COLORS["accent"],
+            highlightthickness=0,
         )
         navigation_label.pack(fill="x", pady=1)
         navigation_section_labels.append(navigation_label)
@@ -203,9 +208,10 @@ def show_settings_dialog(owner):
         return tk.Button(parent, **options)
 
     translated(themed_label(body, text("opacity")), "opacity").grid(row=0, column=0, sticky="w")
-    themed_scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha, command=lambda value: refresh_preview(alpha_value=value)).grid(row=0, column=1)
+    opacity_scale = themed_scale(body, from_=0.25, to=1.0, resolution=0.05, orient="horizontal", length=230, variable=alpha, command=lambda value: refresh_preview(alpha_value=value))
+    opacity_scale.grid(row=0, column=1)
     translated(themed_label(body, text("window_size")), "window_size").grid(row=1, column=0, sticky="w")
-    themed_scale(
+    window_scale_control = themed_scale(
         body,
         from_=MIN_WINDOW_SCALE_PERCENT,
         to=MAX_WINDOW_SCALE_PERCENT,
@@ -215,7 +221,8 @@ def show_settings_dialog(owner):
         variable=window_scale,
         label="%",
         command=lambda value: refresh_preview(window_scale_value=value),
-    ).grid(row=1, column=1)
+    )
+    window_scale_control.grid(row=1, column=1)
     translated(themed_label(body, text("default_position")), "default_position").grid(row=2, column=0, sticky="w")
     position = tk.Frame(body, bg=COLORS["background"])
     position.grid(row=2, column=1, sticky="w")
@@ -225,13 +232,15 @@ def show_settings_dialog(owner):
     themed_label(position, ", ", fg=COLORS["muted"], font=(FONT_FAMILY, 9)).pack(side="left")
     themed_entry(position, textvariable=position_y, width=8, validate="key", validatecommand=digit_or_signed).pack(side="left")
     translated(themed_label(body, text("refresh_interval")), "refresh_interval").grid(row=3, column=0, sticky="w")
-    themed_entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only).grid(row=3, column=1, sticky="w")
-    translated(themed_checkbutton(body, text("always_on_top"), topmost), "always_on_top").grid(row=4, column=0, sticky="w")
+    refresh_interval_entry = themed_entry(body, textvariable=refresh_interval, width=8, validate="key", validatecommand=digits_only)
+    refresh_interval_entry.grid(row=3, column=1, sticky="w")
+    topmost_checkbutton = themed_checkbutton(body, text("always_on_top"), topmost)
+    translated(topmost_checkbutton, "always_on_top").grid(row=4, column=0, sticky="w")
     translated(themed_checkbutton(body, text("lock_position"), locked), "lock_position").grid(row=4, column=1, sticky="w")
     translated(themed_label(body, text("battery_content")), "battery_content").grid(row=6, column=0, sticky="w")
     source_control = tk.Frame(body, bg=COLORS["background"])
     source_control.grid(row=6, column=1, sticky="w")
-    themed_scale(
+    battery_source_scale = themed_scale(
         source_control,
         from_=0,
         to=1,
@@ -240,7 +249,8 @@ def show_settings_dialog(owner):
         showvalue=False,
         length=140,
         variable=battery_source,
-    ).grid(row=0, column=0, columnspan=2)
+    )
+    battery_source_scale.grid(row=0, column=0, columnspan=2)
     translated(themed_label(source_control, text("five_hour"), fg=COLORS["muted"]), "five_hour").grid(row=1, column=0, sticky="w")
     translated(themed_label(source_control, text("weekly"), fg=COLORS["muted"]), "weekly").grid(row=1, column=1, sticky="e")
     translated(themed_label(body, text("language")), "language").grid(row=7, column=0, sticky="w")
@@ -317,6 +327,27 @@ def show_settings_dialog(owner):
     window_scale.trace_add("write", lambda *_args: refresh_preview())
     alpha.trace_add("write", lambda *_args: refresh_preview())
     refresh_preview()
+
+    focus_targets = (
+        opacity_scale,
+        window_scale_control,
+        battery_source_scale,
+        topmost_checkbutton,
+        refresh_interval_entry,
+    )
+
+    def focus_section(index):
+        for button_index, button in enumerate(navigation_section_labels):
+            active = button_index == index
+            button.configure(
+                bg=COLORS["surface_alt"] if active else COLORS["surface"],
+                fg=COLORS["accent"] if active else COLORS["muted"],
+                font=(FONT_FAMILY, 9, "bold" if active else "normal"),
+            )
+        focus_targets[index].focus_set()
+
+    for index, button in enumerate(navigation_section_labels):
+        button.configure(command=lambda index=index: focus_section(index))
 
     def choose_font():
         chosen = colorchooser.askcolor(color=draft["font_color"], parent=dialog)[1]

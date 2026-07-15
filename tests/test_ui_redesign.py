@@ -208,6 +208,32 @@ class UiRedesignTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             self.destroy_app(app)
 
+    def test_sidebar_navigation_highlights_section_and_focuses_target_control(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            appearance = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Button) and widget.cget("text") == "Appearance"
+            )
+            general = next(
+                widget
+                for widget in widgets(app.settings_dialog)
+                if isinstance(widget, tk.Button) and widget.cget("text") == "General"
+            )
+            self.assertEqual(general.cget("bg"), "#172033")
+            appearance.invoke()
+            self.assertEqual(appearance.cget("bg"), "#172033")
+            self.assertEqual(general.cget("bg"), "#111827")
+            self.assertTrue(app.settings_dialog.focus_get())
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
     def test_context_menu_uses_hud_surface_and_keeps_actions(self):
         app = self.new_app()
         try:
