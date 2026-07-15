@@ -26,6 +26,23 @@ BATTERY_SEGMENT_COLORS = (
 )
 
 
+def battery_health_color(remaining):
+    """Return the solid color represented by the battery's highest lit segment."""
+    try:
+        value = max(0.0, min(100.0, float(remaining)))
+    except (TypeError, ValueError):
+        return "#6b7280"
+    if value >= 81:
+        return "#22c55e"
+    if value >= 61:
+        return "#a3e635"
+    if value >= 41:
+        return "#facc15"
+    if value >= 21:
+        return "#f97316"
+    return "#ef4444"
+
+
 def _percent_left(window):
     if not isinstance(window, dict) or "usedPercent" not in window:
         return "--"

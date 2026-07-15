@@ -16,6 +16,7 @@ try:
         parse_unsigned_integer,
     )
     from api.settings_session_api import SettingsSession
+    from api.status_snapshot_api import battery_health_color
     from api.localization_api import translate
     from api.window_scale_api import (
         MAX_WINDOW_SCALE_PERCENT,
@@ -34,6 +35,7 @@ except ModuleNotFoundError:
         parse_unsigned_integer,
     )
     from scripts.api.settings_session_api import SettingsSession
+    from scripts.api.status_snapshot_api import battery_health_color
     from scripts.api.localization_api import translate
     from scripts.api.window_scale_api import (
         MAX_WINDOW_SCALE_PERCENT,
@@ -429,11 +431,11 @@ def show_settings_dialog(owner):
     preview_signal_progress_track = tk.Frame(
         preview_signal_panel,
         bg=COLORS["surface_alt"],
-        height=3,
+        height=5,
         highlightthickness=1,
         highlightbackground=COLORS["border"],
     )
-    preview_signal_progress_track.place(x=4, y=29, width=48, height=3, anchor="nw")
+    preview_signal_progress_track.place(x=4, y=29, width=48, height=5, anchor="nw")
     preview_signal_progress_fill = tk.Frame(
         preview_signal_progress_track,
         bg=COLORS["accent_alt"],
@@ -473,7 +475,7 @@ def show_settings_dialog(owner):
             track = tk.Frame(
                 preview_card,
                 bg=COLORS["surface_alt"],
-                height=3,
+                height=5,
                 highlightthickness=1,
                 highlightbackground=COLORS["text"],
                 highlightcolor=COLORS["text"],
@@ -549,12 +551,12 @@ def show_settings_dialog(owner):
             preview_rows[row_id].configure(text=translate(ui_language, text_key))
         selected_source = int(battery_source.get())
         lit_cells = 6 if selected_source == 0 else 8
-        source_color = COLORS["accent"] if selected_source == 0 else COLORS["accent_alt"]
+        source_color = battery_health_color(60 if selected_source == 0 else 80)
         preview_signal_progress_fill.configure(bg=source_color)
         preview_signal_progress_fill.place_configure(relwidth=lit_cells / 10)
-        preview_progress_fills["five_hour"].configure(bg=COLORS["accent"])
+        preview_progress_fills["five_hour"].configure(bg=battery_health_color(60))
         preview_progress_fills["five_hour"].place_configure(relwidth=0.6)
-        preview_progress_fills["weekly"].configure(bg=COLORS["accent_alt"])
+        preview_progress_fills["weekly"].configure(bg=battery_health_color(88))
         preview_progress_fills["weekly"].place_configure(relwidth=0.8)
         for index, cell in enumerate(preview_signal_cells):
             cell.configure(bg=COLORS["accent"] if index < lit_cells else "#374151")

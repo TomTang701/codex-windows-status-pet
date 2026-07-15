@@ -5,12 +5,25 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
-from api.status_snapshot_api import battery_presentation, build_status_snapshot
+from api.status_snapshot_api import battery_health_color, battery_presentation, build_status_snapshot
 from api.quota_parse_api import parse_quota_payload
 from api.status_rows_api import ROW_IDS
 
 
 class StatusSnapshotTests(unittest.TestCase):
+    def test_battery_health_color_matches_the_five_segment_palette(self):
+        expected = {
+            100: "#22c55e",
+            80: "#a3e635",
+            60: "#facc15",
+            40: "#f97316",
+            20: "#ef4444",
+            0: "#ef4444",
+        }
+        for remaining, color in expected.items():
+            with self.subTest(remaining=remaining):
+                self.assertEqual(battery_health_color(remaining), color)
+
     def test_each_selected_source_uses_only_its_own_real_quota(self):
         quota = {
             "rateLimits": {

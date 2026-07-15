@@ -142,7 +142,12 @@ class UiRedesignTests(unittest.TestCase):
                 self.assertTrue(track.winfo_ismapped())
                 self.assertGreaterEqual(track.winfo_y(), label.winfo_y())
                 self.assertGreater(track.winfo_width(), 1)
+                self.assertGreaterEqual(track.winfo_height(), 4)
                 self.assertLessEqual(track.winfo_x() + track.winfo_width(), app.text.winfo_width())
+            self.assertEqual(
+                app.text.progress_tracks["primary_5h"].winfo_width(),
+                app.text.progress_tracks["weekly"].winfo_width(),
+            )
         finally:
             self.destroy_app(app)
 
@@ -388,15 +393,15 @@ class UiRedesignTests(unittest.TestCase):
             app.update_idletasks()
             self.assertFalse(hasattr(app, "signal_value"))
             self.assertEqual(float(app.text.progress_fills["weekly"].place_info()["relwidth"]), 0.8)
-            self.assertEqual(app.text.progress_fills["weekly"].cget("bg"), "#818cf8")
+            self.assertEqual(app.text.progress_fills["weekly"].cget("bg"), "#a3e635")
             app.latest_quota["rateLimits"]["secondary"]["usedPercent"] = 80
             app.render_status()
             self.assertEqual(float(app.text.progress_fills["weekly"].place_info()["relwidth"]), 0.2)
-            self.assertEqual(app.text.progress_fills["weekly"].cget("bg"), "#fbbf24")
+            self.assertEqual(app.text.progress_fills["weekly"].cget("bg"), "#ef4444")
             app.latest_quota["rateLimits"]["secondary"]["usedPercent"] = 95
             app.render_status()
             self.assertEqual(float(app.text.progress_fills["weekly"].place_info()["relwidth"]), 0.05)
-            self.assertEqual(app.text.progress_fills["weekly"].cget("bg"), "#f87171")
+            self.assertEqual(app.text.progress_fills["weekly"].cget("bg"), "#ef4444")
             app.set_compact(True)
             app.update_idletasks()
             self.assertFalse(app.text.progress_tracks["weekly"].winfo_ismapped())
@@ -671,10 +676,10 @@ class UiRedesignTests(unittest.TestCase):
             preview_signal_progress_track = next(
                 widget for widget in widgets(preview_card)
                 if isinstance(widget, tk.Frame)
-                and int(widget.cget("height")) == 3
+                and int(widget.cget("height")) == 5
                 and widget.winfo_ismapped()
                 and any(
-                    child.cget("bg") == "#818cf8"
+                    child.cget("bg") == "#22c55e"
                     for child in widget.winfo_children()
                     if isinstance(child, tk.Frame)
                 )
@@ -684,7 +689,7 @@ class UiRedesignTests(unittest.TestCase):
                 if isinstance(widget, tk.Frame)
             )
             self.assertEqual(preview_signal_progress_track.cget("bg"), "#172033")
-            self.assertEqual(preview_signal_progress_fill.cget("bg"), "#818cf8")
+            self.assertEqual(preview_signal_progress_fill.cget("bg"), "#22c55e")
             self.assertEqual(float(preview_signal_progress_fill.place_info()["relwidth"]), 0.8)
             self.assertEqual(preview_signal_progress_track.cget("highlightbackground"), "#e5e7eb")
             self.assertEqual(
@@ -1145,15 +1150,17 @@ class UiRedesignTests(unittest.TestCase):
             progress_track = next(
                 widget
                 for widget in widgets(preview_card)
-                if isinstance(widget, tk.Frame) and int(widget.cget("height")) == 3
+                if isinstance(widget, tk.Frame) and int(widget.cget("height")) == 5
             )
             progress_fill = next(widget for widget in widgets(progress_track) if isinstance(widget, tk.Frame))
             self.assertEqual(float(progress_fill.place_info()["relwidth"]), 0.6)
+            self.assertEqual(progress_fill.cget("bg"), "#facc15")
             source_scale.set(1)
             app.update_idletasks()
             self.assertEqual(five_hour_label.cget("fg"), "#94a3b8")
             self.assertEqual(weekly_label.cget("fg"), "#22d3ee")
             self.assertEqual(float(progress_fill.place_info()["relwidth"]), 0.8)
+            self.assertEqual(progress_fill.cget("bg"), "#a3e635")
             self.assertEqual(app.settings["battery_quota_source"], "weekly")
             five_hour_quota = next(
                 widget

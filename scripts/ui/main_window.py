@@ -32,6 +32,7 @@ try:
     from api.quota_parse_api import parse_quota_payload
     from api.quota_state_api import QuotaState
     from api.quota_status_api import HEALTH_COLORS
+    from api.status_snapshot_api import battery_health_color
     from api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from ui.context_menu import show_context_menu
     from ui.battery_view import BatteryView
@@ -59,6 +60,7 @@ except ModuleNotFoundError:
     from scripts.api.quota_parse_api import parse_quota_payload
     from scripts.api.quota_state_api import QuotaState
     from scripts.api.quota_status_api import HEALTH_COLORS
+    from scripts.api.status_snapshot_api import battery_health_color
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from scripts.ui.context_menu import show_context_menu
     from scripts.ui.battery_view import BatteryView
@@ -255,7 +257,7 @@ class Pet(tk.Tk):
         self.signal_progress_track = tk.Frame(
             self.signal_card,
             bg=COLORS["surface_alt"],
-            height=3,
+            height=5,
             highlightthickness=1,
             highlightbackground=COLORS["border"],
         )
@@ -1090,9 +1092,10 @@ class Pet(tk.Tk):
             return {"primary_5h": COLORS["muted"], "weekly": COLORS["muted"]}
         primary_tier = tiers.get("primary_5h", presentation.get("quota_tier"))
         weekly_tier = tiers.get("weekly", presentation.get("quota_tier"))
+        remaining = presentation.get("remaining_percentages", {})
         return {
-            "primary_5h": self._progress_tier_color(primary_tier, COLORS["accent"]),
-            "weekly": self._progress_tier_color(weekly_tier, COLORS["accent_alt"]),
+            "primary_5h": battery_health_color(remaining.get("primary_5h")),
+            "weekly": battery_health_color(remaining.get("weekly")),
         }
 
     @staticmethod
@@ -1125,11 +1128,9 @@ class Pet(tk.Tk):
     @staticmethod
     def _signal_progress_color(remaining, source):
         """Use source color while healthy and health colors as quota gets low."""
-        if remaining is None or remaining < 10:
+        if remaining is None:
             return COLORS["danger"]
-        if remaining < 50:
-            return COLORS["warning"]
-        return COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"]
+        return battery_health_color(remaining)
 
     def _signal_title_color(self, presentation):
         """Carry the selected quota window's health into its source label."""

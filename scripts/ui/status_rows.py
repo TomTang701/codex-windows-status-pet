@@ -54,7 +54,7 @@ class StatusRows(tk.Frame):
                 track = tk.Frame(
                     self,
                     bg=COLORS["surface_alt"],
-                    height=3,
+                    height=5,
                     highlightthickness=1,
                     highlightbackground=COLORS["text"],
                     highlightcolor=COLORS["text"],
@@ -199,7 +199,7 @@ class StatusRows(tk.Frame):
                 relx=0.46,
                 y=bar_y,
                 relwidth=0.38,
-                height=max(2, round(label.winfo_height() * 0.1)),
+                height=max(4, round(label.winfo_height() * 0.14)),
                 anchor="nw",
             )
             self.progress_fills[row_id].place(x=0, y=0, relheight=1, anchor="nw")
