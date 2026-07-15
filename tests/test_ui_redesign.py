@@ -651,7 +651,13 @@ class UiRedesignTests(unittest.TestCase):
                 for widget in widgets(app.settings_dialog)
                 if isinstance(widget, tk.Button) and widget.cget("text") == "General"
             )
+            general_indicator = next(
+                widget
+                for widget in general.master.winfo_children()
+                if isinstance(widget, tk.Frame)
+            )
             self.assertEqual(general.cget("bg"), "#172033")
+            self.assertEqual(general_indicator.cget("bg"), "#22d3ee")
             initial_target = next(
                 widget
                 for widget in widgets(app.settings_dialog)
@@ -661,6 +667,13 @@ class UiRedesignTests(unittest.TestCase):
             appearance.invoke()
             self.assertEqual(appearance.cget("bg"), "#172033")
             self.assertEqual(general.cget("bg"), "#111827")
+            appearance_indicator = next(
+                widget
+                for widget in appearance.master.winfo_children()
+                if isinstance(widget, tk.Frame)
+            )
+            self.assertEqual(general_indicator.cget("bg"), "#111827")
+            self.assertEqual(appearance_indicator.cget("bg"), "#22d3ee")
             target = next(
                 widget
                 for widget in widgets(app.settings_dialog)

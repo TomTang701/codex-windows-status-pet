@@ -95,13 +95,22 @@ def show_settings_dialog(owner):
         anchor="w",
     ).pack(fill="x", pady=(2, 14))
     navigation_section_labels = []
+    navigation_section_indicators = []
     section_texts = {
         "en": ("General", "Appearance", "Quota display", "Behavior", "Advanced"),
         "zh-CN": ("\u901a\u7528", "\u5916\u89c2", "\u989d\u5ea6\u663e\u793a", "\u884c\u4e3a", "\u9ad8\u7ea7"),
     }
     for index, section in enumerate(section_texts[ui_language]):
+        navigation_item = tk.Frame(navigation, bg=COLORS["surface"])
+        navigation_item.pack(fill="x", pady=1)
+        navigation_indicator = tk.Frame(
+            navigation_item,
+            width=3,
+            bg=COLORS["accent"] if index == 0 else COLORS["surface"],
+        )
+        navigation_indicator.pack(side="left", fill="y")
         navigation_label = tk.Button(
-            navigation,
+            navigation_item,
             text=section,
             bg=COLORS["surface_alt"] if index == 0 else COLORS["surface"],
             fg=COLORS["accent"] if index == 0 else COLORS["muted"],
@@ -115,8 +124,9 @@ def show_settings_dialog(owner):
             activeforeground=COLORS["accent"],
             highlightthickness=0,
         )
-        navigation_label.pack(fill="x", pady=1)
+        navigation_label.pack(side="left", fill="both", expand=True)
         navigation_section_labels.append(navigation_label)
+        navigation_section_indicators.append(navigation_indicator)
     body = tk.Frame(shell, bg=COLORS["background"], padx=4, pady=2)
     body.pack(side="left", fill="both", expand=True)
     alpha = tk.DoubleVar(value=draft["alpha"])
@@ -494,6 +504,9 @@ def show_settings_dialog(owner):
                 bg=COLORS["surface_alt"] if active else COLORS["surface"],
                 fg=COLORS["accent"] if active else COLORS["muted"],
                 font=(FONT_FAMILY, 9, "bold" if active else "normal"),
+            )
+            navigation_section_indicators[button_index].configure(
+                bg=COLORS["accent"] if active else COLORS["surface"]
             )
         for target in focus_targets:
             target.configure(
