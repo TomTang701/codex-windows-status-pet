@@ -70,7 +70,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.signal_card.winfo_parent(), str(app))
             self.assertEqual(app.status_title.winfo_parent(), str(app.hud_header))
             self.assertEqual(app.hud_status_dot.winfo_parent(), str(app.hud_header))
-            self.assertEqual(app.hud_status_dot.cget("text"), "\\u25cb")
+            self.assertEqual(app.hud_status_dot.cget("text"), chr(0x25CB))
             self.assertEqual(app.text.winfo_parent(), str(app.status_card))
             self.assertEqual(app.battery.winfo_parent(), str(app.signal_card))
             self.assertTrue(any(str(widget.cget("text")) == "CODEX" for widget in widgets(app.hud_header)))
@@ -166,7 +166,7 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.status_card.cget("highlightbackground"), "#4ade80")
             self.assertEqual(app.signal_card.cget("highlightbackground"), "#4ade80")
             self.assertEqual(app.status_rail.cget("bg"), "#4ade80")
-            self.assertEqual(app.hud_status_dot.cget("text"), "\\u25cf")
+            self.assertEqual(app.hud_status_dot.cget("text"), chr(0x25CF))
             self.assertEqual(app.hud_status_dot.cget("fg"), "#4ade80")
             app.quota_state.state = "unavailable"
             app.render_status()

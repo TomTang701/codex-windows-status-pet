@@ -208,7 +208,7 @@ class Pet(tk.Tk):
         self.hud_status.pack(side="right", padx=(4, 8), fill="y")
         self.hud_status_dot = tk.Label(
             self.hud_header,
-            text="\\u25cb",
+            text=chr(0x25CB),
             bg=COLORS["surface_alt"],
             fg=COLORS["muted"],
             font=(FONT_FAMILY, 7),
@@ -893,12 +893,12 @@ class Pet(tk.Tk):
     @staticmethod
     def _status_indicator(status_key):
         return {
-            "output": "\\u25cf",
-            "idle": "\\u25cb",
-            "stale": "\\u25d0",
+            "output": chr(0x25CF),
+            "idle": chr(0x25CB),
+            "stale": chr(0x25D0),
             "quota_unavailable": "!",
             "tray_error": "!",
-        }.get(status_key, "\\u25cb")
+        }.get(status_key, chr(0x25CB))
 
     @staticmethod
     def _signal_caption(source, language):
