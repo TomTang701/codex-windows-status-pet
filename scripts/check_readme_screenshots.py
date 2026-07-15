@@ -7,16 +7,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LANGUAGES = ("en", "zh-CN")
-VIEWS = ("main-overlay", "context-menu", "settings")
+VIEWS = ("main-overlay", "context-menu-dark", "context-menu-light", "settings")
+SHARED_VIEWS = ("compact-battery",)
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
 def expected_paths():
-    return {
+    localized = {
         Path("docs") / "assets" / "readme" / language / f"{view}.png"
         for language in LANGUAGES
         for view in VIEWS
     }
+    shared = {
+        Path("docs") / "assets" / "readme" / f"{view}.png"
+        for view in SHARED_VIEWS
+    }
+    return localized | shared
 
 
 def check(root=ROOT):
@@ -44,8 +50,16 @@ def check(root=ROOT):
         except OSError:
             errors.append(f"missing README: {name}")
             continue
-        own = {path.as_posix() for path in expected if path.parts[3] == language}
-        other = {path.as_posix() for path in expected if path.parts[3] != language}
+        own = {
+            path.as_posix()
+            for path in expected
+            if path.parts[3] == language or path.parts[3] not in LANGUAGES
+        }
+        other = {
+            path.as_posix()
+            for path in expected
+            if path.parts[3] in LANGUAGES and path.parts[3] != language
+        }
         for path in sorted(own):
             if path not in text:
                 errors.append(f"{name} does not reference screenshot: {path}")

@@ -70,17 +70,20 @@ from Windows system icons because it has the light-blue face on the navy tile.
 
 ![CodexStatusPet tray icon](docs/assets/tray-icon.png)
 
-## Packaged v0.8.0 screenshots
+## Current v0.9.1 UI screenshots
 
-All screenshots below were captured manually from the real packaged
-`CodexStatusPet.exe` on Windows 11 after normalization to the expanded layout,
-100% Window Size, and 100% opacity.
+The screenshots below show the current redesigned overlay, compact battery,
+localized context menus, and transactional Settings surfaces on Windows 11.
 
 ### English
 
 ![English main overlay](docs/assets/readme/en/main-overlay.png)
 
-![English overlay context menu](docs/assets/readme/en/context-menu.png)
+![English compact battery](docs/assets/readme/compact-battery.png)
+
+![English dark overlay context menu](docs/assets/readme/en/context-menu-dark.png)
+
+![English light overlay context menu](docs/assets/readme/en/context-menu-light.png)
 
 ![English Settings window](docs/assets/readme/en/settings.png)
 

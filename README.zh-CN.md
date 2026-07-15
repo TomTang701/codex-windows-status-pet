@@ -2,15 +2,19 @@
 
 English: [English version](README.md)
 
-## 打包版 v0.8.0 截图
+## 当前 v0.9.1 UI 截图
 
-以下截图均由维护者在 Windows 11 上从真实打包 `CodexStatusPet.exe` 手工捕获，捕获前已使用展开布局、100% 窗口大小和 100% 透明度。
+以下截图展示当前新版主悬浮窗、紧凑电池、深色/浅色右键菜单和设置界面，均来自 Windows 11。
 
 ### 简体中文
 
 ![简体中文主悬浮窗](docs/assets/readme/zh-CN/main-overlay.png)
 
-![简体中文主悬浮窗右键菜单](docs/assets/readme/zh-CN/context-menu.png)
+![紧凑电池](docs/assets/readme/compact-battery.png)
+
+![简体中文深色右键菜单](docs/assets/readme/zh-CN/context-menu-dark.png)
+
+![简体中文浅色右键菜单](docs/assets/readme/zh-CN/context-menu-light.png)
 
 ![简体中文设置窗口](docs/assets/readme/zh-CN/settings.png)
 
