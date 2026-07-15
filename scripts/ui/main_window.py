@@ -195,6 +195,15 @@ class Pet(tk.Tk):
         self.hud_header.pack_propagate(False)
         self.hud_title = tk.Label(self.hud_header, text="CODEX", bg=COLORS["surface_alt"], fg=COLORS["accent"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
         self.hud_title.pack(side="left", padx=(8, 4), fill="y")
+        self.status_title = tk.Label(
+            self.hud_header,
+            text=translate(self.settings["language"], "status"),
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 7),
+            anchor="w",
+        )
+        self.status_title.pack(side="left", padx=(0, 4), fill="y")
         self.hud_status = tk.Label(self.hud_header, text=translate(self.settings["language"], "idle"), bg=COLORS["surface_alt"], fg=COLORS["muted"], font=(FONT_FAMILY, 7), anchor="e")
         self.hud_status.pack(side="right", padx=(4, 8), fill="y")
         self.status_card = tk.Frame(self, bg=hud_bg, highlightthickness=1, highlightbackground=COLORS["border"])
@@ -320,6 +329,10 @@ class Pet(tk.Tk):
         self.hud_status.configure(bg=COLORS["surface_alt"])
         self.status_card.configure(bg=bg, highlightbackground=COLORS["border"])
         self.status_rail.configure(bg=COLORS["border"])
+        self.status_title.configure(
+            bg=COLORS["surface_alt"],
+            text=translate(self.settings["language"], "status"),
+        )
         self.signal_card.configure(bg=COLORS["surface"], highlightbackground=COLORS["border"])
         source = self.settings["battery_quota_source"]
         self.signal_title.configure(
@@ -380,6 +393,7 @@ class Pet(tk.Tk):
             self.hud_status,
             self.status_card,
             self.status_rail,
+            self.status_title,
             self.signal_card,
             self.signal_title,
             self.signal_value,
