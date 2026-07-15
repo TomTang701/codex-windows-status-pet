@@ -374,6 +374,7 @@ def show_settings_dialog(owner):
     def refresh_preview(window_scale_value=None, alpha_value=None):
         refresh_preview_palette()
         preview_activity.configure(text=translate(ui_language, "preview_output"))
+        preview_live.configure(text=translate(ui_language, "output"), fg=COLORS["success"])
         preview_conversations.configure(text=translate(ui_language, "preview_active_conversations"))
         for row_id, text_key in preview_row_keys:
             preview_rows[row_id].configure(text=translate(ui_language, text_key))

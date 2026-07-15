@@ -215,6 +215,8 @@ class UiRedesignTests(unittest.TestCase):
             }
             self.assertIn("CODEX", preview_texts)
             self.assertIn("SIGNAL", preview_texts)
+            preview_live = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Label) and widget.cget("text") == "Outputting")
+            self.assertEqual(preview_live.cget("fg"), "#4ade80")
             signal_panel = next(widget for widget in widgets(preview_card) if isinstance(widget, tk.Frame) and int(widget.cget("width")) == 42)
             self.assertGreaterEqual(signal_panel.winfo_width(), 42)
             signal_cells = [
