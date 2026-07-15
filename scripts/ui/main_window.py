@@ -350,7 +350,7 @@ class Pet(tk.Tk):
         )
         self.hud_title.configure(font=(*header_font, "bold"))
         self.status_title.configure(font=header_font)
-        self.hud_status.configure(font=header_font)
+        self.hud_status.configure(font=(*header_font, "bold"))
         self.hud_status_dot.configure(font=header_font)
         signal_title_font = self._font_spec(
             FONT_FAMILY,

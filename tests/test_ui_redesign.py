@@ -521,8 +521,10 @@ class UiRedesignTests(unittest.TestCase):
 
             activity_font = tkfont.Font(root=app, font=app.text.labels["activity"].cget("font"))
             progress_font = tkfont.Font(root=app, font=app.text.labels["progress"].cget("font"))
+            status_font = tkfont.Font(root=app, font=app.hud_status.cget("font"))
             self.assertEqual(activity_font.cget("weight"), "bold")
             self.assertEqual(progress_font.cget("weight"), "normal")
+            self.assertEqual(status_font.cget("weight"), "bold")
         finally:
             self.destroy_app(app)
 
