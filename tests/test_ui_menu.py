@@ -224,7 +224,7 @@ class MenuInteractionTests(unittest.TestCase):
             app.latest_quota = {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}}
             app.render_status()
             self.assertEqual(app.text.row_values()["activity"], "Codex Idle")
-            self.assertTrue(app.text.row_values()["weekly"].startswith("Week 55% /"))
+            self.assertTrue(app.text.row_values()["weekly"].startswith("Weekly 55% /"))
         finally:
             self.destroy_app(app)
 
