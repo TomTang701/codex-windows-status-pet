@@ -71,6 +71,8 @@ class UiRedesignTests(unittest.TestCase):
             self.assertEqual(app.text.winfo_parent(), str(app.status_card))
             self.assertEqual(app.battery.winfo_parent(), str(app.signal_card))
             self.assertTrue(any(str(widget.cget("text")) == "CODEX" for widget in widgets(app.hud_header)))
+            signal_title = next(widget for widget in widgets(app.signal_card) if isinstance(widget, tk.Label) and str(widget.cget("text")) in {"PRIMARY", "WEEKLY"})
+            self.assertEqual(signal_title.cget("fg"), "#94a3b8")
             app.set_compact(True)
             app.update_idletasks()
             self.assertFalse(app.hud_header.winfo_ismapped())

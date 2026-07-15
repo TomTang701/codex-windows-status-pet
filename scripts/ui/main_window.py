@@ -199,6 +199,8 @@ class Pet(tk.Tk):
         self.hud_status.pack(side="right", padx=(4, 8), fill="y")
         self.status_card = tk.Frame(self, bg=hud_bg, highlightthickness=1, highlightbackground=COLORS["border"])
         self.signal_card = tk.Frame(self, bg=COLORS["surface"], highlightthickness=1, highlightbackground=COLORS["border"])
+        self.signal_title = tk.Label(self.signal_card, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
+        self.signal_title.place(x=6, y=3, anchor="nw")
         self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
         self.battery = BatteryView(self.signal_card, bg=COLORS["surface"])
         self._pack_expanded_content()
@@ -314,6 +316,7 @@ class Pet(tk.Tk):
         self.hud_status.configure(bg=COLORS["surface_alt"])
         self.status_card.configure(bg=bg)
         self.signal_card.configure(bg=COLORS["surface"])
+        self.signal_title.configure(bg=COLORS["surface"], text=self._signal_caption(self.settings["battery_quota_source"]))
         self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
         self.text.set_visible_rows(self.settings)
@@ -361,6 +364,7 @@ class Pet(tk.Tk):
             self.hud_status,
             self.status_card,
             self.signal_card,
+            self.signal_title,
             *self.text.event_widgets,
             *self.battery.event_widgets,
         )
@@ -692,7 +696,9 @@ class Pet(tk.Tk):
             self.settings["battery_quota_source"],
             self.settings["language"],
         )
-        self.configure(highlightbackground=self._hud_border_color(presentation))
+        border_color = self._hud_border_color(presentation)
+        self.configure(highlightbackground=border_color)
+        self.hud_header.configure(highlightbackground=border_color)
         active = bool(presentation.get("active_count", 0))
         self.hud_status.configure(
             text="LIVE" if active else "IDLE",
@@ -715,6 +721,10 @@ class Pet(tk.Tk):
         if presentation.get("active_count", 0):
             return COLORS["success"]
         return COLORS["border"]
+
+    @staticmethod
+    def _signal_caption(source):
+        return "PRIMARY" if source == "primary_5h" else "WEEKLY"
 
     def poll(self):
         if self.closing:
