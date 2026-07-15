@@ -112,6 +112,36 @@ class UiRedesignTests(unittest.TestCase):
         finally:
             self.destroy_app(app)
 
+    def test_signal_card_layout_fits_each_language_source_and_supported_scale(self):
+        app = self.new_app()
+        try:
+            for language in ("en", "zh-CN"):
+                for source in ("primary_5h", "weekly"):
+                    for scale in (80, 100, 125, 150, 200):
+                        with self.subTest(language=language, source=source, scale=scale):
+                            app.apply_settings({
+                                **app.settings,
+                                "language": language,
+                                "battery_quota_source": source,
+                                "window_scale_percent": scale,
+                                "compact": False,
+                            })
+                            app.update_idletasks()
+                            self.assertLessEqual(
+                                app.signal_kicker.winfo_x() + app.signal_kicker.winfo_width(),
+                                app.signal_title.winfo_x(),
+                            )
+                            self.assertLessEqual(
+                                app.signal_age.winfo_y() + app.signal_age.winfo_height(),
+                                app.battery.winfo_y(),
+                            )
+                            self.assertLessEqual(
+                                app.battery.winfo_y() + app.battery.winfo_height(),
+                                app.signal_card.winfo_height(),
+                            )
+        finally:
+            self.destroy_app(app)
+
     def test_initial_quota_load_has_a_distinct_header_state(self):
         app = self.new_app()
         try:
