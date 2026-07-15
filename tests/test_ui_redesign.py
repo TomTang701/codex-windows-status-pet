@@ -234,6 +234,30 @@ class UiRedesignTests(unittest.TestCase):
                 app.settings_dialog.destroy()
             self.destroy_app(app)
 
+    def test_settings_keyboard_shortcuts_apply_and_close(self):
+        app = self.new_app()
+        try:
+            app.apply_settings({**app.settings, "language": "en"})
+            app.show_settings()
+            app.update_idletasks()
+            dialog = app.settings_dialog
+            status = next(
+                widget
+                for widget in widgets(dialog)
+                if isinstance(widget, tk.Label) and str(widget.cget("text")).startswith("Draft")
+            )
+            dialog.focus_force()
+            dialog.event_generate("<Alt-a>")
+            app.update_idletasks()
+            self.assertIn("Save", status.cget("text"))
+            dialog.event_generate("<Escape>")
+            app.update_idletasks()
+            self.assertFalse(dialog.winfo_exists())
+        finally:
+            if app.settings_dialog is not None and app.settings_dialog.winfo_exists():
+                app.settings_dialog.destroy()
+            self.destroy_app(app)
+
     def test_context_menu_uses_hud_surface_and_keeps_actions(self):
         app = self.new_app()
         try:
