@@ -56,7 +56,9 @@ def show_context_menu(owner, event):
         "activebackground": COLORS["surface_alt"],
         "activeforeground": COLORS["accent"],
         "font": (FONT_FAMILY, 10), "padx": 10, "pady": 5,
+        "highlightthickness": 0,
     }
+    checkbutton_options = {**button_options, "selectcolor": COLORS["surface_alt"]}
     commands = {
         "settings": owner.show_settings,
         "topmost": owner.toggle_topmost,
@@ -88,7 +90,7 @@ def show_context_menu(owner, event):
             widget = tk.Checkbutton(
                 body, text=item.label, variable=variables[item.action],
                 command=lambda command=commands[item.action]: run_and_close(command),
-                **button_options,
+                **checkbutton_options,
             )
         widget.pack(fill="x", padx=2, pady=1)
     popup.bind("<Escape>", lambda _event: (close_popup(), "break")[1])
