@@ -37,7 +37,7 @@ account, a token, Python, pip, or a repository checkout. Run this PowerShell
 command to install or repair the latest stable Release:
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1')))
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1')))"
 ```
 
 Run the same command again to upgrade to a newer published Release or perform a
@@ -45,7 +45,7 @@ verified same-version repair. To pin an exact stable version, add `-Tag` after
 the downloaded bootstrap has been invoked:
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.0.1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.0.1"
 ```
 
 The bootstrap verifies the exact ZIP and SHA-256 sidecar, preserves

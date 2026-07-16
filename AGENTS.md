@@ -21,6 +21,8 @@ This standing authorization applies only when the configured target remains `Tom
 
 Standing authorization never permits bypassing CI, failed verification, scope locks, root-cause debugging, TDD, secret scanning, or completion verification.
 
+For efficiency, documentation-only, release-metadata-only, or test-only changes do not require testing the main application. Run only the directly affected documentation, script syntax, packaging-contract, or version checks. Run application tests when production application code or runtime behavior changes.
+
 The following operations still require Tom's separate explicit authorization:
 
 - force push or rewrite published history;
