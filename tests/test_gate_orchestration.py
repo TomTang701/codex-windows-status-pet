@@ -26,6 +26,7 @@ class GateOrchestrationTests(unittest.TestCase):
         self.assertIn("run_quality_checks.py", commands["quality"][1])
         self.assertIn("build_release.py", commands["release_build"][1])
         self.assertIn("package_smoke_test.py", commands["package_static"][1])
+        self.assertIn("standalone_runtime_smoke.py", commands["standalone_runtime"][1])
         self.assertIn("packaged_runtime_smoke.py", commands["package_runtime"][1])
         self.assertIn("release_bootstrap_smoke.py", commands["release_bootstrap"][1])
         self.assertIn("check_readme_screenshots.py", commands["readme_screenshots"][1])
@@ -35,7 +36,7 @@ class GateOrchestrationTests(unittest.TestCase):
             run_release_candidate_checks,
             "run",
             side_effect=[
-                (0, "quality ok"), (0, "build ok"), (0, "package ok"),
+                (0, "quality ok"), (0, "build ok"), (0, "package ok"), (0, "standalone ok"),
                 (0, "runtime ok"), (0, "bootstrap ok"), (0, "screenshots ok"), (1, "blocking evidence"), (0, "clean"),
             ],
         ):
@@ -48,7 +49,7 @@ class GateOrchestrationTests(unittest.TestCase):
             run_release_candidate_checks,
             "run",
             side_effect=[
-                (0, "quality ok"), (0, "build ok"), (0, "package ok"),
+                (0, "quality ok"), (0, "build ok"), (0, "package ok"), (0, "standalone ok"),
                 (0, "runtime ok"), (0, "bootstrap ok"), (0, "screenshots ok"), (0, readiness), (0, "clean"),
             ],
         ) as run:
@@ -56,12 +57,12 @@ class GateOrchestrationTests(unittest.TestCase):
             with redirect_stdout(output):
                 self.assertEqual(run_release_candidate_checks.main(), 0)
         result = json.loads(output.getvalue())
-        self.assertEqual(run.call_count, 8)
+        self.assertEqual(run.call_count, 9)
         self.assertEqual(result["blockers"], [])
         self.assertEqual(result["limitations"], [{"area": "DPI"}])
         self.assertEqual(
             result["passes"],
-            ["quality", "release_build", "package_static", "package_runtime", "release_bootstrap", "readme_screenshots", "compatibility_strict", "whitespace"],
+            ["quality", "release_build", "package_static", "standalone_runtime", "package_runtime", "release_bootstrap", "readme_screenshots", "compatibility_strict", "whitespace"],
         )
 
     def test_runner_requests_utf8_replacement_decoding(self):

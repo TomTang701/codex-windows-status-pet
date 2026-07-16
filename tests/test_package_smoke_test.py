@@ -24,7 +24,7 @@ class PackageSmokeTests(unittest.TestCase):
             result = package_smoke_test.static_package_smoke()
 
         self.assertEqual(result, artifact)
-        validate.assert_called_once_with(artifact, expected_version="0.8.0")
+        validate.assert_called_once_with(artifact, expected_version="0.8.0", expected_channel="standalone")
 
 
 if __name__ == "__main__":
