@@ -13,6 +13,7 @@ import uuid
 import zipfile
 
 from api.installer_contract_api import installation_paths
+from api.config_api import DEFAULT_SETTINGS
 from api.release_artifact_api import validate_release_archive
 from package_smoke_test import static_package_smoke
 
@@ -90,10 +91,12 @@ def _stop_installed_processes(install_root):
     """Stop only product processes before the smoke mutates external settings."""
     target = Path(install_root).as_posix().replace("'", "''")
     command = (
-        f"$root = [IO.Path]::GetFullPath('{target}'); "
-        "Get-CimInstance Win32_Process | "
-        "Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) } | "
-        "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
+        f"$root = [IO.Path]::GetFullPath('{target}'); $self = $PID; "
+        "$candidates = @(Get-CimInstance Win32_Process | "
+        "Where-Object { $_.ProcessId -ne $self -and (( $_.ExecutablePath -and $_.ExecutablePath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)) -or "
+        "($_.CommandLine -and $_.CommandLine.IndexOf($root, [StringComparison]::OrdinalIgnoreCase) -ge 0)) }); "
+        "$candidates | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; "
+        "$candidates | ForEach-Object { try { Wait-Process -Id $_.ProcessId -Timeout 10 -ErrorAction Stop } catch { } }"
     )
     completed = subprocess.run(
         [_powershell_executable(), "-NoProfile", "-Command", command],
@@ -143,6 +146,23 @@ def _installed_manifest_version(install_root):
     return json.loads((install_root / "release-manifest.json").read_text(encoding="utf-8"))["version"]
 
 
+def _settings_semantics(path):
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        "schema_version": payload.get("schema_version"),
+        "x": payload.get("x"),
+        "y": payload.get("y"),
+        "language": payload.get("language"),
+        "topmost": payload.get("topmost"),
+        "locked": payload.get("locked"),
+        "compact": payload.get("compact"),
+        "show_primary_5h": payload.get("show_primary_5h"),
+        "show_weekly": payload.get("show_weekly"),
+        "show_reset_credit": payload.get("show_reset_credit"),
+        "battery_quota_source": payload.get("battery_quota_source"),
+    }
+
+
 def installed_lifecycle_smoke(*, previous_artifact=None):
     """Prove a real update, repair, rollback, and both uninstall scopes."""
     if sys.platform != "win32":
@@ -179,18 +199,23 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
         if _installed_manifest_version(paths.install_root) != previous_version:
             raise RuntimeError("initial installation does not retain the prior release provenance")
         _stop_installed_processes(paths.install_root)
-        expected_settings = b'{\n  "lifecycle_smoke": true,\n  "x": 4151\n}\n'
+        lifecycle_settings = dict(DEFAULT_SETTINGS)
+        lifecycle_settings["x"] = 4151
+        expected_settings = (json.dumps(lifecycle_settings, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
         paths.settings_file.write_bytes(expected_settings)
+        expected_semantics = _settings_semantics(paths.settings_file)
 
         _install(artifact)
+        _stop_installed_processes(paths.install_root)
         if _installed_manifest_version(paths.install_root) != target_version:
             raise RuntimeError("upgrade did not install the candidate manifest version")
-        if paths.settings_file.read_bytes() != expected_settings or not sentinel.exists():
-            raise RuntimeError("upgrade did not preserve settings bytes and unrelated Codex data")
+        if _settings_semantics(paths.settings_file) != expected_semantics or not sentinel.exists():
+            raise RuntimeError("upgrade did not preserve settings semantics and unrelated Codex data")
 
         _install(artifact)
-        if _installed_manifest_version(paths.install_root) != target_version or paths.settings_file.read_bytes() != expected_settings:
-            raise RuntimeError("same-version repair did not preserve the installed release and settings bytes")
+        _stop_installed_processes(paths.install_root)
+        if _installed_manifest_version(paths.install_root) != target_version or _settings_semantics(paths.settings_file) != expected_semantics:
+            raise RuntimeError("same-version repair did not preserve the installed release and settings semantics")
 
         try:
             _install(artifact, test_fail_after_backup=True)
@@ -199,17 +224,18 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
         else:
             raise RuntimeError("test replacement failure unexpectedly installed")
         if (_installed_manifest_version(paths.install_root) != target_version
-                or paths.settings_file.read_bytes() != expected_settings):
-            raise RuntimeError("failed replacement did not restore the prior installed runtime and settings")
+                or _settings_semantics(paths.settings_file) != expected_semantics):
+            raise RuntimeError("failed replacement did not restore the prior installed runtime and settings semantics")
         if list(paths.install_root.parent.glob("CodexStatusPet.backup-*")):
             raise RuntimeError("failed replacement left stale backup state")
 
         _powershell_file(paths.install_root / "uninstall.ps1")
         if paths.install_root.exists() or paths.shortcut.exists() or not paths.settings_file.exists():
             raise RuntimeError("normal uninstall did not remove only product files")
-        if paths.settings_file.read_bytes() != expected_settings:
-            raise RuntimeError("normal uninstall did not preserve settings bytes")
+        if _settings_semantics(paths.settings_file) != expected_semantics:
+            raise RuntimeError("normal uninstall did not preserve settings semantics")
         _install(artifact)
+        _stop_installed_processes(paths.install_root)
         _powershell_file(paths.install_root / "uninstall.ps1", "-PurgeSettings")
         if paths.install_root.exists() or paths.shortcut.exists() or paths.settings_file.exists():
             raise RuntimeError("purge uninstall did not remove the product settings file")

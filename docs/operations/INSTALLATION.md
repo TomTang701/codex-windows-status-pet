@@ -2,9 +2,9 @@
 
 简体中文: [中文版本](INSTALLATION.zh-CN.md)
 
-## v1.0.0 source deployment boundary
+## v1.0.2 source deployment boundary
 
-v1.0.0 is a source-based Windows 11 x64 release. It does not ship an
+v1.0.2 is a source-based Windows 11 x64 release. It does not ship an
 application EXE, PyInstaller runtime, or bundled Python.
 
 The published ZIP is consumed by the bootstrap or `install.ps1`. The installer
@@ -30,13 +30,22 @@ GitHub Code -> Download ZIP and the Release Source code archive are source
 archives, not the product package. The product ZIP is named
 `CodexStatusPet-vX.Y.Z-win11-x64.zip`.
 
+The versioned product ZIP also supports an exact local-version installation.
+Extract its complete `CodexStatusPet` directory and run `launch.cmd`. If the
+directory is not configured, the launcher calls the adjacent installer with
+`-SourceRoot`, installs that extracted version under
+`%LOCALAPPDATA%\Programs\CodexStatusPet`, creates the normal shortcuts, and
+starts it. It does not contact GitHub or download the ZIP again. If
+`runtime.json` already exists, the same CMD starts the configured copy.
+
 The following artifact-path invocation is retained for source verification and
 release engineering. It is not the normal-user Quick Start:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1 `
-  -ArtifactPath .\CodexStatusPet-v1.0.0-win11-x64.zip `
-  -Sha256 <published-sha256>
+  -ArtifactPath .\CodexStatusPet-v1.0.2-win11-x64.zip `
+  -Sha256 <published-sha256> `
+  -ExpectedVersion 1.0.2
 ```
 
 The installer verifies the ZIP before extraction, validates its release manifest,

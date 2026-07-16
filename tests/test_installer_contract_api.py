@@ -63,6 +63,19 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn("$manifest.schema_version -eq 2", installer)
         self.assertIn("scripts/codex_status_pet.py", installer)
 
+    def test_installer_accepts_a_mutually_exclusive_extracted_source_root(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        self.assertIn("[string]$SourceRoot", installer)
+        self.assertIn("Specify either extracted SourceRoot or the verified artifact parameters, not both.", installer)
+        self.assertIn("SourceRoot requires a directory containing release-manifest.json.", installer)
+
+    def test_extracted_source_install_derives_exact_version_and_stages_without_generated_runtime(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        self.assertIn("$ExpectedVersion = [string]$sourceManifest.version", installer)
+        self.assertIn("Copy-ReleaseSource", installer)
+        self.assertIn("@('runtime.json', 'runtime-packages')", installer)
+        self.assertIn("SourceRoot cannot be the installed product directory or one of its descendants.", installer)
+
     def test_installer_snapshots_existing_settings_before_stopping_the_installed_runtime(self):
         installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
         snapshot = "$settingsSnapshot = Join-Path $staging 'settings-before-install.json'"
@@ -93,6 +106,18 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn("[Environment]::GetFolderPath('Desktop')", uninstaller)
         self.assertIn("runtime-packages", (root / "launch.ps1").read_text(encoding="utf-8"))
 
+    def test_installer_and_uninstaller_stop_source_python_by_command_line(self):
+        root = Path(__file__).parents[1]
+        installer = (root / "install.ps1").read_text(encoding="utf-8")
+        uninstaller = (root / "uninstall.ps1").read_text(encoding="utf-8")
+        for script in (installer, uninstaller):
+            self.assertIn("$_.CommandLine", script)
+            self.assertIn("IndexOf", script)
+            self.assertIn("[StringComparison]::OrdinalIgnoreCase", script)
+        self.assertIn("Wait-Process", uninstaller)
+        self.assertIn("for ($attempt = 0; $attempt -lt 20", uninstaller)
+        self.assertIn("Installed product directory could not be removed.", uninstaller)
+
     def test_launcher_resolves_its_root_from_psscriptroot_when_started_by_shortcut(self):
         launcher = (Path(__file__).parents[1] / "launch.ps1").read_text(encoding="utf-8")
         self.assertIn("param([string]$InstallRoot)", launcher)
@@ -104,6 +129,18 @@ class InstallerContractTests(unittest.TestCase):
         launcher = (root / "launch.cmd").read_text(encoding="utf-8")
         self.assertIn("launch.ps1", launcher)
         self.assertIn("%~dp0", launcher)
+
+    def test_cmd_launcher_installs_unconfigured_extracted_zip_and_starts_configured_copy(self):
+        launcher = (Path(__file__).parents[1] / "launch.cmd").read_text(encoding="utf-8")
+        self.assertIn('if exist "%ROOT%runtime.json"', launcher)
+        self.assertIn('-File "%ROOT%install.ps1" -SourceRoot "%ROOT%"', launcher)
+        self.assertIn('-File "%ROOT%launch.ps1"', launcher)
+
+    def test_cmd_launcher_preserves_failure_code_and_supports_noninteractive_use(self):
+        launcher = (Path(__file__).parents[1] / "launch.cmd").read_text(encoding="utf-8")
+        self.assertIn('set "RESULT=%ERRORLEVEL%"', launcher)
+        self.assertIn('CODEX_STATUS_PET_NO_PAUSE', launcher)
+        self.assertIn('exit /b %RESULT%', launcher)
 
 
 if __name__ == "__main__":

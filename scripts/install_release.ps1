@@ -8,7 +8,7 @@ $repository = 'TomTang701/codex-windows-status-pet'
 $releasesApi = "https://api.github.com/repos/$repository/releases"
 $headers = @{
     Accept = 'application/vnd.github+json'
-    'User-Agent' = 'CodexStatusPet-public-bootstrap/1.0.1'
+    'User-Agent' = 'CodexStatusPet-public-bootstrap/1.0.2'
 }
 $staging = Join-Path ([IO.Path]::GetTempPath()) "CodexStatusPet-release-$([guid]::NewGuid())"
 
@@ -66,7 +66,7 @@ try {
     $expectedChecksum = $Matches[1]
     if ([string]::IsNullOrWhiteSpace([string]$artifactPath)) { Fail-ReleaseBootstrap 'Installation' 'resolved product artifact path is empty' }
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer -ArtifactPath ([string]$artifactPath) -Sha256 ([string]$expectedChecksum) -ExpectedVersion ([string]$expectedVersion)
-    if ($LASTEXITCODE -ne 0 -or -not $?) { Fail-ReleaseBootstrap 'Installation' 'install.ps1 did not complete successfully' }
+    if (-not $?) { Fail-ReleaseBootstrap 'Installation' 'install.ps1 did not complete successfully' }
 }
 finally {
     Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue

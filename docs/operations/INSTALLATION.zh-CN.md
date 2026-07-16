@@ -2,14 +2,11 @@
 
 English: [English version](INSTALLATION.md)
 
-## v0.9.2-beta.1 部署边界
+## v1.0.2 源码部署边界
 
-此分支是 beta 候选版本。最新稳定公开 Release 仍为 v0.9.1；在当前界面和
-Windows Shell 证据完成验收前，beta 产物仅用于受控测试。
-
-已发布 ZIP 是当前普通用户路径：如需手动验证，请核对其 SHA-256；解压完整压缩包后，
-运行 `CodexStatusPet\CodexStatusPet.exe`。该 EXE 是应用入口而不是安装器，
-请勿将它从 onedir 运行时中单独复制出来。
+v1.0.2 是基于源码的 Windows 11 x64 发布版，不包含应用 EXE、
+PyInstaller 运行时或捆绑 Python。安装器会检测兼容的 x64 Python 3.10+，
+并将 Pillow 与 pystray 安装到产品私有目录。
 
 本仓库为公开仓库。普通安装不需要 Git、GitHub CLI、`gh auth login`、账号、token、
 Python、pip 或仓库检出。使用以下命令安装最新稳定 Release：
@@ -25,12 +22,19 @@ bootstrap 会解析稳定 Release，下载其匹配的 ZIP、SHA-256 sidecar 和
 GitHub 的 Code -> Download ZIP 和 Release 的 Source code 压缩包都是源码，不是产品包。
 产品 ZIP 名称为 `CodexStatusPet-vX.Y.Z-win11-x64.zip`。
 
+版本化产品 ZIP 也支持安装下载的确切版本。完整解压 `CodexStatusPet`
+目录并运行 `launch.cmd`。如果目录尚未配置，启动器会使用相邻安装器的
+`-SourceRoot` 模式，将当前解压版本安装到
+`%LOCALAPPDATA%\Programs\CodexStatusPet`，创建快捷方式并启动。该过程不会访问
+GitHub 或重复下载 ZIP。如果已存在 `runtime.json`，同一 CMD 会直接启动已配置副本。
+
 以下带 ArtifactPath 的调用仅保留给源码验证和发布工程，不是普通用户的快速开始：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1 `
-  -ArtifactPath .\CodexStatusPet-v0.9.1-win11-x64.zip `
-  -Sha256 <发布的-sha256>
+  -ArtifactPath .\CodexStatusPet-v1.0.2-win11-x64.zip `
+  -Sha256 <发布的-sha256> `
+  -ExpectedVersion 1.0.2
 ```
 
 安装器会在解压前校验 ZIP、验证发布清单，并将应用按用户安装到

@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+## 1.0.2 - 2026-07-16
+
+- Made `launch.cmd` install and start an unconfigured extracted product ZIP without downloading the release again.
+- Added a local `install.ps1 -SourceRoot` mode that reuses the existing staged install, dependency, rollback, and shortcut transaction.
+- Preserved the verified public bootstrap path for latest-version installation, repair, and upgrades.
+
 ## 1.0.1 - 2026-07-15
 
 - Fixed source-launch startup when invoked through the Desktop shortcut by resolving the install root from `$PSScriptRoot`.

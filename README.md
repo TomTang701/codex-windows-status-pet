@@ -45,7 +45,7 @@ verified same-version repair. To pin an exact stable version, add `-Tag` after
 the downloaded bootstrap has been invoked:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.0.1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.0.2"
 ```
 
 The bootstrap verifies the exact ZIP and SHA-256 sidecar, preserves
@@ -57,6 +57,14 @@ directory; `-PurgeSettings` additionally removes only this product's settings.
 The GitHub **Code -> Download ZIP** action and a `Source code (zip)` Release
 asset are source archives, not the product package. Use the versioned product
 ZIP named `CodexStatusPet-vX.Y.Z-win11-x64.zip` or the public bootstrap above.
+
+For an exact local-version install, download
+`CodexStatusPet-v1.0.2-win11-x64.zip` from the official Release, extract the
+complete `CodexStatusPet` directory, and double-click `launch.cmd`. On first
+run it installs that extracted version without downloading the ZIP again;
+later runs start the configured copy. The public bootstrap remains the
+recommended checksum-verified path for latest-version install, repair, and
+upgrade. Manual ZIP users may verify the published `.sha256` sidecar.
 
 If the Desktop shortcut does not open the pet, run the fallback launcher from
 PowerShell with `& "$env:LOCALAPPDATA\Programs\CodexStatusPet\launch.cmd"`.
@@ -77,7 +85,7 @@ from Windows system icons because it has the light-blue face on the navy tile.
 
 ![CodexStatusPet tray icon](docs/assets/tray-icon.png)
 
-## Current v1.0.1 UI screenshots
+## Current v1.0.2 UI screenshots
 
 The screenshots below show the current Signal HUD overlay, compact battery,
 localized context menus, and transactional Settings surfaces on Windows 11.

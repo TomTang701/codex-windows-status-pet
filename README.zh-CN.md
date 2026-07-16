@@ -65,7 +65,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Cr
 在 bootstrap 调用后增加 `-Tag` 参数：
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.0.1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.0.2"
 ```
 
 bootstrap 会校验精确 ZIP 和 SHA-256 sidecar，保留 CodexStatusPet 设置及无关 `.codex` 数据，
@@ -73,6 +73,12 @@ bootstrap 会校验精确 ZIP 和 SHA-256 sidecar，保留 CodexStatusPet 设置
 
 GitHub 的 **Code -> Download ZIP** 和 Release 中的 `Source code (zip)` 都是源码压缩包，不是产品包。
 请使用名称为 `CodexStatusPet-vX.Y.Z-win11-x64.zip` 的版本化产品 ZIP，或使用上面的公开 bootstrap。
+
+如需安装下载的确切版本，请从正式 Release 下载
+`CodexStatusPet-v1.0.2-win11-x64.zip`，完整解压 `CodexStatusPet` 目录，然后双击
+`launch.cmd`。首次运行会安装并启动该解压版本，不会重复下载 ZIP；
+以后运行则直接启动已配置副本。公开 bootstrap 仍是安装最新版、修复和升级时
+推荐的自动 SHA-256 校验方式；手动 ZIP 用户可核对发布的 `.sha256` sidecar。
 
 ## 数据与安全边界
 
