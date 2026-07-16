@@ -91,10 +91,12 @@ def _stop_installed_processes(install_root):
     """Stop only product processes before the smoke mutates external settings."""
     target = Path(install_root).as_posix().replace("'", "''")
     command = (
-        f"$root = [IO.Path]::GetFullPath('{target}'); "
-        "Get-CimInstance Win32_Process | "
-        "Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) } | "
-        "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
+        f"$root = [IO.Path]::GetFullPath('{target}'); $self = $PID; "
+        "$candidates = @(Get-CimInstance Win32_Process | "
+        "Where-Object { $_.ProcessId -ne $self -and (( $_.ExecutablePath -and $_.ExecutablePath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)) -or "
+        "($_.CommandLine -and $_.CommandLine.IndexOf($root, [StringComparison]::OrdinalIgnoreCase) -ge 0)) }); "
+        "$candidates | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; "
+        "$candidates | ForEach-Object { try { Wait-Process -Id $_.ProcessId -Timeout 10 -ErrorAction Stop } catch { } }"
     )
     completed = subprocess.run(
         [_powershell_executable(), "-NoProfile", "-Command", command],

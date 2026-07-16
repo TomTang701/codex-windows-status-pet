@@ -25,6 +25,8 @@ class InstalledLifecycleSmokeTests(unittest.TestCase):
     def test_source_repairs_stop_the_launched_process_before_settings_assertions(self):
         script = (Path(__file__).parents[1] / "scripts" / "installed_lifecycle_smoke.py").read_text(encoding="utf-8")
         self.assertGreaterEqual(script.count("_stop_installed_processes(paths.install_root)"), 4)
+        self.assertIn("$self = $PID", script)
+        self.assertIn("$_.CommandLine -and $_.CommandLine.IndexOf($root", script)
         self.assertIn("DEFAULT_SETTINGS", script)
         self.assertIn('lifecycle_settings["x"] = 4151', script)
         self.assertIn("def _settings_semantics", script)
