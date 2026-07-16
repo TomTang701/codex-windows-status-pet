@@ -97,7 +97,7 @@ class ReleaseBootstrapTests(unittest.TestCase):
         self.assertNotIn("gh release download", bootstrap)
         self.assertIn("install.ps1", bootstrap)
         self.assertIn("$expectedVersion = $Matches[1]", bootstrap)
-        self.assertIn("-ExpectedVersion $expectedVersion", bootstrap)
+        self.assertIn("-ExpectedVersion ([string]$expectedVersion)", bootstrap)
         self.assertIn("if (-not $?)", bootstrap)
         self.assertNotIn("$LASTEXITCODE -ne 0", bootstrap)
         self.assertNotIn("GITHUB_TOKEN", bootstrap)
