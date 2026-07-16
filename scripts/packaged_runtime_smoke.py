@@ -86,10 +86,10 @@ def packaged_runtime_smoke():
             archive.extractall(extraction)
         package_root = extraction / RELEASE_ROOT_NAME
         entrypoint = package_root / "scripts" / "codex_status_pet.py"
-        source_entrypoint_compile(entrypoint)
         names = [path.relative_to(package_root).as_posix() for path in package_root.rglob("*") if path.is_file()]
         if any(name.endswith((".exe", ".pyc", ".pyo")) for name in names):
             raise RuntimeError("source package contains executable or bytecode material")
+        source_entrypoint_compile(entrypoint)
         assert_zip_direct_use_exit(boundary, expected_settings)
     return artifact
 
