@@ -133,7 +133,7 @@ class InstallerContractTests(unittest.TestCase):
     def test_cmd_launcher_installs_unconfigured_extracted_zip_and_starts_configured_copy(self):
         launcher = (Path(__file__).parents[1] / "launch.cmd").read_text(encoding="utf-8")
         self.assertIn('if exist "%ROOT%runtime.json"', launcher)
-        self.assertIn('-File "%ROOT%install.ps1" -SourceRoot "%ROOT%"', launcher)
+        self.assertIn('-File "%ROOT%install.ps1" -SourceRoot "%ROOT%."', launcher)
         self.assertIn('-File "%ROOT%launch.ps1"', launcher)
 
     def test_cmd_launcher_preserves_failure_code_and_supports_noninteractive_use(self):
