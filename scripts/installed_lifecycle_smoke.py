@@ -13,6 +13,7 @@ import uuid
 import zipfile
 
 from api.installer_contract_api import installation_paths
+from api.config_api import DEFAULT_SETTINGS
 from api.release_artifact_api import validate_release_archive
 from package_smoke_test import static_package_smoke
 
@@ -179,7 +180,9 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
         if _installed_manifest_version(paths.install_root) != previous_version:
             raise RuntimeError("initial installation does not retain the prior release provenance")
         _stop_installed_processes(paths.install_root)
-        expected_settings = b'{\n  "lifecycle_smoke": true,\n  "x": 4151\n}\n'
+        lifecycle_settings = dict(DEFAULT_SETTINGS)
+        lifecycle_settings["x"] = 4151
+        expected_settings = (json.dumps(lifecycle_settings, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
         paths.settings_file.write_bytes(expected_settings)
 
         _install(artifact)
