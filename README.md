@@ -18,19 +18,16 @@ Supported platform: Windows 11 x64. Windows 10 is Deferred, Not claimed, and Non
 - Weekly quota and the earliest future reset-credit expiry use local `HH:MM M/D` formatting without leading zeroes.
 - Settings actions: Save, Apply, Restore Defaults, and Close.
 - Context menu: localized Settings, topmost, lock, and persisted manual Compact controls. Notification-area menu: show, hide, open settings, and exit.
-- The packaged product runs as `CodexStatusPet.exe`; no persistent command prompt window is required.
-- The source launcher starts the companion on demand for development only; it does not install an automatic sign-in entry.
+- The installed product runs from source with the selected Python runtime through hidden `launch.vbs`; no persistent command prompt window is required.
+- The installer keeps Pillow and pystray private under the product directory and does not install an automatic sign-in entry.
 
 ## Packaged release quick start
 
-For normal use, download the official Release ZIP, verify its published
-SHA-256 when manually validating the artifact, extract the **complete** archive,
-open the extracted `CodexStatusPet` directory, and run `CodexStatusPet.exe`.
-`CodexStatusPet.exe` is the application entry point, not an installer.
-
-Do not copy only `CodexStatusPet.exe` out of the extracted onedir package. Its
-`_internal` runtime and release manifest must remain beside it. This ZIP-direct
-path does not create a Start Menu shortcut or installed-product state.
+For normal use, run the public bootstrap below. It downloads the exact product
+ZIP, verifies its SHA-256 sidecar, detects a compatible x64 Python 3.10+
+runtime, installs private Pillow/pystray dependencies, and creates Desktop and
+Start Menu shortcuts. The package contains source and launch scripts; it does
+not contain `CodexStatusPet.exe`, PyInstaller, or bundled Python.
 
 ## Quick Install and upgrade (public repository)
 
@@ -48,12 +45,14 @@ verified same-version repair. To pin an exact stable version, add `-Tag` after
 the downloaded bootstrap has been invoked:
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v0.9.0
+& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.0.0
 ```
 
 The bootstrap verifies the exact ZIP and SHA-256 sidecar, preserves
 CodexStatusPet settings and unrelated `.codex` data, and delegates the actual
-transaction to the existing `install.ps1`.
+transaction to `install.ps1`. Re-running it performs a verified upgrade or
+same-version repair. Normal uninstall removes both shortcuts and the product
+directory; `-PurgeSettings` additionally removes only this product's settings.
 
 The GitHub **Code -> Download ZIP** action and a `Source code (zip)` Release
 asset are source archives, not the product package. Use the versioned product
@@ -70,17 +69,20 @@ from Windows system icons because it has the light-blue face on the navy tile.
 
 ![CodexStatusPet tray icon](docs/assets/tray-icon.png)
 
-## Packaged v0.8.0 screenshots
+## Current v1.0.0 UI screenshots
 
-All screenshots below were captured manually from the real packaged
-`CodexStatusPet.exe` on Windows 11 after normalization to the expanded layout,
-100% Window Size, and 100% opacity.
+The screenshots below show the current Signal HUD overlay, compact battery,
+localized context menus, and transactional Settings surfaces on Windows 11.
 
 ### English
 
 ![English main overlay](docs/assets/readme/en/main-overlay.png)
 
-![English overlay context menu](docs/assets/readme/en/context-menu.png)
+![English compact battery](docs/assets/readme/compact-battery.png)
+
+![English dark overlay context menu](docs/assets/readme/en/context-menu-dark.png)
+
+![English light overlay context menu](docs/assets/readme/en/context-menu-light.png)
 
 ![English Settings window](docs/assets/readme/en/settings.png)
 
@@ -98,9 +100,9 @@ See [development documentation](docs/README.md) for the document map and migrati
 
 `start_codex_status_pet.cmd` is a source-development, debugging, source
 verification, and release-engineering launcher. It is not the normal product
-entry point. The bundled Python runtime is preferred; if it is unavailable, the
-launcher falls back to `pythonw.exe` on `PATH`, whose environment must install
-the packages listed in `requirements.txt`.
+entry point. The installed launcher uses the discovery order documented in
+`docs/operations/INSTALLATION.md`: Codex bundled Python, `py.exe`, then PATH
+`python.exe`, with x64 Python 3.10+, Tkinter, pip, and `pythonw.exe` required.
 
 ### Development checks
 

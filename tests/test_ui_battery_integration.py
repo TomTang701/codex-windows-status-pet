@@ -96,6 +96,8 @@ class BatteryIntegrationTests(unittest.TestCase):
                 module["AppServer"] = DummyServer
                 module["TrayIcon3"] = DummyTray
                 app = module["Pet"]()
+                app.apply_settings({**app.settings})
+                app.update_idletasks()
                 visible_ids = tuple(
                     row_id for row_id, label in app.text.labels.items()
                     if label.winfo_ismapped()

@@ -22,7 +22,7 @@ class CodexTransportTests(unittest.TestCase):
         server = AppServer([])
         self.assertIsNone(server.proc)
         self.assertEqual(server.pending, {})
-        self.assertEqual(server.client_version, "0.9.1")
+        self.assertEqual(server.client_version, "1.0.0")
 
     def test_send_rejects_stopped_process(self):
         server = AppServer([])

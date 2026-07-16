@@ -8,9 +8,10 @@ import sys
 import threading
 import time
 import tkinter as tk
+from datetime import datetime, timezone
 from pathlib import Path
 
-APP_VERSION = "0.9.1"
+APP_VERSION = "1.0.0"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer
@@ -30,12 +31,14 @@ try:
     from api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from api.quota_parse_api import parse_quota_payload
     from api.quota_state_api import QuotaState
+    from api.status_snapshot_api import battery_health_color
     from api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from ui.context_menu import show_context_menu
     from ui.battery_view import BatteryView
     from ui.settings_dialog import show_settings_dialog
     from ui.status_rows import StatusRows
     from ui.tray_adapter import TrayIcon3
+    from ui.theme import COLORS, FONT_FAMILY
 except ModuleNotFoundError:
     from scripts.api.activity_api import snapshot_activity
     from scripts.api.codex_transport_api import AppServer
@@ -55,12 +58,14 @@ except ModuleNotFoundError:
     from scripts.api.tray_lifecycle_api import is_known_action, should_schedule_restart
     from scripts.api.quota_parse_api import parse_quota_payload
     from scripts.api.quota_state_api import QuotaState
+    from scripts.api.status_snapshot_api import battery_health_color
     from scripts.api.runtime_api import SingleInstance, enable_dpi_awareness, ensure_overlay_toolwindow
     from scripts.ui.context_menu import show_context_menu
     from scripts.ui.battery_view import BatteryView
     from scripts.ui.settings_dialog import show_settings_dialog
     from scripts.ui.status_rows import StatusRows
     from scripts.ui.tray_adapter import TrayIcon3
+    from scripts.ui.theme import COLORS, FONT_FAMILY
 
 
 def ensure_single_instance():
@@ -159,7 +164,13 @@ class Pet(tk.Tk):
         self.geometry(f"+{self.settings['x']}+{self.settings['y']}")
         self.update_idletasks()
         self._sync_compatibility_metrics(self.settings)
-        self.configure(bg=self.settings["background_color"])
+        self.configure(
+            bg=self.settings["background_color"],
+            bd=0,
+            highlightthickness=1,
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["accent"],
+        )
         self.geometry(f"{self.window_metrics.width}x{self.window_metrics.height}+{self.settings['x']}+{self.settings['y']}")
         self.hidden = False
         self.hidden_position = (self.settings["x"], self.settings["y"])
@@ -173,6 +184,8 @@ class Pet(tk.Tk):
         self.tray_actions = queue.Queue()
         self.settings_dialog = None
         self.tray_restart_scheduled = False
+        self.signal_age_refresh_job = None
+        self._signal_progress_ratio = 0.0
         self.server = AppServer(self.queue)
         self.activity = ActivityMonitor()
         self.application_controller = ApplicationController(self.settings["refresh_interval_seconds"])
@@ -182,20 +195,90 @@ class Pet(tk.Tk):
         self.topmost_var = tk.BooleanVar(value=self.settings["topmost"])
         self.locked_var = tk.BooleanVar(value=self.settings["locked"])
         self.compact_var = tk.BooleanVar(value=self.settings["compact"])
-        self.text = StatusRows(self, text="Codex\n\u8fde\u63a5\u4e2d...", wraplength=self.window_metrics.wraplength, font=self._font_spec("Segoe UI", self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=self.settings["background_color"])
-        self.battery = BatteryView(self, bg=self.settings["background_color"])
+        hud_bg = self.settings["background_color"]
+        self.hud_header = tk.Frame(self, bg=COLORS["surface_alt"], height=11, highlightthickness=1, highlightbackground=COLORS["border"])
+        self.hud_header.pack_propagate(False)
+        self.hud_title = tk.Label(self.hud_header, text="CODEX", bg=COLORS["surface_alt"], fg=COLORS["accent"], font=(FONT_FAMILY, 7, "bold"), anchor="w")
+        self.hud_title.pack(side="left", padx=(8, 4), fill="y")
+        self.status_title = tk.Label(
+            self.hud_header,
+            text=translate(self.settings["language"], "status"),
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 7),
+            anchor="w",
+        )
+        self.status_title.pack(side="left", padx=(0, 4), fill="y")
+        self.hud_status = tk.Label(self.hud_header, text=translate(self.settings["language"], "idle"), bg=COLORS["surface_alt"], fg=COLORS["muted"], font=(FONT_FAMILY, 7), anchor="e")
+        self.hud_status.pack(side="right", padx=(4, 8), fill="y")
+        self.hud_status_dot = tk.Label(
+            self.hud_header,
+            text=chr(0x25CB),
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 7),
+            anchor="e",
+        )
+        self.hud_status_dot.pack(side="right", padx=(0, 2), fill="y")
+        self.status_card = tk.Frame(self, bg=hud_bg, highlightthickness=1, highlightbackground=COLORS["border"])
+        self.signal_card = tk.Frame(self, bg=COLORS["surface"], highlightthickness=1, highlightbackground=COLORS["border"])
+        self.status_rail = tk.Frame(self.status_card, bg=COLORS["border"], width=2)
+        self.status_rail.place(x=1, y=1, width=2, relheight=1)
+        self.signal_kicker = tk.Label(self.signal_card, text="SIGNAL", bg=COLORS["surface"], fg=COLORS["muted"], font=(FONT_FAMILY, 6, "bold"), anchor="w")
+        self.signal_title = tk.Label(
+            self.signal_card,
+            text="SIGNAL",
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 7, "bold"),
+            anchor="w",
+            padx=1,
+            pady=0,
+            highlightthickness=1,
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
+        self.signal_title.place(x=6, y=3, anchor="nw")
+        self.signal_age = tk.Label(
+            self.signal_card,
+            text="Sync --",
+            bg=COLORS["surface_alt"],
+            fg=COLORS["muted"],
+            font=(FONT_FAMILY, 6),
+            anchor="w",
+            padx=1,
+            pady=0,
+            highlightthickness=1,
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
+        self.signal_progress_track = tk.Frame(
+            self.signal_card,
+            bg=COLORS["surface_alt"],
+            height=5,
+            highlightthickness=1,
+            highlightbackground=COLORS["border"],
+        )
+        self.signal_progress_fill = tk.Frame(
+            self.signal_progress_track,
+            bg=COLORS["accent_alt"],
+            height=1,
+        )
+        self.text = StatusRows(self.status_card, text="Codex\n\u8fde\u63a5\u4e2d...", quota_label=translate(self.settings["language"], "quota"), wraplength=self.window_metrics.wraplength, font=self._font_spec(FONT_FAMILY, self.window_metrics.text_font_size), fg=self.settings["font_color"], bg=hud_bg)
+        self.text.bind("<Map>", lambda _event: self._finalize_initial_expanded_layout(), add="+")
+        self.battery = BatteryView(self.signal_card, bg=COLORS["surface"])
         self._pack_expanded_content()
         self.bind("<Button-3>", self.menu)
         self.bind("<Enter>", self._pointer_enter)
         self.bind("<Leave>", self._pointer_leave)
-        for widget in (*self.text.event_widgets, *self.battery.event_widgets):
+        self._drag = (0, 0)
+        for widget in self._hud_event_widgets():
             widget.bind("<Button-3>", self.menu)
             widget.bind("<Enter>", self._pointer_enter)
             widget.bind("<Leave>", self._pointer_leave)
             widget.bind("<B1-Motion>", self.drag)
             widget.bind("<Button-1>", self.start_drag)
             widget.bind("<ButtonRelease-1>", self.finish_drag)
-        self._drag = (0, 0)
         self.apply_settings(self.settings)
         self.set_compact(self.settings["compact"])
         self.tray = TrayIcon3(self.tray_actions, self.settings["language"])
@@ -204,7 +287,9 @@ class Pet(tk.Tk):
         self.after(250, self.poll)
         self.after(1000, self.refresh_activity)
         self.after(1000, self.refresh)
+        self._schedule_signal_age_refresh()
         self.deiconify()
+        self.after_idle(self._finalize_initial_expanded_layout)
         ensure_overlay_toolwindow(self.winfo_id())
 
     def load_settings(self):
@@ -291,11 +376,83 @@ class Pet(tk.Tk):
         self.attributes("-alpha", self.settings["alpha"])
         self.attributes("-topmost", self.settings["topmost"])
         bg, fg = self.settings["background_color"], self.settings["font_color"]
-        self.configure(bg=bg)
-        self.battery.configure(bg=bg)
+        self.configure(bg=bg, highlightbackground=COLORS["border"], highlightcolor=COLORS["accent"])
+        self.hud_header.configure(
+            bg=COLORS["surface_alt"],
+            highlightbackground=COLORS["border"],
+            height=self._hud_header_height(),
+        )
+        header_font = self._font_spec(
+            FONT_FAMILY,
+            max(6, round(metrics.text_font_size * 0.7)),
+        )
+        self.hud_title.configure(font=(*header_font, "bold"))
+        self.status_title.configure(font=header_font)
+        self.hud_status.configure(font=(*header_font, "bold"))
+        self.hud_status_dot.configure(font=header_font)
+        signal_title_font = self._font_spec(
+            FONT_FAMILY,
+            max(6, round(metrics.text_font_size * 0.7)),
+        )
+        self.signal_kicker.configure(font=(*self._font_spec(FONT_FAMILY, max(5, round(metrics.text_font_size * 0.55))), "bold"))
+        self.signal_title.configure(font=(*signal_title_font, "bold"))
+        self.signal_age.configure(font=self._font_spec(FONT_FAMILY, max(5, round(metrics.text_font_size * 0.55))))
+        header_padding = self._hud_header_padding()
+        self.hud_title.pack_configure(padx=(header_padding, max(2, round(header_padding / 2))))
+        self.status_title.pack_configure(padx=(0, max(2, round(header_padding / 2))))
+        self.hud_status.pack_configure(padx=(max(2, round(header_padding / 2)), header_padding))
+        self.hud_title.configure(bg=COLORS["surface_alt"])
+        self.hud_status.configure(bg=COLORS["surface_alt"])
+        self.hud_status_dot.configure(bg=COLORS["surface_alt"])
+        self.status_card.configure(bg=bg, highlightbackground=COLORS["border"])
+        self.status_rail.configure(bg=COLORS["border"])
+        self.status_title.configure(
+            bg=COLORS["surface_alt"],
+            text=translate(self.settings["language"], "status"),
+        )
+        self.signal_card.configure(bg=COLORS["surface"], highlightbackground=COLORS["border"])
+        self.signal_kicker.configure(bg=COLORS["surface"], fg=COLORS["muted"], text="SIGNAL")
+        self.signal_age.configure(
+            bg=COLORS["surface_alt"],
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
+        source = self.settings["battery_quota_source"]
+        self.signal_title.configure(
+            bg=COLORS["surface_alt"],
+            text=self._signal_caption(source, self.settings["language"]),
+            fg=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
+            highlightbackground=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
+            highlightcolor=COLORS["accent"] if source == "primary_5h" else COLORS["accent_alt"],
+        )
+        self.signal_progress_track.configure(
+            bg=COLORS["surface_alt"],
+            highlightbackground=COLORS["border"],
+            highlightcolor=COLORS["border"],
+        )
+        self.signal_progress_fill.configure(bg=COLORS["accent_alt"])
+        self._update_signal_age()
+        active = bool(self.latest_activity.get("active", 0))
+        initial_status_key = (
+            "output" if active
+            else "loading" if self.quota_state.state == "loading" and self.quota_state.last_good is None
+            else "idle"
+        )
+        initial_status_color = COLORS["success"] if active else COLORS["accent"] if initial_status_key == "loading" else COLORS["muted"]
+        self.hud_status.configure(
+            text=translate(self.settings["language"], initial_status_key),
+            fg=initial_status_color,
+        )
+        self.hud_status_dot.configure(
+            text=self._status_indicator(initial_status_key),
+            fg=initial_status_color,
+        )
+        self.battery.configure(bg=COLORS["surface"])
         self.battery.set_metrics(metrics.text_font_size, compact=self.compact)
-        self.text.set_visible_rows(self.settings)
-        self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec("Segoe UI", metrics.text_font_size), wraplength=metrics.wraplength)
+        self.text.set_visible_rows({**self.settings, "_main_hud_layout": True})
+        self.text.set_quota_label(translate(self.settings["language"], "quota"))
+        self.text.configure_rows(bg=bg, fg=fg, font=self._font_spec(FONT_FAMILY, metrics.text_font_size), wraplength=metrics.wraplength)
+        self._sync_drag_cursor()
         if not self.compact:
             self._pack_expanded_content()
         self._apply_current_mode_geometry()
@@ -317,11 +474,65 @@ class Pet(tk.Tk):
                 compact=self.settings["compact"],
             )
 
+    def _finalize_initial_expanded_layout(self):
+        """Switch initial packed rows to the mapped HUD layout before first paint settles."""
+        if self.closing or self.compact:
+            return
+        self.text.set_visible_rows({**self.settings, "_main_hud_layout": True})
+        self.update_idletasks()
+        self.text.layout_progress_bars()
+
     def _pointer_enter(self, _event=None):
         self.hovered = True
+        self._sync_hover_rail()
 
-    def _pointer_leave(self, _event=None):
+    def _pointer_leave(self, event=None):
+        if event is not None:
+            try:
+                containing = self.winfo_containing(event.x_root, event.y_root)
+                if containing is not None and containing.winfo_toplevel() == self:
+                    self.hovered = True
+                    self._sync_hover_rail()
+                    return
+            except tk.TclError:
+                pass
         self.hovered = False
+        self._sync_hover_rail()
+
+    def _sync_hover_rail(self):
+        """Give the draggable HUD a quiet hover affordance without changing status color."""
+        width = 3 if self.hovered and not self.compact else 2
+        try:
+            self.status_rail.place_configure(width=width)
+        except tk.TclError:
+            pass
+
+    def _sync_drag_cursor(self):
+        """Expose whether the HUD can be dragged through its cursor affordance."""
+        cursor = "arrow" if self.settings["locked"] else "fleur"
+        self.configure(cursor=cursor)
+        for widget in self._hud_event_widgets():
+            widget.configure(cursor=cursor)
+
+    def _hud_event_widgets(self):
+        """Return all HUD surfaces that should share pointer interactions."""
+        return (
+            self.hud_header,
+            self.hud_title,
+            self.hud_status,
+            self.hud_status_dot,
+            self.status_card,
+            self.status_rail,
+            self.status_title,
+            self.signal_card,
+            self.signal_kicker,
+            self.signal_title,
+            self.signal_age,
+            self.signal_progress_track,
+            self.signal_progress_fill,
+            *self.text.event_widgets,
+            *self.battery.event_widgets,
+        )
 
     def _sync_compatibility_metrics(self, settings):
         logical = derive_window_metrics(settings.get("window_scale_percent"))
@@ -338,20 +549,56 @@ class Pet(tk.Tk):
         return display
 
     def _font_spec(self, family, logical_point_size):
-        pixels = max(1, round(logical_point_size * self.window_dpi / 72.0))
+        # CJK glyphs need a tighter fit only at the two smallest HUD sizes;
+        # from 95% upward, 0.85 keeps the bilingual hierarchy closer to English.
+        scale_percent = int(self.settings.get("window_scale_percent", 100))
+        scale = (
+            0.7 if scale_percent <= 90 else 0.85
+        ) if self.settings.get("language") == "zh-CN" else 1.0
+        if scale_percent <= 80:
+            scale *= 0.9
+        elif scale_percent <= 95:
+            scale *= 0.95
+        # Truncate positive pixel sizes so the smallest supported HUD scale does
+        # not round up into an extra row of vertical demand.
+        pixels = max(1, int(logical_point_size * self.window_dpi / 72.0 * scale))
         return family, -pixels
+
+    def _hud_header_height(self):
+        """Keep the compact status header proportional to the active HUD scale."""
+        metrics = getattr(self, "window_metrics", None)
+        if metrics is None:
+            return 11
+        dpi_scale = self.window_dpi / 96.0 if self.window_dpi > 0 else 1.0
+        return max(11, round(14 * metrics.scale_percent / 100 * dpi_scale))
+
+    def _hud_header_padding(self):
+        """Scale header breathing room with the same physical HUD ratio."""
+        metrics = getattr(self, "window_metrics", None)
+        if metrics is None:
+            return 8
+        dpi_scale = self.window_dpi / 96.0 if self.window_dpi > 0 else 1.0
+        return max(4, round(8 * metrics.scale_percent / 100 * dpi_scale))
 
     def _pack_expanded_content(self):
         metrics = self.window_metrics
+        self.hud_header.pack_forget()
+        self.status_card.pack_forget()
+        self.signal_card.pack_forget()
         self.battery.pack_forget()
+        self.battery.place_forget()
+        self.text.pack_forget()
+        self.hud_header.configure(height=self._hud_header_height())
+        self.hud_header.pack(side="top", fill="x", padx=metrics.horizontal_padding, pady=0)
+        self.status_card.pack(side="top", fill="both", expand=True, padx=metrics.horizontal_padding, pady=0)
+        self._sync_hover_rail()
         self.text.pack(
-            side="left",
             fill="both",
             expand=True,
             padx=(metrics.horizontal_padding, metrics.face_text_gap),
-            pady=metrics.vertical_padding,
+            pady=0,
         )
-        self.battery.pack(side="right", padx=(0, metrics.horizontal_padding), pady=metrics.vertical_padding)
+        self.text.lift()
 
     def _apply_current_mode_geometry(self):
         """Apply root geometry from canonical settings in the current manual mode."""
@@ -372,6 +619,8 @@ class Pet(tk.Tk):
         self.geometry(
             f"{self.window_metrics.width}x{self.window_metrics.height}+{x}+{y}"
         )
+        self.update_idletasks()
+        self.text.layout_progress_bars()
 
     def set_compact(self, compact):
         compact = bool(compact)
@@ -379,11 +628,21 @@ class Pet(tk.Tk):
             return
         self.compact = compact
         if compact:
+            self.hud_header.pack_forget()
+            self.status_card.pack_forget()
+            self.signal_card.pack_forget()
+            self.signal_kicker.place_forget()
+            self.signal_title.place_forget()
+            self.signal_age.place_forget()
+            self.signal_progress_track.place_forget()
+            self.signal_progress_fill.place_forget()
             self.text.pack_forget()
             self.battery.pack_forget()
+            self.battery.place_forget()
             self.battery.set_compact(True)
             self.battery.set_metrics(self.window_metrics.text_font_size, compact=True)
-            self.battery.pack(expand=True, padx=8, pady=8)
+            self.signal_card.pack(expand=True, fill="both", padx=0, pady=0)
+            self.battery.pack(expand=True, padx=4, pady=4)
             size = compact_size(self.window_metrics.width, self.window_metrics.height)
         else:
             self.battery.set_compact(False)
@@ -414,13 +673,30 @@ class Pet(tk.Tk):
         self.update_idletasks()
         self.attributes("-alpha", self.settings["alpha"])
         self._sync_tray_menu()
+        settings_dialog_open = (
+            self.settings_dialog is not None
+            and self.settings_dialog.winfo_exists()
+        )
+        if settings_dialog_open:
+            self.attributes("-topmost", False)
+            ensure_overlay_toolwindow(self.winfo_id())
+            self.settings_dialog.attributes("-topmost", True)
+            self.settings_dialog.lift()
+            self.settings_dialog.focus_force()
+            return
         self.attributes("-topmost", True)
+        ensure_overlay_toolwindow(self.winfo_id())
         self.lift()
         self.focus_force()
         def restore_topmost():
             if not self.closing:
                 try:
+                    if self.settings_dialog is not None and self.settings_dialog.winfo_exists():
+                        self.attributes("-topmost", False)
+                        ensure_overlay_toolwindow(self.winfo_id())
+                        return
                     self.attributes("-topmost", self.settings["topmost"])
+                    ensure_overlay_toolwindow(self.winfo_id())
                 except tk.TclError:
                     logging.getLogger("codex-status-pet").debug("window closed before topmost restore")
         self.after(150, restore_topmost)
@@ -566,6 +842,7 @@ class Pet(tk.Tk):
                     self.close()
                 elif action == "tray_error":
                     presentation = self.presentation_controller.render_tray_error()
+                    self.configure(highlightbackground=COLORS["danger"])
                     self.text.configure_rows(
                         rows=presentation["rows"], fg=presentation["color"]
                     )
@@ -638,8 +915,196 @@ class Pet(tk.Tk):
             self.settings["battery_quota_source"],
             self.settings["language"],
         )
+        border_color = self._hud_border_color(presentation)
+        self.configure(highlightbackground=border_color)
+        self.hud_header.configure(highlightbackground=border_color)
+        self.status_card.configure(highlightbackground=border_color)
+        self.signal_card.configure(highlightbackground=border_color)
+        active = bool(presentation.get("active_count", 0))
+        quota_state = presentation.get("quota_state")
+        status_key = (
+            "quota_unavailable" if quota_state in {"unavailable", "tray_error"}
+            else "stale" if quota_state == "stale"
+            else "output" if active
+            else "loading" if quota_state == "loading" and self.quota_state.last_good is None
+            else "idle"
+        )
+        status_color = (
+            COLORS["danger"] if quota_state in {"unavailable", "tray_error"}
+            else COLORS["muted"] if quota_state == "stale"
+            else COLORS["success"] if active
+            else COLORS["accent"] if status_key == "loading"
+            else COLORS["muted"]
+        )
+        # Keep activity visible in the rail and status dot without turning the
+        # entire HUD outline green during normal output.
+        self.status_rail.configure(bg=status_color if active else border_color)
+        self.hud_status.configure(
+            text=translate(self.settings["language"], status_key),
+            fg=status_color,
+        )
+        self.hud_status_dot.configure(
+            text=self._status_indicator(status_key),
+            fg=status_color,
+        )
+        self._update_signal_age(quota_state)
+        signal_title_color = self._signal_title_color(presentation)
+        self.signal_title.configure(
+            fg=signal_title_color,
+            highlightbackground=signal_title_color,
+            highlightcolor=signal_title_color,
+        )
+        battery = presentation["battery"]
+        remaining = battery.get("remaining_percent")
+        self._update_signal_progress(remaining, quota_state)
         self.text.configure_rows(rows=presentation["rows"], fg=presentation["color"])
-        self.battery.configure_presentation(presentation["battery"])
+        self._apply_status_row_colors(presentation)
+        self.text.set_quota_progress(
+            presentation.get("remaining_percentages"),
+            self._quota_progress_colors(presentation),
+        )
+        self.battery.configure_presentation(
+            presentation["battery"],
+            stale=presentation.get("quota_state") == "stale",
+            unavailable=presentation.get("quota_state") in {"unavailable", "tray_error"},
+        )
+
+    @staticmethod
+    def _hud_border_color(presentation):
+        """Use the HUD outline for quota health; activity uses the status rail."""
+        if presentation.get("quota_state") in {"unavailable", "tray_error"}:
+            return COLORS["danger"]
+        if presentation.get("quota_state") == "stale":
+            return COLORS["muted"]
+        if presentation.get("quota_tier") == "critical":
+            return COLORS["danger"]
+        if presentation.get("quota_tier") == "caution":
+            return COLORS["warning"]
+        return COLORS["border"]
+
+    def _signal_card_width(self):
+        metrics = getattr(self, "window_metrics", None)
+        if metrics is None:
+            return 84
+        dpi_scale = self.window_dpi / 96.0 if self.window_dpi > 0 else 1.0
+        return max(84, round(96 * metrics.scale_percent / 100 * dpi_scale))
+
+    def _update_signal_age(self, quota_state=None):
+        state = quota_state or self.quota_state.state
+        prefix = "Sync" if self.settings.get("language") == "en" else chr(0x540C) + chr(0x6B65)
+        timestamp = self.quota_state.last_success_at
+        if timestamp is None:
+            age_text = "--"
+        else:
+            age = max(0, int((datetime.now(timezone.utc) - timestamp).total_seconds()))
+            age_text = f"{age}s"
+        self.signal_age.configure(
+            text=f"{prefix} {age_text}",
+            bg=COLORS["surface_alt"],
+            fg=(
+                COLORS["danger"] if state in {"unavailable", "tray_error"}
+                else COLORS["warning"] if state == "stale"
+                else COLORS["muted"]
+            ),
+            highlightbackground=(
+                COLORS["danger"] if state in {"unavailable", "tray_error"}
+                else COLORS["warning"] if state == "stale"
+                else COLORS["border"]
+            ),
+            highlightcolor=(
+                COLORS["danger"] if state in {"unavailable", "tray_error"}
+                else COLORS["warning"] if state == "stale"
+                else COLORS["border"]
+            ),
+        )
+
+    def _update_signal_progress(self, remaining, quota_state=None):
+        state = quota_state or self.quota_state.state
+        if remaining is None or state in {"unavailable", "tray_error"}:
+            ratio = 0.0
+        else:
+            ratio = max(0.0, min(1.0, float(remaining) / 100.0))
+        color = (
+            COLORS["danger"]
+            if state in {"unavailable", "tray_error"}
+            else COLORS["muted"]
+            if state == "stale"
+            else self._signal_progress_color(
+                remaining,
+                self.settings["battery_quota_source"],
+            )
+        )
+        self.signal_progress_fill.configure(bg=color)
+        self._signal_progress_ratio = ratio
+        self.signal_progress_fill.place_configure(relwidth=ratio)
+
+    def _schedule_signal_age_refresh(self):
+        if self.closing:
+            return
+        self.signal_age_refresh_job = self.after(1000, self._refresh_signal_age)
+
+    def _refresh_signal_age(self):
+        self.signal_age_refresh_job = None
+        if self.closing:
+            return
+        self._update_signal_age()
+        self._schedule_signal_age_refresh()
+
+    def _cancel_signal_age_refresh(self):
+        job = self.signal_age_refresh_job
+        self.signal_age_refresh_job = None
+        if job is None:
+            return
+        try:
+            self.after_cancel(job)
+        except tk.TclError:
+            pass
+
+    def _apply_status_row_colors(self, presentation):
+        """Keep all body text on the selected font color; bars carry quota health."""
+        for label in self.text.labels.values():
+            label.configure(fg=self.settings["font_color"])
+
+    def _quota_progress_colors(self, presentation):
+        quota_state = presentation.get("quota_state")
+        tiers = presentation.get("quota_tiers", {})
+        if quota_state in {"unavailable", "tray_error"}:
+            return {"primary_5h": COLORS["danger"], "weekly": COLORS["danger"]}
+        if quota_state == "stale":
+            return {"primary_5h": COLORS["muted"], "weekly": COLORS["muted"]}
+        primary_tier = tiers.get("primary_5h", presentation.get("quota_tier"))
+        weekly_tier = tiers.get("weekly", presentation.get("quota_tier"))
+        remaining = presentation.get("remaining_percentages", {})
+        return {
+            "primary_5h": battery_health_color(remaining.get("primary_5h")),
+            "weekly": battery_health_color(remaining.get("weekly")),
+        }
+
+    @staticmethod
+    def _status_indicator(status_key):
+        return {
+            "output": chr(0x25CF),
+            "idle": chr(0x25CB),
+            "loading": chr(0x25CC),
+            "stale": chr(0x25D0),
+            "quota_unavailable": "!",
+            "tray_error": "!",
+        }.get(status_key, chr(0x25CB))
+
+    @staticmethod
+    def _signal_caption(source, language):
+        return translate(language, "five_hour" if source == "primary_5h" else "weekly")
+
+    @staticmethod
+    def _signal_progress_color(remaining, source):
+        """Use source color while healthy and health colors as quota gets low."""
+        if remaining is None:
+            return COLORS["danger"]
+        return battery_health_color(remaining)
+
+    def _signal_title_color(self, presentation):
+        """Keep the selected quota label consistent with the body font color."""
+        return self.settings["font_color"]
 
     def poll(self):
         if self.closing:
@@ -685,6 +1150,7 @@ class Pet(tk.Tk):
     def close(self):
         if not self.lifecycle.begin_close():
             return
+        self._cancel_signal_age_refresh()
         if hasattr(self, "application_controller"):
             self.application_controller.shutdown()
         try:

@@ -8,7 +8,7 @@ $repository = 'TomTang701/codex-windows-status-pet'
 $releasesApi = "https://api.github.com/repos/$repository/releases"
 $headers = @{
     Accept = 'application/vnd.github+json'
-    'User-Agent' = 'CodexStatusPet-public-bootstrap/0.9.1'
+    'User-Agent' = 'CodexStatusPet-public-bootstrap/1.0.0'
 }
 $staging = Join-Path ([IO.Path]::GetTempPath()) "CodexStatusPet-release-$([guid]::NewGuid())"
 

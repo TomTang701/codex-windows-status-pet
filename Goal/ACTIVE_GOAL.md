@@ -1,646 +1,756 @@
-# ACTIVE PROGRAM GOAL — v0.9.1 Public Distribution Correction
+# Active Goal: Lightweight Source-Based v1.0.0 Release
 
-> **Status:** COMPLETED / RELEASED AND RECONCILED
-> **Program owner:** Tom
-> **Repository:** `TomTang701/codex-windows-status-pet`
-> **Repository visibility:** PUBLIC
-> **Released baseline:** `v0.9.0` at `bdae1942856ffa00677e64c63142457d0f79efce`
-> **Final target:** released and reconciled `v0.9.1`
-> **Execution model:** published asset provenance audit → public PowerShell bootstrap → product ZIP discoverability → lifecycle verification → one v0.9.1 patch release
-> **STOP:** satisfied after v0.9.1 release, release-state reconciliation, temporary branch cleanup, final remote `main`-only state, and final verification
+> **For Codex:** Work directly in the existing `codex-windows-status-pet-ui` checkout on branch `feat/signal-hud-settings-ui-isolated`. Read the repository-root `AGENTS.md` and Tom's global engineering instructions before changing files. Use the smallest complete implementation, TDD where behavior is reproducible, systematic debugging for failures, and fresh verification before completion.
 
-## Active Goal authority
+**Goal:** Complete the current UI version, replace the PyInstaller application-EXE distribution with a lightweight source-based installation, merge the verified UI branch into `main`, and publish it as stable `v1.0.0`.
 
-This file is the only authoritative active Program Goal.
+**Architecture:** The GitHub Release contains the application source, launch/install/uninstall scripts, a release manifest, pinned runtime requirements, and one canonical Windows icon—but no packaged `CodexStatusPet.exe`, no bundled Python runtime, and no PyInstaller `_internal` directory. The bootstrap installer detects an existing compatible Windows Python, installs the two runtime dependencies into an application-private directory, deploys under `%LOCALAPPDATA%\Programs\CodexStatusPet`, and creates Desktop and Start Menu shortcuts that launch the app without a visible console.
 
-The completed v0.9.0 Program is the released baseline and historical context. It is not a second active Goal.
+**Tech Stack:** Python 3.10+, Tkinter, Pillow, pystray, PowerShell, VBScript or an equivalent hidden script launcher, Windows Shell shortcuts, GitHub Actions, GitHub Releases.
 
-Conflicting stale statements that still describe the repository as private or require `gh auth login` for normal user installation are superseded by this Program.
+## 1. Confirmed Product Decisions
 
-## Program sequence
+The following decisions are final for this goal:
 
-```text
-Phase A: audit the actual published v0.9.0 Release assets and ZIP provenance
-→ Phase B: replace private/authenticated bootstrap acquisition with public HTTPS acquisition
-→ Phase C: make product ZIP and source-ZIP distinction unmistakable
-→ Phase D: verify ZIP direct use and public PowerShell install / repair / pinned-version behavior
-→ focused regression
-→ formal RC
-→ exact-head GitHub Windows CI
-→ squash merge
-→ merged-main RC
-→ annotated v0.9.1 tag and GitHub Release
-→ verify v0.9.1 public assets from the public Release surface
-→ release-state reconciliation
-→ proven-safe temporary branch cleanup
-→ confirm remote branch list is exactly main
-→ STOP
+- The local working folder is `codex-windows-status-pet-ui`.
+- The working branch remains `feat/signal-hud-settings-ui-isolated`.
+- This UI branch is the intended `v1.0.0` product and will replace the old implementation on `main`.
+- Do not create a third repository copy, release worktree, or parallel replacement UI.
+- Do not modify or delete the repository-root `AGENTS.md`.
+- The Windows taskbar/Shell identity issue is fixed and physically verified.
+- Do not repeat the same physical taskbar test unless later code changes affect Shell identity.
+- Do not produce a packaged application executable named `CodexStatusPet.exe`.
+- Do not bundle a Python interpreter or PyInstaller `_internal` runtime.
+- Do not add MSI, MSIX, NSIS, Inno Setup, or another installer framework.
+- Keep one-line PowerShell deployment as the normal installation and upgrade path.
+- Create both a Desktop shortcut and a Start Menu shortcut by default.
+- Both shortcuts must use the same visual icon as the running app and notification-area icon.
+- Do not automatically pin the app to the Windows taskbar.
+- Do not add automatic sign-in startup in this release.
+- Do not add unrelated features or broad refactoring.
+
+## 2. Protected Existing Behavior
+
+Preserve the approved UI and runtime behavior:
+
+- Four-row expanded Signal HUD.
+- Five stable logical row identities.
+- Compact ten-cell quota battery with percentage.
+- 5-hour and Weekly progress bars.
+- Reset Credit display.
+- English and Simplified Chinese UI.
+- Settings Apply, Save, Close, and Restore Defaults.
+- Font color, background color, opacity, scale, coordinates, topmost, lock, row visibility, battery source, and refresh interval.
+- Context menu and tray Show, Hide, Settings, and Exit behavior.
+- Multi-monitor position persistence and recovery.
+- Single-instance behavior.
+- Existing Shell identity and taskbar fixes.
+- Local Codex app-server and approved local session-metadata boundary.
+- No access-token reader, telemetry, hosted backend, third-party quota service, or Codex core modification.
+- Settings at `%USERPROFILE%\.codex\codex-windows-status-pet.json`.
+- Preservation of unrelated `.codex` data.
+
+## 3. Target Installation Experience
+
+The public latest install command remains:
+
+```powershell
+& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1')))
 ```
 
-## Product decisions already approved by Tom
+Expected user experience:
 
-Do not reopen or re-ask these decisions:
+```text
+resolve stable GitHub Release
+→ download source product ZIP + SHA-256 + install.ps1
+→ verify checksum and manifest
+→ detect a compatible existing Python
+→ deploy application files
+→ install pinned dependencies into an application-private directory
+→ create Desktop shortcut
+→ create Start Menu shortcut
+→ launch without a visible console window
+```
 
-- `CodexStatusPet.exe` is the formal application launcher / packaged program entry point.
-- `CodexStatusPet.exe` is not an installer executable.
-- The product remains a PyInstaller onedir package unless evidence proves the existing architecture cannot satisfy this Program.
-- ZIP direct use is supported:
-  `download product Release ZIP → extract complete ZIP → run CodexStatusPet.exe`.
-- PowerShell is the supported installation / repair / upgrade deployment path.
-- PowerShell installation deploys the product runtime only, not the repository.
-- `start_codex_status_pet.cmd` remains development / debugging / source-verification tooling only.
-- The repository is public.
-- Normal public installation must not require Git, GitHub CLI, `gh auth login`, a GitHub account, Python, pip, or a repository clone.
-- The public PowerShell default is the latest published stable Release.
-- An advanced optional `-Tag vMAJOR.MINOR.PATCH` path must allow installation of one explicitly requested published stable version.
-- `main` is the only long-lived remote branch and the final remote branch list after Program closure must contain exactly `main`.
+The user must not need to:
 
-## Phase A — published Release asset provenance audit
+- clone the repository;
+- install Git or GitHub CLI;
+- authenticate to GitHub;
+- open the installed folder to launch the app;
+- manually run `pip install`;
+- manually create shortcuts;
+- copy source files;
+- receive or run an application-specific EXE.
 
-Before changing bootstrap code or documentation, inspect the actual public v0.9.0 GitHub Release and its downloadable assets.
+## 4. Installation Layout
 
-The expected v0.9.0 product ZIP is exactly:
+Use the existing per-user installation root:
 
-`CodexStatusPet-v0.9.0-win11-x64.zip`
+```text
+%LOCALAPPDATA%\Programs\CodexStatusPet
+```
 
-Do not confuse it with:
+The installed product must contain a compact, explicit structure similar to:
 
-- repository `Code → Download ZIP`;
-- GitHub-generated `Source code (zip)`;
-- GitHub-generated `Source code (tar.gz)`;
-- a GitHub Actions workflow artifact;
-- a source checkout;
-- a locally rebuilt artifact.
+```text
+CodexStatusPet\
+├─ scripts\
+│  ├─ codex_status_pet.py
+│  ├─ api\
+│  └─ ui\
+├─ runtime-packages\
+├─ assets\
+│  └─ CodexStatusPet.ico
+├─ launch.vbs
+├─ launch.ps1
+├─ install.ps1
+├─ uninstall.ps1
+├─ requirements-runtime.txt
+└─ release-manifest.json
+```
 
-Download the actual v0.9.0 Release product ZIP and matching `.sha256` sidecar from the public Release surface.
+Exact supporting source packages may follow the repository's current structure, but:
+
+- do not include tests;
+- do not include `.git`;
+- do not include `.build`;
+- do not include screenshots or development plans unless runtime-required;
+- do not include PyInstaller output;
+- do not include a bundled Python runtime;
+- do not include secrets, local paths, caches, or user files.
+
+## 5. Runtime Strategy
+
+### 5.1 Compatible Python
+
+Support Windows x64 Python 3.10 or newer.
+
+The installer must discover candidates in this order:
+
+1. The current Codex-bundled Python path already used by the repository, when present.
+2. A compatible interpreter available through `py.exe`.
+3. A compatible `python.exe` available through `PATH`.
+
+A candidate is acceptable only when all required checks pass:
+
+```text
+Windows x64
+Python >= 3.10
+tkinter import succeeds
+pip is available
+pythonw.exe or another verified no-console launch path is available
+```
+
+Do not assume that the Codex internal Python path is permanently available.
+
+Do not edit, upgrade, uninstall, or install packages into Codex's own site-packages or the user's global Python site-packages.
+
+When no compatible interpreter exists, stop cleanly and display a clear message explaining that Python 3.10+ with Tkinter and pip is required. Do not leave a partial install or broken shortcuts.
+
+### 5.2 Application-Private Dependencies
+
+Install pinned runtime dependencies into:
+
+```text
+%LOCALAPPDATA%\Programs\CodexStatusPet\runtime-packages
+```
+
+Use application-local target installation rather than global installation:
+
+```powershell
+<selected-python> -m pip install `
+  --disable-pip-version-check `
+  --no-warn-script-location `
+  --upgrade `
+  --target <install-root>\runtime-packages `
+  -r <install-root>\requirements-runtime.txt
+```
+
+Create `requirements-runtime.txt` with exact tested versions, initially matching the repository's release-tested dependency versions:
+
+```text
+Pillow==12.2.0
+pystray==0.19.5
+```
+
+If current repository tests prove a different exact compatible version is required, use the tested version and update all version checks consistently.
+
+Do not use unbounded `>=` requirements for the stable installer.
+
+### 5.3 Hidden Launcher
+
+Create a stable launcher that:
+
+- locates the installation root relative to itself;
+- reads the selected Python record written by the installer;
+- revalidates that interpreter before launch;
+- sets `PYTHONPATH` to `runtime-packages`;
+- starts `scripts\codex_status_pet.py` without a visible console;
+- preserves the existing single-instance behavior;
+- reports a useful error when the recorded runtime is missing instead of silently doing nothing.
+
+Prefer the smallest existing-platform solution. A `launch.vbs` wrapper calling a focused `launch.ps1` is acceptable.
+
+Do not add a launcher EXE.
+
+## 6. Shortcut Requirements
+
+Create these shortcuts during install and repair:
+
+### Desktop
+
+Resolve the actual Windows Desktop special folder instead of hard-coding `%USERPROFILE%\Desktop`, because Desktop may be redirected by OneDrive or organizational policy.
+
+Shortcut display name:
+
+```text
+Codex Windows Status Pet
+```
+
+### Start Menu
+
+Create:
+
+```text
+%APPDATA%\Microsoft\Windows\Start Menu\Programs\Codex Windows Status Pet.lnk
+```
+
+### Shared Shortcut Contract
+
+Both shortcuts must:
+
+- launch the hidden source launcher;
+- use the installed product directory as working directory;
+- include a description identifying Codex Windows Status Pet;
+- set `IconLocation` to the installed canonical ICO;
+- work when launched after Windows Explorer restarts;
+- be recreated during same-version repair;
+- be removed during uninstall;
+- not create duplicate shortcuts on upgrade or repair.
+
+The shortcut icon, Tk root icon, Settings window icon, Windows taskbar window icon, and notification-area icon must use the same canonical visual design.
+
+Do not claim automatic taskbar pinning. A user may manually pin the Start Menu shortcut.
+
+## 7. Canonical Icon
+
+Create and track:
+
+```text
+assets/CodexStatusPet.ico
+```
+
+The ICO must use the existing pet/tray design, not a new unrelated logo.
+
+Include standard Windows sizes:
+
+```text
+16x16
+20x20
+24x24
+32x32
+48x48
+64x64
+128x128
+256x256
+```
+
+Use this file as the canonical source for:
+
+- Desktop shortcut;
+- Start Menu shortcut;
+- Tk main window;
+- Settings dialog;
+- Windows taskbar identity;
+- notification-area icon.
+
+If runtime rendering requires a PIL image, load or derive it from this canonical asset rather than maintaining a visually different icon implementation.
+
+## 8. Release Artifact Contract
+
+Keep the established public product asset name unless a test proves that changing it is necessary:
+
+```text
+CodexStatusPet-v1.0.0-win11-x64.zip
+CodexStatusPet-v1.0.0-win11-x64.zip.sha256
+CodexStatusPet-bootstrap.ps1
+install.ps1
+```
+
+The ZIP is now a lightweight source runtime package, not a PyInstaller package.
+
+Update `release-manifest.json` to describe the new contract. It must include at least:
+
+```json
+{
+  "schema_version": 2,
+  "product": "codex-windows-status-pet",
+  "display_name": "Codex Windows Status Pet",
+  "version": "1.0.0",
+  "platform": "windows",
+  "arch": "x64",
+  "runtime": "python",
+  "minimum_python": "3.10",
+  "entrypoint": "scripts/codex_status_pet.py",
+  "launcher": "launch.vbs",
+  "icon": "assets/CodexStatusPet.ico"
+}
+```
+
+Do not include an `entrypoint` value ending in `.exe`.
+
+## 9. Files to Inspect and Modify
+
+Inspect actual repository state before changing anything. At minimum, expect coordinated changes in:
+
+```text
+Goal/ACTIVE_GOAL.md
+Goal/ACTIVE_VERSION_BRIEF.md
+Goal/EXECUTION_STATE.md
+
+scripts/build_release.py
+scripts/run_release_candidate_checks.py
+scripts/package_smoke_test.py
+scripts/packaged_runtime_smoke.py
+scripts/installed_lifecycle_smoke.py
+scripts/install_release.ps1
+scripts/check_version_sources.py
+
+install.ps1
+uninstall.ps1
+start_codex_status_pet.cmd
+requirements.txt
+requirements-runtime.txt
+
+packaging/CodexStatusPet.spec
+
+scripts/ui/main_window.py
+scripts/ui/settings_dialog.py
+scripts/ui/tray or icon-related modules
+
+tests/test_release_artifact_api.py
+tests/test_release_build.py
+tests/test_package_smoke.py
+tests/test_packaged_runtime.py
+tests/test_installed_lifecycle.py
+tests/test_ci_workflow.py
+tests/test_version_sources.py
+tests/test_ui_shell_identity.py
+tests/test_ui_menu.py
+tests for launcher, Python discovery, shortcuts, and uninstall behavior
+
+.github/workflows/ci.yml
+.github/workflows/release-candidate.yml
+
+README.md
+README.zh-CN.md
+CHANGELOG.md
+CHANGELOG.zh-CN.md
+docs/operations/INSTALLATION.md
+docs/operations/INSTALLATION.zh-CN.md
+docs/governance/RELEASE.md
+docs/governance/RELEASE.zh-CN.md
+docs/quality/COMPATIBILITY_MATRIX.md
+docs/quality/COMPATIBILITY_MATRIX.zh-CN.md
+docs/product/ROADMAP.md
+docs/product/ROADMAP.zh-CN.md
+```
+
+File names in the current repository may differ. Reuse existing modules and tests instead of creating duplicate mechanisms.
+
+Remove `packaging/CodexStatusPet.spec` only after no active build, test, workflow, or document depends on it.
+
+## 10. Implementation Tasks
+
+### Task 1: Reconcile Active Goal State
+
+- Replace the beta-only `Goal/ACTIVE_GOAL.md` with this goal.
+- Update the version brief and execution state.
+- Record that the UI branch is the intended 1.0 product.
+- Record the completed physical taskbar/Shell validation.
+- Remove the old restriction that prohibits a verified PR into `main`.
+- Keep `main` unchanged until PR merge.
+
+Verification:
+
+```powershell
+python scripts/check_doc_manifest.py
+python scripts/check_doc_governance.py
+python scripts/check_doc_links.py
+git diff --check
+```
+
+### Task 2: Define the Source Release Contract with Tests
+
+Use TDD.
+
+Add focused failing tests that require:
+
+- schema version 2;
+- Python runtime;
+- source entrypoint;
+- hidden launcher;
+- canonical icon;
+- no application EXE;
+- no `_internal` runtime;
+- no tests or development caches in the product ZIP;
+- exact pinned runtime requirements.
+
+Run the focused tests and confirm they fail for the expected old-EXE contract.
+
+Implement the smallest manifest/artifact API changes required.
+
+Rerun focused tests until green.
+
+### Task 3: Replace PyInstaller Build with Source Packaging
+
+Modify the release builder so it:
+
+- validates Windows x64 release context;
+- copies only required application source and assets;
+- creates the canonical source manifest;
+- includes launch/install/uninstall scripts;
+- includes pinned runtime requirements;
+- excludes tests and development-only files;
+- creates the established ZIP and SHA-256 sidecar;
+- copies bootstrap and installer assets into the Release staging directory;
+- prints artifact path, checksum, unpacked size, and compressed size.
+
+Remove PyInstaller from the production release path.
+
+Do not remove historical files until all references are updated.
+
+Focused verification:
+
+```powershell
+python -m unittest <release-build-and-artifact-test-modules> -v
+python scripts/build_release.py
+```
+
+Inspect the generated ZIP contents.
+
+### Task 4: Implement Python Discovery and Private Dependencies
+
+Use TDD for the discovery and validation logic.
+
+Required test cases:
+
+- valid Codex Python selected first;
+- invalid or missing Codex Python falls back;
+- `py.exe` candidate works;
+- PATH candidate works;
+- Python below 3.10 rejected;
+- non-x64 Python rejected;
+- missing Tkinter rejected;
+- missing pip rejected;
+- no valid candidate causes clean failure;
+- no global or Codex site-packages are modified;
+- dependencies install only into `runtime-packages`.
+
+The installer must clean temporary staging and preserve the previous working installation on any failure.
+
+### Task 5: Implement Hidden Source Launch
+
+Use a launcher that starts the UI without a visible terminal window.
+
+Tests must verify:
+
+- launcher resolves relative paths;
+- application-private packages are added to import path;
+- recorded Python is used when valid;
+- missing runtime gives a visible actionable error;
+- launch does not invoke `CodexStatusPet.exe`;
+- repeated launch preserves single-instance behavior;
+- source and installed launches preserve Shell identity.
+
+Do not rework the UI itself unless the source-launch transition exposes a real regression.
+
+### Task 6: Add Unified Icon and Dual Shortcuts
+
+Create the multi-resolution canonical ICO from the current tray design.
+
+Update runtime icon loading so all relevant windows and tray surfaces use the same asset.
+
+Update install/repair to create:
+
+- Desktop shortcut in the resolved Desktop special folder;
+- Start Menu shortcut in the current user's Programs folder.
+
+Tests must verify:
+
+- both shortcuts exist;
+- both use the same `IconLocation`;
+- the icon path exists;
+- both launch successfully;
+- no console remains visible;
+- repair recreates missing shortcuts;
+- upgrade does not duplicate shortcuts;
+- uninstall removes both shortcuts;
+- taskbar/Shell regression tests remain green.
+
+### Task 7: Migrate Upgrade, Repair, Rollback, and Uninstall
+
+The architecture changes from the existing v0.9.1 EXE package to the v1.0.0 source package.
+
+Required lifecycle behavior:
+
+```text
+v0.9.1 EXE install
+→ v1.0.0 source-package upgrade
+→ settings preserved
+→ old executable runtime removed
+→ new source runtime installed
+→ both new shortcuts created
+```
+
+Also verify:
+
+- same-version repair;
+- missing dependency repair;
+- missing shortcut repair;
+- failure after backup restores the previous installation;
+- normal uninstall preserves settings;
+- purge uninstall removes only the product settings file;
+- unrelated `.codex` data remains;
+- runtime-packages and both shortcuts are removed;
+- no installed process remains after uninstall.
+
+Use the published v0.9.1 product artifact as the upgrade baseline.
+
+### Task 8: Simplify the Release Candidate Gate
+
+Replace EXE-specific checks with source-release checks.
+
+The formal RC should run each major layer once:
+
+```text
+Quality
+source release build
+static source-package validation
+installed source runtime smoke
+public bootstrap smoke against the currently published stable release
+README screenshot validation
+strict compatibility/readiness
+git diff --check
+```
+
+Do not run full Quality separately inside multiple nested scripts.
+
+During development, run focused tests only. Run full Quality once after the migration is functionally complete. Run formal RC once on the final local candidate.
+
+### Task 9: Promote Active Version to 1.0.0
+
+After the source deployment path is green:
+
+- update all active version sources to `1.0.0`;
+- update artifact expectations;
+- update bootstrap User-Agent;
+- add stable bilingual changelog entries;
+- preserve historically correct beta records;
+- update documentation from EXE-centric instructions to source-based installation;
+- clearly state that an existing compatible Python is required;
+- state that the installer creates both Desktop and Start Menu shortcuts;
+- state that no automatic taskbar pin or Windows sign-in startup is created.
+
+### Task 10: Final Local Verification
+
+Run targeted tests during implementation.
+
+When functionality is frozen, run once:
+
+```powershell
+python scripts/run_quality_checks.py
+```
+
+Then run the final local release gate once:
+
+```powershell
+python scripts/run_release_candidate_checks.py
+```
+
+Required result:
+
+```json
+{
+  "release_candidate_approved": true,
+  "blockers": []
+}
+```
+
+Also run:
+
+```powershell
+git diff --check
+git status --short
+git diff --stat main...HEAD
+git diff --name-status main...HEAD
+```
+
+Review the entire diff for unrelated changes, debug files, local paths, credentials, tokens, generated caches, and obsolete EXE claims.
+
+### Task 11: PR and Exact-Head CI
+
+Push the existing branch:
+
+```text
+feat/signal-hud-settings-ui-isolated
+```
+
+Create a PR into:
+
+```text
+main
+```
+
+Suggested title:
+
+```text
+release: publish lightweight Codex Status Pet v1.0.0
+```
+
+The PR must describe:
+
+- completed UI redesign;
+- accepted taskbar/Shell validation;
+- removal of the packaged application EXE;
+- Python runtime requirements and fallback behavior;
+- app-private dependency installation;
+- Desktop and Start Menu shortcuts;
+- unified icon;
+- v0.9.1-to-v1.0.0 migration;
+- local Quality and RC results;
+- remaining non-blocking limitations.
+
+Require exact-head Windows CI.
+
+CI is the authoritative full installed lifecycle evidence. Do not repeat the entire lifecycle locally after exact-head CI passes unless CI finds a problem.
+
+### Task 12: Merge and Publish
+
+After exact-head CI passes and the full diff is approved:
+
+- squash merge into `main`;
+- require the normal `main` Windows workflow to pass on the merged commit;
+- do not rerun duplicate local full suites when merged-main CI already covers the exact commit;
+- create annotated tag `v1.0.0`;
+- publish the GitHub Release;
+- upload ZIP, SHA-256, bootstrap, and installer assets;
+- verify the Release manifest contains no EXE entrypoint;
+- verify the ZIP contains no application EXE or bundled Python.
+
+### Task 13: Public Install Verification
+
+Perform one complete public latest installation test:
+
+```powershell
+& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1')))
+```
 
 Verify:
 
-- the product ZIP asset exists;
-- the matching SHA-256 sidecar exists;
-- the published checksum matches the downloaded product ZIP;
-- the archive has one runtime root named `CodexStatusPet`;
-- `CodexStatusPet/CodexStatusPet.exe` exists;
-- `CodexStatusPet/_internal` exists;
-- `CodexStatusPet/release-manifest.json` exists;
-- the manifest entry point is exactly `CodexStatusPet.exe`;
-- the manifest version is `0.9.0`;
-- the ZIP does not contain repository-only material.
-
-Repository-only material prohibited from the product ZIP includes at minimum:
-
-- `tests`;
-- `docs`;
-- `Goal`;
-- `skills`;
-- `.github`;
-- `.githooks`;
-- `.codex-plugin`;
-- `.build`;
-- source `.py` files;
-- the repository source launcher as a normal product entry point.
-
-If the official v0.9.0 product ZIP is correct, record that the previously observed CMD-based ZIP was a source archive / repository ZIP confusion and do not mutate published v0.9.0 history.
-
-If the official v0.9.0 product ZIP is missing, corrupt, or lacks the EXE, treat that as a proven release publication defect. Do not rewrite the v0.9.0 tag and do not silently replace historical v0.9.0 release truth. Correct the release path in v0.9.1.
-
-## Phase B — public PowerShell bootstrap
-
-Replace the current private-repository / authenticated GitHub CLI bootstrap contract.
-
-The canonical public Quick Install command is intended to be:
-
-```powershell
-irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1' | iex
-```
-
-The canonical optional pinned-version form is intended to be:
-
-```powershell
-& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v0.9.0
-```
-
-The exact commands must be verified on the supported Windows PowerShell environment before publication. If syntax must be adjusted for real Windows behavior, keep the user model unchanged:
-
-- default command installs the latest published stable Release;
-- optional `-Tag` installs one explicitly requested published stable `vMAJOR.MINOR.PATCH` Release.
-
-### Public acquisition architecture
-
-Use public GitHub HTTPS / REST Release metadata.
-
-Do not scrape GitHub HTML.
-
-Default resolution:
-
-`GET public GitHub releases/latest metadata`
-
-Pinned resolution:
-
-`GET public GitHub releases/tags/<Tag> metadata`
-
-Use exact Release asset metadata and `browser_download_url` values from the resolved published Release.
-
-The public bootstrap must not invoke or require `gh`.
-
-Remove the normal-user dependency on:
-
-- `gh auth status`;
-- `gh release view`;
-- `gh release download`;
-- `gh auth login`.
-
-Do not add token, PAT, cookie, credential, or GitHub-account requirements.
-
-Use an explicit non-secret User-Agent for GitHub REST requests when required by the selected PowerShell implementation.
-
-### Stable Release selection
-
-The default path must resolve the latest published stable GitHub Release.
-
-Reject:
-
-- draft Releases;
-- prerelease Releases;
-- malformed tags;
-- tags that do not match `^v\d+\.\d+\.\d+$`.
-
-The optional `-Tag` path must resolve exactly the requested published stable Release.
-
-Do not silently fall back from an invalid or missing requested tag to latest.
-
-Do not infer product version only from the ZIP filename when Release metadata and the release manifest provide authoritative version information.
-
-### Exact required assets
-
-For resolved version `X.Y.Z`, require exactly the intended product asset names:
-
-- `CodexStatusPet-vX.Y.Z-win11-x64.zip`;
-- `CodexStatusPet-vX.Y.Z-win11-x64.zip.sha256`;
-- `install.ps1`.
-
-The bootstrap Release itself remains published as:
-
-- `CodexStatusPet-bootstrap.ps1`.
-
-Fail before installation when any required asset is missing.
-
-Do not download a GitHub-generated source archive as a fallback.
-
-### Download and verification
-
-The bootstrap must:
-
-1. create a unique project-owned temporary staging directory;
-2. resolve the intended published stable Release;
-3. identify the exact required Release assets;
-4. download the product ZIP;
-5. download the matching SHA-256 sidecar;
-6. download or otherwise execute the same Release's authoritative `install.ps1`;
-7. parse the sidecar strictly;
-8. verify the product ZIP SHA-256 before installation;
-9. invoke the existing `install.ps1` authority with:
-   - product artifact path;
-   - expected SHA-256;
-   - expected semantic version;
-10. preserve the existing install transaction and rollback authority;
-11. clean bootstrap staging in `finally`.
-
-The bootstrap must not create a second independent installer implementation.
-
-`install.ps1` remains authoritative for:
-
-- release manifest validation;
-- supported per-user install root;
-- settings preservation;
-- source-instance mutex safety;
-- installed runtime shutdown;
-- backup;
-- replacement;
-- rollback;
-- Start Menu shortcut;
-- installed EXE launch.
-
-### Public bootstrap error categories
-
-Keep errors understandable and distinguish at minimum:
-
-- Release resolution failure;
-- unsupported or malformed Release tag;
-- draft / prerelease rejection;
-- public GitHub API request failure;
-- public Release asset missing;
-- public Release asset download failure;
-- GitHub unauthenticated API rate-limit failure when it can be identified truthfully;
-- invalid checksum sidecar;
-- checksum mismatch;
-- installation failure.
-
-Do not print tokens, credentials, machine-unique local paths beyond what is necessary for a local error, or unrelated environment details.
-
-## Phase C — product ZIP discoverability and source ZIP distinction
-
-The user must not reasonably mistake a repository source ZIP for the product.
-
-Update README.md and README.zh-CN.md together.
-
-The first user-facing installation section must clearly state the exact latest-version product asset naming pattern:
-
-`CodexStatusPet-vX.Y.Z-win11-x64.zip`
-
-For v0.9.1 examples, use:
-
-`CodexStatusPet-v0.9.1-win11-x64.zip`
-
-Explicitly state:
-
-- download the product ZIP under the GitHub Release `Assets` section;
-- do not use `Code → Download ZIP`;
-- do not use GitHub-generated `Source code (zip)` for normal product use;
-- source archives contain development files and can use the `.cmd` source launcher;
-- the product Release ZIP contains the packaged EXE runtime;
-- after full extraction, the entry point is:
-  `CodexStatusPet\CodexStatusPet.exe`;
-- do not copy only the EXE away from the onedir runtime.
-
-### README user flow order
-
-Use this normal-user order:
-
-1. Quick Install — public PowerShell.
-2. ZIP Direct Use — exact product ZIP.
-3. Upgrade / repair.
-4. Install a specific stable version.
-5. Uninstall.
-6. Tray icon discovery.
-7. Development.
-
-The Development section may retain `.cmd` and source-runtime instructions.
-
-Do not place the `.cmd` source launcher in normal user Quick Start.
-
-### Release notes discoverability
-
-The v0.9.1 GitHub Release notes must clearly identify:
-
-`Product ZIP: CodexStatusPet-v0.9.1-win11-x64.zip`
-
-Also state that GitHub-generated `Source code (zip)` is source, not the packaged Windows application.
-
-Do not claim GitHub's automatic source archive can be removed if GitHub always exposes it.
-
-Solve the confusion through exact naming, placement in documentation, Release notes, and verified asset publication.
-
-## Phase D — install, repair, upgrade, and pinned-version verification
-
-### ZIP direct use
-
-Verify the actual release-format product ZIP:
-
-`extract complete ZIP → CodexStatusPet\CodexStatusPet.exe`
-
-Prove the packaged runtime does not require:
-
-- repository checkout;
-- `.cmd`;
-- system Python;
-- development venv;
-- source imports outside the package.
-
-Verify overlay, tray, Settings, normal Exit, process cleanup, and mutex cleanup using existing authoritative evidence where still valid.
-
-### Public latest install
-
-From a Windows environment that does not rely on GitHub CLI authentication, execute the documented public Quick Install command.
-
-Prove:
-
-- no `gh` executable is required;
-- no `gh auth login` is required;
-- no GitHub token is supplied;
-- the latest published stable Release is resolved;
-- the exact product ZIP is downloaded;
-- checksum verification occurs before install;
-- `%LOCALAPPDATA%\Programs\CodexStatusPet` is the installed runtime root;
-- the Start Menu shortcut targets the installed `CodexStatusPet.exe`;
-- the installed EXE launches successfully.
-
-### Same-version repair
-
-Run the supported public deployment path against the same installed version.
-
-Preserve the existing verified behavior:
-
-`same version → verified reinstall / repair`
-
-Prove settings and unrelated `.codex` data are preserved.
-
-### Pinned stable version
-
-Verify the optional `-Tag` path with an actual published stable tag.
-
-The requested tag must be resolved exactly.
-
-Do not claim a pinned-version pass by merely setting a local variable without performing public Release resolution.
-
-### Upgrade behavior
-
-Preserve the existing deployment model:
-
-`run the public Quick Install command again after a newer stable Release exists → resolve latest stable → verify → transactional replacement → preserve settings → relaunch installed EXE`
-
-For v0.9.1 release verification, use the strongest truthful existing controlled upgrade authority and existing v0.8.0-to-v0.9.0 evidence where applicable.
-
-Do not falsely call same-version repair an upgrade.
-
-Do not create an in-app updater in this Program.
-
-## TDD and focused verification
-
-Use TDD RED / GREEN for reproducible bootstrap behavior.
-
-At minimum, focused coverage must prove:
-
-- default release endpoint selects latest stable metadata;
-- `-Tag` selects the exact tag endpoint;
-- no GitHub CLI command is required by the public bootstrap;
-- malformed tags fail;
-- draft Releases fail;
-- prerelease Releases fail;
-- missing requested tag fails without fallback;
-- required product ZIP asset name is exact;
-- source archives are never selected as product fallback;
-- missing product ZIP fails;
-- missing SHA-256 sidecar fails;
-- missing `install.ps1` fails;
-- malformed sidecar fails;
-- checksum mismatch fails closed;
-- expected version passed to `install.ps1` matches authoritative Release version;
-- staging cleanup occurs on success;
-- staging cleanup occurs on failure;
-- existing installer transaction / rollback contract remains authoritative.
-
-Use the smallest test boundary compatible with the current PowerShell testing architecture.
-
-Do not create a second generalized GitHub client framework.
-
-Do not add a production dependency for this patch.
-
-## Release artifact boundary
-
-The sole Windows product ZIP remains:
-
-`CodexStatusPet-vX.Y.Z-win11-x64.zip`
-
-The archive must contain only the distributable product runtime root and approved end-user runtime files.
-
-The product ZIP must contain the packaged application entry point:
-
-`CodexStatusPet/CodexStatusPet.exe`
-
-The product ZIP must not contain repository development material.
-
-At minimum prohibit:
-
-- tests;
-- docs;
-- Goal;
-- skills;
-- GitHub workflow files;
-- git hook files;
-- build staging;
-- Python source files.
-
-Release scripts such as bootstrap / install entry assets may be separate GitHub Release assets.
-
-Do not place the whole repository inside the product ZIP.
-
-Do not replace the product ZIP with GitHub's source archive.
-
-## Protected product contracts
-
-Preserve:
-
-- local official Codex app-server quota authority;
-- approved local session metadata only;
-- no token reader;
-- no third-party quota endpoint;
-- no telemetry;
-- no hosted backend;
-- no Codex-core or built-in pet modification;
-- five stable row identities;
-- truthful duration-based quota identity;
-- row visibility and battery-source independence;
-- selected battery source with no fallback;
-- bilingual runtime UI;
-- manual Compact;
-- settings transactions;
-- proportional 80–200% Window Size scale;
-- DPI recovery;
-- position persistence;
-- shell identity;
-- tray reachability;
-- one instance;
-- bounded refresh;
-- safe shutdown;
-- existing settings path and privacy boundary;
-- normal uninstall settings preservation;
-- purge uninstall CodexStatusPet-settings deletion;
-- unrelated `.codex` preservation.
-
-## Explicitly excluded from v0.9.1
-
-Do not add:
-
-- MSI;
-- MSIX;
-- ClickOnce;
-- WiX;
-- Inno Setup;
-- NSIS;
-- another installer framework;
-- installer EXE;
-- PyInstaller onefile conversion without proven necessity;
-- in-app automatic update installation;
-- background updater;
-- Windows service;
-- scheduled-task updater;
-- automatic update polling;
-- telemetry;
-- hosted service;
-- new quota provider;
-- new quota UI;
-- new battery style;
-- new theme;
-- Windows 10 support expansion;
-- ARM64 support;
-- unrelated UI redesign;
-- repository visibility changes.
-
-Do not redesign the application to solve a distribution-documentation defect.
-
-## Documentation and state updates
-
-Update the closest authoritative files required by the current repository governance.
-
-At minimum inspect and update when applicable:
-
-- `Goal/ACTIVE_GOAL.md`;
-- `Goal/EXECUTION_STATE.md`;
-- `README.md`;
-- `README.zh-CN.md`;
-- public-install / release lifecycle documentation already managed by the repository;
-- verification inventory;
-- compatibility / release evidence that is invalidated or extended by this Program;
-- release-state documentation.
-
-Do not add duplicate authority files when an existing authority already owns the fact.
-
-Tracked Markdown must not expose real maintainer machine paths, Windows usernames, drive letters, workspace parent paths, or external launcher locations.
-
-## Required release sequence
-
-- Activate this file as the sole `Goal/ACTIVE_GOAL.md`.
-- Update `Goal/EXECUTION_STATE.md` to:
-  - released baseline = v0.9.0 at `bdae1942856ffa00677e64c63142457d0f79efce`;
-  - active Program = v0.9.1 Public Distribution Correction;
-  - current phase = Phase A;
-  - final target = released and reconciled v0.9.1.
-- Verify repository visibility is actually public.
-- Audit actual v0.9.0 public Release assets before implementation.
-- Use `using-superpowers` for routing.
-- Use `systematic-debugging` before fixing unexpected behavior or test failures.
-- Use TDD RED / GREEN for public bootstrap behavior.
-- Preserve valid v0.9.0 installer and package evidence unless a v0.9.1 change invalidates it.
-- Run focused public bootstrap and release-artifact tests.
-- Run public latest-install lifecycle evidence without GitHub CLI authentication.
-- Run pinned stable-tag lifecycle evidence.
-- Run same-version repair evidence.
-- Verify ZIP direct-use EXE provenance.
-- Verify product ZIP excludes repository-only material.
-- Run English / Simplified Chinese documentation parity and governance checks.
-- Run privacy, version, link, whitespace, and sensitive-data checks.
-- Run the authoritative formal RC.
-- Review the complete diff and unrelated changes.
-- Push the active v0.9.1 branch.
-- Create or update the v0.9.1 PR.
-- Require exact-head GitHub Windows CI.
-- Squash merge only after required gates pass.
-- Run merged-main RC.
-- Create the annotated `v0.9.1` tag.
-- Create the v0.9.1 GitHub Release.
-- Publish:
-  - `CodexStatusPet-v0.9.1-win11-x64.zip`;
-  - `CodexStatusPet-v0.9.1-win11-x64.zip.sha256`;
-  - `install.ps1`;
-  - `CodexStatusPet-bootstrap.ps1`.
-- Verify the public Release surface anonymously / without `gh auth login` to the strongest practical extent.
-- Verify the product ZIP from the published Release contains `CodexStatusPet/CodexStatusPet.exe`.
-- Verify the published public Quick Install command installs v0.9.1.
-- Complete release-state reconciliation.
-- Verify the temporary v0.9.1 branch is fully merged and has no active dependency.
-- Delete the proven-safe temporary remote branch.
-- Prune safe stale tracking refs when practical.
-- Confirm the final remote branch list contains exactly:
-  `main`.
-- Mark execution state `COMPLETED / STOP`.
-- STOP.
-
-## Scoped remote authorization
-
-This approved Program explicitly authorizes the following workflow for:
-
-`TomTang701/codex-windows-status-pet`
-
-and v0.9.1 only:
+- latest resolves to `v1.0.0`;
+- checksum passes;
+- Python detection passes;
+- dependencies are installed only under the product directory;
+- Desktop shortcut exists with the canonical icon;
+- Start Menu shortcut exists with the canonical icon;
+- both shortcuts launch the app;
+- no persistent console window appears;
+- overlay and tray work;
+- normal uninstall removes both shortcuts and preserves settings.
+
+For the pinned path, verify `-Tag v1.0.0` resolution and perform a same-version repair rather than repeating the entire lifecycle.
+
+### Task 14: Final State Reconciliation
+
+After public verification:
+
+- mark `v1.0.0` as latest stable;
+- record merge SHA, tag SHA, CI run, artifact SHA-256, compressed size, and installed size;
+- record Python versions actually tested;
+- record dual-shortcut and icon verification;
+- remove obsolete claims that normal users run `CodexStatusPet.exe`;
+- retain approved limitations honestly;
+- delete the completed UI branch only after it is merged and no longer needed.
+
+## 11. Verification Budget
+
+Avoid redundant test repetition.
+
+Use this schedule:
 
 ```text
-replace the completed Goal/ACTIVE_GOAL.md with this approved Program
-→ create / switch active v0.9.1 temporary branch
-→ implement and verify
-→ push active branch
-→ create / update PR
-→ obtain exact-head GitHub Windows CI
-→ squash merge after required gates pass
-→ run merged-main RC
-→ create intended annotated v0.9.1 tag
-→ create intended v0.9.1 GitHub Release
-→ publish intended ZIP, SHA-256, install.ps1, and bootstrap assets
-→ perform required release-state reconciliation
-→ delete the temporary remote branch after proving it is fully merged and no longer active
-→ confirm final remote branch list is main only
+during implementation
+→ focused tests for the files changed
+
+after source deployment migration is complete
+→ one full Quality run
+
+final local candidate
+→ one formal RC run
+
+PR
+→ one exact-head Windows CI lifecycle
+
+merged main
+→ normal main CI on exact merge commit
+
+published release
+→ one complete public latest install
+→ pinned v1.0.0 same-version repair
 ```
 
-Do not repeatedly request the same push, PR, CI, merge, tag, Release, asset-publication, reconciliation, or proven-safe temporary branch cleanup permission.
+Do not run UI gate, Quality, RC, installed lifecycle, and public bootstrap repeatedly after every documentation or metadata edit.
 
-Still require Tom's separate explicit authorization for:
+A later commit invalidates earlier exact-head evidence only when that commit changes code, packaging, installation, workflows, version identity, or release artifacts. For documentation-only corrections, run the relevant document checks and rely on CI policy.
 
-- force push;
-- rewriting published history;
-- deleting or retargeting the existing v0.9.0 tag;
-- silently replacing historical v0.9.0 truth instead of releasing the v0.9.1 correction;
-- deleting the repository;
-- transferring repository ownership;
-- changing repository visibility;
-- changing collaborators or permissions;
-- modifying repository or GitHub Actions secrets;
-- bypassing required CI or security controls;
-- publishing to a new external registry, store, service, or production environment;
-- destructive production-data operations.
+## 12. Definition of Done
 
-## Definition of Done
+The release is complete only when:
 
-v0.9.1 is complete only when:
+- the current UI version is stable and merged into `main`;
+- active version sources equal `1.0.0`;
+- no packaged application `CodexStatusPet.exe` is produced;
+- no Python runtime or PyInstaller `_internal` directory is bundled;
+- the Release ZIP is source-based and checksum-verified;
+- Python 3.10+ discovery has tested fallbacks;
+- dependencies install only into the product directory;
+- the app starts without a visible console;
+- Desktop and Start Menu shortcuts are created;
+- both shortcuts use the canonical pet/tray icon;
+- shortcut launch works;
+- existing taskbar/Shell behavior remains correct;
+- v0.9.1 EXE-to-v1.0.0 source upgrade succeeds;
+- repair, rollback, uninstall, and settings preservation succeed;
+- one full Quality run passes;
+- one final local RC passes;
+- exact-head PR CI passes;
+- merged-main CI passes;
+- `v1.0.0` tag and GitHub Release exist;
+- public latest install passes;
+- pinned `v1.0.0` repair passes;
+- final documentation matches the actual source-based product.
 
-1. This file is the sole authoritative `Goal/ACTIVE_GOAL.md`.
-2. The repository is verified public.
-3. The actual v0.9.0 public Release assets have been audited.
-4. The audit truthfully records whether the previously observed CMD-based ZIP was a source archive confusion or a real v0.9.0 product-asset defect.
-5. Published v0.9.0 history is not rewritten.
-6. `CodexStatusPet.exe` remains the formal application entry point and not an installer.
-7. The v0.9.1 product ZIP is exactly `CodexStatusPet-v0.9.1-win11-x64.zip`.
-8. The v0.9.1 product ZIP contains `CodexStatusPet/CodexStatusPet.exe`.
-9. The v0.9.1 product ZIP contains the required onedir runtime and manifest.
-10. The v0.9.1 product ZIP excludes tests, docs, Goal files, CI files, build staging, and Python source.
-11. ZIP direct use is verified as `extract complete product ZIP → run CodexStatusPet.exe`.
-12. Normal public Quick Install requires no GitHub CLI.
-13. Normal public Quick Install requires no `gh auth login`.
-14. Normal public Quick Install requires no GitHub account or token.
-15. The default public PowerShell command resolves the latest published stable Release.
-16. The optional `-Tag vMAJOR.MINOR.PATCH` path resolves exactly the requested published stable Release.
-17. Invalid or missing pinned tags fail without falling back to latest.
-18. Draft and prerelease Releases are rejected.
-19. Product Release assets are selected by exact expected names.
-20. GitHub-generated source archives are never used as product fallback.
-21. Product ZIP checksum mismatch fails closed before installation.
-22. Existing `install.ps1` remains the installer transaction authority.
-23. Normal install targets `%LOCALAPPDATA%\Programs\CodexStatusPet`.
-24. The Start Menu shortcut targets the installed `CodexStatusPet.exe`.
-25. Same-version public deployment performs verified reinstall / repair.
-26. Normal install / repair / upgrade preserves CodexStatusPet settings.
-27. Normal install / repair / upgrade preserves unrelated `.codex` data.
-28. Existing rollback behavior remains verified.
-29. Bootstrap staging is cleaned on success and failure.
-30. README.md and README.zh-CN.md lead with public PowerShell Quick Install.
-31. README.md and README.zh-CN.md explicitly identify `CodexStatusPet-vX.Y.Z-win11-x64.zip` as the product ZIP.
-32. README.md and README.zh-CN.md explicitly warn that `Code → Download ZIP` and `Source code (zip)` are source archives, not the packaged application.
-33. Normal-user documentation does not direct users to the `.cmd` source launcher.
-34. v0.9.1 Release notes explicitly identify the product ZIP asset and source-ZIP distinction.
-35. Focused public bootstrap RED / GREEN tests pass.
-36. Public latest-install lifecycle evidence passes without GitHub CLI authentication.
-37. Pinned stable-tag lifecycle evidence passes.
-38. Same-version repair evidence passes.
-39. ZIP direct-use EXE provenance evidence passes.
-40. Formal RC passes.
-41. Exact-head GitHub Windows CI passes.
-42. Merged-main RC passes.
-43. The annotated `v0.9.1` tag and GitHub Release target the verified released product commit.
-44. The v0.9.1 Release publishes the intended ZIP, SHA-256 sidecar, installer, and bootstrap assets.
-45. The published v0.9.1 product ZIP is downloaded from the public Release surface and independently verified to contain `CodexStatusPet/CodexStatusPet.exe`.
-46. The published public Quick Install command is verified against the published v0.9.1 Release.
-47. Release-state reconciliation is complete.
-48. The v0.9.1 temporary remote branch is deleted after proven-safe merge verification.
-49. Final remote branch list contains exactly `main`.
-50. Final diff and sensitive-data review pass.
-51. No excluded feature or unapproved high-risk GitHub operation is introduced.
-52. `Goal/EXECUTION_STATE.md` records `COMPLETED / STOP`.
+## 13. Final Report Format
+
+Report in this order:
+
+1. Conclusion.
+2. Final branch and commit SHA.
+3. Files and architecture changed.
+4. Final source ZIP contents and sizes.
+5. Python discovery results and tested Python versions.
+6. Dependency installation location.
+7. Desktop and Start Menu shortcut evidence.
+8. Unified icon evidence.
+9. Quality and RC command results.
+10. v0.9.1 upgrade lifecycle result.
+11. PR and exact-head CI.
+12. Merge commit and tag SHA.
+13. Release asset names and SHA-256.
+14. Public latest install and pinned repair results.
+15. Remaining limitations.
+16. Anything not verified and the actual reason.
+
+Do not use old evidence, predictions, or “should work” statements as substitutes for fresh verification.

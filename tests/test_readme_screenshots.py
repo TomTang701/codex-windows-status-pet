@@ -19,15 +19,19 @@ class ReadmeScreenshotTests(unittest.TestCase):
     def write_evidence(self, root):
         paths = []
         for language in ("en", "zh-CN"):
-            for name in ("main-overlay", "context-menu", "settings"):
+            for name in ("main-overlay", "context-menu-dark", "context-menu-light", "settings"):
                 path = root / "docs" / "assets" / "readme" / language / f"{name}.png"
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(PNG)
                 paths.append(path.relative_to(root).as_posix())
-        (root / "README.md").write_text("\n".join(paths[:3]), encoding="utf-8")
-        (root / "README.zh-CN.md").write_text("\n".join(paths[3:]), encoding="utf-8")
+        shared = root / "docs" / "assets" / "readme" / "compact-battery.png"
+        shared.parent.mkdir(parents=True, exist_ok=True)
+        shared.write_bytes(PNG)
+        shared_path = shared.relative_to(root).as_posix()
+        (root / "README.md").write_text("\n".join(paths[:4] + [shared_path]), encoding="utf-8")
+        (root / "README.zh-CN.md").write_text("\n".join(paths[4:] + [shared_path]), encoding="utf-8")
 
-    def test_exact_language_matched_six_pngs_are_accepted(self):
+    def test_exact_language_matched_nine_pngs_are_accepted(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             self.write_evidence(root)

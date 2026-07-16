@@ -28,8 +28,10 @@ class BatteryViewTests(unittest.TestCase):
         self.root.update()
         self.assertEqual(len(self.view.cells), 10)
         self.assertEqual({cell.grid_info()["column"] for cell in self.view.cells}, {0, 1})
-        self.assertEqual({cell.grid_info()["row"] for cell in self.view.cells}, {0, 1, 2, 3, 4})
+        self.assertEqual({cell.grid_info()["row"] for cell in self.view.cells}, {1, 2, 3, 4, 5})
         self.assertTrue(all(cell.winfo_ismapped() for cell in self.view.cells))
+        self.assertEqual(self.view.value_label.grid_info()["row"], 0)
+        self.assertEqual(self.view.value_label.cget("text"), "78%")
         self.assertEqual(self.view.cells[0].cget("bg"), "#ef4444")
         self.assertNotEqual(self.view.cells[6].cget("bg"), self.view.cells[8].cget("bg"))
 

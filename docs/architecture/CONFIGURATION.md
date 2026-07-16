@@ -38,6 +38,12 @@ selector previews on Apply, rolls back with Close, and persists with Save.
 
 `window_scale_percent` is the canonical expanded-size source. It is clamped to 80–200%, quantized to 5% steps, and defaults to 100%. Window width/height, text font size, paw font size, wrapping, and required spacing derive from the same pure Window Scale API result.
 
+The beta expanded HUD shows four visible rows at most: activity progress, 5-hour
+quota, Weekly quota, and Reset Credit. The underlying five-row identities remain
+stable; the `activity` identity is represented by the header/status surface.
+Quota text follows `font_color`; quota health is represented by the quota bars
+and battery colors.
+
 For schema-1 downgrade compatibility, Save also persists derived `font_size`, `window_width`, `window_height`, and `scale_mode: "proportional"`. v0.3.2 ignores the unknown canonical field and reads those usable derived values.
 
 A valid legacy file without `window_scale_percent` is migrated in memory by geometric-mean area inference: `sqrt((old_width * old_height) / (330 * 138))`, followed by clamp and quantization. Legacy font size and scale mode do not remain independent sources. Migration preserves position, opacity, colors, refresh interval, topmost, lock, and Compact preference, and does not write disk until the user saves.

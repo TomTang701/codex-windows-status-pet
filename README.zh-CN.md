@@ -2,15 +2,19 @@
 
 English: [English version](README.md)
 
-## 打包版 v0.8.0 截图
+## 当前 v0.9.2-beta.1 UI 截图
 
-以下截图均由维护者在 Windows 11 上从真实打包 `CodexStatusPet.exe` 手工捕获，捕获前已使用展开布局、100% 窗口大小和 100% 透明度。
+以下截图展示当前 beta 版 Signal HUD 主悬浮窗、紧凑电池、深色/浅色右键菜单和设置界面，均来自 Windows 11。
 
 ### 简体中文
 
 ![简体中文主悬浮窗](docs/assets/readme/zh-CN/main-overlay.png)
 
-![简体中文主悬浮窗右键菜单](docs/assets/readme/zh-CN/context-menu.png)
+![紧凑电池](docs/assets/readme/compact-battery.png)
+
+![简体中文深色右键菜单](docs/assets/readme/zh-CN/context-menu-dark.png)
+
+![简体中文浅色右键菜单](docs/assets/readme/zh-CN/context-menu-light.png)
 
 ![简体中文设置窗口](docs/assets/readme/zh-CN/settings.png)
 
@@ -61,7 +65,7 @@ SHA-256；然后解压**完整**压缩包，打开解压后的 `CodexStatusPet` 
 在 bootstrap 调用后增加 `-Tag` 参数：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v0.9.0
+& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v0.9.1
 ```
 
 bootstrap 会校验精确 ZIP 和 SHA-256 sidecar，保留 CodexStatusPet 设置及无关 `.codex` 数据，

@@ -10,6 +10,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 ALLOWED_GOAL_FILES = {
     "ACTIVE_GOAL.md",
+    "ACTIVE_GOAL_0.9.1.md",
     "ACTIVE_VERSION_BRIEF.md",
     "EXECUTION_STATE.md",
     "V0.8.0_RELEASE_GATE_ADJUSTMENT_GOAL.md",

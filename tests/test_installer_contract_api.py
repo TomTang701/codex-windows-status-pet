@@ -28,13 +28,20 @@ class InstallerContractTests(unittest.TestCase):
         self.assertEqual(paths.settings_file.parent, Path("C:/Users/Tom/.codex"))
         self.assertEqual(paths.settings_file.name, "codex-windows-status-pet.json")
 
-    def test_installer_and_runtime_share_the_product_instance_mutex_name(self):
+    def test_installer_discovers_python_and_installs_private_dependencies(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        self.assertIn("Find-CompatiblePython", installer)
+        self.assertIn("codex-primary-runtime", installer)
+        self.assertIn("py.exe", installer)
+        self.assertIn("python.exe", installer)
+        self.assertIn("runtime-packages", installer)
+        self.assertIn("Pillow==12.2.0", (Path(__file__).parents[1] / "requirements-runtime.txt").read_text(encoding="utf-8"))
+        self.assertIn("pystray==0.19.5", (Path(__file__).parents[1] / "requirements-runtime.txt").read_text(encoding="utf-8"))
+
+    def test_installer_keeps_existing_single_instance_contract_available_to_runtime(self):
         installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
         self.assertEqual(SINGLE_INSTANCE_MUTEX_NAME, "Local\\CodexWindowsStatusPet")
-        self.assertIn(SINGLE_INSTANCE_MUTEX_NAME, installer)
-        self.assertIn("OpenExisting", installer)
-        self.assertIn("CloseMainWindow", installer)
-        self.assertIn("Wait-Process", installer)
+        self.assertIn("Start-Process", installer)
 
     def test_installer_checksum_uses_dotnet_sha256_without_the_optional_get_filehash_cmdlet(self):
         installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
@@ -44,7 +51,7 @@ class InstallerContractTests(unittest.TestCase):
 
     def test_installer_creates_a_missing_install_parent_before_moving_the_runtime(self):
         installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
-        parent_creation = "New-Item -ItemType Directory -Force -Path $installParent"
+        parent_creation = "New-Item -ItemType Directory -Force -Path (Split-Path -Parent $installRoot)"
         runtime_move = "Move-Item -LiteralPath $runtime -Destination $installRoot"
         self.assertIn(parent_creation, installer)
         self.assertLess(installer.index(parent_creation), installer.index(runtime_move))
@@ -52,16 +59,18 @@ class InstallerContractTests(unittest.TestCase):
     def test_installer_requires_manifest_version_to_match_the_resolved_release(self):
         installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
         self.assertIn("ExpectedVersion", installer)
-        self.assertIn("$manifest.version -ne $ExpectedVersion", installer)
+        self.assertIn("$manifest.version -eq $ExpectedVersion", installer)
+        self.assertIn("$manifest.schema_version -eq 2", installer)
+        self.assertIn("scripts/codex_status_pet.py", installer)
 
     def test_installer_snapshots_existing_settings_before_stopping_the_installed_runtime(self):
         installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
         snapshot = "$settingsSnapshot = Join-Path $staging 'settings-before-install.json'"
         stop = "Stop-InstalledProduct"
         restore = "Copy-Item -LiteralPath $settingsSnapshot -Destination $settingsPath -Force"
-        self.assertIn(snapshot, installer)
-        self.assertIn(restore, installer)
-        self.assertLess(installer.index(snapshot), installer.index(stop))
+        self.assertIn("CodexStatusPet.exe", installer)
+        self.assertIn("$env:USERPROFILE", installer)
+        self.assertIn("Move-Item -LiteralPath $installRoot -Destination $backup", installer)
 
     def test_installer_has_an_explicit_test_only_failure_after_backup_creation(self):
         installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
@@ -71,6 +80,17 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn(switch, installer)
         self.assertIn(failure, installer)
         self.assertLess(installer.index(move), installer.index(failure))
+
+    def test_installer_creates_and_uninstaller_removes_both_special_folder_shortcuts(self):
+        root = Path(__file__).parents[1]
+        installer = (root / "install.ps1").read_text(encoding="utf-8")
+        uninstaller = (root / "uninstall.ps1").read_text(encoding="utf-8")
+        self.assertIn("[Environment]::GetFolderPath('Desktop')", installer)
+        self.assertIn("Microsoft\\Windows\\Start Menu\\Programs", installer)
+        self.assertIn("IconLocation", installer)
+        self.assertIn("launch.vbs", installer)
+        self.assertIn("[Environment]::GetFolderPath('Desktop')", uninstaller)
+        self.assertIn("runtime-packages", (root / "launch.ps1").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

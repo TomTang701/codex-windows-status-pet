@@ -123,7 +123,12 @@ def capture(app, transition, stage):
     root_bottom = root_top + app.winfo_height()
     text_top = app.text.winfo_rooty()
     text_bottom = text_top + app.text.winfo_height()
-    for name, label in app.text.labels.items():
+    source_labels = [
+        (name, label)
+        for name, label in app.text.labels.items()
+        if label.winfo_ismapped()
+    ] or list(app.text.labels.items())
+    for name, label in source_labels:
         top = label.winfo_rooty()
         bottom = top + label.winfo_height()
         labels.append(
@@ -148,7 +153,7 @@ def capture(app, transition, stage):
     shell_identity = _shell_identity(hwnd)
     final = labels[-1]
     fit = (
-        len(labels) == 5
+        len(labels) == 4
         and app.winfo_reqheight() <= app.winfo_height()
         and app.text.winfo_reqheight() <= app.text.winfo_height()
         and all(

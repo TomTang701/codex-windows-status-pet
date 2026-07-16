@@ -37,6 +37,8 @@ English: [English version](CONFIGURATION.md)
 
 `window_scale_percent` 是展开状态尺寸的规范来源。它会限制在 80–200%，按 5% 步长量化，默认值为 100%。窗口宽高、文字字体、爪印字体、换行长度和必要间距都由同一个纯 Window Scale API 结果推导。
 
+beta 展开 HUD 最多显示四行：活动进度、5 小时额度、每周额度和重置额度。底层五个行身份保持稳定，`activity` 身份由标题/状态区域承载。额度文字使用 `font_color`；额度健康状态由额度进度条和电池颜色表示。
+
 为了保持 schema 1 的降级兼容性，“保存”还会写入派生的 `font_size`、`window_width`、`window_height` 和 `scale_mode: "proportional"`。v0.3.2 会忽略未知的规范字段，并读取这些可用的派生值。
 
 没有 `window_scale_percent` 的有效旧文件会在内存中使用几何平均面积推断迁移：`sqrt((old_width * old_height) / (330 * 138))`，然后限制范围并量化。旧字体大小和缩放模式不再是独立来源。迁移保留位置、透明度、颜色、刷新间隔、置顶、锁定和 Compact 偏好；用户保存前不会写入磁盘。

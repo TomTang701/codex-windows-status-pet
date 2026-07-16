@@ -71,7 +71,7 @@ class ApplicationControllerTests(unittest.TestCase):
             "ok", "#ffffff", language="en",
         )
         self.assertEqual(snapshot["rows"]["activity"], "Codex Idle")
-        self.assertTrue(snapshot["rows"]["weekly"].startswith("Week 55% /"))
+        self.assertEqual(snapshot["rows"]["weekly"], "Weekly 55%")
         self.assertEqual(snapshot["battery"]["remaining_percent"], 55)
 
     def test_presentation_controller_never_decides_manual_compact_state(self):

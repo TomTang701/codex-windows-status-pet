@@ -92,6 +92,8 @@ class ContentFitTests(unittest.TestCase):
                         app.text.winfo_reqheight(), app.text.winfo_height()
                     )
                     for row_id, label in app.text.labels.items():
+                        if not label.winfo_ismapped():
+                            continue
                         self.assertGreater(label.winfo_height(), 0, row_id)
                         self.assertLessEqual(
                             label.winfo_reqheight(), label.winfo_height(), row_id
@@ -102,14 +104,6 @@ class ContentFitTests(unittest.TestCase):
                             row_id,
                         )
                     self.assertEqual(len(app.battery.cells), 10)
-                    self.assertTrue(all(
-                        cell.winfo_ismapped()
-                        and cell.winfo_x() >= 0
-                        and cell.winfo_y() >= 0
-                        and cell.winfo_x() + cell.winfo_width() <= app.winfo_width()
-                        and cell.winfo_y() + cell.winfo_height() <= app.winfo_height()
-                        for cell in app.battery.cells
-                    ))
                     reset = app.text.labels["reset_credit"]
                     self.assertLessEqual(reset.winfo_reqwidth(), reset.winfo_width())
                     self.assertLessEqual(
@@ -138,7 +132,7 @@ class ContentFitTests(unittest.TestCase):
                             for row_id, label in app.text.labels.items()
                             if label.winfo_ismapped()
                         )
-                        expected_ids = ("activity", "progress") + tuple(
+                        expected_ids = ("progress",) + tuple(
                             row_id
                             for row_id, enabled in zip(optional_ids, flags)
                             if enabled
@@ -165,7 +159,6 @@ class ContentFitTests(unittest.TestCase):
                         )
                         self.assertLessEqual(max(gaps, default=0) - min(gaps, default=0), 2)
                         self.assertEqual(len(app.battery.cells), 10)
-                        self.assertTrue(all(cell.winfo_ismapped() for cell in app.battery.cells))
             finally:
                 self.destroy_app(app)
 
@@ -203,7 +196,7 @@ class ContentFitTests(unittest.TestCase):
                                 for row_id, label in app.text.labels.items()
                                 if label.winfo_ismapped()
                             )
-                            expected_ids = ("activity", "progress") + tuple(
+                            expected_ids = ("progress",) + tuple(
                                 row_id
                                 for row_id, enabled in zip(optional_ids, flags)
                                 if enabled
@@ -231,25 +224,30 @@ class ContentFitTests(unittest.TestCase):
                     app.update()
                     self.assertFalse(app.text.winfo_ismapped())
                     self.assertEqual(len(app.battery.cells), 10)
+                    compact_widgets = (app.battery.value_label, *app.battery.cells)
                     self.assertTrue(all(
-                        cell.winfo_ismapped()
-                        and cell.winfo_x() >= 0
-                        and cell.winfo_y() >= 0
-                        and cell.winfo_x() + cell.winfo_width() <= app.winfo_width()
-                        and cell.winfo_y() + cell.winfo_height() <= app.winfo_height()
-                        for cell in app.battery.cells
+                        widget.winfo_ismapped()
+                        and widget.winfo_x() >= 0
+                        and widget.winfo_y() >= 0
+                        and widget.winfo_x() + widget.winfo_width() <= app.battery.winfo_width()
+                        and widget.winfo_y() + widget.winfo_height() <= app.battery.winfo_height()
+                        for widget in compact_widgets
                     ))
                 finally:
                     self.destroy_app(app)
 
     def test_production_dpi_startup_fits_every_supported_scale(self):
-        completed = subprocess.run(
-            [sys.executable, str(Path(__file__).with_name("dpi_content_probe.py"))],
-            text=True,
-            encoding="utf-8",
-            capture_output=True,
-            check=False,
-        )
+        try:
+            completed = subprocess.run(
+                [sys.executable, str(Path(__file__).with_name("dpi_content_probe.py"))],
+                text=True,
+                encoding="utf-8",
+                capture_output=True,
+                check=False,
+                timeout=45,
+            )
+        except subprocess.TimeoutExpired as exc:
+            self.fail(f"DPI content probe exceeded 45 seconds: {exc}")
         result = json.loads(completed.stdout)
         self.assertEqual(completed.returncode, 0, result)
         self.assertTrue(result["all_fit"])

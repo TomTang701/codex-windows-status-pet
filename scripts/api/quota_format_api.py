@@ -67,8 +67,9 @@ def earliest_future_expiry(expirations, now=None):
 
 
 def quota_line(label, value, reset_at):
-    suffix = local_time_date(reset_at) if reset_at else "--"
-    return f"{label} {value} / {suffix}"
+    if not reset_at:
+        return f"{label} {value}"
+    return f"{label} {value} / {local_time_date(reset_at)}"
 
 
 def reset_credit_line(count, expiration, text=None):

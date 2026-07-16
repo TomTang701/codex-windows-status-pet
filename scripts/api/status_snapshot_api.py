@@ -26,6 +26,23 @@ BATTERY_SEGMENT_COLORS = (
 )
 
 
+def battery_health_color(remaining):
+    """Return the solid color represented by the battery's highest lit segment."""
+    try:
+        value = max(0.0, min(100.0, float(remaining)))
+    except (TypeError, ValueError):
+        return "#6b7280"
+    if value >= 81:
+        return "#22c55e"
+    if value >= 61:
+        return "#a3e635"
+    if value >= 41:
+        return "#facc15"
+    if value >= 21:
+        return "#f97316"
+    return "#ef4444"
+
+
 def _percent_left(window):
     if not isinstance(window, dict) or "usedPercent" not in window:
         return "--"
@@ -34,6 +51,11 @@ def _percent_left(window):
     except (TypeError, ValueError):
         return "--"
     return f"{max(0, 100 - used)}%"
+
+
+def _remaining_value(window):
+    value = _percent_left(window)
+    return None if value == "--" else int(value[:-1])
 
 
 def _short_time(epoch):
@@ -88,7 +110,9 @@ def build_status_snapshot(
     secondary = secondary if isinstance(secondary, dict) else {}
     credits = quota.get("rateLimitResetCredits") or {}
     credit_items = credits if isinstance(credits, (list, dict)) else []
-    tier = health_tier(primary)
+    primary_tier = health_tier(primary)
+    weekly_tier = health_tier(secondary)
+    tier = primary_tier
     if quota_state == "stale":
         color = "#9ca3af"
     elif quota_state == "unavailable":
@@ -112,7 +136,11 @@ def build_status_snapshot(
     rows = StatusRowsSnapshot(
         activity=translate(language, "activity", detail=detail) + state_label,
         progress=translate(language, "quota_unavailable") if quota_state == "unavailable" else progress,
-        primary_5h=f"5h {_percent_left(primary)} / {_short_time(primary.get('resetsAt'))}",
+        primary_5h=(
+            f"5h {_percent_left(primary)}"
+            if not primary.get("resetsAt")
+            else f"5h {_percent_left(primary)} / {_short_time(primary.get('resetsAt'))}"
+        ),
         weekly=quota_line(translate(language, "week"), _percent_left(secondary), secondary.get("resetsAt")),
         reset_credit=reset_credit_line(
             credits.get("availableCount", "--") if isinstance(credits, dict) else "--",
@@ -129,9 +157,17 @@ def build_status_snapshot(
         "text": rows.as_text(),
         "rows": rows.as_dict(),
         "battery": battery_presentation(selected_window),
+        "remaining_percentages": {
+            "primary_5h": _remaining_value(primary),
+            "weekly": _remaining_value(secondary),
+        },
         "color": color,
         "active_count": active_count,
         "quota_tier": tier,
+        "quota_tiers": {
+            "primary_5h": primary_tier,
+            "weekly": weekly_tier,
+        },
         "quota_state": quota_state,
     }
 

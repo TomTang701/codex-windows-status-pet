@@ -5,12 +5,25 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 
-from api.status_snapshot_api import battery_presentation, build_status_snapshot
+from api.status_snapshot_api import battery_health_color, battery_presentation, build_status_snapshot
 from api.quota_parse_api import parse_quota_payload
 from api.status_rows_api import ROW_IDS
 
 
 class StatusSnapshotTests(unittest.TestCase):
+    def test_battery_health_color_matches_the_five_segment_palette(self):
+        expected = {
+            100: "#22c55e",
+            80: "#a3e635",
+            60: "#facc15",
+            40: "#f97316",
+            20: "#ef4444",
+            0: "#ef4444",
+        }
+        for remaining, color in expected.items():
+            with self.subTest(remaining=remaining):
+                self.assertEqual(battery_health_color(remaining), color)
+
     def test_each_selected_source_uses_only_its_own_real_quota(self):
         quota = {
             "rateLimits": {
@@ -39,6 +52,21 @@ class StatusSnapshotTests(unittest.TestCase):
         self.assertTrue(result["battery"]["available"])
         self.assertEqual(result["battery"]["remaining_percent"], 55)
 
+    def test_snapshot_exposes_independent_health_tiers_for_both_quota_windows(self):
+        result = build_status_snapshot(
+            {"active": 0},
+            {
+                "rateLimits": {
+                    "primary": {"usedPercent": 95},
+                    "secondary": {"usedPercent": 20},
+                }
+            },
+        )
+        self.assertEqual(
+            result["quota_tiers"],
+            {"primary_5h": "critical", "weekly": "healthy"},
+        )
+
     def test_selected_primary_battery_never_reads_weekly(self):
         result = build_status_snapshot(
             {"active": 0},
@@ -53,8 +81,8 @@ class StatusSnapshotTests(unittest.TestCase):
             {"active": 0},
             {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45, "resetsAt": reset}}},
         )
-        self.assertEqual(result["rows"]["primary_5h"], "5h -- / --")
-        self.assertTrue(result["rows"]["weekly"].startswith("周 55% /"))
+        self.assertEqual(result["rows"]["primary_5h"], "5h --")
+        self.assertTrue(result["rows"]["weekly"].startswith("每周 55% /"))
         self.assertEqual(result["battery"]["remaining_percent"], 55)
 
     def test_weekly_battery_never_falls_back_to_available_5h(self):
@@ -179,8 +207,8 @@ class StatusSnapshotTests(unittest.TestCase):
         self.assertEqual(chinese["rows"]["activity"], "Codex 空闲")
         self.assertEqual(english["rows"]["progress"], "Quota unavailable")
         self.assertEqual(chinese["rows"]["progress"], "额度暂不可用")
-        self.assertTrue(english["rows"]["weekly"].startswith("Week 55% /"))
-        self.assertTrue(chinese["rows"]["weekly"].startswith("周 55% /"))
+        self.assertEqual(english["rows"]["weekly"], "Weekly 55%")
+        self.assertEqual(chinese["rows"]["weekly"], "每周 55%")
         self.assertTrue(english["rows"]["reset_credit"].startswith("Reset 5 times"))
         self.assertTrue(chinese["rows"]["reset_credit"].startswith("重置 5 次"))
         self.assertEqual(tuple(english["rows"]), ROW_IDS)

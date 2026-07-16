@@ -5,6 +5,7 @@ import unittest
 import gc
 import logging
 import json
+import time
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -89,7 +90,7 @@ class MenuInteractionTests(unittest.TestCase):
         try:
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
-            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Compact", "Hide window", "Exit"])
+            self.assertEqual(labels, ["Settings", "Always on top  ✓", "Lock position  ○", "Compact  ○", "Hide window", "Exit"])
             for removed in ("立即刷新", "复制诊断摘要", "恢复上次设置"):
                 self.assertNotIn(removed, labels)
         finally:
@@ -117,7 +118,7 @@ class MenuInteractionTests(unittest.TestCase):
             app.settings["language"] = "en"
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             labels = [item.cget("text") for item in self.menu_items(app.context_menu)]
-            self.assertEqual(labels, ["Settings", "Always on top", "Lock position", "Compact", "Hide window", "Exit"])
+            self.assertEqual(labels, ["Settings", "Always on top  ✓", "Lock position  ○", "Compact  ○", "Hide window", "Exit"])
         finally:
             self.destroy_app(app)
 
@@ -146,6 +147,31 @@ class MenuInteractionTests(unittest.TestCase):
                 topmost=app.settings["topmost"], locked=app.settings["locked"],
                 compact=app.settings["compact"],
             )
+        finally:
+            self.destroy_app(app)
+
+    def test_context_menu_refreshes_shell_identity_for_popup_and_owner(self):
+        app = self.module["Pet"]()
+        try:
+            with mock.patch("ui.context_menu.ensure_overlay_toolwindow") as normalize:
+                app.menu(SimpleNamespace(x_root=4200, y_root=200))
+                normalize.assert_any_call(app.context_menu.winfo_id())
+                app.context_menu.event_generate("<Escape>")
+                app.update_idletasks()
+                normalize.assert_any_call(app.winfo_id())
+        finally:
+            self.destroy_app(app)
+
+    def test_context_menu_reasserts_owner_shell_after_focus_transition(self):
+        app = self.module["Pet"]()
+        try:
+            with mock.patch("ui.context_menu.ensure_overlay_toolwindow") as normalize:
+                app.menu(SimpleNamespace(x_root=4200, y_root=200))
+                app.update()
+                time.sleep(0.25)
+                app.update()
+                owner_calls = [call for call in normalize.call_args_list if call.args == (app.winfo_id(),)]
+                self.assertGreaterEqual(len(owner_calls), 2)
         finally:
             self.destroy_app(app)
 
@@ -187,7 +213,7 @@ class MenuInteractionTests(unittest.TestCase):
             app.set_manual_compact(True)
             app.menu(SimpleNamespace(x_root=4200, y_root=200))
             self.assertTrue(app.compact)
-            compact = next(item for item in self.menu_items(app.context_menu) if item.cget("text") == "Compact")
+            compact = next(item for item in self.menu_items(app.context_menu) if "Compact" in item.cget("text"))
             self.assertTrue(bool(app.compact_var.get()))
             compact.invoke()
             app.update_idletasks()
@@ -224,7 +250,7 @@ class MenuInteractionTests(unittest.TestCase):
             app.latest_quota = {"rateLimits": {"primary": {}, "secondary": {"usedPercent": 45}}}
             app.render_status()
             self.assertEqual(app.text.row_values()["activity"], "Codex Idle")
-            self.assertTrue(app.text.row_values()["weekly"].startswith("Week 55% /"))
+            self.assertEqual(app.text.row_values()["weekly"], "Weekly 55%")
         finally:
             self.destroy_app(app)
 
@@ -451,7 +477,9 @@ class MenuInteractionTests(unittest.TestCase):
             for label in app.text.labels.values():
                 self.assertEqual(int(label.cget("wraplength")), 390)
             self.assertEqual(len(app.battery.cells), 10)
-            self.assertEqual(app.battery.winfo_manager(), "pack")
+            self.assertEqual(app.battery.winfo_manager(), "")
+            self.assertFalse(app.battery.winfo_ismapped())
+            self.assertFalse(app.signal_card.winfo_ismapped())
         finally:
             self.destroy_app(app)
 

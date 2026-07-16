@@ -54,15 +54,18 @@ def ensure_overlay_toolwindow(widget_hwnd):
         target = (current | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW
         if target != current:
             user32.SetWindowLongPtrW(root, GWL_EXSTYLE, ctypes.c_ssize_t(target))
-            user32.SetWindowPos(
-                root,
-                None,
-                0,
-                0,
-                0,
-                0,
-                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED,
-            )
+        # Tk's topmost/alpha transitions can leave Shell with a stale
+        # application-button state even when the style bits are already right.
+        # Always request a non-activating frame refresh at this boundary.
+        user32.SetWindowPos(
+            root,
+            None,
+            0,
+            0,
+            0,
+            0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED,
+        )
         effective = int(user32.GetWindowLongPtrW(root, GWL_EXSTYLE)) & 0xFFFFFFFF
         return bool(effective & WS_EX_TOOLWINDOW) and not bool(effective & WS_EX_APPWINDOW)
     except (AttributeError, OSError, TypeError):

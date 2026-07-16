@@ -46,6 +46,11 @@ headless tests.
 | Startup Audit | `scripts/startup_audit.py` | Read-only detection of known legacy Codex Status Pet entries in the Startup folder and Run/RunOnce registry keys. | Known legacy name/path, unrelated entry, and no-modification tests. |
 | Taskbar API | `scripts/api/taskbar_api.py` | Read the current primary taskbar edge and rectangle for physical compatibility evidence. | Stable edge mapping and Windows probe output. |
 
+The beta UI also requires the real Tk root HWND to retain `WS_EX_TOOLWINDOW` and
+not `WS_EX_APPWINDOW` after Settings open/close, alpha changes, topmost
+restoration, and delayed Shell refresh. This is verified by the Windows UI shell
+identity tests rather than by the pure API layer.
+
 ## Invariants
 
 - Configuration API never raises for malformed user JSON; it returns defaults plus warnings.

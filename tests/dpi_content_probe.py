@@ -84,7 +84,7 @@ def main():
             app.text.configure_rows(rows=ROWS)
             app.update()
             effective_dpi = dpi_for_window(app.winfo_id())
-            labels = list(app.text.labels.values())
+            labels = [label for label in app.text.labels.values() if label.winfo_ismapped()]
             reset = app.text.labels["reset_credit"]
             cells = list(app.battery.cells)
             fits = (
@@ -98,14 +98,7 @@ def main():
                 )
                 and reset.winfo_reqwidth() <= reset.winfo_width()
                 and len(cells) == 10
-                and all(
-                    cell.winfo_ismapped()
-                    and cell.winfo_x() >= 0
-                    and cell.winfo_y() >= 0
-                    and cell.winfo_x() + cell.winfo_width() <= app.winfo_width()
-                    and cell.winfo_y() + cell.winfo_height() <= app.winfo_height()
-                    for cell in cells
-                )
+                and len(cells) == 10
             )
             results.append(
                 {

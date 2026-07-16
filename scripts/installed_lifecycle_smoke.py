@@ -10,6 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 import uuid
+import zipfile
 
 from api.installer_contract_api import installation_paths
 from api.release_artifact_api import validate_release_archive
@@ -85,12 +86,46 @@ def _installed_process_is_running(executable):
     return completed.returncode == 0
 
 
+def _stop_installed_processes(install_root):
+    """Stop only product processes before the smoke mutates external settings."""
+    target = Path(install_root).as_posix().replace("'", "''")
+    command = (
+        f"$root = [IO.Path]::GetFullPath('{target}'); "
+        "Get-CimInstance Win32_Process | "
+        "Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) } | "
+        "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
+    )
+    completed = subprocess.run(
+        [_powershell_executable(), "-NoProfile", "-Command", command],
+        cwd=ROOT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    if completed.returncode:
+        raise RuntimeError("could not stop the legacy product before settings preservation check")
+
+
 def _release_checksum(artifact):
     return Path(f"{artifact}.sha256").read_text(encoding="ascii").split()[0]
 
 
 def _release_version(artifact):
     return artifact.name.split("-v", 1)[1].split("-win11", 1)[0]
+
+
+def validate_legacy_upgrade_archive(artifact, expected_version):
+    """Validate only the published v0.9.1 EXE baseline used for migration."""
+    with zipfile.ZipFile(artifact) as archive:
+        manifest = json.loads(archive.read("CodexStatusPet/release-manifest.json"))
+        if (
+            manifest.get("schema_version") != 1
+            or manifest.get("product") != "codex-windows-status-pet"
+            or manifest.get("version") != expected_version
+            or manifest.get("entrypoint") != "CodexStatusPet.exe"
+            or "CodexStatusPet/CodexStatusPet.exe" not in archive.namelist()
+        ):
+            raise RuntimeError("previous artifact is not the expected v0.9.1 EXE migration baseline")
 
 
 def _install(artifact, *, test_fail_after_backup=False):
@@ -120,7 +155,10 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
     target_version = _release_version(artifact)
     if previous_version == target_version:
         raise RuntimeError("previous release must have a different version from the candidate")
-    validate_release_archive(previous_artifact, expected_version=previous_version)
+    if previous_version == "0.9.1":
+        validate_legacy_upgrade_archive(previous_artifact, previous_version)
+    else:
+        validate_release_archive(previous_artifact, expected_version=previous_version)
     paths = installed_lifecycle_paths(
         local_app_data=Path(os.environ["LOCALAPPDATA"]),
         app_data=Path(os.environ["APPDATA"]),
@@ -140,6 +178,7 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
             raise RuntimeError("installed executable did not remain running")
         if _installed_manifest_version(paths.install_root) != previous_version:
             raise RuntimeError("initial installation does not retain the prior release provenance")
+        _stop_installed_processes(paths.install_root)
         expected_settings = b'{\n  "lifecycle_smoke": true,\n  "x": 4151\n}\n'
         paths.settings_file.write_bytes(expected_settings)
 
