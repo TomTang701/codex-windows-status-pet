@@ -17,6 +17,7 @@ class SourceReleaseContractTests(unittest.TestCase):
         (runtime / "scripts" / "codex_status_pet.py").write_text("# entrypoint\n", encoding="utf-8")
         (runtime / "launch.vbs").write_text("' launcher\n", encoding="utf-8")
         (runtime / "launch.ps1").write_text("# launcher\n", encoding="utf-8")
+        (runtime / "launch.cmd").write_text("@echo off\n", encoding="utf-8")
         (runtime / "install.ps1").write_text("# installer\n", encoding="utf-8")
         (runtime / "uninstall.ps1").write_text("# uninstaller\n", encoding="utf-8")
         (runtime / "requirements-runtime.txt").write_text(

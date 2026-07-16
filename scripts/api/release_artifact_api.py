@@ -18,6 +18,7 @@ REQUIRED_FILES = frozenset({
     ENTRYPOINT,
     "launch.vbs",
     "launch.ps1",
+    "launch.cmd",
     "install.ps1",
     "uninstall.ps1",
     "requirements-runtime.txt",

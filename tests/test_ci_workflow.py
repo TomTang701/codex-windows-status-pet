@@ -12,8 +12,8 @@ class CiWorkflowTests(unittest.TestCase):
         self.assertNotIn("python scripts/run_quality_checks.py", text)
         self.assertNotIn("python scripts/package_smoke_test.py", text)
         self.assertNotIn("git diff --check", text)
-        self.assertIn(".build/release/CodexStatusPet-v1.0.0-win11-x64.zip", text)
-        self.assertIn(".build/release/CodexStatusPet-v1.0.0-win11-x64.zip.sha256", text)
+        self.assertIn(".build/release/CodexStatusPet-v1.0.1-win11-x64.zip", text)
+        self.assertIn(".build/release/CodexStatusPet-v1.0.1-win11-x64.zip.sha256", text)
         self.assertIn(".build/previous-release/CodexStatusPet-v0.9.1-win11-x64.zip", text)
         self.assertIn("python scripts/installed_lifecycle_smoke.py", text)
 

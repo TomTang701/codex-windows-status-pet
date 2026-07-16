@@ -86,7 +86,7 @@ def main():
     runtime = RELEASE / RELEASE_ROOT_NAME
     runtime.mkdir(parents=True)
     copy_source_tree(ROOT, runtime)
-    for name in ("LICENSE", "THIRD_PARTY_NOTICES.md", "install.ps1", "uninstall.ps1", "launch.ps1", "launch.vbs", "requirements-runtime.txt"):
+    for name in ("LICENSE", "THIRD_PARTY_NOTICES.md", "install.ps1", "uninstall.ps1", "launch.ps1", "launch.vbs", "launch.cmd", "requirements-runtime.txt"):
         shutil.copy2(ROOT / name, runtime / name)
     shutil.copytree(ROOT / "assets", runtime / "assets")
     write_manifest(runtime, version)

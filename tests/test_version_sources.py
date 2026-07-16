@@ -12,7 +12,7 @@ class VersionSourceTests(unittest.TestCase):
     def test_v091_release_sources_are_declared_before_release(self):
         root = Path(__file__).parents[1]
         manifest = json.loads((root / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
-        self.assertTrue(manifest["version"].startswith("1.0.0+"))
+        self.assertTrue(manifest["version"].startswith("1.0.1+"))
 
 
 if __name__ == "__main__":
