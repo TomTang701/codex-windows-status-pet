@@ -86,6 +86,26 @@ def _installed_process_is_running(executable):
     return completed.returncode == 0
 
 
+def _stop_installed_processes(install_root):
+    """Stop only product processes before the smoke mutates external settings."""
+    target = Path(install_root).as_posix().replace("'", "''")
+    command = (
+        f"$root = [IO.Path]::GetFullPath('{target}'); "
+        "Get-CimInstance Win32_Process | "
+        "Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) } | "
+        "ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
+    )
+    completed = subprocess.run(
+        [_powershell_executable(), "-NoProfile", "-Command", command],
+        cwd=ROOT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    if completed.returncode:
+        raise RuntimeError("could not stop the legacy product before settings preservation check")
+
+
 def _release_checksum(artifact):
     return Path(f"{artifact}.sha256").read_text(encoding="ascii").split()[0]
 
@@ -158,6 +178,7 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
             raise RuntimeError("installed executable did not remain running")
         if _installed_manifest_version(paths.install_root) != previous_version:
             raise RuntimeError("initial installation does not retain the prior release provenance")
+        _stop_installed_processes(paths.install_root)
         expected_settings = b'{\n  "lifecycle_smoke": true,\n  "x": 4151\n}\n'
         paths.settings_file.write_bytes(expected_settings)
 
