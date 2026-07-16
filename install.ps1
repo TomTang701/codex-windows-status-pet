@@ -1,20 +1,40 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)] [string]$ArtifactPath,
-    [Parameter(Mandatory = $true)] [string]$Sha256,
-    [Parameter(Mandatory = $true)] [ValidatePattern('^\d+\.\d+\.\d+$')] [string]$ExpectedVersion,
+    [string]$ArtifactPath,
+    [string]$Sha256,
+    [ValidatePattern('^\d+\.\d+\.\d+$')] [string]$ExpectedVersion,
+    [string]$SourceRoot,
     [switch]$TestFailAfterBackup
 )
 
 $ErrorActionPreference = 'Stop'
 $product = 'CodexStatusPet'
 $installRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'Programs\CodexStatusPet'))
-$artifact = Get-Item -LiteralPath $ArtifactPath -ErrorAction Stop
-$stream = [IO.File]::OpenRead($artifact.FullName)
-$hasher = [Security.Cryptography.SHA256]::Create()
-try { $actual = ([BitConverter]::ToString($hasher.ComputeHash($stream))).Replace('-', '').ToLowerInvariant() }
-finally { $hasher.Dispose(); $stream.Dispose() }
-if ($actual -ne $Sha256.Trim().ToLowerInvariant()) { throw 'Release checksum does not match.' }
+$usingSource = ![string]::IsNullOrWhiteSpace($SourceRoot)
+$usingArtifact = ![string]::IsNullOrWhiteSpace($ArtifactPath) -or ![string]::IsNullOrWhiteSpace($Sha256) -or ![string]::IsNullOrWhiteSpace($ExpectedVersion)
+if ($usingSource -and $usingArtifact) { throw 'Specify either extracted SourceRoot or the verified artifact parameters, not both.' }
+if (!$usingSource -and !($ArtifactPath -and $Sha256 -and $ExpectedVersion)) { throw 'Verified artifact installation requires ArtifactPath, Sha256, and ExpectedVersion.' }
+
+if ($usingSource) {
+    $sourceItem = Get-Item -LiteralPath $SourceRoot -ErrorAction Stop
+    if (!$sourceItem.PSIsContainer -or !(Test-Path -LiteralPath (Join-Path $sourceItem.FullName 'release-manifest.json'))) {
+        throw 'SourceRoot requires a directory containing release-manifest.json.'
+    }
+    $SourceRoot = [IO.Path]::GetFullPath($sourceItem.FullName).TrimEnd('\', '/')
+    if ($SourceRoot.Equals($installRoot, [StringComparison]::OrdinalIgnoreCase) -or $SourceRoot.StartsWith($installRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'SourceRoot cannot be the installed product directory or one of its descendants.'
+    }
+    $sourceManifest = Get-Content -LiteralPath (Join-Path $SourceRoot 'release-manifest.json') -Raw | ConvertFrom-Json
+    $ExpectedVersion = [string]$sourceManifest.version
+    if ($ExpectedVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'Extracted source manifest version must be MAJOR.MINOR.PATCH.' }
+} else {
+    $artifact = Get-Item -LiteralPath $ArtifactPath -ErrorAction Stop
+    $stream = [IO.File]::OpenRead($artifact.FullName)
+    $hasher = [Security.Cryptography.SHA256]::Create()
+    try { $actual = ([BitConverter]::ToString($hasher.ComputeHash($stream))).Replace('-', '').ToLowerInvariant() }
+    finally { $hasher.Dispose(); $stream.Dispose() }
+    if ($actual -ne $Sha256.Trim().ToLowerInvariant()) { throw 'Release checksum does not match.' }
+}
 
 $staging = Join-Path ([IO.Path]::GetTempPath()) "CodexStatusPet-stage-$([guid]::NewGuid())"
 $backup = "$installRoot.backup-$([guid]::NewGuid())"
@@ -108,9 +128,22 @@ function New-Shortcut {
     $shortcut.Save()
 }
 
+function Copy-ReleaseSource {
+    param([string]$Root, [string]$Destination)
+    $excluded = @('runtime.json', 'runtime-packages')
+    New-Item -ItemType Directory -Force -Path $Destination | Out-Null
+    Get-ChildItem -LiteralPath $Root -Force | Where-Object { $_.Name -notin $excluded } | ForEach-Object {
+        Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force
+    }
+}
+
 try {
-    Expand-Archive -LiteralPath $artifact.FullName -DestinationPath $staging -Force
     $runtime = Join-Path $staging $product
+    if ($usingSource) {
+        Copy-ReleaseSource -Root $SourceRoot -Destination $runtime
+    } else {
+        Expand-Archive -LiteralPath $artifact.FullName -DestinationPath $staging -Force
+    }
     $manifestPath = Join-Path $runtime 'release-manifest.json'
     if (!(Test-Path -LiteralPath $manifestPath)) { throw 'Release manifest is missing.' }
     $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
