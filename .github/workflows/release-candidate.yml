@@ -39,5 +39,5 @@ jobs:
         with:
           name: codex-windows-status-pet-release-candidate
           path: |
-            .build/release/CodexStatusPet-v1.0.1-win11-x64.zip
-            .build/release/CodexStatusPet-v1.0.1-win11-x64.zip.sha256
+            .build/release/CodexStatusPet-v1.0.2-win11-x64.zip
+            .build/release/CodexStatusPet-v1.0.2-win11-x64.zip.sha256
