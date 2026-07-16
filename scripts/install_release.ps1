@@ -67,7 +67,6 @@ try {
     if ([string]::IsNullOrWhiteSpace([string]$artifactPath)) { Fail-ReleaseBootstrap 'Installation' 'resolved product artifact path is empty' }
     powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer -ArtifactPath ([string]$artifactPath) -Sha256 ([string]$expectedChecksum) -ExpectedVersion ([string]$expectedVersion)
     if (-not $?) { Fail-ReleaseBootstrap 'Installation' 'install.ps1 did not complete successfully' }
-    if ($LASTEXITCODE -ne 0) { Fail-ReleaseBootstrap 'Installation' 'install.ps1 returned a nonzero exit code' }
 }
 finally {
     Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue
