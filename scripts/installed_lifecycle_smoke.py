@@ -11,6 +11,7 @@ import subprocess
 import sys
 import uuid
 import zipfile
+import re
 
 from api.installer_contract_api import installation_paths
 from api.config_api import DEFAULT_SETTINGS
@@ -114,7 +115,10 @@ def _release_checksum(artifact):
 
 
 def _release_version(artifact):
-    return artifact.name.split("-v", 1)[1].split("-win11", 1)[0]
+    match = re.fullmatch(r"CodexStatusPet-v(\d+\.\d+\.\d+)(?:-source)?-win11-x64\.zip", Path(artifact).name)
+    if match is None:
+        raise RuntimeError("release artifact name is invalid")
+    return match.group(1)
 
 
 def validate_legacy_upgrade_archive(artifact, expected_version):
@@ -168,11 +172,15 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
     if sys.platform != "win32":
         raise RuntimeError("installed lifecycle smoke requires Windows")
     artifact = static_package_smoke()
+    source_artifact = static_package_smoke(channel="source")
     if previous_artifact is None:
         raise RuntimeError("installed lifecycle smoke requires --previous-artifact for a real upgrade")
     previous_artifact = Path(previous_artifact)
     previous_version = _release_version(previous_artifact)
     target_version = _release_version(artifact)
+    if _release_version(source_artifact) != target_version:
+        raise RuntimeError("dual-channel artifacts must share the target version")
+    validate_release_archive(source_artifact, expected_version=target_version, expected_channel="source")
     if previous_version == target_version:
         raise RuntimeError("previous release must have a different version from the candidate")
     if previous_version == "0.9.1":
@@ -211,6 +219,19 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
             raise RuntimeError("upgrade did not install the candidate manifest version")
         if _settings_semantics(paths.settings_file) != expected_semantics or not sentinel.exists():
             raise RuntimeError("upgrade did not preserve settings semantics and unrelated Codex data")
+
+        _install(source_artifact)
+        _stop_installed_processes(paths.install_root)
+        source_manifest = json.loads((paths.install_root / "release-manifest.json").read_text(encoding="utf-8"))
+        if source_manifest.get("schema_version") != 2 or not (paths.install_root / "scripts" / "codex_status_pet.py").is_file():
+            raise RuntimeError("channel switch did not install the source runtime")
+        if _settings_semantics(paths.settings_file) != expected_semantics or not sentinel.exists():
+            raise RuntimeError("source channel switch did not preserve settings and unrelated Codex data")
+
+        _install(artifact)
+        _stop_installed_processes(paths.install_root)
+        if _installed_manifest_version(paths.install_root) != target_version:
+            raise RuntimeError("channel switch back did not restore the standalone runtime")
 
         _install(artifact)
         _stop_installed_processes(paths.install_root)
