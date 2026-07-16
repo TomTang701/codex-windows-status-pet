@@ -10,7 +10,7 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REQUIREMENT = re.compile(r"^([A-Za-z0-9_.-]+)\s*>=\s*(\d+(?:\.\d+)*)$")
+REQUIREMENT = re.compile(r"^([A-Za-z0-9_.-]+)\s*(>=|==)\s*(\d+(?:\.\d+)*)$")
 IMPORT_NAMES = {"pillow": "PIL", "pystray": "pystray"}
 
 
@@ -29,15 +29,17 @@ def check(root: Path = ROOT):
         if not match:
             errors.append(f"requirements.txt:{line_number}: unsupported requirement: {text}")
             continue
-        package, minimum = match.groups()
+        package, operator, required = match.groups()
         try:
             installed = version(package)
         except PackageNotFoundError:
             errors.append(f"missing dependency: {package}")
             continue
         try:
-            if _version_tuple(installed) < _version_tuple(minimum):
-                errors.append(f"dependency below minimum: {package}={installed} < {minimum}")
+            if operator == ">=" and _version_tuple(installed) < _version_tuple(required):
+                errors.append(f"dependency below minimum: {package}={installed} < {required}")
+            if operator == "==" and installed != required:
+                errors.append(f"dependency version differs: {package}={installed} != {required}")
         except ValueError:
             errors.append(f"unparseable installed version: {package}={installed}")
         import_name = IMPORT_NAMES.get(package.lower(), package)
