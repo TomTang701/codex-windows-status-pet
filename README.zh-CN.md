@@ -58,14 +58,14 @@ SHA-256；然后解压**完整**压缩包，打开解压后的 `CodexStatusPet` 
 运行以下 PowerShell 命令即可安装或修复最新稳定 Release：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1')))
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1')))"
 ```
 
 再次运行相同命令可升级至较新的已发布 Release，或完成已验证的同版本修复。若要固定稳定版本，
 在 bootstrap 调用后增加 `-Tag` 参数：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v0.9.1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.0.1"
 ```
 
 bootstrap 会校验精确 ZIP 和 SHA-256 sidecar，保留 CodexStatusPet 设置及无关 `.codex` 数据，

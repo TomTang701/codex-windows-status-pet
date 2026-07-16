@@ -118,6 +118,7 @@ try {
     $source = $manifest.schema_version -eq 2 -and $manifest.product -eq 'codex-windows-status-pet' -and $manifest.version -eq $ExpectedVersion -and $manifest.platform -eq 'windows' -and $manifest.arch -eq 'x64' -and $manifest.runtime -eq 'python' -and $manifest.entrypoint -eq 'scripts/codex_status_pet.py' -and $manifest.launcher -eq 'launch.vbs' -and $manifest.icon -eq 'assets/CodexStatusPet.ico'
     if (!$legacy -and !$source) { throw 'Release manifest is invalid.' }
     if (!(Test-Path -LiteralPath (Join-Path $runtime $manifest.entrypoint))) { throw 'Release entry point is missing.' }
+    if ($source -and !(Test-Path -LiteralPath (Join-Path $runtime 'launch.cmd'))) { throw 'CMD fallback launcher is missing.' }
     if ($source -and (Get-ChildItem -LiteralPath $runtime -Recurse -File | Where-Object { $_.Extension -in @('.exe', '.pyc', '.pyo') -or $_.Name -eq '_internal' })) { throw 'Source package contains prohibited executable runtime material.' }
 
     if ($source) {

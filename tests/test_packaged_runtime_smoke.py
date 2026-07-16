@@ -19,7 +19,7 @@ class PackagedRuntimeSmokeTests(unittest.TestCase):
             boundary = smoke.zip_direct_use_boundary(root, {"PATH": "C:/Windows", "PYTHONPATH": "C:/source"})
             self.assertEqual(boundary.settings_file, root / "User" / ".codex" / "codex-windows-status-pet.json")
             self.assertEqual(boundary.install_root, root / "Local" / "Programs" / "CodexStatusPet")
-            self.assertEqual(boundary.desktop_shortcut, root / "Desktop" / "Codex Windows Status Pet.lnk")
+            self.assertEqual(boundary.desktop_shortcut, root / "User" / "Desktop" / "Codex Windows Status Pet.lnk")
             self.assertNotIn("PYTHONPATH", boundary.environment)
 
     def test_direct_use_exit_preserves_settings_without_installed_state(self):

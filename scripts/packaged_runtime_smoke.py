@@ -31,6 +31,7 @@ def zip_direct_use_boundary(root, environment=None):
     local_app_data = root / "Local"
     app_data = root / "Roaming"
     paths = installation_paths(local_app_data, user_profile)
+    (user_profile / "Desktop").mkdir(parents=True, exist_ok=True)
     child_environment = dict(os.environ if environment is None else environment)
     child_environment.pop("PYTHONPATH", None)
     child_environment.update({
@@ -42,7 +43,7 @@ def zip_direct_use_boundary(root, environment=None):
         environment=child_environment,
         settings_file=paths.settings_file,
         install_root=paths.install_root,
-        desktop_shortcut=root / "Desktop" / "Codex Windows Status Pet.lnk",
+        desktop_shortcut=user_profile / "Desktop" / "Codex Windows Status Pet.lnk",
         start_menu_shortcut=app_data / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Codex Windows Status Pet.lnk",
     )
 

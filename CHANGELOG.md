@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+## 1.0.1 - 2026-07-15
+
+- Fixed source-launch startup when invoked through the Desktop shortcut by resolving the install root from `$PSScriptRoot`.
+- Added `launch.cmd` as a visible-command fallback for installations where the hidden VBS shortcut is unavailable or needs direct troubleshooting.
+- Added launch-chain regression coverage and included the CMD fallback in the release package contract.
+
 ## 1.0.0 - 2026-07-15
 
 - Promoted the Signal HUD redesign to the stable source-based release: the product ZIP contains Python application source and hidden launch/install/uninstall scripts, not a packaged application executable.

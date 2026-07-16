@@ -8,7 +8,7 @@ $repository = 'TomTang701/codex-windows-status-pet'
 $releasesApi = "https://api.github.com/repos/$repository/releases"
 $headers = @{
     Accept = 'application/vnd.github+json'
-    'User-Agent' = 'CodexStatusPet-public-bootstrap/1.0.0'
+    'User-Agent' = 'CodexStatusPet-public-bootstrap/1.0.1'
 }
 $staging = Join-Path ([IO.Path]::GetTempPath()) "CodexStatusPet-release-$([guid]::NewGuid())"
 
@@ -44,11 +44,11 @@ try {
     }
 
     New-Item -ItemType Directory -Force -Path $staging | Out-Null
-    $artifact = Join-Path $staging $zipName
+    $artifactPath = Join-Path $staging $zipName
     $sidecar = Join-Path $staging $checksumName
     $installer = Join-Path $staging 'install.ps1'
     foreach ($download in @(
-        @{ Url = $assetMap[$zipName].browser_download_url; Path = $artifact },
+        @{ Url = $assetMap[$zipName].browser_download_url; Path = $artifactPath },
         @{ Url = $assetMap[$checksumName].browser_download_url; Path = $sidecar },
         @{ Url = $assetMap['install.ps1'].browser_download_url; Path = $installer }
     )) {
@@ -59,13 +59,14 @@ try {
             Fail-ReleaseBootstrap 'Public Release asset download' "unable to download $($download.Path): $($_.Exception.Message)"
         }
     }
-    if (!(Test-Path -LiteralPath $artifact) -or !(Test-Path -LiteralPath $sidecar) -or !(Test-Path -LiteralPath $installer)) { Fail-ReleaseBootstrap 'Release acquisition' 'download did not produce the required assets' }
+    if (!(Test-Path -LiteralPath $artifactPath) -or !(Test-Path -LiteralPath $sidecar) -or !(Test-Path -LiteralPath $installer)) { Fail-ReleaseBootstrap 'Release acquisition' 'download did not produce the required assets' }
     $checksumRecord = (Get-Content -LiteralPath $sidecar -Raw).Trim()
     if ($checksumRecord -notmatch '^([0-9a-fA-F]{64})\s+(.+)$' -or $Matches[2] -ne $zipName) { Fail-ReleaseBootstrap 'Checksum' 'release SHA-256 sidecar is invalid' }
 
     $expectedChecksum = $Matches[1]
-    & $installer -ArtifactPath $artifact -Sha256 $expectedChecksum -ExpectedVersion $expectedVersion
-    if (-not $?) { Fail-ReleaseBootstrap 'Installation' 'install.ps1 did not complete successfully' }
+    if ([string]::IsNullOrWhiteSpace([string]$artifactPath)) { Fail-ReleaseBootstrap 'Installation' 'resolved product artifact path is empty' }
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File $installer -ArtifactPath ([string]$artifactPath) -Sha256 ([string]$expectedChecksum) -ExpectedVersion ([string]$expectedVersion)
+    if ($LASTEXITCODE -ne 0 -or -not $?) { Fail-ReleaseBootstrap 'Installation' 'install.ps1 did not complete successfully' }
 }
 finally {
     Remove-Item -LiteralPath $staging -Recurse -Force -ErrorAction SilentlyContinue

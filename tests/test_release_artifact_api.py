@@ -25,6 +25,7 @@ class ReleaseArtifactTests(unittest.TestCase):
         (runtime / "scripts" / "codex_status_pet.py").write_text("entry", encoding="utf-8")
         (runtime / "launch.vbs").write_text("launcher", encoding="utf-8")
         (runtime / "launch.ps1").write_text("launcher", encoding="utf-8")
+        (runtime / "launch.cmd").write_text("@echo off", encoding="utf-8")
         (runtime / "install.ps1").write_text("installer", encoding="utf-8")
         (runtime / "uninstall.ps1").write_text("uninstaller", encoding="utf-8")
         (runtime / "requirements-runtime.txt").write_text("Pillow==12.2.0\npystray==0.19.5\n", encoding="utf-8")

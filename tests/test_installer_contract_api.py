@@ -89,8 +89,21 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn("Microsoft\\Windows\\Start Menu\\Programs", installer)
         self.assertIn("IconLocation", installer)
         self.assertIn("launch.vbs", installer)
+        self.assertIn("launch.cmd", installer)
         self.assertIn("[Environment]::GetFolderPath('Desktop')", uninstaller)
         self.assertIn("runtime-packages", (root / "launch.ps1").read_text(encoding="utf-8"))
+
+    def test_launcher_resolves_its_root_from_psscriptroot_when_started_by_shortcut(self):
+        launcher = (Path(__file__).parents[1] / "launch.ps1").read_text(encoding="utf-8")
+        self.assertIn("param([string]$InstallRoot)", launcher)
+        self.assertIn("$PSScriptRoot", launcher)
+        self.assertNotIn("$MyInvocation.MyCommand.Path", launcher)
+
+    def test_release_contains_a_direct_cmd_fallback_launcher(self):
+        root = Path(__file__).parents[1]
+        launcher = (root / "launch.cmd").read_text(encoding="utf-8")
+        self.assertIn("launch.ps1", launcher)
+        self.assertIn("%~dp0", launcher)
 
 
 if __name__ == "__main__":
