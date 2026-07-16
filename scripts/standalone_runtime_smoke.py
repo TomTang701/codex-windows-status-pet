@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -27,12 +28,23 @@ def standalone_environment(environment=None):
     return environment
 
 
+def cleanup_directory(directory):
+    for _ in range(20):
+        try:
+            shutil.rmtree(directory)
+            return
+        except PermissionError:
+            time.sleep(0.5)
+    shutil.rmtree(directory)
+
+
 def standalone_runtime_smoke():
     if sys.platform != "win32":
         raise RuntimeError("standalone runtime smoke requires Windows")
     artifact = static_package_smoke(channel=STANDALONE_CHANNEL)
     validate_release_archive(artifact, expected_version=app_version(), expected_channel=STANDALONE_CHANNEL)
-    with tempfile.TemporaryDirectory(prefix="CodexStatusPet-standalone-") as directory:
+    directory = tempfile.mkdtemp(prefix="CodexStatusPet-standalone-")
+    try:
         extraction = Path(directory) / "extract"
         with zipfile.ZipFile(artifact) as archive:
             archive.extractall(extraction)
@@ -48,6 +60,8 @@ def standalone_runtime_smoke():
             if process.poll() is None:
                 subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"], check=False, capture_output=True)
                 process.wait(timeout=10)
+    finally:
+        cleanup_directory(directory)
     return artifact
 
 

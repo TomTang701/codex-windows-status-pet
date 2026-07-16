@@ -20,6 +20,11 @@ class StandaloneRuntimeSmokeTests(unittest.TestCase):
         self.assertNotIn("PYTHONPATH", environment)
         self.assertNotIn("Python", environment["PATH"])
 
+    def test_direct_smoke_retries_cleanup_after_terminating_the_process_tree(self):
+        script = (Path(__file__).parents[1] / "scripts" / "standalone_runtime_smoke.py").read_text(encoding="utf-8")
+        self.assertIn("cleanup_directory", script)
+        self.assertIn("PermissionError", script)
+
 
 if __name__ == "__main__":
     unittest.main()

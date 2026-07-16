@@ -60,7 +60,7 @@ def release_bootstrap_smoke():
             "HOMEDRIVE": user.drive,
             "HOMEPATH": str(user)[len(user.drive):],
         })
-        _powershell(ROOT / "scripts/install_release.ps1", "-Channel", "Source", environment=environment)
+        _powershell(ROOT / "scripts/install_release.ps1", environment=environment)
         install_root = Path(environment["LOCALAPPDATA"]) / "Programs/CodexStatusPet"
         desktop = user / "Desktop" / "Codex Windows Status Pet.lnk"
         shortcut = Path(environment["APPDATA"]) / "Microsoft/Windows/Start Menu/Programs/Codex Windows Status Pet.lnk"
@@ -73,7 +73,7 @@ def release_bootstrap_smoke():
                 "bootstrap lifecycle cleanup crossed the product data boundary: "
                 f"install_root={install_root.exists()}, shortcut={shortcut.exists()}, sentinel={sentinel.exists()}"
             )
-    return f"CodexStatusPet-v{installed_version}-source-win11-x64.zip"
+    return f"CodexStatusPet-v{installed_version}-win11-x64.zip"
 
 
 def main():

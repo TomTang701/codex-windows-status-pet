@@ -139,9 +139,9 @@ class ReleaseBootstrapTests(unittest.TestCase):
     def test_release_candidate_smoke_uses_the_published_latest_release(self):
         smoke = (Path(__file__).parents[1] / "scripts" / "release_bootstrap_smoke.py").read_text(encoding="utf-8")
         self.assertNotIn('"-Tag", "v1.0.2"', smoke)
-        self.assertIn('"-Channel", "Source"', smoke)
+        self.assertNotIn('"-Channel", "Source"', smoke)
         self.assertIn('installed_version =', smoke)
-        self.assertIn('f"CodexStatusPet-v{installed_version}-source-win11-x64.zip"', smoke)
+        self.assertIn('f"CodexStatusPet-v{installed_version}-win11-x64.zip"', smoke)
         self.assertIn('ROOT / "uninstall.ps1"', smoke)
 
 
