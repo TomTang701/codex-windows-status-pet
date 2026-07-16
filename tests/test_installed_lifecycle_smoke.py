@@ -27,6 +27,8 @@ class InstalledLifecycleSmokeTests(unittest.TestCase):
         self.assertGreaterEqual(script.count("_stop_installed_processes(paths.install_root)"), 4)
         self.assertIn("DEFAULT_SETTINGS", script)
         self.assertIn('lifecycle_settings["x"] = 4151', script)
+        self.assertIn("def _settings_semantics", script)
+        self.assertIn('"battery_quota_source"', script)
 
     def test_windows_powershell_executable_uses_the_system_powershell_51_path(self):
         self.assertEqual(

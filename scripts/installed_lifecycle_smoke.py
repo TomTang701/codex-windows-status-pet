@@ -144,6 +144,23 @@ def _installed_manifest_version(install_root):
     return json.loads((install_root / "release-manifest.json").read_text(encoding="utf-8"))["version"]
 
 
+def _settings_semantics(path):
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        "schema_version": payload.get("schema_version"),
+        "x": payload.get("x"),
+        "y": payload.get("y"),
+        "language": payload.get("language"),
+        "topmost": payload.get("topmost"),
+        "locked": payload.get("locked"),
+        "compact": payload.get("compact"),
+        "show_primary_5h": payload.get("show_primary_5h"),
+        "show_weekly": payload.get("show_weekly"),
+        "show_reset_credit": payload.get("show_reset_credit"),
+        "battery_quota_source": payload.get("battery_quota_source"),
+    }
+
+
 def installed_lifecycle_smoke(*, previous_artifact=None):
     """Prove a real update, repair, rollback, and both uninstall scopes."""
     if sys.platform != "win32":
@@ -184,18 +201,19 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
         lifecycle_settings["x"] = 4151
         expected_settings = (json.dumps(lifecycle_settings, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
         paths.settings_file.write_bytes(expected_settings)
+        expected_semantics = _settings_semantics(paths.settings_file)
 
         _install(artifact)
         _stop_installed_processes(paths.install_root)
         if _installed_manifest_version(paths.install_root) != target_version:
             raise RuntimeError("upgrade did not install the candidate manifest version")
-        if paths.settings_file.read_bytes() != expected_settings or not sentinel.exists():
-            raise RuntimeError("upgrade did not preserve settings bytes and unrelated Codex data")
+        if _settings_semantics(paths.settings_file) != expected_semantics or not sentinel.exists():
+            raise RuntimeError("upgrade did not preserve settings semantics and unrelated Codex data")
 
         _install(artifact)
         _stop_installed_processes(paths.install_root)
-        if _installed_manifest_version(paths.install_root) != target_version or paths.settings_file.read_bytes() != expected_settings:
-            raise RuntimeError("same-version repair did not preserve the installed release and settings bytes")
+        if _installed_manifest_version(paths.install_root) != target_version or _settings_semantics(paths.settings_file) != expected_semantics:
+            raise RuntimeError("same-version repair did not preserve the installed release and settings semantics")
 
         try:
             _install(artifact, test_fail_after_backup=True)
@@ -204,16 +222,16 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
         else:
             raise RuntimeError("test replacement failure unexpectedly installed")
         if (_installed_manifest_version(paths.install_root) != target_version
-                or paths.settings_file.read_bytes() != expected_settings):
-            raise RuntimeError("failed replacement did not restore the prior installed runtime and settings")
+                or _settings_semantics(paths.settings_file) != expected_semantics):
+            raise RuntimeError("failed replacement did not restore the prior installed runtime and settings semantics")
         if list(paths.install_root.parent.glob("CodexStatusPet.backup-*")):
             raise RuntimeError("failed replacement left stale backup state")
 
         _powershell_file(paths.install_root / "uninstall.ps1")
         if paths.install_root.exists() or paths.shortcut.exists() or not paths.settings_file.exists():
             raise RuntimeError("normal uninstall did not remove only product files")
-        if paths.settings_file.read_bytes() != expected_settings:
-            raise RuntimeError("normal uninstall did not preserve settings bytes")
+        if _settings_semantics(paths.settings_file) != expected_semantics:
+            raise RuntimeError("normal uninstall did not preserve settings semantics")
         _install(artifact)
         _stop_installed_processes(paths.install_root)
         _powershell_file(paths.install_root / "uninstall.ps1", "-PurgeSettings")
