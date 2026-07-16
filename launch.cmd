@@ -3,7 +3,7 @@ setlocal
 set "ROOT=%~dp0"
 if exist "%ROOT%runtime.json" goto launch
 
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%install.ps1" -SourceRoot "%ROOT%"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%install.ps1" -SourceRoot "%ROOT%."
 set "RESULT=%ERRORLEVEL%"
 if "%RESULT%"=="0" exit /b 0
 echo.
