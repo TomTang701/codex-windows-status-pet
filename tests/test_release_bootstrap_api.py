@@ -100,6 +100,12 @@ class ReleaseBootstrapTests(unittest.TestCase):
         self.assertIn("-ExpectedVersion ([string]$expectedVersion)", bootstrap)
         self.assertIn("if (-not $?)", bootstrap)
         self.assertNotIn("$LASTEXITCODE -ne 0", bootstrap)
+
+    def test_release_candidate_smoke_uses_the_published_latest_release(self):
+        smoke = (Path(__file__).parents[1] / "scripts" / "release_bootstrap_smoke.py").read_text(encoding="utf-8")
+        self.assertNotIn('"-Tag", "v1.0.2"', smoke)
+        self.assertIn('installed_version =', smoke)
+        self.assertIn('f"CodexStatusPet-v{installed_version}-win11-x64.zip"', smoke)
         self.assertNotIn("GITHUB_TOKEN", bootstrap)
         self.assertNotIn("gh auth token", bootstrap)
 

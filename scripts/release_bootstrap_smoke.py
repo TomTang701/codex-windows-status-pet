@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -59,16 +60,17 @@ def release_bootstrap_smoke():
             "HOMEDRIVE": user.drive,
             "HOMEPATH": str(user)[len(user.drive):],
         })
-        _powershell(ROOT / "scripts/install_release.ps1", "-Tag", "v1.0.2", environment=environment)
+        _powershell(ROOT / "scripts/install_release.ps1", environment=environment)
         install_root = Path(environment["LOCALAPPDATA"]) / "Programs/CodexStatusPet"
         desktop = user / "Desktop" / "Codex Windows Status Pet.lnk"
         shortcut = Path(environment["APPDATA"]) / "Microsoft/Windows/Start Menu/Programs/Codex Windows Status Pet.lnk"
         if not (install_root / "scripts/codex_status_pet.py").is_file() or (install_root / "CodexStatusPet.exe").exists() or not desktop.is_file() or not shortcut.is_file():
             raise RuntimeError("bootstrap did not create the installed source runtime and Start Menu shortcut")
+        installed_version = json.loads((install_root / "release-manifest.json").read_text(encoding="utf-8-sig"))["version"]
         _powershell(install_root / "uninstall.ps1", "-PurgeSettings", environment=environment)
         if install_root.exists() or shortcut.exists() or not sentinel.is_file():
             raise RuntimeError("bootstrap lifecycle cleanup crossed the product data boundary")
-    return "CodexStatusPet-v1.0.2-win11-x64.zip"
+    return f"CodexStatusPet-v{installed_version}-win11-x64.zip"
 
 
 def main():
