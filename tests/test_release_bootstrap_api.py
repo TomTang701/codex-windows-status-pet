@@ -108,6 +108,7 @@ class ReleaseBootstrapTests(unittest.TestCase):
         self.assertNotIn('"-Tag", "v1.0.2"', smoke)
         self.assertIn('installed_version =', smoke)
         self.assertIn('f"CodexStatusPet-v{installed_version}-win11-x64.zip"', smoke)
+        self.assertIn('ROOT / "uninstall.ps1"', smoke)
 
 
 if __name__ == "__main__":

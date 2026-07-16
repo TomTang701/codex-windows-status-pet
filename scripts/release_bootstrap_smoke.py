@@ -67,9 +67,12 @@ def release_bootstrap_smoke():
         if not (install_root / "scripts/codex_status_pet.py").is_file() or (install_root / "CodexStatusPet.exe").exists() or not desktop.is_file() or not shortcut.is_file():
             raise RuntimeError("bootstrap did not create the installed source runtime and Start Menu shortcut")
         installed_version = json.loads((install_root / "release-manifest.json").read_text(encoding="utf-8-sig"))["version"]
-        _powershell(install_root / "uninstall.ps1", "-PurgeSettings", environment=environment)
+        _powershell(ROOT / "uninstall.ps1", "-InstallRoot", install_root, "-PurgeSettings", environment=environment)
         if install_root.exists() or shortcut.exists() or not sentinel.is_file():
-            raise RuntimeError("bootstrap lifecycle cleanup crossed the product data boundary")
+            raise RuntimeError(
+                "bootstrap lifecycle cleanup crossed the product data boundary: "
+                f"install_root={install_root.exists()}, shortcut={shortcut.exists()}, sentinel={sentinel.exists()}"
+            )
     return f"CodexStatusPet-v{installed_version}-win11-x64.zip"
 
 

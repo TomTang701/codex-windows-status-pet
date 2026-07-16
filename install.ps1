@@ -43,7 +43,10 @@ $success = $false
 function Stop-InstalledProduct {
     $candidates = @(
         Get-CimInstance Win32_Process | Where-Object {
-            $_.ExecutablePath -and $_.ExecutablePath.StartsWith($installRoot, [StringComparison]::OrdinalIgnoreCase)
+            $_.ProcessId -ne $PID -and (
+                ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($installRoot, [StringComparison]::OrdinalIgnoreCase)) -or
+                ($_.CommandLine -and $_.CommandLine.IndexOf($installRoot, [StringComparison]::OrdinalIgnoreCase) -ge 0)
+            )
         }
     )
     foreach ($candidate in $candidates) {
@@ -53,9 +56,15 @@ function Stop-InstalledProduct {
         try { Wait-Process -Id $candidate.ProcessId -Timeout 5 -ErrorAction Stop } catch { }
     }
     Get-CimInstance Win32_Process | Where-Object {
-        $_.ExecutablePath -and $_.ExecutablePath.StartsWith($installRoot, [StringComparison]::OrdinalIgnoreCase)
+        $_.ProcessId -ne $PID -and (
+            ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($installRoot, [StringComparison]::OrdinalIgnoreCase)) -or
+            ($_.CommandLine -and $_.CommandLine.IndexOf($installRoot, [StringComparison]::OrdinalIgnoreCase) -ge 0)
+        )
     } | ForEach-Object {
         Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+    }
+    foreach ($candidate in $candidates) {
+        try { Wait-Process -Id $candidate.ProcessId -Timeout 10 -ErrorAction Stop } catch { }
     }
 }
 

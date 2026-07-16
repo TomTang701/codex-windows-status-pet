@@ -106,6 +106,18 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn("[Environment]::GetFolderPath('Desktop')", uninstaller)
         self.assertIn("runtime-packages", (root / "launch.ps1").read_text(encoding="utf-8"))
 
+    def test_installer_and_uninstaller_stop_source_python_by_command_line(self):
+        root = Path(__file__).parents[1]
+        installer = (root / "install.ps1").read_text(encoding="utf-8")
+        uninstaller = (root / "uninstall.ps1").read_text(encoding="utf-8")
+        for script in (installer, uninstaller):
+            self.assertIn("$_.CommandLine", script)
+            self.assertIn("IndexOf", script)
+            self.assertIn("[StringComparison]::OrdinalIgnoreCase", script)
+        self.assertIn("Wait-Process", uninstaller)
+        self.assertIn("for ($attempt = 0; $attempt -lt 20", uninstaller)
+        self.assertIn("Installed product directory could not be removed.", uninstaller)
+
     def test_launcher_resolves_its_root_from_psscriptroot_when_started_by_shortcut(self):
         launcher = (Path(__file__).parents[1] / "launch.ps1").read_text(encoding="utf-8")
         self.assertIn("param([string]$InstallRoot)", launcher)
