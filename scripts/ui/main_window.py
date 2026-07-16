@@ -11,7 +11,7 @@ import tkinter as tk
 from datetime import datetime, timezone
 from pathlib import Path
 
-APP_VERSION = "0.9.2-beta.1"
+APP_VERSION = "1.0.0"
 try:
     from api.activity_api import snapshot_activity
     from api.codex_transport_api import AppServer

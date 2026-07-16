@@ -5,6 +5,7 @@ import unittest
 import gc
 import logging
 import json
+import time
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -158,6 +159,19 @@ class MenuInteractionTests(unittest.TestCase):
                 app.context_menu.event_generate("<Escape>")
                 app.update_idletasks()
                 normalize.assert_any_call(app.winfo_id())
+        finally:
+            self.destroy_app(app)
+
+    def test_context_menu_reasserts_owner_shell_after_focus_transition(self):
+        app = self.module["Pet"]()
+        try:
+            with mock.patch("ui.context_menu.ensure_overlay_toolwindow") as normalize:
+                app.menu(SimpleNamespace(x_root=4200, y_root=200))
+                app.update()
+                time.sleep(0.25)
+                app.update()
+                owner_calls = [call for call in normalize.call_args_list if call.args == (app.winfo_id(),)]
+                self.assertGreaterEqual(len(owner_calls), 2)
         finally:
             self.destroy_app(app)
 

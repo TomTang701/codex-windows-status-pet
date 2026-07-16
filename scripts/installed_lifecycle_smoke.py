@@ -10,6 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 import uuid
+import zipfile
 
 from api.installer_contract_api import installation_paths
 from api.release_artifact_api import validate_release_archive
@@ -93,6 +94,20 @@ def _release_version(artifact):
     return artifact.name.split("-v", 1)[1].split("-win11", 1)[0]
 
 
+def validate_legacy_upgrade_archive(artifact, expected_version):
+    """Validate only the published v0.9.1 EXE baseline used for migration."""
+    with zipfile.ZipFile(artifact) as archive:
+        manifest = json.loads(archive.read("CodexStatusPet/release-manifest.json"))
+        if (
+            manifest.get("schema_version") != 1
+            or manifest.get("product") != "codex-windows-status-pet"
+            or manifest.get("version") != expected_version
+            or manifest.get("entrypoint") != "CodexStatusPet.exe"
+            or "CodexStatusPet/CodexStatusPet.exe" not in archive.namelist()
+        ):
+            raise RuntimeError("previous artifact is not the expected v0.9.1 EXE migration baseline")
+
+
 def _install(artifact, *, test_fail_after_backup=False):
     arguments = [
         "-ArtifactPath", artifact,
@@ -120,7 +135,10 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
     target_version = _release_version(artifact)
     if previous_version == target_version:
         raise RuntimeError("previous release must have a different version from the candidate")
-    validate_release_archive(previous_artifact, expected_version=previous_version)
+    if previous_version == "0.9.1":
+        validate_legacy_upgrade_archive(previous_artifact, previous_version)
+    else:
+        validate_release_archive(previous_artifact, expected_version=previous_version)
     paths = installed_lifecycle_paths(
         local_app_data=Path(os.environ["LOCALAPPDATA"]),
         app_data=Path(os.environ["APPDATA"]),

@@ -1,9 +1,9 @@
-"""Pure validation for the distributable Windows runtime root."""
+"""Pure validation for the lightweight source-based Windows release."""
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 import re
 import tempfile
 import zipfile
@@ -13,29 +13,40 @@ from pathlib import PurePosixPath
 
 
 RELEASE_ROOT_NAME = "CodexStatusPet"
-ENTRYPOINT = "CodexStatusPet.exe"
+ENTRYPOINT = "scripts/codex_status_pet.py"
 REQUIRED_FILES = frozenset({
-    ENTRYPOINT, "_internal", "release-manifest.json", "LICENSE",
-    "THIRD_PARTY_NOTICES.md", "uninstall.ps1",
+    ENTRYPOINT,
+    "launch.vbs",
+    "launch.ps1",
+    "install.ps1",
+    "uninstall.ps1",
+    "requirements-runtime.txt",
+    "release-manifest.json",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "assets/CodexStatusPet.ico",
 })
 PROHIBITED_PARTS = frozenset({
-    "tests", "docs", "Goal", "skills", ".github", ".githooks",
-    ".codex-plugin", ".build", "__pycache__",
+    "tests", "docs", "Goal", "skills", ".git", ".github", ".githooks",
+    ".codex-plugin", ".build", "__pycache__", "_internal",
 })
+PINNED_RUNTIME_REQUIREMENTS = "Pillow==12.2.0\npystray==0.19.5\n"
 
 
 @dataclass(frozen=True)
 class ReleaseManifest:
     version: str
+    runtime: str = "python"
+    entrypoint: str = ENTRYPOINT
+    launcher: str = "launch.vbs"
+    icon: str = "assets/CodexStatusPet.ico"
 
 
 def release_archive_name(version):
-    """Return the sole supported Windows x64 release archive name."""
     return f"CodexStatusPet-v{version}-win11-x64.zip"
 
 
 def sha256_file(path):
-    """Return a lowercase SHA-256 digest without loading an artifact at once."""
     digest = hashlib.sha256()
     with Path(path).open("rb") as stream:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
@@ -44,7 +55,6 @@ def sha256_file(path):
 
 
 def validate_release_archive(artifact, *, expected_version):
-    """Validate the signed-by-checksum ZIP boundary before installation."""
     artifact = Path(artifact)
     expected_name = release_archive_name(expected_version)
     if artifact.name != expected_name:
@@ -59,7 +69,6 @@ def validate_release_archive(artifact, *, expected_version):
         raise ValueError("release checksum sidecar is invalid")
     if sha256_file(artifact) != match.group(1):
         raise ValueError("release checksum does not match")
-
     try:
         with zipfile.ZipFile(artifact) as archive:
             files = [entry.filename for entry in archive.infolist() if not entry.is_dir()]
@@ -84,33 +93,46 @@ def validate_release_archive(artifact, *, expected_version):
 
 
 def validate_release_root(root, *, expected_version):
-    """Validate the strict v0.8 onedir runtime contract and return its manifest."""
     root = Path(root)
-    missing = [name for name in REQUIRED_FILES if not (root / name).exists()]
+    missing = [name for name in REQUIRED_FILES if not (root / name).is_file()]
     if missing:
         raise ValueError("missing required runtime files: " + ", ".join(sorted(missing)))
-    prohibited = [
-        path.relative_to(root).as_posix()
-        for path in root.rglob("*")
-        if any(part in PROHIBITED_PARTS for part in path.relative_to(root).parts)
-        or path.suffix == ".py"
-    ]
+    prohibited = []
+    for path in root.rglob("*"):
+        relative = path.relative_to(root)
+        parts = relative.parts
+        if any(part in PROHIBITED_PARTS for part in parts):
+            prohibited.append(relative.as_posix())
+        if path.is_file() and (path.suffix.lower() in {".exe", ".pyc", ".pyo"} or (path.name.lower().startswith("python") and path.suffix.lower() != ".py")):
+            prohibited.append(relative.as_posix())
     if prohibited:
-        raise ValueError("prohibited release material: " + ", ".join(sorted(prohibited)))
+        raise ValueError("prohibited release material: " + ", ".join(sorted(set(prohibited))))
     try:
         payload = json.loads((root / "release-manifest.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ValueError("invalid release manifest") from exc
     required = {
-        "schema_version": 1,
+        "schema_version": 2,
         "product": "codex-windows-status-pet",
         "display_name": "Codex Windows Status Pet",
         "version": expected_version,
         "platform": "windows",
         "arch": "x64",
+        "runtime": "python",
+        "minimum_python": "3.10",
         "entrypoint": ENTRYPOINT,
+        "launcher": "launch.vbs",
+        "icon": "assets/CodexStatusPet.ico",
     }
     for key, expected in required.items():
         if payload.get(key) != expected:
             raise ValueError(f"release manifest {key} is invalid")
-    return ReleaseManifest(version=payload["version"])
+    if (root / "requirements-runtime.txt").read_text(encoding="utf-8") != PINNED_RUNTIME_REQUIREMENTS:
+        raise ValueError("runtime requirements are not pinned to the tested versions")
+    return ReleaseManifest(
+        version=payload["version"],
+        runtime=payload["runtime"],
+        entrypoint=payload["entrypoint"],
+        launcher=payload["launcher"],
+        icon=payload["icon"],
+    )

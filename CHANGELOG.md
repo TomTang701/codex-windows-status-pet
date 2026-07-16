@@ -4,6 +4,13 @@
 
 ## Unreleased
 
+## 1.0.0 - 2026-07-15
+
+- Promoted the Signal HUD redesign to the stable source-based release: the product ZIP contains Python application source and hidden launch/install/uninstall scripts, not a packaged application executable.
+- Added compatible Python 3.10+ discovery with Codex-bundled, `py.exe`, and `PATH` fallback order; runtime dependencies are installed only under the product's private `runtime-packages` directory.
+- Added a canonical multi-resolution pet icon and Desktop plus Start Menu shortcuts using the hidden source launcher.
+- Migrated install, repair, upgrade, rollback, and uninstall contracts to the source runtime while preserving settings and unrelated `.codex` data.
+
 ## 0.9.2-beta.1 - 2026-07-15
 
 - Added the isolated Signal HUD redesign: four visible expanded rows, horizontal 5-hour and Weekly quota bars, a compact ten-cell battery with percentage, and updated bilingual Settings previews and menus.

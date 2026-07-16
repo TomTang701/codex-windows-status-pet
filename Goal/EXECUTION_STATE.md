@@ -1,22 +1,24 @@
 # Execution State
 
 **Checkpoint:** 2026-07-15
-**Status:** beta candidate work in progress
+**Status:** v1.0.0 source-deployment migration in progress
 **Branch:** `feat/signal-hud-settings-ui-isolated`
-**Main policy:** `main` must remain untouched
+**Main policy:** keep `main` unchanged until the verified PR is merged
 
 ## Completed in this checkpoint
 
-- Current version sources moved to `0.9.2-beta.1`.
-- Changelogs, README screenshots, CI candidate artifact names, installation
-  notes, roadmap, architecture, API, compatibility, and release docs aligned.
-- Active Goal documents condensed to this beta scope; historical audit prose is
-  no longer the active release authority.
-- UI font-color and Shell identity fixes plus their regression tests retained.
+- Confirmed the active target is the lightweight source-based v1.0.0 release.
+- Added schema-2 source release validation and focused TDD coverage.
+- Added source ZIP builder, exact runtime requirements, hidden launch scripts,
+  canonical multi-resolution ICO, and initial Python discovery logic.
+- Reworked install/uninstall scripts toward private dependencies, rollback, and
+  Desktop plus Start Menu shortcut contracts.
+- Promoted active runtime version sources and changelog headings to `1.0.0`.
 
-## Remaining in this checkpoint
+## Remaining
 
-- Run the complete verification and release-candidate commands.
-- Review the final diff for unrelated files and secrets.
-- Commit and push the isolated branch; verify origin and `main` refs.
-- Keep physical taskbar evidence listed as a beta/1.0 limitation.
+- Complete source smoke, launcher/discovery, shortcut, upgrade, repair, rollback,
+  uninstall, and CI tests.
+- Replace EXE-specific RC/lifecycle gates and update all active documentation.
+- Run the final single Quality and RC gates, review the complete diff, push the
+  branch, create the PR, and complete CI/merge/tag/Release/public verification.

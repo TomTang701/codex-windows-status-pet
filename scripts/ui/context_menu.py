@@ -26,6 +26,21 @@ def show_context_menu(owner, event):
         except tk.TclError:
             pass
 
+    def refresh_owner_shell_later():
+        """Re-assert the overlay style after Tk finishes popup focus changes.
+
+        A synchronous refresh can run before Windows has processed the popup's
+        focus/grab transition.  In that case the style bits look correct while
+        the Shell still retains an ordinary taskbar button.  The delayed
+        refresh mirrors the settings-dialog recovery path and lets the Shell
+        observe the final owner state.
+        """
+        try:
+            owner.after_idle(lambda: refresh_shell(owner))
+            owner.after(200, lambda: refresh_shell(owner))
+        except tk.TclError:
+            pass
+
     old_menu = getattr(owner, "context_menu", None)
     if old_menu is not None:
         try:
@@ -51,12 +66,14 @@ def show_context_menu(owner, event):
         except tk.TclError:
             pass
         refresh_shell(owner)
+        refresh_owner_shell_later()
 
     def run_and_close(command):
         close_popup()
         try:
             command()
             refresh_shell(owner)
+            refresh_owner_shell_later()
         except Exception:
             logging.getLogger("codex-status-pet").exception("context-menu command failed")
 
@@ -150,3 +167,4 @@ def show_context_menu(owner, event):
     popup.geometry(f"+{popup_x}+{popup_y}")
     popup.grab_set()
     popup.focus_force()
+    refresh_owner_shell_later()
