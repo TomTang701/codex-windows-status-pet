@@ -1,6 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$Tag
+    [string]$Tag,
+    [ValidateSet('Standalone', 'Source')]
+    [string]$Channel = 'Standalone'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,7 +33,11 @@ try {
     if ($Tag -and $release.tag_name -cne $Tag) { Fail-ReleaseBootstrap 'Release resolution' 'pinned Release tag did not resolve exactly' }
 
     $expectedVersion = $Matches[1]
-    $zipName = "CodexStatusPet-v$expectedVersion-win11-x64.zip"
+    $zipName = if ($Channel -eq 'Source') {
+        "CodexStatusPet-v$expectedVersion-source-win11-x64.zip"
+    } else {
+        "CodexStatusPet-v$expectedVersion-win11-x64.zip"
+    }
     $checksumName = "$zipName.sha256"
     $required = @($zipName, $checksumName, 'install.ps1')
     $assetMap = @{}

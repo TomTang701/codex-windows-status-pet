@@ -32,6 +32,37 @@ class ReleaseBootstrapTests(unittest.TestCase):
         self.assertEqual(getattr(selection, "checksum_url", None), "https://example.test/product.sha256")
         self.assertEqual(getattr(selection, "installer_url", None), "https://example.test/install.ps1")
 
+    def test_selects_the_explicit_source_channel_without_falling_back(self):
+        release = {
+            "tagName": "v1.1.0",
+            "isDraft": False,
+            "isPrerelease": False,
+            "assets": [
+                {"name": "CodexStatusPet-v1.1.0-win11-x64.zip", "browser_download_url": "https://example.test/standalone.zip"},
+                {"name": "CodexStatusPet-v1.1.0-win11-x64.zip.sha256", "browser_download_url": "https://example.test/standalone.sha256"},
+                {"name": "CodexStatusPet-v1.1.0-source-win11-x64.zip", "browser_download_url": "https://example.test/source.zip"},
+                {"name": "CodexStatusPet-v1.1.0-source-win11-x64.zip.sha256", "browser_download_url": "https://example.test/source.sha256"},
+                {"name": "install.ps1", "browser_download_url": "https://example.test/install.ps1"},
+            ],
+        }
+        selection = select_release_assets(release, channel="source")
+        self.assertEqual(selection.zip_name, "CodexStatusPet-v1.1.0-source-win11-x64.zip")
+        self.assertEqual(selection.channel, "source")
+
+    def test_missing_selected_channel_asset_does_not_fall_back(self):
+        release = {
+            "tagName": "v1.1.0",
+            "isDraft": False,
+            "isPrerelease": False,
+            "assets": [
+                {"name": "CodexStatusPet-v1.1.0-win11-x64.zip", "browser_download_url": "https://example.test/standalone.zip"},
+                {"name": "CodexStatusPet-v1.1.0-win11-x64.zip.sha256", "browser_download_url": "https://example.test/standalone.sha256"},
+                {"name": "install.ps1", "browser_download_url": "https://example.test/install.ps1"},
+            ],
+        }
+        with self.assertRaisesRegex(ReleaseResolutionError, "source"):
+            select_release_assets(release, channel="source")
+
     def test_default_and_pinned_release_metadata_use_public_rest_endpoints(self):
         self.assertEqual(
             getattr(release_bootstrap_api, "release_metadata_url", lambda *_: None)(),
@@ -102,6 +133,8 @@ class ReleaseBootstrapTests(unittest.TestCase):
         self.assertNotIn("$LASTEXITCODE -ne 0", bootstrap)
         self.assertNotIn("GITHUB_TOKEN", bootstrap)
         self.assertNotIn("gh auth token", bootstrap)
+        self.assertIn("[ValidateSet('Standalone', 'Source')]", bootstrap)
+        self.assertIn("[string]$Channel = 'Standalone'", bootstrap)
 
     def test_release_candidate_smoke_uses_the_published_latest_release(self):
         smoke = (Path(__file__).parents[1] / "scripts" / "release_bootstrap_smoke.py").read_text(encoding="utf-8")

@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from .release_artifact_api import release_archive_name
+from .release_artifact_api import STANDALONE_CHANNEL, normalize_channel, release_archive_name
 
 
 class ReleaseResolutionError(ValueError):
@@ -15,6 +15,7 @@ class ReleaseResolutionError(ValueError):
 @dataclass(frozen=True)
 class ReleaseAssets:
     version: str
+    channel: str
     zip_name: str
     checksum_name: str
     installer_name: str
@@ -35,7 +36,7 @@ def release_metadata_url(tag=None):
     return f"{RELEASES_API}/tags/{tag}"
 
 
-def select_release_assets(release):
+def select_release_assets(release, *, channel=STANDALONE_CHANNEL):
     """Return the required assets for one stable semantic GitHub Release."""
     if not isinstance(release, dict) or release.get("isDraft") or release.get("isPrerelease"):
         raise ReleaseResolutionError("release must be a stable published Release")
@@ -44,7 +45,11 @@ def select_release_assets(release):
     if match is None:
         raise ReleaseResolutionError("release tag must be semantic vMAJOR.MINOR.PATCH")
     version = match.group(1)
-    zip_name = release_archive_name(version)
+    try:
+        channel = normalize_channel(channel)
+    except ValueError as exc:
+        raise ReleaseResolutionError("release channel is invalid") from exc
+    zip_name = release_archive_name(version, channel=channel)
     required = (zip_name, f"{zip_name}.sha256", "install.ps1")
     assets = {
         asset.get("name"): asset
@@ -59,6 +64,7 @@ def select_release_assets(release):
         raise ReleaseResolutionError("release asset download URL is missing: " + ", ".join(missing_urls))
     return ReleaseAssets(
         version=version,
+        channel=channel,
         zip_name=zip_name,
         checksum_name=f"{zip_name}.sha256",
         installer_name="install.ps1",
