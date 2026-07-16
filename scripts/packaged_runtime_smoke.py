@@ -13,7 +13,7 @@ from pathlib import Path
 
 from api.installer_contract_api import installation_paths
 from api.release_artifact_api import RELEASE_ROOT_NAME, validate_release_archive
-from package_smoke_test import static_package_smoke
+from package_smoke_test import app_version, static_package_smoke
 
 
 @dataclass(frozen=True)
@@ -73,9 +73,9 @@ def source_entrypoint_compile(entrypoint):
 def packaged_runtime_smoke():
     if sys.platform != "win32":
         raise RuntimeError("source runtime smoke requires Windows")
-    artifact = static_package_smoke()
-    version = artifact.name.split("-v", 1)[1].split("-win11", 1)[0]
-    validate_release_archive(artifact, expected_version=version)
+    artifact = static_package_smoke(channel="source")
+    version = app_version()
+    validate_release_archive(artifact, expected_version=version, expected_channel="source")
     with tempfile.TemporaryDirectory(prefix="CodexStatusPet-runtime-") as directory:
         root = Path(directory)
         boundary = zip_direct_use_boundary(root)

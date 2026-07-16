@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from api.release_artifact_api import release_archive_name, validate_release_archive
+from api.release_artifact_api import STANDALONE_CHANNEL, normalize_channel, release_archive_name, validate_release_archive
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,11 +19,12 @@ def app_version():
     return match.group(1)
 
 
-def static_package_smoke():
+def static_package_smoke(*, channel=STANDALONE_CHANNEL):
     """Validate the exact ZIP that users would download and install."""
     version = app_version()
-    artifact = ROOT / ".build" / "release" / release_archive_name(version)
-    validate_release_archive(artifact, expected_version=version)
+    channel = normalize_channel(channel)
+    artifact = ROOT / ".build" / "release" / release_archive_name(version, channel=channel)
+    validate_release_archive(artifact, expected_version=version, expected_channel=channel)
     return artifact
 
 

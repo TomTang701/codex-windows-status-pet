@@ -29,6 +29,8 @@ class InstalledLifecycleSmokeTests(unittest.TestCase):
         self.assertIn("$_.CommandLine -and $_.CommandLine.IndexOf($root", script)
         self.assertIn("DEFAULT_SETTINGS", script)
         self.assertIn('lifecycle_settings["x"] = 4151', script)
+        self.assertIn('static_package_smoke(channel="source")', script)
+        self.assertIn("channel switch did not install the source runtime", script)
         self.assertIn("def _settings_semantics", script)
         self.assertIn('"battery_quota_source"', script)
 

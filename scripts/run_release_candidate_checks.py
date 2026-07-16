@@ -30,6 +30,7 @@ def release_candidate_commands(python=sys.executable):
         "quality": [python, str(ROOT / "scripts" / "run_quality_checks.py")],
         "release_build": [python, str(ROOT / "scripts" / "build_release.py")],
         "package_static": [python, str(ROOT / "scripts" / "package_smoke_test.py")],
+        "standalone_runtime": [python, str(ROOT / "scripts" / "standalone_runtime_smoke.py")],
         "package_runtime": [python, str(ROOT / "scripts" / "packaged_runtime_smoke.py")],
         "release_bootstrap": [python, str(ROOT / "scripts" / "release_bootstrap_smoke.py")],
         "readme_screenshots": [python, str(ROOT / "scripts" / "check_readme_screenshots.py")],

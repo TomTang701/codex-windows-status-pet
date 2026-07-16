@@ -38,6 +38,11 @@ class PackagedRuntimeSmokeTests(unittest.TestCase):
             entrypoint.write_text("print('ok')\n", encoding="utf-8")
             smoke.source_entrypoint_compile(entrypoint)
 
+    def test_source_package_uses_the_application_version_not_the_source_filename_suffix(self):
+        script = (Path(__file__).parents[1] / "scripts" / "packaged_runtime_smoke.py").read_text(encoding="utf-8")
+        self.assertIn("version = app_version()", script)
+        self.assertNotIn('split("-win11", 1)[0]', script)
+
 
 if __name__ == "__main__":
     unittest.main()

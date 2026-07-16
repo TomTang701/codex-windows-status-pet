@@ -4,6 +4,11 @@ English: [English version](CHANGELOG.md)
 
 ## 未发布
 
+## 1.1.0 - 2026-07-16
+
+- 默认发布 Standalone ZIP，内置 PyInstaller 运行时，可直接运行 `CodexStatusPet.exe`。
+- 保留需显式 `-Channel Source` 选择的源码 ZIP，并改进 Python 诊断。
+
 ## 1.0.2 - 2026-07-16
 
 - 解压产品 ZIP 后可直接运行 `launch.cmd`；首次运行会安装并启动当前解压版本，不会重复下载发布包。

@@ -27,12 +27,39 @@ class BuildReleaseTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             runtime = Path(directory) / "CodexStatusPet"
             runtime.mkdir()
-            build_release.write_manifest(runtime, "1.0.0")
+            build_release.write_manifest(runtime, "1.1.0", channel="source")
             manifest = json.loads((runtime / "release-manifest.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["schema_version"], 2)
         self.assertEqual(manifest["runtime"], "python")
         self.assertEqual(manifest["entrypoint"], "scripts/codex_status_pet.py")
         self.assertNotIn(".exe", manifest["entrypoint"])
+
+    def test_standalone_manifest_contains_the_direct_executable_entrypoint(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = Path(directory) / "CodexStatusPet"
+            runtime.mkdir()
+            build_release.write_manifest(runtime, "1.1.0", channel="standalone")
+            manifest = json.loads((runtime / "release-manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["schema_version"], 1)
+        self.assertEqual(manifest["entrypoint"], "CodexStatusPet.exe")
+        self.assertNotIn("runtime", manifest)
+
+    def test_release_build_declares_one_zip_per_channel(self):
+        artifacts = build_release.release_artifact_paths("1.1.0")
+        self.assertEqual(
+            artifacts["standalone"].name,
+            "CodexStatusPet-v1.1.0-win11-x64.zip",
+        )
+        self.assertEqual(
+            artifacts["source"].name,
+            "CodexStatusPet-v1.1.0-source-win11-x64.zip",
+        )
+
+    def test_release_build_dependencies_are_pinned_for_the_standalone_channel(self):
+        requirements = (Path(__file__).parents[1] / "requirements.txt").read_text(encoding="utf-8")
+        self.assertIn("PyInstaller==6.16.0", requirements)
+        self.assertIn("Pillow==12.2.0", requirements)
+        self.assertIn("pystray==0.19.5", requirements)
 
     def test_source_tree_copy_excludes_development_material(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -38,6 +38,25 @@ class InstallerContractTests(unittest.TestCase):
         self.assertIn("Pillow==12.2.0", (Path(__file__).parents[1] / "requirements-runtime.txt").read_text(encoding="utf-8"))
         self.assertIn("pystray==0.19.5", (Path(__file__).parents[1] / "requirements-runtime.txt").read_text(encoding="utf-8"))
 
+    def test_standalone_installation_skips_python_discovery_and_private_pip(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        self.assertIn("$standalone = $manifest.schema_version -eq 1", installer)
+        self.assertIn("standalone runtime material is missing", installer)
+        standalone = installer.index("$standalone =")
+        source_runtime = installer.index("if ($source) {")
+        python_discovery = installer.index("$python = Find-CompatiblePython")
+        self.assertLess(standalone, source_runtime)
+        self.assertLess(source_runtime, python_discovery)
+        self.assertIn("-Legacy:$standalone", installer)
+        self.assertIn("if ($standalone) {", installer)
+
+    def test_source_python_discovery_enumerates_candidates_and_reports_rejections(self):
+        installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
+        self.assertIn("py.exe", installer)
+        self.assertIn("-0p", installer)
+        self.assertIn("Checked Python candidates:", installer)
+        self.assertIn("Rejected", installer)
+
     def test_installer_keeps_existing_single_instance_contract_available_to_runtime(self):
         installer = (Path(__file__).parents[1] / "install.ps1").read_text(encoding="utf-8")
         self.assertEqual(SINGLE_INSTANCE_MUTEX_NAME, "Local\\CodexWindowsStatusPet")

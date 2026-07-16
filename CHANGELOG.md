@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-07-16
+
+- Added the default Standalone ZIP with its bundled PyInstaller runtime, direct `CodexStatusPet.exe` launch, and a dedicated SHA-256 sidecar.
+- Kept the Python-based Source ZIP behind explicit `-Channel Source` selection and improved its compatible-Python diagnostics.
+- Kept one transactional installer for upgrades, channel switches, rollback, shortcuts, and uninstall behavior.
+
 ## 1.0.2 - 2026-07-16
 
 - Made `launch.cmd` install and start an unconfigured extracted product ZIP without downloading the release again.

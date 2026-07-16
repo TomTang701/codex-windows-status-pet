@@ -80,44 +80,87 @@ p = {
 try:
     import tkinter
     p['tkinter'] = True
-except Exception:
+except Exception as error:
     p['tkinter'] = False
+    p['tkinter_error'] = str(error)
 try:
     import pip
     p['pip'] = True
-except Exception:
+except Exception as error:
     p['pip'] = False
+    p['pip_error'] = str(error)
 print(json.dumps(p))
 '@
     try {
         $arguments = @()
         if ($Command.Length -gt 1) { $arguments = $Command[1..($Command.Length - 1)] }
         $output = & $Command[0] @arguments -c $probe 2>$null
-        if ($LASTEXITCODE -ne 0) { return $null }
+        if ($LASTEXITCODE -ne 0) {
+            return [pscustomobject]@{ Path = $Command[0]; Error = "probe exited with code $LASTEXITCODE" }
+        }
         return ($output -join '') | ConvertFrom-Json
     }
-    catch { return $null }
+    catch { return [pscustomobject]@{ Path = $Command[0]; Error = $_.Exception.Message } }
 }
 
 function Find-CompatiblePython {
-    $candidates = @()
+    $candidates = [System.Collections.Generic.List[object]]::new()
+    $seen = @{}
+    function Add-PythonCandidate {
+        param([string]$Source, [string]$Path)
+        if ([string]::IsNullOrWhiteSpace($Path) -or !(Test-Path -LiteralPath $Path)) { return }
+        $fullPath = [IO.Path]::GetFullPath($Path)
+        if (!$seen.ContainsKey($fullPath)) {
+            $seen[$fullPath] = $true
+            [void]$candidates.Add([pscustomobject]@{ Source = $Source; Command = @($fullPath) })
+        }
+    }
     $bundled = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
-    if (Test-Path -LiteralPath $bundled) { $candidates += ,@('codex', @($bundled)) }
+    Add-PythonCandidate 'codex bundled runtime' $bundled
     $py = Get-Command py.exe -ErrorAction SilentlyContinue
-    if ($py) { $candidates += ,@('py', @($py.Source, '-3')) }
+    if ($py) {
+        $pyPaths = & $py.Source -0p 2>$null
+        foreach ($line in @($pyPaths)) {
+            if ($line -match '([A-Za-z]:\\.*?python(?:w)?\.exe)\s*$') { Add-PythonCandidate 'py.exe -0p' $Matches[1] }
+        }
+    }
     $pathPython = Get-Command python.exe -ErrorAction SilentlyContinue
-    if ($pathPython) { $candidates += ,@('path', @($pathPython.Source)) }
-    foreach ($candidate in $candidates) {
-        $probe = Get-PythonProbe $candidate[1]
-        if ($probe -and $probe.version[0] -ge 3 -and (($probe.version[0] -gt 3) -or $probe.version[1] -ge 10) -and $probe.bits -eq 64 -and $probe.tkinter -and $probe.pip) {
-            $python = [IO.Path]::GetFullPath([string]$probe.path)
-            $pythonw = Join-Path (Split-Path -Parent $python) 'pythonw.exe'
-            if (Test-Path -LiteralPath $pythonw) {
-                return [pscustomobject]@{ Path = $python; Pythonw = $pythonw; Source = $candidate[0]; Version = "$($probe.version[0]).$($probe.version[1])" }
+    if ($pathPython) { Add-PythonCandidate 'PATH python.exe' $pathPython.Source }
+    $knownPythonRoots = @(
+        (Join-Path $env:LOCALAPPDATA 'Programs\Python'),
+        (Join-Path $env:ProgramFiles 'Python')
+    )
+    foreach ($knownRoot in $knownPythonRoots) {
+        if (Test-Path -LiteralPath $knownRoot) {
+            Get-ChildItem -LiteralPath $knownRoot -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+                Add-PythonCandidate 'known Python installation' (Join-Path $_.FullName 'python.exe')
             }
         }
     }
-    throw 'No compatible Python 3.10+ x64 runtime with Tkinter, pip, and pythonw.exe was found.'
+    $diagnostics = @()
+    foreach ($candidate in $candidates) {
+        $probe = Get-PythonProbe $candidate.Command
+        if ($probe.Error) {
+            $diagnostics += "$($candidate.Source): $($candidate.Command[0]) Rejected: $($probe.Error)"
+            continue
+        }
+        $reasons = @()
+        if ($probe.version[0] -lt 3 -or ($probe.version[0] -eq 3 -and $probe.version[1] -lt 10)) { $reasons += 'requires Python 3.10+' }
+        if ($probe.bits -ne 64) { $reasons += 'requires x64' }
+        if (!$probe.tkinter) { $reasons += 'Tkinter is unavailable' }
+        if (!$probe.pip) { $reasons += 'pip is unavailable' }
+        if ($reasons.Count -eq 0) {
+            $python = [IO.Path]::GetFullPath([string]$probe.path)
+            $pythonw = Join-Path (Split-Path -Parent $python) 'pythonw.exe'
+            if (Test-Path -LiteralPath $pythonw) {
+                return [pscustomobject]@{ Path = $python; Pythonw = $pythonw; Source = $candidate.Source; Version = "$($probe.version[0]).$($probe.version[1])" }
+            }
+            $reasons += 'pythonw.exe is unavailable'
+        }
+        $diagnostics += "$($candidate.Source): $($candidate.Command[0]) Rejected: $($reasons -join '; ')"
+    }
+    $details = if ($diagnostics.Count) { $diagnostics -join [Environment]::NewLine } else { 'No Python executables were discovered.' }
+    throw "No compatible Python 3.10+ x64 runtime with Tkinter, pip, and pythonw.exe was found. Checked Python candidates:`n$details"
 }
 
 function New-Shortcut {
@@ -156,12 +199,18 @@ try {
     $manifestPath = Join-Path $runtime 'release-manifest.json'
     if (!(Test-Path -LiteralPath $manifestPath)) { throw 'Release manifest is missing.' }
     $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-    $legacy = $manifest.schema_version -eq 1 -and $manifest.product -eq 'codex-windows-status-pet' -and $manifest.version -eq $ExpectedVersion -and $manifest.platform -eq 'windows' -and $manifest.arch -eq 'x64' -and $manifest.entrypoint -eq 'CodexStatusPet.exe'
+    $standalone = $manifest.schema_version -eq 1 -and $manifest.product -eq 'codex-windows-status-pet' -and $manifest.version -eq $ExpectedVersion -and $manifest.platform -eq 'windows' -and $manifest.arch -eq 'x64' -and $manifest.entrypoint -eq 'CodexStatusPet.exe'
     $source = $manifest.schema_version -eq 2 -and $manifest.product -eq 'codex-windows-status-pet' -and $manifest.version -eq $ExpectedVersion -and $manifest.platform -eq 'windows' -and $manifest.arch -eq 'x64' -and $manifest.runtime -eq 'python' -and $manifest.entrypoint -eq 'scripts/codex_status_pet.py' -and $manifest.launcher -eq 'launch.vbs' -and $manifest.icon -eq 'assets/CodexStatusPet.ico'
-    if (!$legacy -and !$source) { throw 'Release manifest is invalid.' }
+    if (!$standalone -and !$source) { throw 'Release manifest is invalid.' }
     if (!(Test-Path -LiteralPath (Join-Path $runtime $manifest.entrypoint))) { throw 'Release entry point is missing.' }
+    if ($standalone) {
+        $internal = Join-Path $runtime '_internal'
+        if (!(Test-Path -LiteralPath $internal) -or !(Get-ChildItem -LiteralPath $internal -Recurse -File | Select-Object -First 1)) {
+            throw 'standalone runtime material is missing.'
+        }
+    }
     if ($source -and !(Test-Path -LiteralPath (Join-Path $runtime 'launch.cmd'))) { throw 'CMD fallback launcher is missing.' }
-    if ($source -and (Get-ChildItem -LiteralPath $runtime -Recurse -File | Where-Object { $_.Extension -in @('.exe', '.pyc', '.pyo') -or $_.Name -eq '_internal' })) { throw 'Source package contains prohibited executable runtime material.' }
+    if ($source -and ((Test-Path -LiteralPath (Join-Path $runtime '_internal')) -or (Get-ChildItem -LiteralPath $runtime -Recurse -File | Where-Object { $_.Extension -in @('.exe', '.pyc', '.pyo') }))) { throw 'Source package contains prohibited executable runtime material.' }
 
     if ($source) {
         $python = Find-CompatiblePython
@@ -182,9 +231,9 @@ try {
     $desktop = [Environment]::GetFolderPath('Desktop')
     $programs = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'
     New-Item -ItemType Directory -Force -Path $desktop, $programs | Out-Null
-    New-Shortcut (Join-Path $desktop 'Codex Windows Status Pet.lnk') $installRoot $icon -Legacy:$legacy
-    New-Shortcut (Join-Path $programs 'Codex Windows Status Pet.lnk') $installRoot $icon -Legacy:$legacy
-    if ($legacy) {
+    New-Shortcut (Join-Path $desktop 'Codex Windows Status Pet.lnk') $installRoot $icon -Legacy:$standalone
+    New-Shortcut (Join-Path $programs 'Codex Windows Status Pet.lnk') $installRoot $icon -Legacy:$standalone
+    if ($standalone) {
         Start-Process -FilePath (Join-Path $installRoot 'CodexStatusPet.exe') -WorkingDirectory $installRoot -WindowStyle Hidden
     } else {
         Start-Process -FilePath (Join-Path $installRoot 'launch.vbs') -WorkingDirectory $installRoot -WindowStyle Hidden

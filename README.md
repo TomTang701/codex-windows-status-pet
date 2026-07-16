@@ -18,16 +18,14 @@ Supported platform: Windows 11 x64. Windows 10 is Deferred, Not claimed, and Non
 - Weekly quota and the earliest future reset-credit expiry use local `HH:MM M/D` formatting without leading zeroes.
 - Settings actions: Save, Apply, Restore Defaults, and Close.
 - Context menu: localized Settings, topmost, lock, and persisted manual Compact controls. Notification-area menu: show, hide, open settings, and exit.
-- The installed product runs from source with the selected Python runtime through hidden `launch.vbs`; no persistent command prompt window is required. A visible `launch.cmd` fallback is also installed at `%LOCALAPPDATA%\Programs\CodexStatusPet` for direct troubleshooting or manual startup.
-- The installer keeps Pillow and pystray private under the product directory and does not install an automatic sign-in entry.
+- The default installed product runs from a bundled Windows executable; no system Python, pip invocation, or PATH change is required.
 
 ## Packaged release quick start
 
-For normal use, run the public bootstrap below. It downloads the exact product
-ZIP, verifies its SHA-256 sidecar, detects a compatible x64 Python 3.10+
-runtime, installs private Pillow/pystray dependencies, and creates Desktop and
-Start Menu shortcuts. The package contains source and launch scripts; it does
-not contain `CodexStatusPet.exe`, PyInstaller, or bundled Python.
+For normal use, run the public bootstrap below. It downloads the Standalone
+product ZIP, verifies its SHA-256 sidecar, and creates Desktop and Start Menu
+shortcuts. The package includes `CodexStatusPet.exe`, its `_internal` runtime,
+and all application dependencies; the target device does not need Python.
 
 ## Quick Install and upgrade (public repository)
 
@@ -45,7 +43,7 @@ verified same-version repair. To pin an exact stable version, add `-Tag` after
 the downloaded bootstrap has been invoked:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.0.2"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Tag v1.1.0"
 ```
 
 The bootstrap verifies the exact ZIP and SHA-256 sidecar, preserves
@@ -58,21 +56,25 @@ The GitHub **Code -> Download ZIP** action and a `Source code (zip)` Release
 asset are source archives, not the product package. Use the versioned product
 ZIP named `CodexStatusPet-vX.Y.Z-win11-x64.zip` or the public bootstrap above.
 
-For an exact local-version install, download
-`CodexStatusPet-v1.0.2-win11-x64.zip` from the official Release, extract the
-complete `CodexStatusPet` directory, and double-click `launch.cmd`. On first
-run it installs that extracted version without downloading the ZIP again;
-later runs start the configured copy. The public bootstrap remains the
-recommended checksum-verified path for latest-version install, repair, and
-upgrade. Manual ZIP users may verify the published `.sha256` sidecar.
+For direct portable use, download `CodexStatusPet-v1.1.0-win11-x64.zip`,
+extract the complete `CodexStatusPet` directory, and run `CodexStatusPet.exe`.
+Keep `_internal` beside the EXE. This mode does not create shortcuts or install
+anything globally. The public bootstrap remains the recommended
+checksum-verified path for latest-version install, repair, and upgrade.
 
-If the Desktop shortcut does not open the pet, run the fallback launcher from
-PowerShell with `& "$env:LOCALAPPDATA\Programs\CodexStatusPet\launch.cmd"`.
-The same launcher can be started from Command Prompt with
-`"%LOCALAPPDATA%\Programs\CodexStatusPet\launch.cmd"`.
+### Source package (developers)
 
-The Desktop and Start Menu shortcuts continue to use the hidden `launch.vbs`
-entry point, so normal startup does not leave a command prompt window open.
+Developers who specifically need the source distribution may select it with
+`-Channel Source`; it uses the same application version but requires x64 Python
+3.10+, Tkinter, pip, and `pythonw.exe`. It does not install Python globally or
+modify PATH:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& ([scriptblock]::Create((Invoke-RestMethod 'https://github.com/TomTang701/codex-windows-status-pet/releases/latest/download/CodexStatusPet-bootstrap.ps1'))) -Channel Source -Tag v1.1.0"
+```
+
+The Source ZIP is named `CodexStatusPet-v1.1.0-source-win11-x64.zip` and
+retains `launch.cmd` for troubleshooting.
 
 ## Notification-area tray icon
 
@@ -85,7 +87,7 @@ from Windows system icons because it has the light-blue face on the navy tile.
 
 ![CodexStatusPet tray icon](docs/assets/tray-icon.png)
 
-## Current v1.0.2 UI screenshots
+## Current v1.1.0 UI screenshots
 
 The screenshots below show the current Signal HUD overlay, compact battery,
 localized context menus, and transactional Settings surfaces on Windows 11.

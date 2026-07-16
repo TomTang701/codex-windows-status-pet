@@ -1,6 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$Tag
+    [string]$Tag,
+    [ValidateSet('Standalone', 'Source')]
+    [string]$Channel = 'Standalone'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -8,7 +10,7 @@ $repository = 'TomTang701/codex-windows-status-pet'
 $releasesApi = "https://api.github.com/repos/$repository/releases"
 $headers = @{
     Accept = 'application/vnd.github+json'
-    'User-Agent' = 'CodexStatusPet-public-bootstrap/1.0.2'
+    'User-Agent' = 'CodexStatusPet-public-bootstrap/1.1.0'
 }
 $staging = Join-Path ([IO.Path]::GetTempPath()) "CodexStatusPet-release-$([guid]::NewGuid())"
 
@@ -31,7 +33,11 @@ try {
     if ($Tag -and $release.tag_name -cne $Tag) { Fail-ReleaseBootstrap 'Release resolution' 'pinned Release tag did not resolve exactly' }
 
     $expectedVersion = $Matches[1]
-    $zipName = "CodexStatusPet-v$expectedVersion-win11-x64.zip"
+    $zipName = if ($Channel -eq 'Source') {
+        "CodexStatusPet-v$expectedVersion-source-win11-x64.zip"
+    } else {
+        "CodexStatusPet-v$expectedVersion-win11-x64.zip"
+    }
     $checksumName = "$zipName.sha256"
     $required = @($zipName, $checksumName, 'install.ps1')
     $assetMap = @{}
