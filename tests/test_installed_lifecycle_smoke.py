@@ -22,6 +22,10 @@ from installed_lifecycle_smoke import (
 
 
 class InstalledLifecycleSmokeTests(unittest.TestCase):
+    def test_source_repairs_stop_the_launched_process_before_settings_assertions(self):
+        script = (Path(__file__).parents[1] / "scripts" / "installed_lifecycle_smoke.py").read_text(encoding="utf-8")
+        self.assertGreaterEqual(script.count("_stop_installed_processes(paths.install_root)"), 4)
+
     def test_windows_powershell_executable_uses_the_system_powershell_51_path(self):
         self.assertEqual(
             windows_powershell_executable(Path("C:/Windows")),

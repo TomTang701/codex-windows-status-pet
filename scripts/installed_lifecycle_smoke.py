@@ -183,12 +183,14 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
         paths.settings_file.write_bytes(expected_settings)
 
         _install(artifact)
+        _stop_installed_processes(paths.install_root)
         if _installed_manifest_version(paths.install_root) != target_version:
             raise RuntimeError("upgrade did not install the candidate manifest version")
         if paths.settings_file.read_bytes() != expected_settings or not sentinel.exists():
             raise RuntimeError("upgrade did not preserve settings bytes and unrelated Codex data")
 
         _install(artifact)
+        _stop_installed_processes(paths.install_root)
         if _installed_manifest_version(paths.install_root) != target_version or paths.settings_file.read_bytes() != expected_settings:
             raise RuntimeError("same-version repair did not preserve the installed release and settings bytes")
 
@@ -210,6 +212,7 @@ def installed_lifecycle_smoke(*, previous_artifact=None):
         if paths.settings_file.read_bytes() != expected_settings:
             raise RuntimeError("normal uninstall did not preserve settings bytes")
         _install(artifact)
+        _stop_installed_processes(paths.install_root)
         _powershell_file(paths.install_root / "uninstall.ps1", "-PurgeSettings")
         if paths.install_root.exists() or paths.shortcut.exists() or paths.settings_file.exists():
             raise RuntimeError("purge uninstall did not remove the product settings file")
