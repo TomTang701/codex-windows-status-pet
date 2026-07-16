@@ -1,4 +1,4 @@
-"""Pure validation for the lightweight source-based Windows release."""
+"""Pure naming and validation for the two Windows release channels."""
 
 from __future__ import annotations
 
@@ -8,14 +8,17 @@ import re
 import tempfile
 import zipfile
 from dataclasses import dataclass
-from pathlib import Path
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 
 RELEASE_ROOT_NAME = "CodexStatusPet"
-ENTRYPOINT = "scripts/codex_status_pet.py"
-REQUIRED_FILES = frozenset({
-    ENTRYPOINT,
+STANDALONE_CHANNEL = "standalone"
+SOURCE_CHANNEL = "source"
+CHANNELS = frozenset({STANDALONE_CHANNEL, SOURCE_CHANNEL})
+SOURCE_ENTRYPOINT = "scripts/codex_status_pet.py"
+STANDALONE_ENTRYPOINT = "CodexStatusPet.exe"
+SOURCE_REQUIRED_FILES = frozenset({
+    SOURCE_ENTRYPOINT,
     "launch.vbs",
     "launch.ps1",
     "launch.cmd",
@@ -27,9 +30,17 @@ REQUIRED_FILES = frozenset({
     "THIRD_PARTY_NOTICES.md",
     "assets/CodexStatusPet.ico",
 })
-PROHIBITED_PARTS = frozenset({
+STANDALONE_REQUIRED_FILES = frozenset({
+    STANDALONE_ENTRYPOINT,
+    "release-manifest.json",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "uninstall.ps1",
+    "assets/CodexStatusPet.ico",
+})
+COMMON_PROHIBITED_PARTS = frozenset({
     "tests", "docs", "Goal", "skills", ".git", ".github", ".githooks",
-    ".codex-plugin", ".build", "__pycache__", "_internal",
+    ".codex-plugin", ".build", "__pycache__",
 })
 PINNED_RUNTIME_REQUIREMENTS = "Pillow==12.2.0\npystray==0.19.5\n"
 
@@ -38,13 +49,22 @@ PINNED_RUNTIME_REQUIREMENTS = "Pillow==12.2.0\npystray==0.19.5\n"
 class ReleaseManifest:
     version: str
     runtime: str = "python"
-    entrypoint: str = ENTRYPOINT
+    entrypoint: str = SOURCE_ENTRYPOINT
     launcher: str = "launch.vbs"
     icon: str = "assets/CodexStatusPet.ico"
 
 
-def release_archive_name(version):
-    return f"CodexStatusPet-v{version}-win11-x64.zip"
+def normalize_channel(channel):
+    normalized = str(channel).lower()
+    if normalized not in CHANNELS:
+        raise ValueError("release channel is invalid")
+    return normalized
+
+
+def release_archive_name(version, *, channel=STANDALONE_CHANNEL):
+    channel = normalize_channel(channel)
+    source_suffix = "-source" if channel == SOURCE_CHANNEL else ""
+    return f"CodexStatusPet-v{version}{source_suffix}-win11-x64.zip"
 
 
 def sha256_file(path):
@@ -55,10 +75,21 @@ def sha256_file(path):
     return digest.hexdigest()
 
 
-def validate_release_archive(artifact, *, expected_version):
+def _channel_from_archive_name(name, version):
+    for channel in (STANDALONE_CHANNEL, SOURCE_CHANNEL):
+        if name == release_archive_name(version, channel=channel):
+            return channel
+    raise ValueError("release archive name is invalid")
+
+
+def validate_release_archive(artifact, *, expected_version, expected_channel=None):
     artifact = Path(artifact)
-    expected_name = release_archive_name(expected_version)
-    if artifact.name != expected_name:
+    channel = (
+        normalize_channel(expected_channel)
+        if expected_channel is not None
+        else _channel_from_archive_name(artifact.name, expected_version)
+    )
+    if artifact.name != release_archive_name(expected_version, channel=channel):
         raise ValueError("release archive name is invalid")
     sidecar = artifact.with_suffix(artifact.suffix + ".sha256")
     try:
@@ -88,52 +119,94 @@ def validate_release_archive(artifact, *, expected_version):
                 return validate_release_root(
                     Path(directory) / RELEASE_ROOT_NAME,
                     expected_version=expected_version,
+                    expected_channel=channel,
                 )
     except zipfile.BadZipFile as exc:
         raise ValueError("release archive is invalid") from exc
 
 
-def validate_release_root(root, *, expected_version):
-    root = Path(root)
-    missing = [name for name in REQUIRED_FILES if not (root / name).is_file()]
-    if missing:
-        raise ValueError("missing required runtime files: " + ", ".join(sorted(missing)))
-    prohibited = []
-    for path in root.rglob("*"):
-        relative = path.relative_to(root)
-        parts = relative.parts
-        if any(part in PROHIBITED_PARTS for part in parts):
-            prohibited.append(relative.as_posix())
-        if path.is_file() and (path.suffix.lower() in {".exe", ".pyc", ".pyo"} or (path.name.lower().startswith("python") and path.suffix.lower() != ".py")):
-            prohibited.append(relative.as_posix())
-    if prohibited:
-        raise ValueError("prohibited release material: " + ", ".join(sorted(set(prohibited))))
+def _read_manifest(root):
     try:
-        payload = json.loads((root / "release-manifest.json").read_text(encoding="utf-8"))
+        return json.loads((root / "release-manifest.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise ValueError("invalid release manifest") from exc
-    required = {
-        "schema_version": 2,
+
+
+def _manifest_channel(payload):
+    if payload.get("schema_version") == 1 and payload.get("entrypoint") == STANDALONE_ENTRYPOINT:
+        return STANDALONE_CHANNEL
+    if payload.get("schema_version") == 2 and payload.get("runtime") == "python":
+        return SOURCE_CHANNEL
+    raise ValueError("release manifest channel is invalid")
+
+
+def _validate_common_manifest(payload, expected_version):
+    for key, expected in {
         "product": "codex-windows-status-pet",
         "display_name": "Codex Windows Status Pet",
         "version": expected_version,
         "platform": "windows",
         "arch": "x64",
-        "runtime": "python",
-        "minimum_python": "3.10",
-        "entrypoint": ENTRYPOINT,
-        "launcher": "launch.vbs",
-        "icon": "assets/CodexStatusPet.ico",
-    }
+    }.items():
+        if payload.get(key) != expected:
+            raise ValueError(f"release manifest {key} is invalid")
+
+
+def validate_release_root(root, *, expected_version, expected_channel=None):
+    root = Path(root)
+    payload = _read_manifest(root)
+    channel = _manifest_channel(payload)
+    if expected_channel is not None and channel != normalize_channel(expected_channel):
+        raise ValueError("release manifest channel is invalid")
+
+    required_files = SOURCE_REQUIRED_FILES if channel == SOURCE_CHANNEL else STANDALONE_REQUIRED_FILES
+    missing = [name for name in required_files if not (root / name).is_file()]
+    if missing:
+        raise ValueError("missing required runtime files: " + ", ".join(sorted(missing)))
+    if channel == STANDALONE_CHANNEL:
+        internal = root / "_internal"
+        if not internal.is_dir() or not any(path.is_file() for path in internal.rglob("*")):
+            raise ValueError("standalone runtime material is missing")
+
+    prohibited = []
+    for path in root.rglob("*"):
+        relative = path.relative_to(root)
+        parts = relative.parts
+        if any(part in COMMON_PROHIBITED_PARTS for part in parts):
+            prohibited.append(relative.as_posix())
+        if channel == SOURCE_CHANNEL and path.is_file() and (
+            path.suffix.lower() in {".exe", ".pyc", ".pyo"}
+            or path.name.lower().startswith("python") and path.suffix.lower() != ".py"
+            or "_internal" in parts
+        ):
+            prohibited.append(relative.as_posix())
+    if prohibited:
+        raise ValueError("prohibited release material: " + ", ".join(sorted(set(prohibited))))
+
+    _validate_common_manifest(payload, expected_version)
+    if channel == SOURCE_CHANNEL:
+        required = {
+            "schema_version": 2,
+            "runtime": "python",
+            "minimum_python": "3.10",
+            "entrypoint": SOURCE_ENTRYPOINT,
+            "launcher": "launch.vbs",
+            "icon": "assets/CodexStatusPet.ico",
+        }
+        if (root / "requirements-runtime.txt").read_text(encoding="utf-8") != PINNED_RUNTIME_REQUIREMENTS:
+            raise ValueError("runtime requirements are not pinned to the tested versions")
+    else:
+        required = {
+            "schema_version": 1,
+            "entrypoint": STANDALONE_ENTRYPOINT,
+        }
     for key, expected in required.items():
         if payload.get(key) != expected:
             raise ValueError(f"release manifest {key} is invalid")
-    if (root / "requirements-runtime.txt").read_text(encoding="utf-8") != PINNED_RUNTIME_REQUIREMENTS:
-        raise ValueError("runtime requirements are not pinned to the tested versions")
     return ReleaseManifest(
         version=payload["version"],
-        runtime=payload["runtime"],
+        runtime="standalone" if channel == STANDALONE_CHANNEL else payload["runtime"],
         entrypoint=payload["entrypoint"],
-        launcher=payload["launcher"],
-        icon=payload["icon"],
+        launcher=payload.get("launcher", ""),
+        icon=payload.get("icon", "assets/CodexStatusPet.ico"),
     )

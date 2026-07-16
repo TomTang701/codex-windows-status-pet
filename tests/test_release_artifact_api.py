@@ -18,6 +18,27 @@ from api.release_artifact_api import (
 
 
 class ReleaseArtifactTests(unittest.TestCase):
+    def write_standalone_root(self, root, *, manifest=None):
+        runtime = root / RELEASE_ROOT_NAME
+        (runtime / "_internal").mkdir(parents=True)
+        (runtime / "assets").mkdir()
+        (runtime / "CodexStatusPet.exe").write_bytes(b"exe")
+        (runtime / "_internal" / "python313.dll").write_bytes(b"runtime")
+        (runtime / "assets" / "CodexStatusPet.ico").write_bytes(b"ico")
+        (runtime / "LICENSE").write_text("MIT", encoding="utf-8")
+        (runtime / "THIRD_PARTY_NOTICES.md").write_text("notices", encoding="utf-8")
+        (runtime / "uninstall.ps1").write_text("uninstaller", encoding="utf-8")
+        (runtime / "release-manifest.json").write_text(json.dumps(manifest or {
+            "schema_version": 1,
+            "product": "codex-windows-status-pet",
+            "display_name": "Codex Windows Status Pet",
+            "version": "1.1.0",
+            "platform": "windows",
+            "arch": "x64",
+            "entrypoint": "CodexStatusPet.exe",
+        }), encoding="utf-8")
+        return runtime
+
     def write_runtime_root(self, root, *, manifest=None):
         runtime = root / RELEASE_ROOT_NAME
         (runtime / "scripts").mkdir(parents=True)
@@ -66,17 +87,44 @@ class ReleaseArtifactTests(unittest.TestCase):
             self.assertEqual(artifact.name, "CodexStatusPet-v1.0.0-win11-x64.zip")
             self.assertEqual(sha256_file(artifact), "d97973705307089bea79cbed5fe81f5eaeb2fe9d6c72b3e9137493f0056979a4")
 
+    def test_dual_channel_archive_names_keep_standalone_as_the_default(self):
+        self.assertEqual(release_archive_name("1.1.0"), "CodexStatusPet-v1.1.0-win11-x64.zip")
+        self.assertEqual(
+            release_archive_name("1.1.0", channel="source"),
+            "CodexStatusPet-v1.1.0-source-win11-x64.zip",
+        )
+
+    def test_standalone_root_requires_the_executable_and_pyinstaller_runtime(self):
+        with tempfile.TemporaryDirectory() as directory:
+            manifest = validate_release_root(
+                self.write_standalone_root(Path(directory)),
+                expected_version="1.1.0",
+                expected_channel="standalone",
+            )
+        self.assertEqual(manifest.runtime, "standalone")
+        self.assertEqual(manifest.entrypoint, "CodexStatusPet.exe")
+
+    def test_standalone_root_rejects_a_missing_pyinstaller_runtime(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = self.write_standalone_root(Path(directory))
+            (runtime / "_internal" / "python313.dll").unlink()
+            with self.assertRaisesRegex(ValueError, "runtime"):
+                validate_release_root(runtime, expected_version="1.1.0", expected_channel="standalone")
+
     def test_release_archive_validates_checksum_and_single_source_root(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             runtime = self.write_runtime_root(root)
-            artifact = root / release_archive_name("1.0.0")
+            artifact = root / release_archive_name("1.0.0", channel="source")
             with zipfile.ZipFile(artifact, "w") as archive:
                 for path in runtime.rglob("*"):
                     if path.is_file():
                         archive.write(path, path.relative_to(root).as_posix())
             artifact.with_suffix(artifact.suffix + ".sha256").write_text(f"{sha256_file(artifact)}  {artifact.name}\n", encoding="ascii")
-            self.assertEqual(validate_release_archive(artifact, expected_version="1.0.0"), ReleaseManifest("1.0.0"))
+            self.assertEqual(
+                validate_release_archive(artifact, expected_version="1.0.0", expected_channel="source"),
+                ReleaseManifest("1.0.0"),
+            )
 
             with zipfile.ZipFile(artifact, "a") as archive:
                 archive.writestr("README.md", "not a runtime file")
